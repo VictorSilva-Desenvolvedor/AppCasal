@@ -10,6 +10,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const userRoutes = require('./routes/userRoutes');
+const activityLogRoutes = require('./routes/activityLogRoutes');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

@@ -31,8 +31,10 @@ const el = {
   navItems: document.querySelectorAll('.sidebar-nav-item'),
   viewCalendar: document.getElementById('view-calendar'),
   viewSettings: document.getElementById('view-settings'),
+  viewActivity: document.getElementById('view-activity'),
   upcomingList: document.getElementById('upcoming-events-list'),
   usersList: document.getElementById('users-list'),
+  activityLogList: document.getElementById('activity-log-list'),
 
   filterSearch: document.getElementById('filter-search'),
   filterCreator: document.getElementById('filter-creator'),
@@ -62,6 +64,7 @@ const el = {
   eventDate: document.getElementById('event-date'),
   eventTitle: document.getElementById('event-title'),
   eventDescription: document.getElementById('event-description'),
+  eventRecurring: document.getElementById('event-recurring'),
   eventFiles: document.getElementById('event-files'),
   attachmentsPreview: document.getElementById('event-attachments-preview'),
   formError: document.getElementById('form-error'),
@@ -112,9 +115,30 @@ function filteredEvents() {
   return state.events.filter(matchesFilters);
 }
 
+function matchesDateKey(event, dateKey) {
+  const eventDate = new Date(event.date);
+  if (toDateKey(eventDate) === dateKey) return true;
+  if (!event.recurring) return false;
+
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return y > eventDate.getFullYear() && eventDate.getMonth() + 1 === m && eventDate.getDate() === d;
+}
+
+function nextOccurrenceDate(event) {
+  const original = new Date(event.date);
+  if (!event.recurring) return original;
+
+  const today = new Date();
+  let candidate = new Date(today.getFullYear(), original.getMonth(), original.getDate(), 12, 0, 0);
+  if (toDateKey(candidate) < toDateKey(today)) {
+    candidate = new Date(today.getFullYear() + 1, original.getMonth(), original.getDate(), 12, 0, 0);
+  }
+  return candidate;
+}
+
 function eventsByDateKey(dateKey) {
   return filteredEvents()
-    .filter((event) => toDateKey(new Date(event.date)) === dateKey)
+    .filter((event) => matchesDateKey(event, dateKey))
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
@@ -151,8 +175,9 @@ function renderUsersSidebar() {
 function renderUpcomingEvents() {
   const todayKey = toDateKey(new Date());
   const upcoming = filteredEvents()
-    .filter((event) => toDateKey(new Date(event.date)) >= todayKey)
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .map((event) => ({ event, occurrence: nextOccurrenceDate(event) }))
+    .filter(({ occurrence }) => toDateKey(occurrence) >= todayKey)
+    .sort((a, b) => a.occurrence - b.occurrence)
     .slice(0, 5);
 
   if (upcoming.length === 0) {
@@ -161,13 +186,14 @@ function renderUpcomingEvents() {
   }
 
   el.upcomingList.innerHTML = upcoming
-    .map((event) => {
-      const dateKey = toDateKey(new Date(event.date));
+    .map(({ event, occurrence }) => {
+      const dateKey = toDateKey(occurrence);
       const [, m, d] = dateKey.split('-');
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
+      const recurringIcon = event.recurring ? '🔁 ' : '';
       return `
         <div class="sidebar-list-item is-clickable" data-date="${dateKey}">
-          <span><span class="person-dot" style="background:${dotColor}"></span>${escapeHtml(event.title)}</span>
+          <span><span class="person-dot" style="background:${dotColor}"></span>${recurringIcon}${escapeHtml(event.title)}</span>
           <span>${d}/${m}</span>
         </div>
       `;
@@ -179,17 +205,75 @@ function renderUpcomingEvents() {
   });
 }
 
+/* ---------- Log de atividades ---------- */
+
+const ACTION_LABELS = {
+  created: 'criou',
+  updated: 'editou',
+  deleted: 'excluiu',
+};
+
+function formatLogTimestamp(date) {
+  return new Date(date).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function renderActivityLog(logs) {
+  if (logs.length === 0) {
+    el.activityLogList.innerHTML = '<p class="sidebar-empty">Nenhuma atividade registrada ainda</p>';
+    return;
+  }
+
+  el.activityLogList.innerHTML = logs
+    .map((log) => {
+      const dotColor = log.actor ? personColorFor(log.actor._id) : 'var(--color-text-muted)';
+      const actorName = log.actor?.name || 'desconhecido';
+      const actionLabel = ACTION_LABELS[log.action] || log.action;
+      return `
+        <div class="activity-feed-item activity-feed-item--${log.action}">
+          <div class="activity-feed-item-header">
+            <span><span class="person-dot" style="background:${dotColor}"></span><strong>${escapeHtml(actorName)}</strong> ${actionLabel} "${escapeHtml(log.eventTitle)}"</span>
+            <span class="badge">${formatLogTimestamp(log.createdAt)}</span>
+          </div>
+          ${log.details ? `<p class="activity-feed-item-details">${escapeHtml(log.details)}</p>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+async function loadActivityLog() {
+  try {
+    const logs = await api.getActivityLog();
+    renderActivityLog(logs);
+  } catch (err) {
+    el.activityLogList.innerHTML = '<p class="sidebar-empty">Não foi possível carregar as atividades</p>';
+  }
+}
+
 function playFadeIn(element) {
   element.classList.remove('fade-in');
   void element.offsetWidth;
   element.classList.add('fade-in');
 }
 
+const VIEWS = {
+  calendar: () => el.viewCalendar,
+  settings: () => el.viewSettings,
+  activity: () => el.viewActivity,
+};
+
 function switchView(view) {
   el.navItems.forEach((item) => item.classList.toggle('is-active', item.dataset.view === view));
-  el.viewCalendar.classList.toggle('hidden', view !== 'calendar');
-  el.viewSettings.classList.toggle('hidden', view !== 'settings');
-  playFadeIn(view === 'calendar' ? el.viewCalendar : el.viewSettings);
+  Object.entries(VIEWS).forEach(([key, getEl]) => getEl().classList.toggle('hidden', key !== view));
+  playFadeIn(VIEWS[view]());
+
+  if (view === 'activity') loadActivityLog();
 }
 
 el.navItems.forEach((item) => {
@@ -278,7 +362,8 @@ function renderCalendar() {
         .slice(0, 3)
         .map((event) => {
           const bg = event.creator ? personColorFor(event.creator._id) : 'var(--color-primary)';
-          return `<span class="event-pill" style="background:${bg}">${escapeHtml(event.title)}</span>`;
+          const recurringIcon = event.recurring ? '🔁 ' : '';
+          return `<span class="event-pill" style="background:${bg}">${recurringIcon}${escapeHtml(event.title)}</span>`;
         })
         .join('');
       const more = dayEvents.length > 3 ? `<span class="badge">+${dayEvents.length - 3} mais</span>` : '';
@@ -366,11 +451,12 @@ function renderEventList(dateKey) {
   el.eventList.innerHTML = dayEvents
     .map((event) => {
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
+      const recurringIcon = event.recurring ? '🔁 ' : '';
       return `
         <div class="event-list-item-wrap" data-id="${event._id}">
           <div class="event-list-item">
             <div>
-              <strong>${escapeHtml(event.title)}</strong><br />
+              <strong>${recurringIcon}${escapeHtml(event.title)}</strong><br />
               <span class="badge"><span class="person-dot" style="background:${dotColor}"></span>por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
             </div>
             <button type="button" class="btn btn-secondary" data-edit="${event._id}">Editar</button>
@@ -442,9 +528,10 @@ function openEventForm(event, dateKey) {
     state.editingEventId = event._id;
     state.existingAttachments = event.attachments ? [...event.attachments] : [];
     el.eventId.value = event._id;
-    el.eventDate.value = dateKey;
+    el.eventDate.value = toDateKey(new Date(event.date));
     el.eventTitle.value = event.title;
     el.eventDescription.value = event.description || '';
+    el.eventRecurring.checked = Boolean(event.recurring);
     el.btnDeleteEvent.classList.remove('hidden');
   } else {
     state.editingEventId = null;
@@ -453,6 +540,7 @@ function openEventForm(event, dateKey) {
     el.eventDate.value = dateKey;
     el.eventTitle.value = '';
     el.eventDescription.value = '';
+    el.eventRecurring.checked = false;
     el.btnDeleteEvent.classList.add('hidden');
   }
 
@@ -502,6 +590,7 @@ el.eventForm.addEventListener('submit', async (formEvent) => {
       description,
       date: dateKeyToNoonISO(dateKey),
       attachments,
+      recurring: el.eventRecurring.checked,
     };
 
     const wasEditing = Boolean(state.editingEventId);
@@ -513,7 +602,7 @@ el.eventForm.addEventListener('submit', async (formEvent) => {
     }
 
     await reloadEvents();
-    openDayModal(dateKey);
+    openDayModal(state.selectedDateKey || dateKey);
     showToast(wasEditing ? 'Evento atualizado' : 'Evento criado', 'success');
   } catch (err) {
     el.formError.textContent = err.message;
@@ -531,9 +620,8 @@ el.btnDeleteEvent.addEventListener('click', async () => {
 
   try {
     await api.deleteEvent(state.editingEventId);
-    const dateKey = el.eventDate.value;
     await reloadEvents();
-    openDayModal(dateKey);
+    openDayModal(state.selectedDateKey);
     showToast('Evento excluído', 'success');
   } catch (err) {
     el.formError.textContent = err.message;

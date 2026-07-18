@@ -249,6 +249,48 @@
   color: var(--color-text-muted);
 }
 
+/* Log de atividades */
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.activity-feed-item {
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.activity-feed-item--created {
+  border-left-color: var(--color-success);
+}
+
+.activity-feed-item--updated {
+  border-left-color: var(--color-primary);
+}
+
+.activity-feed-item--deleted {
+  border-left-color: var(--color-danger);
+}
+
+.activity-feed-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.activity-feed-item-details {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
 /* Toasts */
 .toast-container {
   position: fixed;
