@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const settingsSchema = new mongoose.Schema(
   {
     theme: { type: String, enum: ['light', 'dark'], default: 'light' },
+    colorTheme: {
+      type: String,
+      enum: ['indigo', 'rose', 'blue', 'green', 'orange', 'red', 'teal', 'amber'],
+      default: 'indigo',
+    },
     background: { type: String, default: '' },
   },
   { timestamps: true }

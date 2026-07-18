@@ -1,7 +1,7 @@
 const Event = require('../models/Event');
 
 async function list(req, res) {
-  const events = await Event.find().populate('creator', 'name email').sort({ date: 1 });
+  const events = await Event.find().populate('creator', 'name').sort({ date: 1 });
   res.json(events);
 }
 
@@ -20,7 +20,7 @@ async function create(req, res) {
     creator: req.userId,
   });
 
-  const populated = await event.populate('creator', 'name email');
+  const populated = await event.populate('creator', 'name');
   res.status(201).json(populated);
 }
 
@@ -31,7 +31,7 @@ async function update(req, res) {
     req.params.id,
     { title, description, date, attachments },
     { new: true, runValidators: true }
-  ).populate('creator', 'name email');
+  ).populate('creator', 'name');
 
   if (!event) {
     return res.status(404).json({ message: 'Evento não encontrado' });

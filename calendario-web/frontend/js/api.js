@@ -45,14 +45,14 @@ async function request(path, { method = 'GET', body, isForm = false } = {}) {
   return data;
 }
 
-async function register({ name, email, password }) {
-  const data = await request('/auth/register', { method: 'POST', body: { name, email, password } });
+async function register({ name, password }) {
+  const data = await request('/auth/register', { method: 'POST', body: { name, password } });
   saveSession(data.token, data.user);
   return data;
 }
 
-async function login({ email, password }) {
-  const data = await request('/auth/login', { method: 'POST', body: { email, password } });
+async function login({ name, password }) {
+  const data = await request('/auth/login', { method: 'POST', body: { name, password } });
   saveSession(data.token, data.user);
   return data;
 }

@@ -49,6 +49,7 @@ const el = {
   settingsBackground: document.getElementById('settings-background'),
   settingsError: document.getElementById('settings-error'),
   btnSaveSettings: document.getElementById('btn-save-settings'),
+  colorSwatchGrid: document.getElementById('color-swatch-grid'),
 
   modalOverlay: document.getElementById('modal-overlay'),
   modalTitle: document.getElementById('modal-title'),
@@ -117,6 +118,20 @@ function eventsByDateKey(dateKey) {
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
+const PERSON_COLORS = [
+  'var(--color-person-1)',
+  'var(--color-person-2)',
+  'var(--color-person-3)',
+  'var(--color-person-4)',
+  'var(--color-person-5)',
+  'var(--color-person-6)',
+];
+
+function personColorFor(userId) {
+  const index = state.users.findIndex((user) => user._id === userId);
+  return PERSON_COLORS[index === -1 ? 0 : index % PERSON_COLORS.length];
+}
+
 /* ---------- Sidebar ---------- */
 
 function renderUsersSidebar() {
@@ -149,9 +164,10 @@ function renderUpcomingEvents() {
     .map((event) => {
       const dateKey = toDateKey(new Date(event.date));
       const [, m, d] = dateKey.split('-');
+      const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
       return `
         <div class="sidebar-list-item is-clickable" data-date="${dateKey}">
-          <span>${escapeHtml(event.title)}</span>
+          <span><span class="person-dot" style="background:${dotColor}"></span>${escapeHtml(event.title)}</span>
           <span>${d}/${m}</span>
         </div>
       `;
@@ -260,7 +276,10 @@ function renderCalendar() {
 
       const pills = dayEvents
         .slice(0, 3)
-        .map((event) => `<span class="event-pill">${escapeHtml(event.title)}</span>`)
+        .map((event) => {
+          const bg = event.creator ? personColorFor(event.creator._id) : 'var(--color-primary)';
+          return `<span class="event-pill" style="background:${bg}">${escapeHtml(event.title)}</span>`;
+        })
         .join('');
       const more = dayEvents.length > 3 ? `<span class="badge">+${dayEvents.length - 3} mais</span>` : '';
 
@@ -345,20 +364,21 @@ function renderEventList(dateKey) {
   }
 
   el.eventList.innerHTML = dayEvents
-    .map(
-      (event) => `
+    .map((event) => {
+      const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
+      return `
         <div class="event-list-item-wrap" data-id="${event._id}">
           <div class="event-list-item">
             <div>
               <strong>${escapeHtml(event.title)}</strong><br />
-              <span class="badge">por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
+              <span class="badge"><span class="person-dot" style="background:${dotColor}"></span>por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
             </div>
             <button type="button" class="btn btn-secondary" data-edit="${event._id}">Editar</button>
           </div>
           ${renderAttachmentList(event.attachments)}
         </div>
-      `
-    )
+      `;
+    })
     .join('');
 
   el.eventList.querySelectorAll('[data-edit]').forEach((btn) => {
@@ -552,6 +572,26 @@ function applyTheme(theme) {
   el.settingsTheme.value = theme;
 }
 
+function applyColorTheme(colorTheme) {
+  document.documentElement.setAttribute('data-color-theme', colorTheme);
+  el.colorSwatchGrid.querySelectorAll('.color-swatch').forEach((btn) => {
+    btn.classList.toggle('is-active', btn.dataset.colorTheme === colorTheme);
+  });
+}
+
+el.colorSwatchGrid.querySelectorAll('.color-swatch').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const colorTheme = btn.dataset.colorTheme;
+    applyColorTheme(colorTheme);
+
+    try {
+      await api.updateSettings({ colorTheme });
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  });
+});
+
 el.btnTheme.addEventListener('click', async () => {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
   const next = current === 'light' ? 'dark' : 'light';
@@ -607,6 +647,7 @@ async function init() {
   try {
     const settings = await api.getSettings();
     applyTheme(settings.theme || 'light');
+    applyColorTheme(settings.colorTheme || 'indigo');
     el.settingsBackground.value = settings.background || '';
   } catch (err) {
     console.error('Não foi possível carregar as configurações:', err.message);
@@ -615,6 +656,7 @@ async function init() {
   try {
     state.users = await api.getUsers();
     renderUsersSidebar();
+    if (user) el.userAvatar.style.background = personColorFor(user._id);
   } catch (err) {
     console.error('Não foi possível carregar os usuários:', err.message);
   }

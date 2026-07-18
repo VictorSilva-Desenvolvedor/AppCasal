@@ -5,32 +5,40 @@ function generateToken(user) {
   return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 }
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function findByName(name) {
+  return User.findOne({ name: new RegExp(`^${escapeRegex(name.trim())}$`, 'i') });
+}
+
 async function register(req, res) {
-  const { name, email, password } = req.body;
+  const { name, password } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Nome, email e senha são obrigatórios' });
+  if (!name || !password) {
+    return res.status(400).json({ message: 'Nome e senha são obrigatórios' });
   }
 
-  const existing = await User.findOne({ email: email.toLowerCase() });
+  const existing = await findByName(name);
   if (existing) {
-    return res.status(409).json({ message: 'Já existe um usuário com esse email' });
+    return res.status(409).json({ message: 'Já existe um usuário com esse nome' });
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({ name: name.trim(), password });
   const token = generateToken(user);
 
   res.status(201).json({ token, user });
 }
 
 async function login(req, res) {
-  const { email, password } = req.body;
+  const { name, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email e senha são obrigatórios' });
+  if (!name || !password) {
+    return res.status(400).json({ message: 'Nome e senha são obrigatórios' });
   }
 
-  const user = await User.findOne({ email: email.toLowerCase() });
+  const user = await findByName(name);
   if (!user) {
     return res.status(401).json({ message: 'Credenciais inválidas' });
   }

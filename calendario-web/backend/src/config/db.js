@@ -15,6 +15,10 @@ async function connectDB() {
 
   await mongoose.connect(uri);
   console.log('MongoDB conectado:', mongoose.connection.name);
+
+  // O schema de User trocou o índice único de "email" pra "name" — sincroniza
+  // pra derrubar o índice antigo (senão a 2ª conta sem email colide nele).
+  await require('../models/User').syncIndexes();
 }
 
 module.exports = connectDB;

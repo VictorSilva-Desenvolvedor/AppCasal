@@ -14,10 +14,11 @@ async function get(req, res) {
 }
 
 async function update(req, res) {
-  const { theme, background } = req.body;
+  const { theme, colorTheme, background } = req.body;
   const settings = await getSettingsDoc();
 
   if (theme !== undefined) settings.theme = theme;
+  if (colorTheme !== undefined) settings.colorTheme = colorTheme;
   if (background !== undefined) settings.background = background;
 
   await settings.save();
