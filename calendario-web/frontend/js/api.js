@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = `${window.location.origin}/api`;
 
 const TOKEN_KEY = 'calendario_token';
 const USER_KEY = 'calendario_user';

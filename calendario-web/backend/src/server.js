@@ -15,7 +15,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
@@ -24,6 +23,10 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+const frontendDir = path.join(__dirname, '..', '..', 'frontend');
+app.use(express.static(frontendDir));
+app.get('/', (req, res) => res.redirect('/pages/login.html'));
 
 app.use((err, req, res, next) => {
   console.error(err);
