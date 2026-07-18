@@ -1,0 +1,42 @@
+<meta charset="UTF-8" />
+<title>Login · Calendário Pessoal</title>
+<link rel="stylesheet" href="../css/base.css" />
+<link rel="stylesheet" href="../css/components.css" />
+<link rel="stylesheet" href="../css/login.css" />
+
+<div class="auth-page">
+  <div class="auth-shell">
+    <aside class="auth-hero">
+      <div class="auth-hero-content">
+        <div class="auth-hero-logo">📅</div>
+        <h1>Calendário Pessoal</h1>
+        <p>Organize e compartilhe compromissos com o seu grupo, com fotos e arquivos direto em cada evento.</p>
+      </div>
+    </aside>
+
+    <div class="auth-form-side">
+      <div class="card auth-card fade-in">
+        <h2>Bem-vindo de volta</h2>
+        <p>Entre para ver o calendário compartilhado</p>
+
+        <form id="login-form">
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="btn-submit">Entrar</button>
+        </form>
+
+        <p class="auth-hint">Usuário de teste (seed): <strong>teste@teste.com</strong> / <strong>123456</strong></p>
+
+        <p class="auth-footer">Não tem conta? <a href="register.html">Cadastre-se</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../js/pages/login.js"></script>

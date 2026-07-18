@@ -1,0 +1,12 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "dev": "live-server --port=5500 --entry-file=pages/login.html ."
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

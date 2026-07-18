@@ -1,0 +1,127 @@
+<meta charset="UTF-8" />
+<title>Calendário Pessoal</title>
+<link rel="stylesheet" href="../css/base.css" />
+<link rel="stylesheet" href="../css/components.css" />
+<link rel="stylesheet" href="../css/calendar.css" />
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">📅 Calendário</div>
+      <div class="sidebar-user-row">
+        <div class="sidebar-avatar" id="user-avatar"></div>
+        <div class="sidebar-user" id="user-name"></div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button type="button" class="sidebar-nav-item is-active" data-view="calendar">🗓️ Calendário</button>
+      <button type="button" class="sidebar-nav-item" data-view="settings">⚙️ Configurações</button>
+    </nav>
+
+    <div class="sidebar-section">
+      <h3>Atalhos</h3>
+      <button type="button" class="btn btn-primary btn-block" id="btn-quick-new-event">+ Novo evento</button>
+      <button type="button" class="btn btn-secondary btn-block" id="btn-theme">🌓 Alternar tema</button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Próximos eventos</h3>
+      <div id="upcoming-events-list" class="sidebar-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Usuários do grupo</h3>
+      <div id="users-list" class="sidebar-list"></div>
+    </div>
+
+    <button type="button" class="btn btn-secondary btn-block" id="btn-logout">Sair</button>
+  </aside>
+
+  <main class="main-content">
+    <button type="button" class="sidebar-toggle" id="btn-toggle-sidebar" title="Mostrar/ocultar barra lateral">☰</button>
+
+    <section id="view-calendar" class="view">
+      <div class="filter-bar card">
+        <input type="text" id="filter-search" placeholder="Buscar por título ou descrição..." />
+        <select id="filter-creator">
+          <option value="">Todos os usuários</option>
+        </select>
+        <label class="filter-checkbox">
+          <input type="checkbox" id="filter-attachment" /> Só com anexo
+        </label>
+      </div>
+
+      <div class="calendar-nav">
+        <button type="button" class="btn btn-secondary" id="btn-prev-month">&larr; Anterior</button>
+        <h2 id="calendar-title"></h2>
+        <button type="button" class="btn btn-secondary" id="btn-next-month">Próximo &rarr;</button>
+      </div>
+
+      <div class="calendar-grid" id="calendar-weekdays"></div>
+      <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
+    </section>
+
+    <section id="view-settings" class="view hidden">
+      <h2>Configurações</h2>
+      <p>Tema e plano de fundo são compartilhados entre todos os usuários do calendário.</p>
+      <form id="settings-form" class="card settings-form">
+        <div class="field">
+          <label for="settings-theme">Tema</label>
+          <select id="settings-theme">
+            <option value="light">Claro</option>
+            <option value="dark">Escuro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="settings-background">Plano de fundo (URL de imagem, opcional)</label>
+          <input type="text" id="settings-background" placeholder="https://..." />
+        </div>
+        <p class="error-text" id="settings-error"></p>
+        <button type="submit" class="btn btn-primary" id="btn-save-settings">Salvar configurações</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="card modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Eventos do dia</h2>
+      <button type="button" class="modal-close" id="modal-close">&times;</button>
+    </div>
+
+    <div id="event-list-view">
+      <div id="event-list"></div>
+      <button type="button" class="btn btn-primary btn-block" id="btn-new-event" style="margin-top: 1rem">
+        + Novo evento
+      </button>
+    </div>
+
+    <form id="event-form" class="hidden">
+      <input type="hidden" id="event-id" />
+      <input type="hidden" id="event-date" />
+      <div class="field">
+        <label for="event-title">Título</label>
+        <input type="text" id="event-title" required />
+      </div>
+      <div class="field">
+        <label for="event-description">Descrição</label>
+        <textarea id="event-description"></textarea>
+      </div>
+      <div class="field">
+        <label for="event-files">Anexos (fotos ou arquivos, opcional)</label>
+        <input type="file" id="event-files" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
+        <div id="event-attachments-preview" class="attachments-preview"></div>
+      </div>
+      <p class="error-text" id="form-error"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-form">Cancelar</button>
+        <button type="button" class="btn btn-danger hidden" id="btn-delete-event">Excluir</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-event">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module" src="../js/pages/calendar.js"></script>
