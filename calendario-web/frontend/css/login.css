@@ -7,7 +7,7 @@
   display: flex;
 }
 
-/* Painel decorativo (100% CSS, sem imagem externa) */
+/* Painel decorativo com foto de fundo (gatinhos se abraçando) */
 .auth-hero {
   position: relative;
   flex: 1.1;
@@ -15,7 +15,9 @@
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  background: var(--gradient-brand);
+  background:
+    linear-gradient(180deg, rgba(20, 15, 30, 0.55) 0%, rgba(20, 15, 30, 0.35) 45%, rgba(20, 15, 30, 0.7) 100%),
+    url('https://loremflickr.com/1200/1600/kittens,hug,cuddle') center/cover no-repeat;
   overflow: hidden;
 }
 

@@ -16,6 +16,7 @@
 
     <nav class="sidebar-nav">
       <button type="button" class="sidebar-nav-item is-active" data-view="calendar">🗓️ Calendário</button>
+      <button type="button" class="sidebar-nav-item" data-view="activity">🕒 Atividades</button>
       <button type="button" class="sidebar-nav-item" data-view="settings">⚙️ Configurações</button>
     </nav>
 
@@ -60,6 +61,12 @@
 
       <div class="calendar-grid" id="calendar-weekdays"></div>
       <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
+    </section>
+
+    <section id="view-activity" class="view hidden">
+      <h2>Atividades</h2>
+      <p>Histórico de quem criou, editou ou excluiu eventos no calendário.</p>
+      <div id="activity-log-list" class="activity-feed"></div>
     </section>
 
     <section id="view-settings" class="view hidden">
@@ -121,6 +128,11 @@
       <div class="field">
         <label for="event-description">Descrição</label>
         <textarea id="event-description"></textarea>
+      </div>
+      <div class="field">
+        <label class="filter-checkbox">
+          <input type="checkbox" id="event-recurring" /> Repete todo ano (aniversário/data fixa)
+        </label>
       </div>
       <div class="field">
         <label for="event-files">Anexos (fotos ou arquivos, opcional)</label>

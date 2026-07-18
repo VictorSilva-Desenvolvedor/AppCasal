@@ -91,6 +91,10 @@ function getUsers() {
   return request('/users');
 }
 
+function getActivityLog() {
+  return request('/activity-logs');
+}
+
 export const api = {
   register,
   login,
@@ -105,6 +109,7 @@ export const api = {
   getSettings,
   updateSettings,
   getUsers,
+  getActivityLog,
 };
 
 export { API_BASE_URL };
