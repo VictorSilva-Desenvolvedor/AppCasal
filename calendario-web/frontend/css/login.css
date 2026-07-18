@@ -7,42 +7,26 @@
   display: flex;
 }
 
-/* Painel decorativo com foto de fundo (gatinhos se abraçando) */
+/* Painel decorativo com foto de fundo (gatinho aleatório via cataas.com, muda a cada carregamento) */
 .auth-hero {
   position: relative;
-  flex: 1.1;
+  flex: 2.2;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  background:
-    linear-gradient(180deg, rgba(20, 15, 30, 0.55) 0%, rgba(20, 15, 30, 0.35) 45%, rgba(20, 15, 30, 0.7) 100%),
-    url('https://loremflickr.com/1200/1600/kittens,hug,cuddle') center/cover no-repeat;
+  background-color: var(--color-primary);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
 }
 
-.auth-hero::before,
-.auth-hero::after {
+.auth-hero::before {
   content: '';
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  filter: blur(2px);
-}
-
-.auth-hero::before {
-  width: 320px;
-  height: 320px;
-  top: -80px;
-  right: -60px;
-}
-
-.auth-hero::after {
-  width: 220px;
-  height: 220px;
-  bottom: -60px;
-  left: -40px;
-  background: rgba(255, 255, 255, 0.1);
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 15, 30, 0.5) 0%, rgba(20, 15, 30, 0.25) 45%, rgba(20, 15, 30, 0.65) 100%);
 }
 
 .auth-hero-content {
@@ -53,25 +37,14 @@
   text-align: left;
 }
 
-.auth-hero-logo {
-  font-size: 2.75rem;
-  margin-bottom: 1rem;
-}
-
 .auth-hero-content h1 {
-  font-size: 1.9rem;
-  margin-bottom: 0.75rem;
-}
-
-.auth-hero-content p {
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 1rem;
+  font-size: 2.2rem;
   margin-bottom: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
 .auth-form-side {
-  flex: 1;
-  min-width: 360px;
+  flex: 0 0 400px;
   display: flex;
   align-items: center;
   justify-content: center;
