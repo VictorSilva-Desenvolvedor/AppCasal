@@ -1,0 +1,13 @@
+/*
+  Entry point único processado pelo Tailwind CLI (ver scripts dev:css/build:css
+  em package.json). Os outros arquivos CSS do projeto são todos importados
+  aqui — nenhum é mais linkado direto no HTML — para que @apply funcione
+  neles e tudo saia compilado em um único css/tailwind.output.css.
+*/
+@import "tailwindcss";
+
+@import "./tokens.css";
+@import "./base.css" layer(base);
+@import "./components.css" layer(components);
+@import "./calendar.css" layer(components);
+@import "./login.css" layer(components);

@@ -1,11 +1,20 @@
+/*
+  @layer components — layout específico da tela do calendário: barra
+  lateral, grid do mês, galeria, lightbox, board de kanban (estrutura, não os
+  cards em si — esses estão em components.css) e os ajustes mobile-first
+  (breakpoints min-width, do menor pro maior; o antigo padrão "desktop
+  primeiro com overrides em max-width" foi invertido aqui).
+*/
+
 .app-shell {
-  min-height: 100vh;
-  display: flex;
+  @apply min-h-screen flex;
 }
 
-/* Sidebar */
+/* ---------- Sidebar ---------- */
+
 .sidebar {
-  width: 260px;
+  @apply fixed inset-y-0 left-0 z-50 w-[82%] max-w-[300px] -translate-x-full shadow-lg
+    md:static md:translate-x-0 md:w-[260px] md:max-w-none md:shadow-none md:z-auto;
   flex-shrink: 0;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
@@ -15,52 +24,41 @@
   gap: 1.25rem;
   min-height: 100vh;
   overflow: hidden;
-  transition: width 0.2s ease, padding 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.25s var(--ease), width 0.2s var(--ease), padding 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.sidebar.is-mobile-open {
+  @apply translate-x-0;
 }
 
 .sidebar.is-collapsed {
-  width: 0;
-  padding-left: 0;
-  padding-right: 0;
-  border-color: transparent;
+  @apply md:w-0 md:px-0 md:border-transparent;
 }
 
 .sidebar.is-collapsed > * {
-  opacity: 0;
-  pointer-events: none;
+  @apply md:opacity-0 md:pointer-events-none;
+}
+
+.sidebar-backdrop {
+  @apply fixed inset-0 z-40 bg-black/45 opacity-0 pointer-events-none transition-opacity duration-200 md:hidden;
+}
+
+.sidebar-backdrop.is-visible {
+  @apply opacity-100 pointer-events-auto;
 }
 
 .sidebar-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  border-radius: var(--radius-sm);
-  width: 34px;
-  height: 34px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-}
-
-.sidebar-toggle:hover {
-  background: var(--color-bg);
+  @apply inline-flex items-center justify-center rounded-sm border border-border bg-surface text-text
+    w-[34px] h-[34px] text-lg cursor-pointer flex-shrink-0 transition-colors duration-200 hover:bg-bg;
 }
 
 .sidebar-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  @apply flex flex-col gap-[0.6rem];
 }
 
 .sidebar-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.15rem;
-  font-weight: 700;
+  @apply flex items-center gap-2 font-bold;
+  @apply text-lg;
 }
 
 .sidebar-title .icon {
@@ -70,183 +68,113 @@
 }
 
 .sidebar-user-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  @apply flex items-center gap-[0.6rem];
 }
 
 .sidebar-avatar {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  @apply flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-on-primary;
   background: var(--gradient-brand);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
 }
 
 .sidebar-user {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @apply text-sm text-text-muted overflow-hidden text-ellipsis whitespace-nowrap;
 }
 
 .sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.sidebar-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  text-align: left;
-  padding: 0.55rem 0.7rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s var(--ease), color 0.15s var(--ease), transform 0.1s var(--ease);
-}
-
-.sidebar-nav-item:hover {
-  background: var(--color-bg);
-  color: var(--color-primary);
-  transform: scale(1.02);
-}
-
-.sidebar-nav-item.is-active {
-  background: var(--color-primary);
-  color: #fff;
+  @apply flex flex-col gap-[0.3rem];
 }
 
 .sidebar-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  @apply flex flex-col gap-2;
 }
 
 .sidebar-section h3 {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--color-text-muted);
-  margin: 0;
+  @apply text-xs uppercase tracking-wide text-text-muted m-0;
 }
 
 .sidebar-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  max-height: 160px;
-  overflow-y: auto;
+  @apply flex flex-col gap-[0.35rem] max-h-40 overflow-y-auto;
 }
 
 .sidebar-list-item {
-  font-size: 0.82rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  cursor: default;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.4rem;
-  transition: background 0.15s var(--ease), transform 0.1s var(--ease);
+  @apply text-sm px-2 py-[0.4rem] rounded-sm bg-bg cursor-default flex justify-between gap-[0.4rem]
+    transition-[background,transform] duration-150;
 }
 
 .sidebar-list-item.is-clickable {
-  cursor: pointer;
-}
-
-.sidebar-list-item.is-clickable:hover {
-  background: var(--color-primary-light);
-  transform: translateX(2px);
+  @apply cursor-pointer hover:bg-primary-light hover:translate-x-0.5;
 }
 
 .sidebar-empty {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
+  @apply text-sm text-text-muted;
 }
 
 .sidebar > .btn-block:last-child {
   margin-top: auto;
 }
 
-/* Main content */
+/* ---------- Conteúdo principal ---------- */
+
 .main-content {
-  flex: 1;
-  padding: 1.5rem;
+  @apply flex-1 w-full p-6;
   max-width: 1600px;
-  width: 100%;
 }
 
 .view.hidden {
   display: none;
 }
 
+.toolbar {
+  @apply flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-5 flex-wrap;
+}
+
 .filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.9rem 1rem;
-  margin-bottom: 1.25rem;
+  @apply flex flex-col md:flex-row flex-1 min-w-0 flex-wrap items-stretch md:items-center gap-3 px-4 py-[0.9rem];
+}
+
+.filter-bar input[type='text'],
+.filter-bar select {
+  @apply w-full md:w-auto;
 }
 
 .filter-bar input[type='text'] {
-  flex: 1;
-  min-width: 180px;
-  padding: 0.5rem 0.7rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text);
+  @apply flex-1 min-w-[180px] rounded-sm border border-border bg-bg text-text px-[0.7rem] py-2;
 }
 
 .filter-bar select {
-  padding: 0.5rem 2rem 0.5rem 0.7rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-size: 0.9rem;
-  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  @apply rounded-sm border border-border bg-bg text-text text-base pl-[0.7rem] pr-8 py-2
+    transition-[border-color,box-shadow] duration-200
+    focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-light)];
 }
 
-.filter-bar select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
-}
-
+/* Layout/cores base do chip vêm de utilities do Tailwind no HTML; aqui só o
+   que as utilities não cobrem: o preenchimento do chip quando marcado e a
+   cor do próprio checkbox nativo. */
 .filter-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
+  @apply justify-center md:justify-start;
 }
+
+.filter-checkbox:has(:checked) {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+}
+
+.filter-checkbox input[type='checkbox'] {
+  accent-color: var(--color-primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* ---------- Calendário ---------- */
 
 .calendar-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  @apply flex items-center justify-between mb-4;
 }
 
 .calendar-nav h2 {
-  font-size: 1.25rem;
-  text-transform: capitalize;
+  @apply text-lg capitalize;
 }
 
 .calendar-grid {
@@ -260,44 +188,43 @@
 }
 
 .calendar-weekday {
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  padding-bottom: 0.4rem;
+  @apply text-center text-xs font-bold text-text-muted pb-[0.4rem];
 }
 
 .calendar-day {
-  min-height: 130px;
+  @apply rounded-lg shadow-sm cursor-pointer flex flex-col;
+  min-height: 64px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
   padding: 0.4rem;
-  cursor: pointer;
-  transition: border-color 0.15s var(--ease), background 0.15s var(--ease), transform 0.12s var(--ease),
-    box-shadow 0.15s var(--ease);
-  display: flex;
-  flex-direction: column;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease), transform 0.15s var(--ease),
+    box-shadow 0.2s var(--ease);
+}
+
+@media (min-width: 640px) {
+  .calendar-day {
+    min-height: 130px;
+  }
 }
 
 .calendar-day:hover {
+  @apply shadow-md;
   border-color: var(--color-primary);
   background: var(--color-primary-light);
   transform: translateY(-2px) scale(1.035);
-  box-shadow: var(--shadow-md);
   z-index: 2;
 }
 
 .calendar-day.is-empty {
+  @apply shadow-none cursor-default;
   background: transparent;
   border-color: transparent;
-  cursor: default;
 }
 
 .calendar-day.is-empty:hover {
+  @apply shadow-none;
   background: transparent;
   transform: none;
-  box-shadow: none;
   z-index: auto;
 }
 
@@ -318,40 +245,34 @@
 }
 
 .calendar-day-skeleton {
-  min-height: 130px;
-  border-radius: var(--radius-sm);
+  @apply rounded-lg shadow-sm;
+  min-height: 64px;
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   animation: pulse 1.2s ease-in-out infinite;
 }
 
+@media (min-width: 640px) {
+  .calendar-day-skeleton {
+    min-height: 130px;
+  }
+}
+
 .calendar-day-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @apply flex items-center justify-between;
 }
 
 .calendar-day-number {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
+  @apply text-sm font-semibold text-text-muted;
 }
 
 .calendar-day.is-today .calendar-day-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  @apply inline-flex items-center justify-center w-[22px] h-[22px] rounded-full font-bold text-on-primary;
   background: var(--color-primary);
-  color: #fff;
-  font-weight: 700;
 }
 
 .calendar-day-attachment-badge {
-  display: inline-flex;
-  color: var(--color-text-muted);
+  @apply inline-flex text-text-muted;
 }
 
 .calendar-day-attachment-badge .icon {
@@ -360,12 +281,27 @@
 }
 
 .person-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 0.35rem;
-  flex-shrink: 0;
+  @apply inline-block w-2 h-2 rounded-full mr-[0.35rem] flex-shrink-0;
+}
+
+.shared-badge-icon {
+  color: var(--color-accent);
+}
+
+.event-invite-row {
+  @apply flex gap-2;
+}
+
+.event-invite-row select {
+  flex: 1;
+}
+
+.event-invite-list {
+  @apply flex flex-col gap-[0.4rem] mt-[0.6rem];
+}
+
+.event-invite-item {
+  @apply flex items-center justify-between text-sm px-[0.6rem] py-[0.4rem] rounded-sm bg-bg;
 }
 
 .calendar-day-events {
@@ -374,16 +310,14 @@
 }
 
 .calendar-day-thumbs {
-  display: flex;
-  gap: 3px;
-  margin-top: 4px;
+  @apply flex gap-[3px] mt-1;
 }
 
 .calendar-day-thumb {
+  @apply rounded-xs;
   width: 26px;
   height: 26px;
   object-fit: cover;
-  border-radius: 4px;
   border: 1px solid var(--color-border);
   transition: transform 0.15s var(--ease);
 }
@@ -396,30 +330,21 @@
 
 /* Anexos (preview no form e na lista de eventos) */
 .attachments-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.6rem;
+  @apply flex flex-wrap gap-2 mt-[0.6rem];
 }
 
 .attachment-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
+  @apply flex flex-col items-center gap-[0.2rem] text-xs text-text-muted text-center;
   max-width: 80px;
-  text-align: center;
 }
 
 .attachment-thumb {
+  @apply rounded-md shadow-sm;
   width: 64px;
   height: 64px;
   object-fit: cover;
-  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
-  transition: transform 0.15s var(--ease);
+  transition: transform 0.2s var(--ease);
 }
 
 .attachment-thumb:hover {
@@ -427,267 +352,225 @@
 }
 
 .attachment-file {
+  @apply rounded-md;
   width: 64px;
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
-  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-bg);
   text-decoration: none;
 }
 
 .attachment-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
+  @apply overflow-hidden text-ellipsis whitespace-nowrap w-full;
 }
 
-.settings-form {
-  padding: 1.5rem;
-  max-width: 420px;
-  margin-top: 1rem;
+/* ---------- Galeria ---------- */
+
+.gallery-month-strip {
+  @apply flex gap-2 overflow-x-auto pt-1 pb-3 mb-2;
 }
 
-/* ---------- Pedidos de atualização ---------- */
-
-.update-form {
-  padding: 1.5rem;
-  max-width: 480px;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
+.gallery-month-chip {
+  @apply flex-none inline-flex items-center gap-[0.4rem] rounded-full px-[0.9rem] py-[0.45rem]
+    border border-border bg-surface text-text text-sm whitespace-nowrap cursor-pointer
+    transition-[background,color,transform] duration-200 hover:-translate-y-px;
 }
 
-.update-board {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
+.gallery-month-chip.is-active {
+  @apply text-on-primary;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
-.update-column {
-  flex: 1;
-  min-width: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
+.gallery-month-chip-count {
+  @apply text-xs opacity-75;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 0.75rem;
 }
 
+@media (min-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+.gallery-thumb {
+  @apply rounded-md shadow-sm p-0 overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200
+    hover:scale-[1.03] hover:shadow-md;
+  border: 1px solid var(--color-border);
+  aspect-ratio: 1 / 1;
+  background: var(--color-bg);
+}
+
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------- Lightbox ---------- */
+
+.lightbox-overlay {
+  @apply fixed inset-0 z-[200] flex items-center justify-center opacity-0 invisible
+    transition-[opacity,visibility] duration-200;
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.lightbox-overlay.is-open {
+  @apply opacity-100 visible;
+}
+
+.lightbox-image {
+  @apply rounded-sm;
+  max-width: 92vw;
+  max-height: 85vh;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  @apply absolute top-4 right-4 inline-flex items-center justify-center rounded-full border-none cursor-pointer
+    w-9 h-9 md:w-10 md:h-10 transition-[background,transform] duration-150 hover:scale-[1.08];
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.lightbox-nav {
+  @apply absolute top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full border-none cursor-pointer
+    w-9 h-9 md:w-11 md:h-11 transition-[background,transform] duration-200 hover:-translate-y-1/2 hover:scale-[1.08];
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.lightbox-prev {
+  left: 1rem;
+}
+
+.lightbox-next {
+  right: 1rem;
+}
+
+.lightbox-caption {
+  @apply absolute left-1/2 -translate-x-1/2 rounded-full text-sm px-[0.9rem] py-[0.4rem];
+  bottom: 1.25rem;
+  max-width: 90vw;
+  text-align: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.settings-form {
+  @apply p-6 max-w-[420px] mt-4;
+}
+
+/* ---------- Pedidos de atualização / Convites (estrutura do board) ---------- */
+
+.update-form {
+  @apply p-6 max-w-[480px] mt-4 mb-6;
+}
+
+.update-board {
+  @apply flex flex-col md:flex-row gap-4 items-stretch md:items-start;
+}
+
+.update-column {
+  @apply flex-1 min-w-0 rounded-md shadow-sm flex flex-col gap-3;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .update-column {
+    padding: 1rem;
+  }
+}
+
 .update-column h3 {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--color-text-muted);
-  margin: 0;
+  @apply flex items-center gap-2 text-sm uppercase tracking-wide text-text-muted m-0;
 }
 
 .update-column-count {
-  font-size: 0.7rem;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
+  @apply text-xs px-2 py-[0.1rem] rounded-full font-bold;
   background: var(--color-primary-light);
   color: var(--color-primary-hover);
-  font-weight: 700;
 }
 
 .update-column-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  @apply flex flex-col gap-[0.6rem];
   min-height: 40px;
 }
 
 .update-empty {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.update-card {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  cursor: grab;
-  transition: border-color 0.15s var(--ease), transform 0.1s var(--ease), box-shadow 0.15s var(--ease);
-}
-
-.update-card:hover {
-  border-color: var(--color-primary);
-  transform: scale(1.02);
-  box-shadow: var(--shadow-sm);
-}
-
-.update-card.dragging {
-  opacity: 0.5;
-  cursor: grabbing;
+  @apply text-sm text-text-muted;
 }
 
 .update-column-list.drag-over {
+  @apply rounded-sm transition-[background,outline-color] duration-200;
   background: var(--color-primary-light);
   outline: 2px dashed var(--color-primary);
   outline-offset: -2px;
-  border-radius: var(--radius-sm);
-  transition: background 0.15s var(--ease), outline-color 0.15s var(--ease);
-}
-
-.update-card-title {
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.update-card-description {
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-}
-
-.update-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.update-card-meta {
-  display: flex;
-  align-items: center;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-.update-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.update-status-select {
-  font-size: 0.78rem;
-  padding: 0.3rem 1.6rem 0.3rem 0.5rem;
-}
-
-.update-card-delete {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-muted);
-  border-radius: var(--radius-sm);
-  width: 26px;
-  height: 26px;
-  font-size: 0.85rem;
-  transition: background 0.15s var(--ease), color 0.15s var(--ease);
-}
-
-.update-card-delete:hover {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
 }
 
 /* ---------- Lista de meses (mobile) ---------- */
 
 .calendar-month-list {
-  display: none;
+  @apply hidden;
 }
 
 .calendar-back-btn {
-  display: none;
+  @apply hidden;
 }
 
-/* ---------- Sidebar em drawer + lista de meses (mobile) ---------- */
-
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    inset: 0 auto 0 0;
-    width: 82%;
-    max-width: 300px;
-    z-index: 50;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    box-shadow: var(--shadow-lg);
-  }
-  .sidebar.is-mobile-open {
-    transform: translateX(0);
-  }
-
-  .sidebar-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: 40;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-  }
-  .sidebar-backdrop.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .update-board {
-    flex-direction: column;
-  }
-
+/* O alternador grid-do-mês/lista-de-meses só existe abaixo de 768px — acima
+   disso a lista de meses fica sempre oculta e o grid sempre visível,
+   independente da classe .mobile-list-active (o JS só a alterna nessa faixa,
+   mas a regra de largura garante isso mesmo em algum estado desalinhado). */
+@media (max-width: 767.98px) {
   #view-calendar.mobile-list-active .calendar-grid-view {
-    display: none;
+    @apply hidden;
   }
   #view-calendar.mobile-list-active .calendar-month-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    @apply flex flex-col gap-2;
   }
   #view-calendar:not(.mobile-list-active) .calendar-back-btn {
-    display: inline-block;
-    margin-bottom: 0.75rem;
-  }
-
-  .calendar-month-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-sm);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    cursor: pointer;
-    transition: border-color 0.15s var(--ease), transform 0.1s var(--ease);
-  }
-  .calendar-month-item:hover {
-    border-color: var(--color-primary);
-    transform: scale(1.015);
-  }
-  .calendar-month-item.is-current {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-  }
-  .calendar-month-badge {
-    font-size: 0.75rem;
-    padding: 0.15rem 0.55rem;
-    border-radius: 999px;
-    background: var(--color-primary);
-    color: #fff;
+    @apply inline-block mb-3;
   }
 }
 
-@media (max-width: 640px) {
-  .calendar-day {
-    min-height: 64px;
-  }
-  .calendar-weekday {
-    font-size: 0.65rem;
-  }
+.calendar-month-item {
+  @apply flex justify-between items-center rounded-md shadow-sm px-4 py-3 cursor-pointer
+    transition-[border-color,transform] duration-200 hover:scale-[1.015];
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.calendar-month-item:hover {
+  border-color: var(--color-primary);
+}
+
+.calendar-month-item.is-current {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.calendar-month-badge {
+  @apply text-xs px-[0.55rem] py-[0.15rem] rounded-full text-on-primary;
+  background: var(--color-primary);
 }

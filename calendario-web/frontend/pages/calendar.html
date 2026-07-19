@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Nosso Calendário</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/calendar.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/tailwind.output.css" />
 </head>
 <body>
 
@@ -29,6 +30,10 @@
         <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-calendar"></use></svg>
         Calendário
       </button>
+      <button type="button" class="sidebar-nav-item" data-view="gallery">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-image"></use></svg>
+        Galeria
+      </button>
       <button type="button" class="sidebar-nav-item" data-view="activity">
         <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-clock"></use></svg>
         Atividades
@@ -36,6 +41,10 @@
       <button type="button" class="sidebar-nav-item" data-view="updates">
         <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-tool"></use></svg>
         Atualizações
+      </button>
+      <button type="button" class="sidebar-nav-item" data-view="invites">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-user-plus"></use></svg>
+        Convites
       </button>
       <button type="button" class="sidebar-nav-item" data-view="settings">
         <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-settings"></use></svg>
@@ -60,32 +69,30 @@
       <div id="upcoming-events-list" class="sidebar-list"></div>
     </div>
 
-    <div class="sidebar-section">
-      <h3>Usuários do grupo</h3>
-      <div id="users-list" class="sidebar-list"></div>
-    </div>
-
     <button type="button" class="btn btn-secondary btn-block" id="btn-logout">Sair</button>
   </aside>
 
   <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
   <main class="main-content">
-    <button type="button" class="sidebar-toggle" id="btn-toggle-sidebar" title="Mostrar/ocultar barra lateral" aria-label="Mostrar/ocultar barra lateral">
-      <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg>
-    </button>
+    <div class="toolbar">
+      <button type="button" class="sidebar-toggle" id="btn-toggle-sidebar" title="Mostrar/ocultar barra lateral" aria-label="Mostrar/ocultar barra lateral">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg>
+      </button>
 
-    <section id="view-calendar" class="view">
-      <div class="filter-bar card">
+      <div class="filter-bar card" id="filter-bar">
         <input type="text" id="filter-search" placeholder="Buscar por título ou descrição..." />
         <select id="filter-creator">
           <option value="">Todos os usuários</option>
         </select>
-        <label class="filter-checkbox">
-          <input type="checkbox" id="filter-attachment" /> Só com anexo
+        <label class="filter-checkbox flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-text-muted cursor-pointer transition-colors hover:border-primary" for="filter-attachment">
+          <input type="checkbox" id="filter-attachment" />
+          Só com anexo
         </label>
       </div>
+    </div>
 
+    <section id="view-calendar" class="view">
       <div class="calendar-month-list" id="calendar-month-list"></div>
 
       <div class="calendar-grid-view" id="calendar-grid-view">
@@ -100,6 +107,15 @@
         <div class="calendar-grid" id="calendar-weekdays"></div>
         <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
       </div>
+    </section>
+
+    <section id="view-gallery" class="view hidden">
+      <h2>Galeria</h2>
+      <p>Todas as fotos adicionadas aos eventos, organizadas por mês.</p>
+
+      <div class="gallery-month-strip" id="gallery-month-strip"></div>
+
+      <div class="gallery-grid" id="gallery-grid"></div>
     </section>
 
     <section id="view-activity" class="view hidden">
@@ -137,6 +153,22 @@
         <div class="update-column">
           <h3>Feito <span class="update-column-count" id="update-count-done">0</span></h3>
           <div class="update-column-list" id="update-list-done"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-invites" class="view hidden">
+      <h2>Convites</h2>
+      <p>Convites para eventos compartilhados entre você e outra pessoa.</p>
+
+      <div class="update-board">
+        <div class="update-column">
+          <h3>Recebidos <span class="update-column-count" id="invite-count-received">0</span></h3>
+          <div class="update-column-list" id="invite-list-received"></div>
+        </div>
+        <div class="update-column">
+          <h3>Enviados <span class="update-column-count" id="invite-count-sent">0</span></h3>
+          <div class="update-column-list" id="invite-list-sent"></div>
         </div>
       </div>
     </section>
@@ -219,6 +251,18 @@
         <input type="file" id="event-files" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
         <div id="event-attachments-preview" class="attachments-preview"></div>
       </div>
+      <div class="field hidden" id="event-invite-section">
+        <label for="event-invite-select">Convidar para este evento</label>
+        <div class="event-invite-row">
+          <select id="event-invite-select"></select>
+          <button type="button" class="btn btn-secondary" id="btn-event-invite">
+            <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-user-plus"></use></svg>
+            Convidar
+          </button>
+        </div>
+        <p class="error-text" id="event-invite-error"></p>
+        <div id="event-invite-list" class="event-invite-list"></div>
+      </div>
       <p class="error-text" id="form-error"></p>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" id="btn-cancel-form">Cancelar</button>
@@ -227,6 +271,20 @@
       </div>
     </form>
   </div>
+</div>
+
+<div class="lightbox-overlay" id="lightbox-overlay">
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Fechar">
+    <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-x"></use></svg>
+  </button>
+  <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Foto anterior">
+    <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-chevron-left"></use></svg>
+  </button>
+  <img class="lightbox-image" id="lightbox-image" alt="" />
+  <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Próxima foto">
+    <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-chevron-right"></use></svg>
+  </button>
+  <div class="lightbox-caption" id="lightbox-caption"></div>
 </div>
 
 <script type="module" src="../js/pages/calendar.js"></script>
