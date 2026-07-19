@@ -3,6 +3,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const cron = require('node-cron');
 const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/authRoutes');
@@ -13,6 +14,9 @@ const userRoutes = require('./routes/userRoutes');
 const activityLogRoutes = require('./routes/activityLogRoutes');
 const updateRequestRoutes = require('./routes/updateRequestRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
+const reminderRoutes = require('./routes/reminderRoutes');
+const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
+const { checkAndSendReminders } = require('./services/reminderService');
 
 const app = express();
 
@@ -27,8 +31,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
 app.use('/api/update-requests', updateRequestRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/reminders', reminderRoutes);
 
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
 
 const frontendDir = path.join(__dirname, '..', '..', 'frontend');
 app.use(express.static(frontendDir));
@@ -52,6 +57,16 @@ const PORT = process.env.PORT || 3000;
 connectDB()
   .then(() => {
     app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
+
+    startWhatsapp().catch((err) => console.error('Falha ao iniciar WhatsApp:', err.message));
+
+    cron.schedule(
+      '0 8 * * *',
+      () => {
+        checkAndSendReminders().catch((err) => console.error('Falha ao verificar lembretes:', err.message));
+      },
+      { timezone: 'America/Sao_Paulo' }
+    );
   })
   .catch((err) => {
     console.error('Falha ao conectar no MongoDB:', err.message);

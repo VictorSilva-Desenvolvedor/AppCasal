@@ -80,10 +80,24 @@
         <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg>
       </button>
 
+      <div class="global-search" id="global-search">
+        <input type="text" id="global-search-input" placeholder="Buscar em todos os eventos (qualquer data)..." autocomplete="off" />
+        <div class="global-search-results hidden" id="global-search-results"></div>
+      </div>
+
       <div class="filter-bar card" id="filter-bar">
         <input type="text" id="filter-search" placeholder="Buscar por título ou descrição..." />
         <select id="filter-creator">
           <option value="">Todos os usuários</option>
+        </select>
+        <select id="filter-category">
+          <option value="">Todas as categorias</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="saude">Saúde</option>
+          <option value="aniversario">Aniversário</option>
+          <option value="financeiro">Financeiro</option>
+          <option value="outro">Outro</option>
         </select>
         <label class="filter-checkbox flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-text-muted cursor-pointer transition-colors hover:border-primary" for="filter-attachment">
           <input type="checkbox" id="filter-attachment" />
@@ -98,14 +112,27 @@
       <div class="calendar-grid-view" id="calendar-grid-view">
         <button type="button" class="calendar-back-btn btn btn-secondary" id="btn-back-to-months">&larr; Meses</button>
 
-        <div class="calendar-nav">
+        <div class="calendar-view-toggle" id="calendar-view-toggle">
+          <button type="button" class="calendar-view-toggle-btn is-active" data-calendar-view="month">Mês</button>
+          <button type="button" class="calendar-view-toggle-btn" data-calendar-view="week">Semana</button>
+          <button type="button" class="calendar-view-toggle-btn" data-calendar-view="day">Dia</button>
+          <button type="button" class="calendar-view-toggle-btn" data-calendar-view="agenda">Agenda</button>
+        </div>
+
+        <div class="calendar-nav" id="calendar-nav">
           <button type="button" class="btn btn-secondary" id="btn-prev-month">&larr; Anterior</button>
           <h2 id="calendar-title"></h2>
           <button type="button" class="btn btn-secondary" id="btn-next-month">Próximo &rarr;</button>
         </div>
 
-        <div class="calendar-grid" id="calendar-weekdays"></div>
-        <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
+        <div class="calendar-month-grid-wrap" id="calendar-month-grid-wrap">
+          <div class="calendar-grid" id="calendar-weekdays"></div>
+          <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
+        </div>
+
+        <div class="calendar-week-grid hidden" id="calendar-week-grid"></div>
+        <div class="calendar-day-list hidden" id="calendar-day-list"></div>
+        <div class="calendar-agenda-list hidden" id="calendar-agenda-list"></div>
       </div>
     </section>
 
@@ -206,6 +233,17 @@
         <p class="error-text" id="settings-error"></p>
         <button type="submit" class="btn btn-primary" id="btn-save-settings">Salvar configurações</button>
       </form>
+
+      <h2 style="margin-top: 2rem">Meu perfil</h2>
+      <p>Seu número de WhatsApp é usado para receber lembretes de eventos (5, 3 e 1 dia antes).</p>
+      <form id="profile-form" class="card settings-form">
+        <div class="field">
+          <label for="profile-whatsapp">WhatsApp (DDD + número, ex: 62998035936)</label>
+          <input type="text" id="profile-whatsapp" placeholder="62998035936" />
+        </div>
+        <p class="error-text" id="profile-error"></p>
+        <button type="submit" class="btn btn-primary" id="btn-save-profile">Salvar perfil</button>
+      </form>
     </section>
   </main>
 </div>
@@ -239,12 +277,58 @@
         <textarea id="event-description"></textarea>
       </div>
       <div class="field">
-        <label for="event-recurrence">Repetição</label>
-        <select id="event-recurrence">
-          <option value="none">Não repete</option>
-          <option value="once">Só uma vez (some do calendário depois de passar)</option>
-          <option value="yearly">Repete todo ano (aniversário/data fixa)</option>
+        <label for="event-category">Categoria</label>
+        <select id="event-category">
+          <option value="">Sem categoria</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="saude">Saúde</option>
+          <option value="aniversario">Aniversário</option>
+          <option value="financeiro">Financeiro</option>
+          <option value="outro">Outro</option>
         </select>
+      </div>
+      <div class="field">
+        <label for="event-recurrence-frequency">Repetição</label>
+        <select id="event-recurrence-frequency">
+          <option value="none">Não repete</option>
+          <option value="daily">Repete diariamente</option>
+          <option value="weekly">Repete semanalmente</option>
+          <option value="monthly">Repete mensalmente</option>
+          <option value="yearly">Repete anualmente (aniversário/data fixa)</option>
+        </select>
+      </div>
+      <div class="field hidden" id="event-recurrence-interval-field">
+        <label for="event-recurrence-interval"><span id="event-recurrence-interval-label">A cada quantos dias</span></label>
+        <input type="number" id="event-recurrence-interval" min="1" value="1" />
+      </div>
+      <div class="field hidden" id="event-recurrence-weekdays-field">
+        <label>Dias da semana</label>
+        <div class="event-recurrence-weekdays" id="event-recurrence-weekdays">
+          <label><input type="checkbox" value="0" /> Dom</label>
+          <label><input type="checkbox" value="1" /> Seg</label>
+          <label><input type="checkbox" value="2" /> Ter</label>
+          <label><input type="checkbox" value="3" /> Qua</label>
+          <label><input type="checkbox" value="4" /> Qui</label>
+          <label><input type="checkbox" value="5" /> Sex</label>
+          <label><input type="checkbox" value="6" /> Sáb</label>
+        </div>
+      </div>
+      <div class="field hidden" id="event-recurrence-end-field">
+        <label for="event-recurrence-end-type">Terminar</label>
+        <select id="event-recurrence-end-type">
+          <option value="never">Nunca</option>
+          <option value="date">Em uma data</option>
+          <option value="count">Após um número de ocorrências</option>
+        </select>
+        <input type="date" id="event-recurrence-end-date" class="hidden" style="margin-top: 6px" />
+        <input type="number" id="event-recurrence-end-count" min="1" value="5" class="hidden" style="margin-top: 6px" />
+      </div>
+      <div class="field">
+        <label style="display: flex; align-items: center; gap: 8px; font-weight: 400" for="event-hide-when-past">
+          <input type="checkbox" id="event-hide-when-past" style="width: auto" />
+          Ocultar do calendário depois que a data passar
+        </label>
       </div>
       <div class="field">
         <label for="event-files">Anexos (fotos ou arquivos, opcional)</label>

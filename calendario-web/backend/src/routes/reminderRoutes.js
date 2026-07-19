@@ -1,13 +1,11 @@
 const express = require('express');
-const { list, me, updateMe } = require('../controllers/userController');
+const { runNow } = require('../controllers/reminderController');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 
 router.use(auth);
 
-router.get('/me', me);
-router.put('/me', updateMe);
-router.get('/', list);
+router.post('/run-now', runNow);
 
 module.exports = router;

@@ -1,5 +1,15 @@
 import { api, API_BASE_URL } from '../api.js';
 import { showToast, setButtonLoading } from '../toast.js';
+import { normalizeRule, getOccurrencesInRange } from '../recurrence.js';
+
+const CATEGORIES = {
+  trabalho: { label: 'Trabalho', color: '#2563eb' },
+  pessoal: { label: 'Pessoal', color: '#9333ea' },
+  saude: { label: 'Saúde', color: '#16a34a' },
+  aniversario: { label: 'Aniversário', color: '#f97316' },
+  financeiro: { label: 'Financeiro', color: '#ca8a04' },
+  outro: { label: 'Outro', color: '#64748b' },
+};
 
 if (!api.getToken()) {
   window.location.href = 'login.html';
@@ -11,6 +21,7 @@ const IMAGE_MIME = /^image\//;
 
 const state = {
   viewDate: new Date(),
+  calendarViewMode: 'month',
   events: [],
   users: [],
   updateRequests: [],
@@ -19,7 +30,7 @@ const state = {
   editingEventId: null,
   pendingFiles: [],
   existingAttachments: [],
-  filters: { search: '', creatorId: '', onlyWithAttachment: false },
+  filters: { search: '', creatorId: '', category: '', onlyWithAttachment: false },
   galleryMonthKey: null,
   galleryPhotos: [],
   lightboxIndex: 0,
@@ -86,11 +97,22 @@ const el = {
   filterBar: document.getElementById('filter-bar'),
   filterSearch: document.getElementById('filter-search'),
   filterCreator: document.getElementById('filter-creator'),
+  filterCategory: document.getElementById('filter-category'),
   filterAttachment: document.getElementById('filter-attachment'),
 
+  globalSearch: document.getElementById('global-search'),
+  globalSearchInput: document.getElementById('global-search-input'),
+  globalSearchResults: document.getElementById('global-search-results'),
+
+  calendarViewToggle: document.getElementById('calendar-view-toggle'),
+  calendarNav: document.getElementById('calendar-nav'),
   calendarTitle: document.getElementById('calendar-title'),
   calendarWeekdays: document.getElementById('calendar-weekdays'),
   calendarGrid: document.getElementById('calendar-grid'),
+  calendarMonthGridWrap: document.getElementById('calendar-month-grid-wrap'),
+  calendarWeekGrid: document.getElementById('calendar-week-grid'),
+  calendarDayList: document.getElementById('calendar-day-list'),
+  calendarAgendaList: document.getElementById('calendar-agenda-list'),
   btnPrevMonth: document.getElementById('btn-prev-month'),
   btnNextMonth: document.getElementById('btn-next-month'),
   monthListContainer: document.getElementById('calendar-month-list'),
@@ -103,6 +125,11 @@ const el = {
   btnSaveSettings: document.getElementById('btn-save-settings'),
   colorSwatchGrid: document.getElementById('color-swatch-grid'),
 
+  profileForm: document.getElementById('profile-form'),
+  profileWhatsapp: document.getElementById('profile-whatsapp'),
+  profileError: document.getElementById('profile-error'),
+  btnSaveProfile: document.getElementById('btn-save-profile'),
+
   modalOverlay: document.getElementById('modal-overlay'),
   modalTitle: document.getElementById('modal-title'),
   modalClose: document.getElementById('modal-close'),
@@ -114,7 +141,18 @@ const el = {
   eventDate: document.getElementById('event-date'),
   eventTitle: document.getElementById('event-title'),
   eventDescription: document.getElementById('event-description'),
-  eventRecurrence: document.getElementById('event-recurrence'),
+  eventCategory: document.getElementById('event-category'),
+  eventRecurrenceFrequency: document.getElementById('event-recurrence-frequency'),
+  eventRecurrenceIntervalField: document.getElementById('event-recurrence-interval-field'),
+  eventRecurrenceInterval: document.getElementById('event-recurrence-interval'),
+  eventRecurrenceIntervalLabel: document.getElementById('event-recurrence-interval-label'),
+  eventRecurrenceWeekdaysField: document.getElementById('event-recurrence-weekdays-field'),
+  eventRecurrenceWeekdays: document.getElementById('event-recurrence-weekdays'),
+  eventRecurrenceEndField: document.getElementById('event-recurrence-end-field'),
+  eventRecurrenceEndType: document.getElementById('event-recurrence-end-type'),
+  eventRecurrenceEndDate: document.getElementById('event-recurrence-end-date'),
+  eventRecurrenceEndCount: document.getElementById('event-recurrence-end-count'),
+  eventHideWhenPast: document.getElementById('event-hide-when-past'),
   eventFiles: document.getElementById('event-files'),
   attachmentsPreview: document.getElementById('event-attachments-preview'),
   formError: document.getElementById('form-error'),
@@ -150,23 +188,28 @@ function iconHtml(name, extraClass = '') {
   return `<svg class="icon${extraClass ? ` ${extraClass}` : ''}" aria-hidden="true"><use href="../assets/icons.svg#icon-${name}"></use></svg>`;
 }
 
+function isEventRecurring(event) {
+  return normalizeRule(event).frequency !== 'none';
+}
+
+function matchesSearchTerm(event, term) {
+  const haystack = `${event.title} ${event.description || ''}`.toLowerCase();
+  return haystack.includes(term.toLowerCase());
+}
+
 function matchesFilters(event) {
-  const { search, creatorId, onlyWithAttachment } = state.filters;
+  const { search, creatorId, category, onlyWithAttachment } = state.filters;
 
   if (creatorId && event.creator?._id !== creatorId) return false;
+  if (category && event.category !== category) return false;
   if (onlyWithAttachment && (!event.attachments || event.attachments.length === 0)) return false;
-
-  if (search) {
-    const term = search.toLowerCase();
-    const haystack = `${event.title} ${event.description || ''}`.toLowerCase();
-    if (!haystack.includes(term)) return false;
-  }
+  if (search && !matchesSearchTerm(event, search)) return false;
 
   return true;
 }
 
 function isHiddenPastEvent(event) {
-  if (event.recurring || !event.hideWhenPast) return false;
+  if (isEventRecurring(event) || !event.hideWhenPast) return false;
   return toDateKey(new Date(event.date)) < toDateKey(new Date());
 }
 
@@ -174,25 +217,33 @@ function filteredEvents() {
   return state.events.filter(matchesFilters).filter((event) => !isHiddenPastEvent(event));
 }
 
-function matchesDateKey(event, dateKey) {
-  const eventDate = new Date(event.date);
-  if (toDateKey(eventDate) === dateKey) return true;
-  if (!event.recurring) return false;
+// Expande as ocorrências de cada evento dentro do intervalo [rangeStart, rangeEnd]
+// e agrupa por dateKey, para não recalcular a recorrência por célula do grid.
+function buildOccurrenceMap(events, rangeStart, rangeEnd) {
+  const map = new Map();
 
+  events.forEach((event) => {
+    getOccurrencesInRange(event.date, normalizeRule(event), rangeStart, rangeEnd).forEach((occurrence) => {
+      const key = toDateKey(occurrence);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(event);
+    });
+  });
+
+  return map;
+}
+
+function matchesDateKey(event, dateKey) {
   const [y, m, d] = dateKey.split('-').map(Number);
-  return y > eventDate.getFullYear() && eventDate.getMonth() + 1 === m && eventDate.getDate() === d;
+  const target = new Date(y, m - 1, d, 12, 0, 0);
+  return getOccurrencesInRange(event.date, normalizeRule(event), target, target).length > 0;
 }
 
 function nextOccurrenceDate(event) {
-  const original = new Date(event.date);
-  if (!event.recurring) return original;
-
   const today = new Date();
-  let candidate = new Date(today.getFullYear(), original.getMonth(), original.getDate(), 12, 0, 0);
-  if (toDateKey(candidate) < toDateKey(today)) {
-    candidate = new Date(today.getFullYear() + 1, original.getMonth(), original.getDate(), 12, 0, 0);
-  }
-  return candidate;
+  const horizon = new Date(today.getFullYear() + 5, today.getMonth(), today.getDate());
+  const occurrences = getOccurrencesInRange(event.date, normalizeRule(event), today, horizon);
+  return occurrences[0] || new Date(event.date);
 }
 
 function eventsByDateKey(dateKey) {
@@ -213,6 +264,44 @@ const PERSON_COLORS = [
 function personColorFor(userId) {
   const index = state.users.findIndex((user) => user._id === userId);
   return PERSON_COLORS[index === -1 ? 0 : index % PERSON_COLORS.length];
+}
+
+function pillColorFor(event) {
+  if (event.category && CATEGORIES[event.category]) return CATEGORIES[event.category].color;
+  return event.creator ? personColorFor(event.creator._id) : 'var(--color-primary)';
+}
+
+function categoryChipHtml(event) {
+  const category = event.category && CATEGORIES[event.category];
+  if (!category) return '';
+  return `<span class="category-chip" style="background:${category.color}">${escapeHtml(category.label)}</span>`;
+}
+
+function renderEventPill(event, sharedIds) {
+  const bg = pillColorFor(event);
+  const recurringIcon = isEventRecurring(event) ? iconHtml('repeat', 'icon-inline') : '';
+  const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
+  const dragAttrs = isEventRecurring(event) ? '' : `draggable="true" data-event-id="${event._id}"`;
+  return `<span class="event-pill" style="background:${bg}" ${dragAttrs}>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</span>`;
+}
+
+function eventListItemHtml(event, sharedIds) {
+  const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
+  const recurringIcon = isEventRecurring(event) ? iconHtml('repeat', 'icon-inline') : '';
+  const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
+
+  return `
+    <div class="event-list-item-wrap" data-id="${event._id}">
+      <div class="event-list-item">
+        <div>
+          <strong>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</strong>${categoryChipHtml(event)}<br />
+          <span class="badge"><span class="person-dot" style="background:${dotColor}"></span>por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
+        </div>
+        <button type="button" class="btn btn-secondary" data-edit="${event._id}">Editar</button>
+      </div>
+      ${renderAttachmentList(event.attachments)}
+    </div>
+  `;
 }
 
 function sharedEventIdSet() {
@@ -251,7 +340,7 @@ function renderUpcomingEvents() {
       const dateKey = toDateKey(occurrence);
       const [, m, d] = dateKey.split('-');
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
-      const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
+      const recurringIcon = isEventRecurring(event) ? iconHtml('repeat', 'icon-inline') : '';
       const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
       return `
         <button type="button" class="sidebar-list-item is-clickable" data-date="${dateKey}">
@@ -647,20 +736,87 @@ el.sidebarBackdrop.addEventListener('click', () => setMobileSidebarOpen(false));
 
 el.filterSearch.addEventListener('input', () => {
   state.filters.search = el.filterSearch.value.trim();
-  renderCalendar();
+  renderActiveCalendarView();
   renderUpcomingEvents();
 });
 
 el.filterCreator.addEventListener('change', () => {
   state.filters.creatorId = el.filterCreator.value;
-  renderCalendar();
+  renderActiveCalendarView();
+  renderUpcomingEvents();
+});
+
+el.filterCategory.addEventListener('change', () => {
+  state.filters.category = el.filterCategory.value;
+  renderActiveCalendarView();
   renderUpcomingEvents();
 });
 
 el.filterAttachment.addEventListener('change', () => {
   state.filters.onlyWithAttachment = el.filterAttachment.checked;
-  renderCalendar();
+  renderActiveCalendarView();
   renderUpcomingEvents();
+});
+
+/* ---------- Busca global ---------- */
+
+const GLOBAL_SEARCH_RESULT_LIMIT = 20;
+
+function renderGlobalSearchResults(term) {
+  if (!term) {
+    el.globalSearchResults.classList.add('hidden');
+    el.globalSearchResults.innerHTML = '';
+    return;
+  }
+
+  const matches = state.events
+    .filter((event) => matchesSearchTerm(event, term))
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, GLOBAL_SEARCH_RESULT_LIMIT);
+
+  if (matches.length === 0) {
+    el.globalSearchResults.innerHTML = '<p class="global-search-empty">Nenhum evento encontrado</p>';
+    el.globalSearchResults.classList.remove('hidden');
+    return;
+  }
+
+  el.globalSearchResults.innerHTML = matches
+    .map((event) => {
+      const dateLabel = new Date(event.date).toLocaleDateString('pt-BR');
+      return `
+        <button type="button" class="global-search-result" data-id="${event._id}">
+          <span>${escapeHtml(event.title)}${categoryChipHtml(event)}</span>
+          <span class="global-search-result-date">${dateLabel}</span>
+        </button>
+      `;
+    })
+    .join('');
+
+  el.globalSearchResults.querySelectorAll('[data-id]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const event = state.events.find((e) => e._id === btn.dataset.id);
+      if (!event) return;
+      const dateKey = toDateKey(new Date(event.date));
+      const [y, m] = dateKey.split('-').map(Number);
+      state.viewDate = new Date(y, m - 1, 1);
+      setCalendarViewMode('month');
+      openDayModal(dateKey);
+      el.globalSearchInput.value = '';
+      el.globalSearchResults.classList.add('hidden');
+    });
+  });
+
+  el.globalSearchResults.classList.remove('hidden');
+}
+
+el.globalSearchInput.addEventListener('input', () => {
+  renderGlobalSearchResults(el.globalSearchInput.value.trim());
+});
+
+document.addEventListener('click', (event) => {
+  if (!el.globalSearch.contains(event.target)) {
+    el.globalSearchResults.classList.add('hidden');
+  }
 });
 
 /* ---------- Calendário ---------- */
@@ -692,12 +848,15 @@ function renderCalendar() {
   const cells = buildMonthCells(state.viewDate);
   const sharedIds = sharedEventIdSet();
 
+  const monthDates = cells.filter(Boolean);
+  const occMap = buildOccurrenceMap(filteredEvents(), monthDates[0], monthDates[monthDates.length - 1]);
+
   el.calendarGrid.innerHTML = cells
     .map((date) => {
       if (!date) return '<div class="calendar-day is-empty"></div>';
 
       const dateKey = toDateKey(date);
-      const dayEvents = eventsByDateKey(dateKey);
+      const dayEvents = (occMap.get(dateKey) || []).sort((a, b) => new Date(a.date) - new Date(b.date));
       const isToday = dateKey === todayKey;
 
       const dayAttachments = dayEvents.flatMap((event) => event.attachments || []);
@@ -706,12 +865,7 @@ function renderCalendar() {
 
       const pills = dayEvents
         .slice(0, 3)
-        .map((event) => {
-          const bg = event.creator ? personColorFor(event.creator._id) : 'var(--color-primary)';
-          const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
-          const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
-          return `<span class="event-pill" style="background:${bg}">${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</span>`;
-        })
+        .map((event) => renderEventPill(event, sharedIds))
         .join('');
       const more = dayEvents.length > 3 ? `<span class="badge">+${dayEvents.length - 3} mais</span>` : '';
 
@@ -736,6 +890,7 @@ function renderCalendar() {
   el.calendarGrid.querySelectorAll('.calendar-day[data-date]').forEach((cell) => {
     cell.addEventListener('click', () => openDayModal(cell.dataset.date));
   });
+  setupEventDragAndDrop(el.calendarGrid);
 
   playFadeIn(el.calendarGrid);
 }
@@ -744,6 +899,215 @@ function renderCalendarSkeleton() {
   el.calendarGrid.innerHTML = Array.from({ length: 35 })
     .map(() => '<div class="calendar-day-skeleton"></div>')
     .join('');
+}
+
+/* ---------- Visões de semana / dia / agenda ---------- */
+
+const AGENDA_DAYS_AHEAD = 60;
+
+function startOfWeek(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), 12, 0, 0);
+}
+
+function renderActiveCalendarView() {
+  if (state.calendarViewMode === 'week') renderWeek();
+  else if (state.calendarViewMode === 'day') renderDay();
+  else if (state.calendarViewMode === 'agenda') renderAgenda();
+  else renderCalendar();
+}
+
+function setCalendarViewMode(mode) {
+  state.calendarViewMode = mode;
+
+  el.calendarViewToggle.querySelectorAll('.calendar-view-toggle-btn').forEach((btn) => {
+    btn.classList.toggle('is-active', btn.dataset.calendarView === mode);
+  });
+
+  el.calendarMonthGridWrap.classList.toggle('hidden', mode !== 'month');
+  el.calendarWeekGrid.classList.toggle('hidden', mode !== 'week');
+  el.calendarDayList.classList.toggle('hidden', mode !== 'day');
+  el.calendarAgendaList.classList.toggle('hidden', mode !== 'agenda');
+  el.calendarNav.classList.toggle('hidden', mode === 'agenda');
+
+  renderActiveCalendarView();
+}
+
+el.calendarViewToggle.querySelectorAll('.calendar-view-toggle-btn').forEach((btn) => {
+  btn.addEventListener('click', () => setCalendarViewMode(btn.dataset.calendarView));
+});
+
+function renderWeek() {
+  const weekStart = startOfWeek(state.viewDate);
+  const days = Array.from(
+    { length: 7 },
+    (_, i) => new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i, 12, 0, 0)
+  );
+  const todayKey = toDateKey(new Date());
+  const sharedIds = sharedEventIdSet();
+  const occMap = buildOccurrenceMap(filteredEvents(), days[0], days[6]);
+
+  const startLabel = weekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  const endLabel = days[6].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  el.calendarTitle.textContent = `${startLabel} – ${endLabel}`;
+
+  el.calendarWeekGrid.innerHTML = days
+    .map((date) => {
+      const dateKey = toDateKey(date);
+      const dayEvents = (occMap.get(dateKey) || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+      const isToday = dateKey === todayKey;
+      const pills = dayEvents.map((event) => renderEventPill(event, sharedIds)).join('');
+
+      return `
+        <button type="button" class="calendar-day calendar-week-day${isToday ? ' is-today' : ''}" data-date="${dateKey}">
+          <div class="calendar-day-header">
+            <span class="calendar-day-weekday">${WEEKDAYS[date.getDay()]}</span>
+            <span class="calendar-day-number">${date.getDate()}</span>
+          </div>
+          <div class="calendar-day-events">${pills}</div>
+        </button>
+      `;
+    })
+    .join('');
+
+  el.calendarWeekGrid.querySelectorAll('.calendar-day[data-date]').forEach((cell) => {
+    cell.addEventListener('click', () => openDayModal(cell.dataset.date));
+  });
+  setupEventDragAndDrop(el.calendarWeekGrid);
+
+  playFadeIn(el.calendarWeekGrid);
+}
+
+function renderDay() {
+  const dateKey = toDateKey(state.viewDate);
+  const label = state.viewDate.toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+  el.calendarTitle.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+
+  const dayEvents = eventsByDateKey(dateKey);
+  const sharedIds = sharedEventIdSet();
+  const listHtml = dayEvents.length
+    ? dayEvents.map((event) => eventListItemHtml(event, sharedIds)).join('')
+    : '<p class="sidebar-empty">Nenhum evento neste dia.</p>';
+
+  el.calendarDayList.innerHTML = `
+    ${listHtml}
+    <button type="button" class="btn btn-primary btn-block" data-new-event-for="${dateKey}" style="margin-top: 1rem">
+      <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-plus"></use></svg>
+      Novo evento
+    </button>
+  `;
+
+  el.calendarDayList.querySelectorAll('[data-edit]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const event = dayEvents.find((e) => e._id === btn.dataset.edit);
+      openEventFormModal(event, dateKey);
+    });
+  });
+  el.calendarDayList.querySelectorAll('[data-new-event-for]').forEach((btn) => {
+    btn.addEventListener('click', () => openEventFormModal(null, btn.dataset.newEventFor));
+  });
+
+  playFadeIn(el.calendarDayList);
+}
+
+function renderAgenda() {
+  el.calendarTitle.textContent = `Próximos ${AGENDA_DAYS_AHEAD} dias`;
+
+  const today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 12, 0, 0);
+  const horizon = new Date(today.getFullYear(), today.getMonth(), today.getDate() + AGENDA_DAYS_AHEAD, 12, 0, 0);
+  const sharedIds = sharedEventIdSet();
+  const occMap = buildOccurrenceMap(filteredEvents(), today, horizon);
+  const sortedKeys = [...occMap.keys()].sort();
+
+  if (sortedKeys.length === 0) {
+    el.calendarAgendaList.innerHTML = '<p class="sidebar-empty">Nenhum evento nos próximos dias.</p>';
+    return;
+  }
+
+  el.calendarAgendaList.innerHTML = sortedKeys
+    .map((key) => {
+      const [y, m, d] = key.split('-').map(Number);
+      const label = new Date(y, m - 1, d).toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+      });
+      const dayEvents = occMap.get(key).sort((a, b) => new Date(a.date) - new Date(b.date));
+      const items = dayEvents.map((event) => eventListItemHtml(event, sharedIds)).join('');
+
+      return `
+        <div class="agenda-day-group">
+          <h3 class="agenda-day-heading">${label.charAt(0).toUpperCase() + label.slice(1)}</h3>
+          ${items}
+        </div>
+      `;
+    })
+    .join('');
+
+  el.calendarAgendaList.querySelectorAll('[data-edit]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const event = state.events.find((e) => e._id === btn.dataset.edit);
+      if (event) openEventFormModal(event, toDateKey(new Date(event.date)));
+    });
+  });
+
+  playFadeIn(el.calendarAgendaList);
+}
+
+/* ---------- Arrastar e soltar para reagendar ---------- */
+
+function setupEventDragAndDrop(containerEl) {
+  containerEl.querySelectorAll('.event-pill[draggable="true"]').forEach((pill) => {
+    pill.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', pill.dataset.eventId);
+      e.dataTransfer.effectAllowed = 'move';
+      pill.classList.add('is-dragging');
+    });
+    pill.addEventListener('dragend', () => pill.classList.remove('is-dragging'));
+  });
+
+  containerEl.querySelectorAll('.calendar-day[data-date]').forEach((cell) => {
+    cell.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      cell.classList.add('is-drop-target');
+    });
+    cell.addEventListener('dragleave', (e) => {
+      if (cell.contains(e.relatedTarget)) return;
+      cell.classList.remove('is-drop-target');
+    });
+    cell.addEventListener('drop', (e) => {
+      e.preventDefault();
+      cell.classList.remove('is-drop-target');
+      const eventId = e.dataTransfer.getData('text/plain');
+      rescheduleEvent(eventId, cell.dataset.date);
+    });
+  });
+}
+
+async function rescheduleEvent(eventId, dateKey) {
+  const event = state.events.find((e) => e._id === eventId);
+  if (!event || toDateKey(new Date(event.date)) === dateKey) return;
+
+  try {
+    const payload = {
+      title: event.title,
+      description: event.description || '',
+      date: dateKeyToNoonISO(dateKey),
+      attachments: event.attachments || [],
+      recurrenceRule: event.recurrenceRule,
+      category: event.category || null,
+      hideWhenPast: Boolean(event.hideWhenPast),
+    };
+    await api.updateEvent(eventId, payload);
+    await reloadEvents();
+    showToast('Evento reagendado', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
 }
 
 /* ---------- Lista de meses (mobile) ---------- */
@@ -759,20 +1123,24 @@ function generateMonthRange() {
   return months;
 }
 
-function countEventsInMonth(monthDate) {
+function countEventsInMonth(monthDate, occMap) {
   return buildMonthCells(monthDate)
     .filter(Boolean)
-    .reduce((sum, day) => sum + eventsByDateKey(toDateKey(day)).length, 0);
+    .reduce((sum, day) => sum + (occMap.get(toDateKey(day))?.length || 0), 0);
 }
 
 function renderMonthList() {
   const today = new Date();
+  const months = generateMonthRange();
+  const lastMonth = months[months.length - 1];
+  const rangeEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+  const occMap = buildOccurrenceMap(filteredEvents(), months[0], rangeEnd);
 
-  el.monthListContainer.innerHTML = generateMonthRange()
+  el.monthListContainer.innerHTML = months
     .map((monthDate) => {
       const rawLabel = monthDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
       const label = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
-      const count = countEventsInMonth(monthDate);
+      const count = countEventsInMonth(monthDate, occMap);
       const isCurrent =
         monthDate.getFullYear() === today.getFullYear() && monthDate.getMonth() === today.getMonth();
 
@@ -1003,25 +1371,7 @@ function renderEventList(dateKey) {
 
   const sharedIds = sharedEventIdSet();
 
-  el.eventList.innerHTML = dayEvents
-    .map((event) => {
-      const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
-      const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
-      const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
-      return `
-        <div class="event-list-item-wrap" data-id="${event._id}">
-          <div class="event-list-item">
-            <div>
-              <strong>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</strong><br />
-              <span class="badge"><span class="person-dot" style="background:${dotColor}"></span>por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
-            </div>
-            <button type="button" class="btn btn-secondary" data-edit="${event._id}">Editar</button>
-          </div>
-          ${renderAttachmentList(event.attachments)}
-        </div>
-      `;
-    })
-    .join('');
+  el.eventList.innerHTML = dayEvents.map((event) => eventListItemHtml(event, sharedIds)).join('');
 
   el.eventList.querySelectorAll('[data-edit]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -1075,6 +1425,82 @@ function renderFormAttachmentsPreview() {
   el.attachmentsPreview.innerHTML = savedHtml + pendingHtml;
 }
 
+const RECURRENCE_INTERVAL_LABELS = {
+  none: 'A cada quantos dias',
+  daily: 'A cada quantos dias',
+  weekly: 'A cada quantas semanas',
+  monthly: 'A cada quantos meses',
+  yearly: 'A cada quantos anos',
+};
+
+function updateRecurrenceFieldsVisibility() {
+  const frequency = el.eventRecurrenceFrequency.value;
+  el.eventRecurrenceIntervalField.classList.toggle('hidden', frequency === 'none');
+  el.eventRecurrenceWeekdaysField.classList.toggle('hidden', frequency !== 'weekly');
+  el.eventRecurrenceEndField.classList.toggle('hidden', frequency === 'none');
+  el.eventRecurrenceIntervalLabel.textContent = RECURRENCE_INTERVAL_LABELS[frequency] || RECURRENCE_INTERVAL_LABELS.none;
+}
+
+function updateRecurrenceEndFieldsVisibility() {
+  const endType = el.eventRecurrenceEndType.value;
+  el.eventRecurrenceEndDate.classList.toggle('hidden', endType !== 'date');
+  el.eventRecurrenceEndCount.classList.toggle('hidden', endType !== 'count');
+}
+
+el.eventRecurrenceFrequency.addEventListener('change', updateRecurrenceFieldsVisibility);
+el.eventRecurrenceEndType.addEventListener('change', updateRecurrenceEndFieldsVisibility);
+
+function populateRecurrenceForm(event) {
+  const rule = event
+    ? normalizeRule(event)
+    : { frequency: 'none', interval: 1, daysOfWeek: [], endDate: null, endCount: null };
+
+  el.eventRecurrenceFrequency.value = rule.frequency;
+  el.eventRecurrenceInterval.value = rule.interval || 1;
+
+  el.eventRecurrenceWeekdays.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+    checkbox.checked = rule.daysOfWeek.includes(Number(checkbox.value));
+  });
+
+  if (rule.endDate) {
+    el.eventRecurrenceEndType.value = 'date';
+    el.eventRecurrenceEndDate.value = toDateKey(new Date(rule.endDate));
+    el.eventRecurrenceEndCount.value = 5;
+  } else if (rule.endCount) {
+    el.eventRecurrenceEndType.value = 'count';
+    el.eventRecurrenceEndCount.value = rule.endCount;
+    el.eventRecurrenceEndDate.value = '';
+  } else {
+    el.eventRecurrenceEndType.value = 'never';
+    el.eventRecurrenceEndDate.value = '';
+    el.eventRecurrenceEndCount.value = 5;
+  }
+
+  updateRecurrenceFieldsVisibility();
+  updateRecurrenceEndFieldsVisibility();
+}
+
+function readRecurrenceRuleFromForm() {
+  const frequency = el.eventRecurrenceFrequency.value;
+
+  if (frequency === 'none') {
+    return { frequency: 'none', interval: 1, daysOfWeek: [], endDate: null, endCount: null };
+  }
+
+  const interval = Math.max(1, Number(el.eventRecurrenceInterval.value) || 1);
+  const daysOfWeek =
+    frequency === 'weekly'
+      ? Array.from(el.eventRecurrenceWeekdays.querySelectorAll('input[type="checkbox"]:checked')).map((c) => Number(c.value))
+      : [];
+
+  const endType = el.eventRecurrenceEndType.value;
+  const endDate =
+    endType === 'date' && el.eventRecurrenceEndDate.value ? dateKeyToNoonISO(el.eventRecurrenceEndDate.value) : null;
+  const endCount = endType === 'count' ? Math.max(1, Number(el.eventRecurrenceEndCount.value) || 1) : null;
+
+  return { frequency, interval, daysOfWeek, endDate, endCount };
+}
+
 function openEventForm(event, dateKey) {
   state.pendingFiles = [];
   el.formError.textContent = '';
@@ -1087,7 +1513,8 @@ function openEventForm(event, dateKey) {
     el.eventDate.value = toDateKey(new Date(event.date));
     el.eventTitle.value = event.title;
     el.eventDescription.value = event.description || '';
-    el.eventRecurrence.value = event.recurring ? 'yearly' : event.hideWhenPast ? 'once' : 'none';
+    el.eventCategory.value = event.category || '';
+    el.eventHideWhenPast.checked = Boolean(event.hideWhenPast);
     el.btnDeleteEvent.classList.remove('hidden');
   } else {
     state.editingEventId = null;
@@ -1096,13 +1523,20 @@ function openEventForm(event, dateKey) {
     el.eventDate.value = dateKey;
     el.eventTitle.value = '';
     el.eventDescription.value = '';
-    el.eventRecurrence.value = 'none';
+    el.eventCategory.value = '';
+    el.eventHideWhenPast.checked = false;
     el.btnDeleteEvent.classList.add('hidden');
   }
 
+  populateRecurrenceForm(event);
   renderFormAttachmentsPreview();
   renderEventInviteSection(event);
   showFormView();
+}
+
+function openEventFormModal(event, dateKey) {
+  openEventForm(event, dateKey);
+  el.modalOverlay.classList.add('is-open');
 }
 
 function closeModal() {
@@ -1114,7 +1548,7 @@ function closeModal() {
 
 async function reloadEvents() {
   state.events = await api.getEvents();
-  renderCalendar();
+  renderActiveCalendarView();
   renderUpcomingEvents();
   if (isMobile()) renderMonthList();
   if (!el.viewGallery.classList.contains('hidden')) renderGallery();
@@ -1123,7 +1557,7 @@ async function reloadEvents() {
 async function reloadInvitations() {
   state.invitations = await api.getInvitations();
   renderInviteBoard();
-  renderCalendar();
+  renderActiveCalendarView();
   renderUpcomingEvents();
   if (!el.eventForm.classList.contains('hidden') && state.editingEventId) {
     renderEventInviteSection(state.events.find((e) => e._id === state.editingEventId));
@@ -1159,8 +1593,9 @@ el.eventForm.addEventListener('submit', async (formEvent) => {
       description,
       date: dateKeyToNoonISO(dateKey),
       attachments,
-      recurring: el.eventRecurrence.value === 'yearly',
-      hideWhenPast: el.eventRecurrence.value === 'once',
+      recurrenceRule: readRecurrenceRuleFromForm(),
+      category: el.eventCategory.value || null,
+      hideWhenPast: el.eventHideWhenPast.checked,
     };
 
     const wasEditing = Boolean(state.editingEventId);
@@ -1225,15 +1660,20 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && el.modalOverlay.classList.contains('is-open')) closeModal();
 });
 
-el.btnPrevMonth.addEventListener('click', () => {
-  state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() - 1, 1);
-  renderCalendar();
-});
+function stepViewDate(direction) {
+  const { calendarViewMode, viewDate } = state;
+  if (calendarViewMode === 'week') {
+    state.viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate() + direction * 7);
+  } else if (calendarViewMode === 'day') {
+    state.viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate() + direction);
+  } else {
+    state.viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + direction, 1);
+  }
+  renderActiveCalendarView();
+}
 
-el.btnNextMonth.addEventListener('click', () => {
-  state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + 1, 1);
-  renderCalendar();
-});
+el.btnPrevMonth.addEventListener('click', () => stepViewDate(-1));
+el.btnNextMonth.addEventListener('click', () => stepViewDate(1));
 
 el.btnLogout.addEventListener('click', () => {
   api.logout();
@@ -1304,6 +1744,23 @@ el.settingsForm.addEventListener('submit', async (event) => {
   }
 });
 
+el.profileForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  el.profileError.textContent = '';
+  setButtonLoading(el.btnSaveProfile, true);
+
+  try {
+    const updated = await api.updateProfile({ whatsappNumber: el.profileWhatsapp.value.trim() });
+    api.updateCurrentUser(updated);
+    showToast('Perfil salvo', 'success');
+  } catch (err) {
+    el.profileError.textContent = err.message;
+    showToast(err.message, 'error');
+  } finally {
+    setButtonLoading(el.btnSaveProfile, false);
+  }
+});
+
 /* ---------- Inicialização ---------- */
 
 function initialsOf(name) {
@@ -1331,6 +1788,13 @@ async function init() {
     el.settingsBackground.value = settings.background || '';
   } catch (err) {
     console.error('Não foi possível carregar as configurações:', err.message);
+  }
+
+  try {
+    const profile = await api.getMyProfile();
+    el.profileWhatsapp.value = profile.whatsappNumber || '';
+  } catch (err) {
+    console.error('Não foi possível carregar o perfil:', err.message);
   }
 
   try {

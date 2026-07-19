@@ -91,6 +91,20 @@ function getUsers() {
   return request('/users');
 }
 
+function getMyProfile() {
+  return request('/users/me');
+}
+
+function updateProfile(payload) {
+  return request('/users/me', { method: 'PUT', body: payload });
+}
+
+function updateCurrentUser(patch) {
+  const user = { ...getCurrentUser(), ...patch };
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  return user;
+}
+
 function getActivityLog() {
   return request('/activity-logs');
 }
@@ -141,6 +155,9 @@ export const api = {
   getSettings,
   updateSettings,
   getUsers,
+  getMyProfile,
+  updateProfile,
+  updateCurrentUser,
   getActivityLog,
   getUpdateRequests,
   createUpdateRequest,
