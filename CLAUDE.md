@@ -7,7 +7,7 @@ Este arquivo orienta o Claude Code (ou qualquer assistente) ao trabalhar neste r
 - Objetivo: Aplicação web de calendário pessoal — autenticação de usuários, criação/gestão de eventos, upload de anexos, configurações de usuário, log de atividades e solicitações de atualização.
 - Stack:
   - Backend: Node.js + Express 5, MongoDB via Mongoose, autenticação com JWT + bcrypt, upload de arquivos com Multer + Cloudinary.
-  - Frontend: HTML/CSS/JS puro (sem framework), servido estaticamente (live-server em dev).
+  - Frontend: HTML/CSS/JS/react-Vite/Tailwind, servido estaticamente (live-server em dev).
 - Como rodar localmente:
   - Backend: `cd calendario-web/backend && npm install && npm run dev` (nodemon, lê `.env` — copiar de `.env.example` e preencher `MONGO_URI`, `JWT_SECRET`, credenciais Cloudinary). Sobe em `http://localhost:3000`.
   - Frontend: `cd calendario-web/frontend && npm install && npm run dev` (live-server na porta 5500, entry-file `pages/login.html`). Em produção o backend também serve o frontend como estático (`app.use(express.static(frontendDir))`).
