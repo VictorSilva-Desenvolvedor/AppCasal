@@ -331,3 +331,25 @@
   border-color: var(--color-danger);
   color: var(--color-danger);
 }
+
+@media (max-width: 768px) {
+  .modal {
+    padding: 1.1rem;
+    max-width: 94vw;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn {
+    flex: none;
+    width: 100%;
+  }
+
+  .toast-container {
+    left: 0.75rem;
+    right: 0.75rem;
+    max-width: none;
+  }
+}

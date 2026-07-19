@@ -39,6 +39,8 @@
     <button type="button" class="btn btn-secondary btn-block" id="btn-logout">Sair</button>
   </aside>
 
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
   <main class="main-content">
     <button type="button" class="sidebar-toggle" id="btn-toggle-sidebar" title="Mostrar/ocultar barra lateral">☰</button>
 
@@ -53,14 +55,20 @@
         </label>
       </div>
 
-      <div class="calendar-nav">
-        <button type="button" class="btn btn-secondary" id="btn-prev-month">&larr; Anterior</button>
-        <h2 id="calendar-title"></h2>
-        <button type="button" class="btn btn-secondary" id="btn-next-month">Próximo &rarr;</button>
-      </div>
+      <div class="calendar-month-list" id="calendar-month-list"></div>
 
-      <div class="calendar-grid" id="calendar-weekdays"></div>
-      <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
+      <div class="calendar-grid-view" id="calendar-grid-view">
+        <button type="button" class="calendar-back-btn btn btn-secondary" id="btn-back-to-months">&larr; Meses</button>
+
+        <div class="calendar-nav">
+          <button type="button" class="btn btn-secondary" id="btn-prev-month">&larr; Anterior</button>
+          <h2 id="calendar-title"></h2>
+          <button type="button" class="btn btn-secondary" id="btn-next-month">Próximo &rarr;</button>
+        </div>
+
+        <div class="calendar-grid" id="calendar-weekdays"></div>
+        <div class="calendar-grid" id="calendar-grid" style="margin-top: 6px"></div>
+      </div>
     </section>
 
     <section id="view-activity" class="view hidden">
@@ -91,6 +99,8 @@
             <button type="button" class="color-swatch swatch-red" data-color-theme="red" title="Vermelho"></button>
             <button type="button" class="color-swatch swatch-teal" data-color-theme="teal" title="Turquesa"></button>
             <button type="button" class="color-swatch swatch-amber" data-color-theme="amber" title="Âmbar"></button>
+            <button type="button" class="color-swatch swatch-miku" data-color-theme="miku" title="Hatsune Miku"></button>
+            <button type="button" class="color-swatch swatch-black-green" data-color-theme="black-green" title="Preto & Verde"></button>
           </div>
         </div>
         <div class="field">

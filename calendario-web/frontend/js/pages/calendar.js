@@ -22,6 +22,7 @@ const state = {
 
 const el = {
   sidebar: document.querySelector('.sidebar'),
+  sidebarBackdrop: document.getElementById('sidebar-backdrop'),
   btnToggleSidebar: document.getElementById('btn-toggle-sidebar'),
   userName: document.getElementById('user-name'),
   userAvatar: document.getElementById('user-avatar'),
@@ -45,6 +46,8 @@ const el = {
   calendarGrid: document.getElementById('calendar-grid'),
   btnPrevMonth: document.getElementById('btn-prev-month'),
   btnNextMonth: document.getElementById('btn-next-month'),
+  monthListContainer: document.getElementById('calendar-month-list'),
+  btnBackToMonths: document.getElementById('btn-back-to-months'),
 
   settingsForm: document.getElementById('settings-form'),
   settingsTheme: document.getElementById('settings-theme'),
@@ -277,7 +280,10 @@ function switchView(view) {
 }
 
 el.navItems.forEach((item) => {
-  item.addEventListener('click', () => switchView(item.dataset.view));
+  item.addEventListener('click', () => {
+    switchView(item.dataset.view);
+    if (isMobile()) setMobileSidebarOpen(false);
+  });
 });
 
 el.btnQuickNewEvent.addEventListener('click', () => {
@@ -294,9 +300,20 @@ function setSidebarCollapsed(collapsed) {
   localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0');
 }
 
+function setMobileSidebarOpen(open) {
+  el.sidebar.classList.toggle('is-mobile-open', open);
+  el.sidebarBackdrop.classList.toggle('is-visible', open);
+}
+
 el.btnToggleSidebar.addEventListener('click', () => {
-  setSidebarCollapsed(!el.sidebar.classList.contains('is-collapsed'));
+  if (isMobile()) {
+    setMobileSidebarOpen(!el.sidebar.classList.contains('is-mobile-open'));
+  } else {
+    setSidebarCollapsed(!el.sidebar.classList.contains('is-collapsed'));
+  }
 });
+
+el.sidebarBackdrop.addEventListener('click', () => setMobileSidebarOpen(false));
 
 /* ---------- Filtros ---------- */
 
@@ -398,6 +415,75 @@ function renderCalendarSkeleton() {
     .map(() => '<div class="calendar-day-skeleton"></div>')
     .join('');
 }
+
+/* ---------- Lista de meses (mobile) ---------- */
+
+const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
+function generateMonthRange() {
+  const base = new Date();
+  const months = [];
+  for (let i = -6; i <= 12; i += 1) {
+    months.push(new Date(base.getFullYear(), base.getMonth() + i, 1));
+  }
+  return months;
+}
+
+function countEventsInMonth(monthDate) {
+  return buildMonthCells(monthDate)
+    .filter(Boolean)
+    .reduce((sum, day) => sum + eventsByDateKey(toDateKey(day)).length, 0);
+}
+
+function renderMonthList() {
+  const today = new Date();
+
+  el.monthListContainer.innerHTML = generateMonthRange()
+    .map((monthDate) => {
+      const rawLabel = monthDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      const label = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
+      const count = countEventsInMonth(monthDate);
+      const isCurrent =
+        monthDate.getFullYear() === today.getFullYear() && monthDate.getMonth() === today.getMonth();
+
+      return `
+        <div class="calendar-month-item${isCurrent ? ' is-current' : ''}"
+             data-year="${monthDate.getFullYear()}" data-month="${monthDate.getMonth()}">
+          <span>${label}</span>
+          ${count > 0 ? `<span class="calendar-month-badge">${count}</span>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+
+  el.monthListContainer.querySelectorAll('.calendar-month-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      state.viewDate = new Date(Number(item.dataset.year), Number(item.dataset.month), 1);
+      renderCalendar();
+      showMobileGridView();
+    });
+  });
+}
+
+function showMobileGridView() {
+  el.viewCalendar.classList.remove('mobile-list-active');
+}
+
+function showMobileMonthList() {
+  el.viewCalendar.classList.add('mobile-list-active');
+  renderMonthList();
+}
+
+el.btnBackToMonths.addEventListener('click', showMobileMonthList);
+
+window.matchMedia('(max-width: 768px)').addEventListener('change', (event) => {
+  if (event.matches) {
+    showMobileMonthList();
+  } else {
+    el.viewCalendar.classList.remove('mobile-list-active');
+    setMobileSidebarOpen(false);
+  }
+});
 
 /* ---------- Modal do dia / formulário de evento ---------- */
 
@@ -559,6 +645,7 @@ async function reloadEvents() {
   state.events = await api.getEvents();
   renderCalendar();
   renderUpcomingEvents();
+  if (isMobile()) renderMonthList();
 }
 
 el.eventFiles.addEventListener('change', () => {
@@ -751,6 +838,7 @@ async function init() {
 
   try {
     await reloadEvents();
+    if (isMobile()) showMobileMonthList();
   } catch (err) {
     if (err.message.includes('Token')) {
       api.logout();
