@@ -8,18 +8,22 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { title, description, date, attachments, recurring, hideWhenPast } = req.body;
+  const { title, description, date, attachments, recurrenceRule, category, hideWhenPast } = req.body;
 
   if (!title || !date) {
     return res.status(400).json({ message: 'Título e data são obrigatórios' });
   }
+
+  const frequency = recurrenceRule?.frequency || 'none';
 
   const event = await Event.create({
     title,
     description,
     date,
     attachments: Array.isArray(attachments) ? attachments : [],
-    recurring: Boolean(recurring),
+    recurrenceRule,
+    recurring: frequency !== 'none',
+    category: category || null,
     hideWhenPast: Boolean(hideWhenPast),
     creator: req.userId,
   });
@@ -36,16 +40,27 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { title, description, date, attachments, recurring, hideWhenPast } = req.body;
+  const { title, description, date, attachments, recurrenceRule, category, hideWhenPast } = req.body;
 
   const before = await Event.findById(req.params.id);
   if (!before) {
     return res.status(404).json({ message: 'Evento não encontrado' });
   }
 
+  const frequency = recurrenceRule?.frequency || 'none';
+
   const event = await Event.findByIdAndUpdate(
     req.params.id,
-    { title, description, date, attachments, recurring: Boolean(recurring), hideWhenPast: Boolean(hideWhenPast) },
+    {
+      title,
+      description,
+      date,
+      attachments,
+      recurrenceRule,
+      recurring: frequency !== 'none',
+      category: category || null,
+      hideWhenPast: Boolean(hideWhenPast),
+    },
     { new: true, runValidators: true }
   ).populate('creator', 'name');
 
