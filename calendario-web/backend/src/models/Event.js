@@ -39,6 +39,14 @@ const eventSchema = new mongoose.Schema(
     recurring: { type: Boolean, default: false },
     recurrenceRule: { type: recurrenceRuleSchema, default: () => ({}) },
     category: { type: String, enum: CATEGORIES, default: null },
+    reminderOffsets: {
+      type: [Number],
+      default: [5, 3, 1],
+      validate: {
+        validator: (arr) => arr.every((d) => Number.isInteger(d) && d >= 1 && d <= 90),
+        message: 'reminderOffsets deve conter apenas inteiros entre 1 e 90 (dias)',
+      },
+    },
     hideWhenPast: { type: Boolean, default: false },
   },
   { timestamps: true }

@@ -15,6 +15,7 @@ const activityLogRoutes = require('./routes/activityLogRoutes');
 const updateRequestRoutes = require('./routes/updateRequestRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
 const reminderRoutes = require('./routes/reminderRoutes');
+const pushRoutes = require('./routes/pushRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
 const { checkAndSendReminders } = require('./services/reminderService');
 
@@ -32,6 +33,7 @@ app.use('/api/activity-logs', activityLogRoutes);
 app.use('/api/update-requests', updateRequestRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/reminders', reminderRoutes);
+app.use('/api/push', pushRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
 

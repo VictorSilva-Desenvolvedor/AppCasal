@@ -2,10 +2,10 @@ const Event = require('../models/Event');
 const Invitation = require('../models/Invitation');
 const ReminderLog = require('../models/ReminderLog');
 const { sendWhatsappMessage } = require('./whatsappService');
+const { sendPushNotification } = require('./pushService');
 const { normalizeRule, getOccurrencesInRange, toUTCDateOnly } = require('../utils/recurrence');
 
-const OFFSETS = [5, 3, 1];
-const MAX_OFFSET = Math.max(...OFFSETS);
+const DEFAULT_OFFSETS = [5, 3, 1];
 
 function diffInDays(a, b) {
   return Math.round((a.getTime() - b.getTime()) / 86400000);
@@ -51,14 +51,19 @@ async function checkAndSendReminders() {
   let sent = 0;
   let skipped = 0;
 
-  const rangeEnd = new Date(todayUTC.getTime() + MAX_OFFSET * 86400000);
+  const overallMaxOffset = events.reduce((max, event) => {
+    const offsets = event.reminderOffsets?.length ? event.reminderOffsets : DEFAULT_OFFSETS;
+    return Math.max(max, ...offsets);
+  }, Math.max(...DEFAULT_OFFSETS));
+  const rangeEnd = new Date(todayUTC.getTime() + overallMaxOffset * 86400000);
 
   for (const event of events) {
     try {
+      const offsets = event.reminderOffsets?.length ? event.reminderOffsets : DEFAULT_OFFSETS;
       const rule = normalizeRule(event);
       const qualifying = getOccurrencesInRange(event.date, rule, todayUTC, rangeEnd)
         .map((occurrence) => ({ occurrence, diff: diffInDays(occurrence, todayUTC) }))
-        .filter(({ diff }) => OFFSETS.includes(diff));
+        .filter(({ diff }) => offsets.includes(diff));
 
       if (qualifying.length === 0) continue;
 
@@ -85,8 +90,16 @@ async function checkAndSendReminders() {
           if (ok) {
             sent++;
           } else {
-            skipped++;
-            await ReminderLog.deleteOne(filter);
+            const pushed = await sendPushNotification(recipient._id, {
+              title: 'Lembrete de evento',
+              body: text,
+            });
+            if (pushed) {
+              sent++;
+            } else {
+              skipped++;
+              await ReminderLog.deleteOne(filter);
+            }
           }
         }
       }

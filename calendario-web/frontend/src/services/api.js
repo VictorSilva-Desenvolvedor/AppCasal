@@ -141,6 +141,18 @@ function cancelInvitation(id) {
   return request(`/invitations/${id}`, { method: 'DELETE' });
 }
 
+function getVapidPublicKey() {
+  return request('/push/vapid-public-key');
+}
+
+function subscribePush(subscription) {
+  return request('/push/subscribe', { method: 'POST', body: subscription });
+}
+
+function unsubscribePush(endpoint) {
+  return request('/push/unsubscribe', { method: 'POST', body: { endpoint } });
+}
+
 export const api = {
   register,
   login,
@@ -167,6 +179,9 @@ export const api = {
   createInvitation,
   respondInvitation,
   cancelInvitation,
+  getVapidPublicKey,
+  subscribePush,
+  unsubscribePush,
 };
 
 export { API_BASE_URL };

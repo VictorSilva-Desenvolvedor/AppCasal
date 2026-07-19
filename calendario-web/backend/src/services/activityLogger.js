@@ -70,6 +70,12 @@ function buildUpdateDetails(before, after) {
     changes.push(`Categoria: ${categoryLabel(before.category)} → ${categoryLabel(after.category)}`);
   }
 
+  const beforeOffsets = (before.reminderOffsets || []).join(',');
+  const afterOffsets = (after.reminderOffsets || []).join(',');
+  if (beforeOffsets !== afterOffsets) {
+    changes.push(`Lembretes: ${beforeOffsets || 'nenhum'} → ${afterOffsets || 'nenhum'} dia(s) antes`);
+  }
+
   if ((before.attachments || []).length !== (after.attachments || []).length) {
     changes.push(`Anexos: ${before.attachments.length} → ${after.attachments.length}`);
   }

@@ -8,7 +8,13 @@ import { CATEGORIES } from '../../constants/categories.js';
 import { RecurrenceFields } from './RecurrenceFields.jsx';
 import { AttachmentsField } from './AttachmentsField.jsx';
 import { InviteSection } from './InviteSection.jsx';
-import { dateKeyToNoonISO, initialRecurrenceState, recurrenceStateToRule } from './calendarUtils.js';
+import {
+  dateKeyToNoonISO,
+  initialRecurrenceState,
+  recurrenceStateToRule,
+  reminderOffsetsToString,
+  parseReminderOffsets,
+} from './calendarUtils.js';
 
 export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const isEditing = Boolean(event);
@@ -20,6 +26,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const [description, setDescription] = useState(event?.description || '');
   const [category, setCategory] = useState(event?.category || '');
   const [hideWhenPast, setHideWhenPast] = useState(Boolean(event?.hideWhenPast));
+  const [reminderOffsets, setReminderOffsets] = useState(() => reminderOffsetsToString(event?.reminderOffsets));
   const [recurrence, setRecurrence] = useState(() => initialRecurrenceState(event));
   const [pendingFiles, setPendingFiles] = useState([]);
   const [formError, setFormError] = useState('');
@@ -50,6 +57,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
         attachments,
         recurrenceRule: recurrenceStateToRule(recurrence),
         category: category || null,
+        reminderOffsets: parseReminderOffsets(reminderOffsets),
         hideWhenPast,
       };
 
@@ -121,6 +129,17 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
       </div>
 
       <RecurrenceFields value={recurrence} onChange={setRecurrence} />
+
+      <div className="field">
+        <label htmlFor="event-reminder-offsets">Lembrar-me (dias antes, separados por vírgula)</label>
+        <input
+          type="text"
+          id="event-reminder-offsets"
+          placeholder="5, 3, 1"
+          value={reminderOffsets}
+          onChange={(formEvent) => setReminderOffsets(formEvent.target.value)}
+        />
+      </div>
 
       <div className="field">
         <label
