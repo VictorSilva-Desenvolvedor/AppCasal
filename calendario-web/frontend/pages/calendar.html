@@ -17,6 +17,7 @@
     <nav class="sidebar-nav">
       <button type="button" class="sidebar-nav-item is-active" data-view="calendar">🗓️ Calendário</button>
       <button type="button" class="sidebar-nav-item" data-view="activity">🕒 Atividades</button>
+      <button type="button" class="sidebar-nav-item" data-view="updates">🛠️ Atualizações</button>
       <button type="button" class="sidebar-nav-item" data-view="settings">⚙️ Configurações</button>
     </nav>
 
@@ -75,6 +76,39 @@
       <h2>Atividades</h2>
       <p>Histórico de quem criou, editou ou excluiu eventos no calendário.</p>
       <div id="activity-log-list" class="activity-feed"></div>
+    </section>
+
+    <section id="view-updates" class="view hidden">
+      <h2>Pedidos de atualização</h2>
+      <p>Peça melhorias ou avise sobre bugs — acompanhe o status até ficar pronto.</p>
+
+      <form id="update-form" class="card update-form">
+        <div class="field">
+          <label for="update-title">Título</label>
+          <input type="text" id="update-title" required placeholder="Ex: mostrar o clima no dia" />
+        </div>
+        <div class="field">
+          <label for="update-description">Descrição (opcional)</label>
+          <textarea id="update-description" placeholder="Detalhe o que você quer, se precisar"></textarea>
+        </div>
+        <p class="error-text" id="update-error"></p>
+        <button type="submit" class="btn btn-primary" id="btn-save-update">Pedir atualização</button>
+      </form>
+
+      <div class="update-board">
+        <div class="update-column">
+          <h3>A fazer <span class="update-column-count" id="update-count-todo">0</span></h3>
+          <div class="update-column-list" id="update-list-todo"></div>
+        </div>
+        <div class="update-column">
+          <h3>Em andamento <span class="update-column-count" id="update-count-in_progress">0</span></h3>
+          <div class="update-column-list" id="update-list-in_progress"></div>
+        </div>
+        <div class="update-column">
+          <h3>Feito <span class="update-column-count" id="update-count-done">0</span></h3>
+          <div class="update-column-list" id="update-list-done"></div>
+        </div>
+      </div>
     </section>
 
     <section id="view-settings" class="view hidden">

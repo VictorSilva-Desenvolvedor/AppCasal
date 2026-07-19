@@ -13,6 +13,7 @@ const state = {
   viewDate: new Date(),
   events: [],
   users: [],
+  updateRequests: [],
   selectedDateKey: null,
   editingEventId: null,
   pendingFiles: [],
@@ -33,9 +34,26 @@ const el = {
   viewCalendar: document.getElementById('view-calendar'),
   viewSettings: document.getElementById('view-settings'),
   viewActivity: document.getElementById('view-activity'),
+  viewUpdates: document.getElementById('view-updates'),
   upcomingList: document.getElementById('upcoming-events-list'),
   usersList: document.getElementById('users-list'),
   activityLogList: document.getElementById('activity-log-list'),
+
+  updateForm: document.getElementById('update-form'),
+  updateTitle: document.getElementById('update-title'),
+  updateDescription: document.getElementById('update-description'),
+  updateError: document.getElementById('update-error'),
+  btnSaveUpdate: document.getElementById('btn-save-update'),
+  updateLists: {
+    todo: document.getElementById('update-list-todo'),
+    in_progress: document.getElementById('update-list-in_progress'),
+    done: document.getElementById('update-list-done'),
+  },
+  updateCounts: {
+    todo: document.getElementById('update-count-todo'),
+    in_progress: document.getElementById('update-count-in_progress'),
+    done: document.getElementById('update-count-done'),
+  },
 
   filterSearch: document.getElementById('filter-search'),
   filterCreator: document.getElementById('filter-creator'),
@@ -264,6 +282,112 @@ async function loadActivityLog() {
   }
 }
 
+/* ---------- Pedidos de atualização ---------- */
+
+const UPDATE_STATUS_LABELS = { todo: 'A fazer', in_progress: 'Em andamento', done: 'Feito' };
+
+function renderUpdateBoard() {
+  const groups = { todo: [], in_progress: [], done: [] };
+  state.updateRequests.forEach((item) => {
+    (groups[item.status] || groups.todo).push(item);
+  });
+
+  Object.keys(groups).forEach((status) => {
+    const items = groups[status];
+    el.updateCounts[status].textContent = items.length;
+
+    if (items.length === 0) {
+      el.updateLists[status].innerHTML = '<p class="update-empty">Nada por aqui</p>';
+      return;
+    }
+
+    el.updateLists[status].innerHTML = items
+      .map((item) => {
+        const dotColor = item.creator ? personColorFor(item.creator._id) : 'var(--color-text-muted)';
+        const authorName = item.creator?.name || 'desconhecido';
+        const optionsHtml = Object.entries(UPDATE_STATUS_LABELS)
+          .map(([value, label]) => `<option value="${value}"${value === item.status ? ' selected' : ''}>${label}</option>`)
+          .join('');
+
+        return `
+          <div class="update-card" data-id="${item._id}">
+            <div class="update-card-title">${escapeHtml(item.title)}</div>
+            ${item.description ? `<div class="update-card-description">${escapeHtml(item.description)}</div>` : ''}
+            <div class="update-card-footer">
+              <span class="update-card-meta"><span class="person-dot" style="background:${dotColor}"></span>${escapeHtml(authorName)} · ${formatLogTimestamp(item.createdAt)}</span>
+              <div class="update-card-actions">
+                <select class="update-status-select" data-update-status="${item._id}">${optionsHtml}</select>
+                <button type="button" class="update-card-delete" data-update-delete="${item._id}" title="Excluir">&times;</button>
+              </div>
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+  });
+
+  el.viewUpdates.querySelectorAll('[data-update-status]').forEach((select) => {
+    select.addEventListener('change', async () => {
+      try {
+        await api.updateUpdateRequest(select.dataset.updateStatus, { status: select.value });
+        await loadUpdateRequests();
+        showToast('Status atualizado', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  });
+
+  el.viewUpdates.querySelectorAll('[data-update-delete]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Excluir este pedido?')) return;
+      try {
+        await api.deleteUpdateRequest(btn.dataset.updateDelete);
+        await loadUpdateRequests();
+        showToast('Pedido excluído', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  });
+}
+
+async function loadUpdateRequests() {
+  try {
+    state.updateRequests = await api.getUpdateRequests();
+    renderUpdateBoard();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+el.updateForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  el.updateError.textContent = '';
+
+  const title = el.updateTitle.value.trim();
+  const description = el.updateDescription.value.trim();
+
+  if (!title) {
+    el.updateError.textContent = 'Informe um título para o pedido';
+    return;
+  }
+
+  setButtonLoading(el.btnSaveUpdate, true);
+
+  try {
+    await api.createUpdateRequest({ title, description });
+    el.updateForm.reset();
+    await loadUpdateRequests();
+    showToast('Pedido enviado', 'success');
+  } catch (err) {
+    el.updateError.textContent = err.message;
+    showToast(err.message, 'error');
+  } finally {
+    setButtonLoading(el.btnSaveUpdate, false);
+  }
+});
+
 function playFadeIn(element) {
   element.classList.remove('fade-in');
   void element.offsetWidth;
@@ -274,6 +398,7 @@ const VIEWS = {
   calendar: () => el.viewCalendar,
   settings: () => el.viewSettings,
   activity: () => el.viewActivity,
+  updates: () => el.viewUpdates,
 };
 
 function switchView(view) {
@@ -282,6 +407,7 @@ function switchView(view) {
   playFadeIn(VIEWS[view]());
 
   if (view === 'activity') loadActivityLog();
+  if (view === 'updates') loadUpdateRequests();
 }
 
 el.navItems.forEach((item) => {

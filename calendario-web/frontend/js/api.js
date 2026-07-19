@@ -95,6 +95,22 @@ function getActivityLog() {
   return request('/activity-logs');
 }
 
+function getUpdateRequests() {
+  return request('/update-requests');
+}
+
+function createUpdateRequest(payload) {
+  return request('/update-requests', { method: 'POST', body: payload });
+}
+
+function updateUpdateRequest(id, payload) {
+  return request(`/update-requests/${id}`, { method: 'PUT', body: payload });
+}
+
+function deleteUpdateRequest(id) {
+  return request(`/update-requests/${id}`, { method: 'DELETE' });
+}
+
 export const api = {
   register,
   login,
@@ -110,6 +126,10 @@ export const api = {
   updateSettings,
   getUsers,
   getActivityLog,
+  getUpdateRequests,
+  createUpdateRequest,
+  updateUpdateRequest,
+  deleteUpdateRequest,
 };
 
 export { API_BASE_URL };
