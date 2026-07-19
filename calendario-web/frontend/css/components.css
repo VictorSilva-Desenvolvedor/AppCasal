@@ -181,9 +181,12 @@
 }
 
 .modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
   color: var(--color-text-muted);
@@ -320,6 +323,11 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text);
+}
+
+.toast .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .toast.is-leaving {

@@ -37,10 +37,35 @@
   text-align: left;
 }
 
+.auth-hero-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(4px);
+  color: #fff;
+}
+
+.auth-hero-logo .icon {
+  width: 26px;
+  height: 26px;
+}
+
 .auth-hero-content h1 {
   font-size: 2.2rem;
   margin-bottom: 0;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.auth-hero-content p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .auth-form-side {

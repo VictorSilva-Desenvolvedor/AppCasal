@@ -9,10 +9,23 @@ function ensureContainer() {
   return container;
 }
 
+const TOAST_ICONS = { success: 'check-circle', error: 'alert-circle' };
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 export function showToast(message, type = 'success') {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.textContent = message;
+
+  const iconName = TOAST_ICONS[type] || TOAST_ICONS.success;
+  toast.innerHTML = `
+    <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-${iconName}"></use></svg>
+    <span>${escapeHtml(message)}</span>
+  `;
   ensureContainer().appendChild(toast);
 
   setTimeout(() => {

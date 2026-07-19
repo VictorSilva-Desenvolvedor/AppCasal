@@ -1,9 +1,12 @@
 import { api } from '../api.js';
 import { showToast, setButtonLoading } from '../toast.js';
+import { loadAuthHeroPhoto } from '../authHero.js';
 
 if (api.getToken()) {
   window.location.href = 'calendar.html';
 }
+
+loadAuthHeroPhoto();
 
 const form = document.getElementById('register-form');
 const btnSubmit = document.getElementById('btn-submit');

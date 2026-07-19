@@ -117,6 +117,10 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function iconHtml(name, extraClass = '') {
+  return `<svg class="icon${extraClass ? ` ${extraClass}` : ''}" aria-hidden="true"><use href="../assets/icons.svg#icon-${name}"></use></svg>`;
+}
+
 function matchesFilters(event) {
   const { search, creatorId, onlyWithAttachment } = state.filters;
 
@@ -216,12 +220,12 @@ function renderUpcomingEvents() {
       const dateKey = toDateKey(occurrence);
       const [, m, d] = dateKey.split('-');
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
-      const recurringIcon = event.recurring ? '🔁 ' : '';
+      const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
       return `
-        <div class="sidebar-list-item is-clickable" data-date="${dateKey}">
+        <button type="button" class="sidebar-list-item is-clickable" data-date="${dateKey}">
           <span><span class="person-dot" style="background:${dotColor}"></span>${recurringIcon}${escapeHtml(event.title)}</span>
           <span>${d}/${m}</span>
-        </div>
+        </button>
       `;
     })
     .join('');
@@ -310,14 +314,14 @@ function renderUpdateBoard() {
           .join('');
 
         return `
-          <div class="update-card" data-id="${item._id}">
+          <div class="update-card" data-id="${item._id}" draggable="true">
             <div class="update-card-title">${escapeHtml(item.title)}</div>
             ${item.description ? `<div class="update-card-description">${escapeHtml(item.description)}</div>` : ''}
             <div class="update-card-footer">
               <span class="update-card-meta"><span class="person-dot" style="background:${dotColor}"></span>${escapeHtml(authorName)} · ${formatLogTimestamp(item.createdAt)}</span>
               <div class="update-card-actions">
                 <select class="update-status-select" data-update-status="${item._id}">${optionsHtml}</select>
-                <button type="button" class="update-card-delete" data-update-delete="${item._id}" title="Excluir">&times;</button>
+                <button type="button" class="update-card-delete" data-update-delete="${item._id}" title="Excluir" aria-label="Excluir pedido">${iconHtml('trash')}</button>
               </div>
             </div>
           </div>
@@ -350,6 +354,46 @@ function renderUpdateBoard() {
       }
     });
   });
+
+  el.viewUpdates.querySelectorAll('.update-card').forEach((card) => {
+    card.addEventListener('dragstart', (event) => {
+      event.dataTransfer.setData('text/plain', card.dataset.id);
+      event.dataTransfer.effectAllowed = 'move';
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
+}
+
+function setupUpdateBoardDragDrop() {
+  Object.entries(el.updateLists).forEach(([status, listEl]) => {
+    listEl.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      listEl.classList.add('drag-over');
+    });
+
+    listEl.addEventListener('dragleave', (event) => {
+      if (listEl.contains(event.relatedTarget)) return;
+      listEl.classList.remove('drag-over');
+    });
+
+    listEl.addEventListener('drop', async (event) => {
+      event.preventDefault();
+      listEl.classList.remove('drag-over');
+
+      const id = event.dataTransfer.getData('text/plain');
+      const item = state.updateRequests.find((i) => i._id === id);
+      if (!item || item.status === status) return;
+
+      try {
+        await api.updateUpdateRequest(id, { status });
+        await loadUpdateRequests();
+        showToast('Status atualizado', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  });
 }
 
 async function loadUpdateRequests() {
@@ -360,6 +404,8 @@ async function loadUpdateRequests() {
     showToast(err.message, 'error');
   }
 }
+
+setupUpdateBoardDragDrop();
 
 el.updateForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -510,7 +556,7 @@ function renderCalendar() {
         .slice(0, 3)
         .map((event) => {
           const bg = event.creator ? personColorFor(event.creator._id) : 'var(--color-primary)';
-          const recurringIcon = event.recurring ? '🔁 ' : '';
+          const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
           return `<span class="event-pill" style="background:${bg}">${recurringIcon}${escapeHtml(event.title)}</span>`;
         })
         .join('');
@@ -522,14 +568,14 @@ function renderCalendar() {
         .join('');
 
       return `
-        <div class="calendar-day${isToday ? ' is-today' : ''}" data-date="${dateKey}">
+        <button type="button" class="calendar-day${isToday ? ' is-today' : ''}" data-date="${dateKey}">
           <div class="calendar-day-header">
             <span class="calendar-day-number">${date.getDate()}</span>
-            ${hasOtherAttachment ? '<span class="calendar-day-attachment-badge">📎</span>' : ''}
+            ${hasOtherAttachment ? `<span class="calendar-day-attachment-badge">${iconHtml('paperclip')}</span>` : ''}
           </div>
           <div class="calendar-day-events">${pills}${more}</div>
           ${thumbs ? `<div class="calendar-day-thumbs">${thumbs}</div>` : ''}
-        </div>
+        </button>
       `;
     })
     .join('');
@@ -578,11 +624,11 @@ function renderMonthList() {
         monthDate.getFullYear() === today.getFullYear() && monthDate.getMonth() === today.getMonth();
 
       return `
-        <div class="calendar-month-item${isCurrent ? ' is-current' : ''}"
+        <button type="button" class="calendar-month-item${isCurrent ? ' is-current' : ''}"
              data-year="${monthDate.getFullYear()}" data-month="${monthDate.getMonth()}">
           <span>${label}</span>
           ${count > 0 ? `<span class="calendar-month-badge">${count}</span>` : ''}
-        </div>
+        </button>
       `;
     })
     .join('');
@@ -630,8 +676,8 @@ function openDayModal(dateKey) {
 
 function attachmentIcon(mimetype) {
   if (IMAGE_MIME.test(mimetype)) return null;
-  if (mimetype === 'application/pdf') return '📄';
-  return '📎';
+  if (mimetype === 'application/pdf') return iconHtml('file');
+  return iconHtml('paperclip');
 }
 
 function renderAttachmentList(attachments) {
@@ -668,7 +714,7 @@ function renderEventList(dateKey) {
   el.eventList.innerHTML = dayEvents
     .map((event) => {
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
-      const recurringIcon = event.recurring ? '🔁 ' : '';
+      const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
       return `
         <div class="event-list-item-wrap" data-id="${event._id}">
           <div class="event-list-item">
@@ -727,7 +773,7 @@ function renderFormAttachmentsPreview() {
         </div>`;
       }
       return `<div class="attachment-item">
-        <span class="attachment-file">${attachmentIcon(file.type) || '📎'}</span>
+        <span class="attachment-file">${attachmentIcon(file.type) || iconHtml('paperclip')}</span>
         <span class="attachment-name">${escapeHtml(file.name)}</span>
       </div>`;
     })
@@ -857,6 +903,10 @@ el.modalOverlay.addEventListener('click', (event) => {
   if (event.target === el.modalOverlay) closeModal();
 });
 
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && el.modalOverlay.classList.contains('is-open')) closeModal();
+});
+
 el.btnPrevMonth.addEventListener('click', () => {
   state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() - 1, 1);
   renderCalendar();
@@ -877,6 +927,11 @@ el.btnLogout.addEventListener('click', () => {
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   el.settingsTheme.value = theme;
+
+  const themeIconUse = el.btnTheme.querySelector('use');
+  if (themeIconUse) {
+    themeIconUse.setAttribute('href', `../assets/icons.svg#icon-${theme === 'dark' ? 'sun' : 'moon'}`);
+  }
 }
 
 function applyColorTheme(colorTheme) {

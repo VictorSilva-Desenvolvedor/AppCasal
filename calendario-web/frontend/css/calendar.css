@@ -31,13 +31,16 @@
 }
 
 .sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
   border-radius: var(--radius-sm);
   width: 34px;
   height: 34px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
   margin-bottom: 1rem;
 }
@@ -53,8 +56,17 @@
 }
 
 .sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.15rem;
   font-weight: 700;
+}
+
+.sidebar-title .icon {
+  width: 1.1em;
+  height: 1.1em;
+  color: var(--color-accent);
 }
 
 .sidebar-user-row {
@@ -92,6 +104,9 @@
 }
 
 .sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   text-align: left;
   padding: 0.55rem 0.7rem;
   border: none;
@@ -335,7 +350,13 @@
 }
 
 .calendar-day-attachment-badge {
-  font-size: 0.7rem;
+  display: inline-flex;
+  color: var(--color-text-muted);
+}
+
+.calendar-day-attachment-badge .icon {
+  width: 12px;
+  height: 12px;
 }
 
 .person-dot {
@@ -498,6 +519,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  cursor: grab;
   transition: border-color 0.15s var(--ease), transform 0.1s var(--ease), box-shadow 0.15s var(--ease);
 }
 
@@ -505,6 +527,19 @@
   border-color: var(--color-primary);
   transform: scale(1.02);
   box-shadow: var(--shadow-sm);
+}
+
+.update-card.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.update-column-list.drag-over {
+  background: var(--color-primary-light);
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s var(--ease), outline-color 0.15s var(--ease);
 }
 
 .update-card-title {
@@ -543,6 +578,9 @@
 }
 
 .update-card-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   cursor: pointer;
@@ -550,6 +588,7 @@
   border-radius: var(--radius-sm);
   width: 26px;
   height: 26px;
+  font-size: 0.85rem;
   transition: background 0.15s var(--ease), color 0.15s var(--ease);
 }
 

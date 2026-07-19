@@ -1,13 +1,23 @@
-<meta charset="UTF-8" />
-<title>Nosso Calendário</title>
-<link rel="stylesheet" href="../css/base.css" />
-<link rel="stylesheet" href="../css/components.css" />
-<link rel="stylesheet" href="../css/calendar.css" />
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nosso Calendário</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/calendar.css" />
+</head>
+<body>
 
 <div class="app-shell">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-title">💑 Nosso Calendário</div>
+      <div class="sidebar-title">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-heart"></use></svg>
+        Nosso Calendário
+      </div>
       <div class="sidebar-user-row">
         <div class="sidebar-avatar" id="user-avatar"></div>
         <div class="sidebar-user" id="user-name"></div>
@@ -15,16 +25,34 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button type="button" class="sidebar-nav-item is-active" data-view="calendar">🗓️ Calendário</button>
-      <button type="button" class="sidebar-nav-item" data-view="activity">🕒 Atividades</button>
-      <button type="button" class="sidebar-nav-item" data-view="updates">🛠️ Atualizações</button>
-      <button type="button" class="sidebar-nav-item" data-view="settings">⚙️ Configurações</button>
+      <button type="button" class="sidebar-nav-item is-active" data-view="calendar">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-calendar"></use></svg>
+        Calendário
+      </button>
+      <button type="button" class="sidebar-nav-item" data-view="activity">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-clock"></use></svg>
+        Atividades
+      </button>
+      <button type="button" class="sidebar-nav-item" data-view="updates">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-tool"></use></svg>
+        Atualizações
+      </button>
+      <button type="button" class="sidebar-nav-item" data-view="settings">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-settings"></use></svg>
+        Configurações
+      </button>
     </nav>
 
     <div class="sidebar-section">
       <h3>Atalhos</h3>
-      <button type="button" class="btn btn-primary btn-block" id="btn-quick-new-event">+ Novo evento</button>
-      <button type="button" class="btn btn-secondary btn-block" id="btn-theme">🌓 Alternar tema</button>
+      <button type="button" class="btn btn-primary btn-block" id="btn-quick-new-event">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-plus"></use></svg>
+        Novo evento
+      </button>
+      <button type="button" class="btn btn-secondary btn-block" id="btn-theme">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-moon"></use></svg>
+        Alternar tema
+      </button>
     </div>
 
     <div class="sidebar-section">
@@ -43,7 +71,9 @@
   <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
   <main class="main-content">
-    <button type="button" class="sidebar-toggle" id="btn-toggle-sidebar" title="Mostrar/ocultar barra lateral">☰</button>
+    <button type="button" class="sidebar-toggle" id="btn-toggle-sidebar" title="Mostrar/ocultar barra lateral" aria-label="Mostrar/ocultar barra lateral">
+      <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg>
+    </button>
 
     <section id="view-calendar" class="view">
       <div class="filter-bar card">
@@ -149,16 +179,19 @@
 </div>
 
 <div class="modal-overlay" id="modal-overlay">
-  <div class="card modal">
+  <div class="card modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-header">
       <h2 id="modal-title">Eventos do dia</h2>
-      <button type="button" class="modal-close" id="modal-close">&times;</button>
+      <button type="button" class="modal-close" id="modal-close" aria-label="Fechar">
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-x"></use></svg>
+      </button>
     </div>
 
     <div id="event-list-view">
       <div id="event-list"></div>
       <button type="button" class="btn btn-primary btn-block" id="btn-new-event" style="margin-top: 1rem">
-        + Novo evento
+        <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#icon-plus"></use></svg>
+        Novo evento
       </button>
     </div>
 
@@ -197,3 +230,5 @@
 </div>
 
 <script type="module" src="../js/pages/calendar.js"></script>
+</body>
+</html>

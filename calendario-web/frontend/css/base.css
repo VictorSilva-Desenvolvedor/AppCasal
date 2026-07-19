@@ -338,6 +338,46 @@ a {
   display: none !important;
 }
 
+/* ---------- Ícones (sprite SVG) ---------- */
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  vertical-align: -0.15em;
+}
+
+.icon-inline {
+  margin-right: 0.25em;
+}
+
+/* ---------- Reset de elementos <button> usados no lugar de <div> clicáveis ---------- */
+
+button.calendar-day,
+button.calendar-month-item,
+button.sidebar-list-item {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+/* ---------- Foco visível (acessibilidade por teclado) ---------- */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .error-text {
   color: var(--color-danger);
   font-size: 0.875rem;
