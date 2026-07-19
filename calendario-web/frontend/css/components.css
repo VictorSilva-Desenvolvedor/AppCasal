@@ -170,7 +170,7 @@
   pointer-events: none;
 }
 
-.calendar-day-special-badge .icon {
+.calendar-day-special-badge .special-category-icon {
   width: 26px;
   height: 26px;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));

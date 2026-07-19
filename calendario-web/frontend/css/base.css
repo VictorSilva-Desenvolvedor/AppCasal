@@ -56,6 +56,16 @@ a {
   margin-right: 0.25em;
 }
 
+/* Ícones raster (PNG) de categoria especial (aniversário/saúde) — mesmo alinhamento
+   do .icon, mas sem fill/stroke (são imagens coloridas, não símbolos monocromáticos). */
+.special-category-icon {
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  flex-shrink: 0;
+  vertical-align: -0.15em;
+}
+
 /* ---------- Reset de elementos <button> usados no lugar de <div> clicáveis ---------- */
 
 button.calendar-day,

@@ -277,20 +277,23 @@ function categoryChipHtml(event) {
   return `<span class="category-chip" style="background:${category.color}">${escapeHtml(category.label)}</span>`;
 }
 
-const SPECIAL_CATEGORY_ICONS = { aniversario: 'birthday', saude: 'medical' };
+const SPECIAL_CATEGORY_ICONS = {
+  aniversario: '../assets/icon-aniversario.png',
+  saude: '../assets/icon-consulta.png',
+};
 
 function specialCategoryIconHtml(event, extraClass = '') {
-  const iconName = SPECIAL_CATEGORY_ICONS[event.category];
-  return iconName ? iconHtml(iconName, extraClass) : '';
+  const src = SPECIAL_CATEGORY_ICONS[event.category];
+  return src ? `<img class="special-category-icon${extraClass ? ` ${extraClass}` : ''}" src="${src}" alt="" />` : '';
 }
 
 // Selo(s) que "vestem" a célula do dia, estourando pra fora do topo, quando o dia
 // tem algum evento de categoria especial (aniversário/saúde) — não fica preso ao pill.
 function dayIconBadgeHtml(dayEvents) {
-  const icons = [...new Set(dayEvents.map((event) => SPECIAL_CATEGORY_ICONS[event.category]).filter(Boolean))];
-  if (icons.length === 0) return '';
-  const iconsHtml = icons.map((name) => iconHtml(name)).join('');
-  return `<span class="calendar-day-special-badge">${iconsHtml}</span>`;
+  const srcs = [...new Set(dayEvents.map((event) => SPECIAL_CATEGORY_ICONS[event.category]).filter(Boolean))];
+  if (srcs.length === 0) return '';
+  const imgsHtml = srcs.map((src) => `<img class="special-category-icon" src="${src}" alt="" />`).join('');
+  return `<span class="calendar-day-special-badge">${imgsHtml}</span>`;
 }
 
 function renderEventPill(event, sharedIds) {
