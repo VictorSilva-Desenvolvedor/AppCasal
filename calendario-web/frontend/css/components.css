@@ -17,8 +17,8 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s var(--ease), transform 0.1s var(--ease), box-shadow 0.15s var(--ease),
-    border-color 0.15s var(--ease);
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), transform 0.1s var(--ease),
+    box-shadow 0.15s var(--ease), border-color 0.15s var(--ease);
 }
 
 .btn:active {
@@ -39,7 +39,7 @@
 .btn-primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.32);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.04);
 }
 
 .btn-secondary {
@@ -51,6 +51,8 @@
 .btn-secondary:hover:not(:disabled) {
   background: var(--color-bg);
   border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-1px) scale(1.04);
 }
 
 .btn-danger {
@@ -61,7 +63,7 @@
 .btn-danger:hover:not(:disabled) {
   background: var(--color-danger-hover);
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.28);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.04);
 }
 
 .btn-block {
@@ -188,11 +190,13 @@
   border-radius: 50%;
   width: 28px;
   height: 28px;
-  transition: background 0.15s var(--ease);
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), transform 0.1s var(--ease);
 }
 
 .modal-close:hover {
   background: var(--color-bg);
+  color: var(--color-primary);
+  transform: scale(1.15);
 }
 
 .modal-actions {

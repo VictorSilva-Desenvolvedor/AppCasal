@@ -137,16 +137,16 @@
 }
 
 [data-color-theme='miku'] {
-  --color-primary: #1fc5b8;
-  --color-primary-hover: #17a99d;
-  --color-primary-light: #e3fbf8;
-  --gradient-brand: linear-gradient(135deg, #1fc5b8 0%, #33ccff 45%, #ff8fcb 100%);
+  --color-primary: #4dd4cd;
+  --color-primary-hover: #333c77;
+  --color-primary-light: #e2f5f3;
+  --gradient-brand: linear-gradient(135deg, #4dd4cd 0%, #a4cbe3 50%, #333c77 100%);
 }
 [data-theme='dark'][data-color-theme='miku'] {
-  --color-primary: #4debdd;
-  --color-primary-hover: #2fcfc0;
-  --color-primary-light: rgba(77, 235, 221, 0.16);
-  --gradient-brand: linear-gradient(135deg, #4debdd 0%, #7ee8ff 50%, #ff9ed9 100%);
+  --color-primary: #4dd4cd;
+  --color-primary-hover: #a4cbe3;
+  --color-primary-light: rgba(77, 212, 205, 0.16);
+  --gradient-brand: linear-gradient(135deg, #4dd4cd 0%, #a4cbe3 50%, #001b29 100%);
 }
 
 /* Tema fixo: sempre preto com detalhes verdes, independente do alternador claro/escuro */
@@ -224,7 +224,7 @@
   background: #d97706;
 }
 .swatch-miku {
-  background: linear-gradient(135deg, #1fc5b8 0%, #ff8fcb 100%);
+  background: linear-gradient(135deg, #4dd4cd 0%, #333c77 100%);
 }
 .swatch-black-green {
   background: #05080a;

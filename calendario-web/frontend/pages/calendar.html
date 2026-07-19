@@ -140,9 +140,12 @@
         <textarea id="event-description"></textarea>
       </div>
       <div class="field">
-        <label class="filter-checkbox">
-          <input type="checkbox" id="event-recurring" /> Repete todo ano (aniversário/data fixa)
-        </label>
+        <label for="event-recurrence">Repetição</label>
+        <select id="event-recurrence">
+          <option value="none">Não repete</option>
+          <option value="once">Só uma vez (some do calendário depois de passar)</option>
+          <option value="yearly">Repete todo ano (aniversário/data fixa)</option>
+        </select>
       </div>
       <div class="field">
         <label for="event-files">Anexos (fotos ou arquivos, opcional)</label>

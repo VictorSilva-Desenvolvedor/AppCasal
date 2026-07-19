@@ -67,7 +67,7 @@ const el = {
   eventDate: document.getElementById('event-date'),
   eventTitle: document.getElementById('event-title'),
   eventDescription: document.getElementById('event-description'),
-  eventRecurring: document.getElementById('event-recurring'),
+  eventRecurrence: document.getElementById('event-recurrence'),
   eventFiles: document.getElementById('event-files'),
   attachmentsPreview: document.getElementById('event-attachments-preview'),
   formError: document.getElementById('form-error'),
@@ -114,8 +114,13 @@ function matchesFilters(event) {
   return true;
 }
 
+function isHiddenPastEvent(event) {
+  if (event.recurring || !event.hideWhenPast) return false;
+  return toDateKey(new Date(event.date)) < toDateKey(new Date());
+}
+
 function filteredEvents() {
-  return state.events.filter(matchesFilters);
+  return state.events.filter(matchesFilters).filter((event) => !isHiddenPastEvent(event));
 }
 
 function matchesDateKey(event, dateKey) {
@@ -617,7 +622,7 @@ function openEventForm(event, dateKey) {
     el.eventDate.value = toDateKey(new Date(event.date));
     el.eventTitle.value = event.title;
     el.eventDescription.value = event.description || '';
-    el.eventRecurring.checked = Boolean(event.recurring);
+    el.eventRecurrence.value = event.recurring ? 'yearly' : event.hideWhenPast ? 'once' : 'none';
     el.btnDeleteEvent.classList.remove('hidden');
   } else {
     state.editingEventId = null;
@@ -626,7 +631,7 @@ function openEventForm(event, dateKey) {
     el.eventDate.value = dateKey;
     el.eventTitle.value = '';
     el.eventDescription.value = '';
-    el.eventRecurring.checked = false;
+    el.eventRecurrence.value = 'none';
     el.btnDeleteEvent.classList.add('hidden');
   }
 
@@ -677,7 +682,8 @@ el.eventForm.addEventListener('submit', async (formEvent) => {
       description,
       date: dateKeyToNoonISO(dateKey),
       attachments,
-      recurring: el.eventRecurring.checked,
+      recurring: el.eventRecurrence.value === 'yearly',
+      hideWhenPast: el.eventRecurrence.value === 'once',
     };
 
     const wasEditing = Boolean(state.editingEventId);
