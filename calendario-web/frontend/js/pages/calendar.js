@@ -14,11 +14,15 @@ const state = {
   events: [],
   users: [],
   updateRequests: [],
+  invitations: [],
   selectedDateKey: null,
   editingEventId: null,
   pendingFiles: [],
   existingAttachments: [],
   filters: { search: '', creatorId: '', onlyWithAttachment: false },
+  galleryMonthKey: null,
+  galleryPhotos: [],
+  lightboxIndex: 0,
 };
 
 const el = {
@@ -35,9 +39,19 @@ const el = {
   viewSettings: document.getElementById('view-settings'),
   viewActivity: document.getElementById('view-activity'),
   viewUpdates: document.getElementById('view-updates'),
+  viewGallery: document.getElementById('view-gallery'),
+  viewInvites: document.getElementById('view-invites'),
   upcomingList: document.getElementById('upcoming-events-list'),
-  usersList: document.getElementById('users-list'),
   activityLogList: document.getElementById('activity-log-list'),
+
+  galleryMonthStrip: document.getElementById('gallery-month-strip'),
+  galleryGrid: document.getElementById('gallery-grid'),
+  lightboxOverlay: document.getElementById('lightbox-overlay'),
+  lightboxImage: document.getElementById('lightbox-image'),
+  lightboxCaption: document.getElementById('lightbox-caption'),
+  lightboxClose: document.getElementById('lightbox-close'),
+  lightboxPrev: document.getElementById('lightbox-prev'),
+  lightboxNext: document.getElementById('lightbox-next'),
 
   updateForm: document.getElementById('update-form'),
   updateTitle: document.getElementById('update-title'),
@@ -55,6 +69,21 @@ const el = {
     done: document.getElementById('update-count-done'),
   },
 
+  inviteLists: {
+    received: document.getElementById('invite-list-received'),
+    sent: document.getElementById('invite-list-sent'),
+  },
+  inviteCounts: {
+    received: document.getElementById('invite-count-received'),
+    sent: document.getElementById('invite-count-sent'),
+  },
+  eventInviteSection: document.getElementById('event-invite-section'),
+  eventInviteSelect: document.getElementById('event-invite-select'),
+  btnEventInvite: document.getElementById('btn-event-invite'),
+  eventInviteList: document.getElementById('event-invite-list'),
+  eventInviteError: document.getElementById('event-invite-error'),
+
+  filterBar: document.getElementById('filter-bar'),
   filterSearch: document.getElementById('filter-search'),
   filterCreator: document.getElementById('filter-creator'),
   filterAttachment: document.getElementById('filter-attachment'),
@@ -186,17 +215,18 @@ function personColorFor(userId) {
   return PERSON_COLORS[index === -1 ? 0 : index % PERSON_COLORS.length];
 }
 
+function sharedEventIdSet() {
+  return new Set(
+    state.invitations
+      .filter((inv) => inv.status === 'accepted')
+      .map((inv) => inv.event?._id)
+      .filter(Boolean)
+  );
+}
+
 /* ---------- Sidebar ---------- */
 
-function renderUsersSidebar() {
-  if (state.users.length === 0) {
-    el.usersList.innerHTML = '<p class="sidebar-empty">Nenhum usuário ainda</p>';
-  } else {
-    el.usersList.innerHTML = state.users
-      .map((user) => `<div class="sidebar-list-item">${escapeHtml(user.name)}</div>`)
-      .join('');
-  }
-
+function populateCreatorFilter() {
   el.filterCreator.innerHTML =
     '<option value="">Todos os usuários</option>' +
     state.users.map((user) => `<option value="${user._id}">${escapeHtml(user.name)}</option>`).join('');
@@ -204,6 +234,7 @@ function renderUsersSidebar() {
 
 function renderUpcomingEvents() {
   const todayKey = toDateKey(new Date());
+  const sharedIds = sharedEventIdSet();
   const upcoming = filteredEvents()
     .map((event) => ({ event, occurrence: nextOccurrenceDate(event) }))
     .filter(({ occurrence }) => toDateKey(occurrence) >= todayKey)
@@ -221,9 +252,10 @@ function renderUpcomingEvents() {
       const [, m, d] = dateKey.split('-');
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
       const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
+      const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
       return `
         <button type="button" class="sidebar-list-item is-clickable" data-date="${dateKey}">
-          <span><span class="person-dot" style="background:${dotColor}"></span>${recurringIcon}${escapeHtml(event.title)}</span>
+          <span><span class="person-dot" style="background:${dotColor}"></span>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</span>
           <span>${d}/${m}</span>
         </button>
       `;
@@ -288,8 +320,6 @@ async function loadActivityLog() {
 
 /* ---------- Pedidos de atualização ---------- */
 
-const UPDATE_STATUS_LABELS = { todo: 'A fazer', in_progress: 'Em andamento', done: 'Feito' };
-
 function renderUpdateBoard() {
   const groups = { todo: [], in_progress: [], done: [] };
   state.updateRequests.forEach((item) => {
@@ -309,37 +339,19 @@ function renderUpdateBoard() {
       .map((item) => {
         const dotColor = item.creator ? personColorFor(item.creator._id) : 'var(--color-text-muted)';
         const authorName = item.creator?.name || 'desconhecido';
-        const optionsHtml = Object.entries(UPDATE_STATUS_LABELS)
-          .map(([value, label]) => `<option value="${value}"${value === item.status ? ' selected' : ''}>${label}</option>`)
-          .join('');
 
         return `
-          <div class="update-card" data-id="${item._id}" draggable="true">
+          <div class="update-card" data-id="${item._id}" data-status="${item.status}" draggable="true">
             <div class="update-card-title">${escapeHtml(item.title)}</div>
             ${item.description ? `<div class="update-card-description">${escapeHtml(item.description)}</div>` : ''}
             <div class="update-card-footer">
               <span class="update-card-meta"><span class="person-dot" style="background:${dotColor}"></span>${escapeHtml(authorName)} · ${formatLogTimestamp(item.createdAt)}</span>
-              <div class="update-card-actions">
-                <select class="update-status-select" data-update-status="${item._id}">${optionsHtml}</select>
-                <button type="button" class="update-card-delete" data-update-delete="${item._id}" title="Excluir" aria-label="Excluir pedido">${iconHtml('trash')}</button>
-              </div>
+              <button type="button" class="update-card-delete" data-update-delete="${item._id}" title="Excluir" aria-label="Excluir pedido">${iconHtml('trash')}</button>
             </div>
           </div>
         `;
       })
       .join('');
-  });
-
-  el.viewUpdates.querySelectorAll('[data-update-status]').forEach((select) => {
-    select.addEventListener('change', async () => {
-      try {
-        await api.updateUpdateRequest(select.dataset.updateStatus, { status: select.value });
-        await loadUpdateRequests();
-        showToast('Status atualizado', 'success');
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    });
   });
 
   el.viewUpdates.querySelectorAll('[data-update-delete]').forEach((btn) => {
@@ -407,6 +419,140 @@ async function loadUpdateRequests() {
 
 setupUpdateBoardDragDrop();
 
+/* ---------- Convites ---------- */
+
+const INVITE_STATUS_LABELS = { pending: 'Pendente', accepted: 'Aceito', declined: 'Recusado' };
+
+function renderInviteCard(inv, direction) {
+  const otherUser = direction === 'received' ? inv.inviter : inv.invitee;
+  const dateLabel = inv.event ? new Date(inv.event.date).toLocaleDateString('pt-BR') : '';
+  const statusLabel = INVITE_STATUS_LABELS[inv.status];
+  const actions =
+    direction === 'received' && inv.status === 'pending'
+      ? `<button type="button" class="btn btn-primary" data-invite-accept="${inv._id}">Aceitar</button>
+         <button type="button" class="btn btn-danger" data-invite-decline="${inv._id}">Recusar</button>`
+      : direction === 'sent' && inv.status === 'pending'
+      ? `<button type="button" class="btn btn-secondary" data-invite-cancel="${inv._id}">Cancelar</button>`
+      : `<span class="badge">${statusLabel}</span>`;
+
+  return `
+    <div class="update-card" data-id="${inv._id}">
+      <div class="update-card-title">${escapeHtml(inv.event?.title || 'Evento removido')}</div>
+      <div class="update-card-description">${dateLabel} · ${direction === 'received' ? 'De' : 'Para'} ${escapeHtml(otherUser?.name || 'desconhecido')}</div>
+      <div class="update-card-footer">
+        <span class="update-card-meta">${statusLabel}</span>
+        <div class="update-card-actions">${actions}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderInviteBoard() {
+  const me = api.getCurrentUser();
+  const received = state.invitations.filter((inv) => inv.invitee?._id === me._id);
+  const sent = state.invitations.filter((inv) => inv.inviter?._id === me._id);
+
+  el.inviteCounts.received.textContent = received.length;
+  el.inviteCounts.sent.textContent = sent.length;
+
+  el.inviteLists.received.innerHTML = received.length
+    ? received.map((inv) => renderInviteCard(inv, 'received')).join('')
+    : '<p class="update-empty">Nenhum convite recebido</p>';
+  el.inviteLists.sent.innerHTML = sent.length
+    ? sent.map((inv) => renderInviteCard(inv, 'sent')).join('')
+    : '<p class="update-empty">Nenhum convite enviado</p>';
+
+  el.viewInvites.querySelectorAll('[data-invite-accept]').forEach((btn) => {
+    btn.addEventListener('click', () => respondToInvite(btn.dataset.inviteAccept, 'accepted'));
+  });
+  el.viewInvites.querySelectorAll('[data-invite-decline]').forEach((btn) => {
+    btn.addEventListener('click', () => respondToInvite(btn.dataset.inviteDecline, 'declined'));
+  });
+  el.viewInvites.querySelectorAll('[data-invite-cancel]').forEach((btn) => {
+    btn.addEventListener('click', () => cancelInvite(btn.dataset.inviteCancel));
+  });
+}
+
+async function respondToInvite(id, status) {
+  try {
+    await api.respondInvitation(id, status);
+    await reloadInvitations();
+    showToast(status === 'accepted' ? 'Convite aceito' : 'Convite recusado', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function cancelInvite(id) {
+  if (!confirm('Cancelar este convite?')) return;
+
+  try {
+    await api.cancelInvitation(id);
+    await reloadInvitations();
+    showToast('Convite cancelado', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+function invitableUsers(event) {
+  if (!event) return [];
+  const invitedIds = new Set(
+    state.invitations
+      .filter((inv) => inv.event?._id === event._id && inv.status !== 'declined')
+      .map((inv) => inv.invitee?._id)
+  );
+  return state.users.filter((u) => u._id !== event.creator?._id && !invitedIds.has(u._id));
+}
+
+function renderEventInviteSection(event) {
+  const me = api.getCurrentUser();
+  const isCreator = Boolean(event) && event.creator?._id === me._id;
+
+  el.eventInviteSection.classList.toggle('hidden', !isCreator);
+  if (!isCreator) return;
+
+  const invitable = invitableUsers(event);
+  el.eventInviteSelect.innerHTML = invitable.length
+    ? invitable.map((u) => `<option value="${u._id}">${escapeHtml(u.name)}</option>`).join('')
+    : '<option value="">Ninguém disponível para convidar</option>';
+  el.btnEventInvite.disabled = invitable.length === 0;
+
+  const invites = state.invitations.filter((inv) => inv.event?._id === event._id);
+  el.eventInviteList.innerHTML = invites
+    .map(
+      (inv) => `
+        <div class="event-invite-item">
+          <span>${escapeHtml(inv.invitee?.name || 'desconhecido')} · ${INVITE_STATUS_LABELS[inv.status]}</span>
+          ${inv.status === 'pending' ? `<button type="button" class="update-card-delete" data-cancel-invite="${inv._id}" title="Cancelar" aria-label="Cancelar convite">${iconHtml('trash')}</button>` : ''}
+        </div>
+      `
+    )
+    .join('');
+
+  el.eventInviteList.querySelectorAll('[data-cancel-invite]').forEach((btn) => {
+    btn.addEventListener('click', () => cancelInvite(btn.dataset.cancelInvite));
+  });
+}
+
+el.btnEventInvite.addEventListener('click', async () => {
+  el.eventInviteError.textContent = '';
+  const inviteeId = el.eventInviteSelect.value;
+  if (!inviteeId || !state.editingEventId) return;
+
+  setButtonLoading(el.btnEventInvite, true);
+  try {
+    await api.createInvitation({ eventId: state.editingEventId, inviteeId });
+    await reloadInvitations();
+    showToast('Convite enviado', 'success');
+  } catch (err) {
+    el.eventInviteError.textContent = err.message;
+    showToast(err.message, 'error');
+  } finally {
+    setButtonLoading(el.btnEventInvite, false);
+  }
+});
+
 el.updateForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   el.updateError.textContent = '';
@@ -445,15 +591,20 @@ const VIEWS = {
   settings: () => el.viewSettings,
   activity: () => el.viewActivity,
   updates: () => el.viewUpdates,
+  gallery: () => el.viewGallery,
+  invites: () => el.viewInvites,
 };
 
 function switchView(view) {
   el.navItems.forEach((item) => item.classList.toggle('is-active', item.dataset.view === view));
   Object.entries(VIEWS).forEach(([key, getEl]) => getEl().classList.toggle('hidden', key !== view));
   playFadeIn(VIEWS[view]());
+  el.filterBar.classList.toggle('hidden', view !== 'calendar');
 
   if (view === 'activity') loadActivityLog();
   if (view === 'updates') loadUpdateRequests();
+  if (view === 'gallery') renderGallery();
+  if (view === 'invites') reloadInvitations().catch((err) => showToast(err.message, 'error'));
 }
 
 el.navItems.forEach((item) => {
@@ -539,6 +690,7 @@ function renderCalendar() {
 
   const todayKey = toDateKey(new Date());
   const cells = buildMonthCells(state.viewDate);
+  const sharedIds = sharedEventIdSet();
 
   el.calendarGrid.innerHTML = cells
     .map((date) => {
@@ -557,7 +709,8 @@ function renderCalendar() {
         .map((event) => {
           const bg = event.creator ? personColorFor(event.creator._id) : 'var(--color-primary)';
           const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
-          return `<span class="event-pill" style="background:${bg}">${recurringIcon}${escapeHtml(event.title)}</span>`;
+          const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
+          return `<span class="event-pill" style="background:${bg}">${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</span>`;
         })
         .join('');
       const more = dayEvents.length > 3 ? `<span class="badge">+${dayEvents.length - 3} mais</span>` : '';
@@ -703,6 +856,143 @@ function renderAttachmentList(attachments) {
   `;
 }
 
+/* ---------- Galeria ---------- */
+
+function allEventPhotos() {
+  return state.events.flatMap((event) =>
+    (event.attachments || [])
+      .filter((att) => IMAGE_MIME.test(att.mimetype))
+      .map((att) => ({
+        url: att.url,
+        name: att.name,
+        eventId: event._id,
+        eventTitle: event.title,
+        date: event.date,
+      }))
+  );
+}
+
+function photoMonthKey(dateStr) {
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function photoMonthLabel(monthKey) {
+  const [y, m] = monthKey.split('-').map(Number);
+  const label = new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function galleryPhotosForMonth(monthKey) {
+  const photos = allEventPhotos();
+  if (!monthKey) return photos;
+  return photos.filter((photo) => photoMonthKey(photo.date) === monthKey);
+}
+
+function renderGalleryMonthStrip() {
+  const photos = allEventPhotos();
+  const counts = new Map();
+  photos.forEach((photo) => {
+    const key = photoMonthKey(photo.date);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  const months = [...counts.keys()].sort().reverse();
+
+  if (months.length === 0) {
+    el.galleryMonthStrip.innerHTML = '';
+    return;
+  }
+
+  const allChip = `
+    <button type="button" class="gallery-month-chip${state.galleryMonthKey === null ? ' is-active' : ''}" data-month="">
+      Todos <span class="gallery-month-chip-count">${photos.length}</span>
+    </button>
+  `;
+  const monthChips = months
+    .map(
+      (key) => `
+        <button type="button" class="gallery-month-chip${state.galleryMonthKey === key ? ' is-active' : ''}" data-month="${key}">
+          ${escapeHtml(photoMonthLabel(key))} <span class="gallery-month-chip-count">${counts.get(key)}</span>
+        </button>
+      `
+    )
+    .join('');
+
+  el.galleryMonthStrip.innerHTML = allChip + monthChips;
+
+  el.galleryMonthStrip.querySelectorAll('[data-month]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.galleryMonthKey = btn.dataset.month || null;
+      renderGalleryMonthStrip();
+      renderGalleryGrid();
+    });
+  });
+}
+
+function renderGalleryGrid() {
+  const photos = galleryPhotosForMonth(state.galleryMonthKey);
+
+  if (photos.length === 0) {
+    el.galleryGrid.innerHTML = '<p class="sidebar-empty">Nenhuma foto neste período.</p>';
+    return;
+  }
+
+  el.galleryGrid.innerHTML = photos
+    .map(
+      (photo, index) => `
+        <button type="button" class="gallery-thumb" data-index="${index}">
+          <img src="${fileUrl(photo.url)}" alt="${escapeHtml(photo.name)}" loading="lazy" />
+        </button>
+      `
+    )
+    .join('');
+
+  el.galleryGrid.querySelectorAll('[data-index]').forEach((btn) => {
+    btn.addEventListener('click', () => openLightbox(photos, Number(btn.dataset.index)));
+  });
+}
+
+function renderGallery() {
+  const photos = allEventPhotos();
+  const currentMonthKey = photoMonthKey(new Date());
+  const hasCurrentMonth = photos.some((photo) => photoMonthKey(photo.date) === currentMonthKey);
+  const mostRecentMonthKey = photos.length
+    ? [...new Set(photos.map((photo) => photoMonthKey(photo.date)))].sort().reverse()[0]
+    : null;
+
+  state.galleryMonthKey = hasCurrentMonth ? currentMonthKey : mostRecentMonthKey;
+
+  renderGalleryMonthStrip();
+  renderGalleryGrid();
+}
+
+function openLightbox(photos, index) {
+  state.galleryPhotos = photos;
+  state.lightboxIndex = index;
+  showLightboxPhoto();
+  el.lightboxOverlay.classList.add('is-open');
+}
+
+function showLightboxPhoto() {
+  const photo = state.galleryPhotos[state.lightboxIndex];
+  if (!photo) return;
+  el.lightboxImage.src = fileUrl(photo.url);
+  el.lightboxImage.alt = photo.name || '';
+  const dateLabel = new Date(photo.date).toLocaleDateString('pt-BR');
+  el.lightboxCaption.textContent = `${photo.eventTitle} · ${dateLabel}`;
+}
+
+function showLightboxOffset(offset) {
+  const total = state.galleryPhotos.length;
+  if (total === 0) return;
+  state.lightboxIndex = (state.lightboxIndex + offset + total) % total;
+  showLightboxPhoto();
+}
+
+function closeLightbox() {
+  el.lightboxOverlay.classList.remove('is-open');
+}
+
 function renderEventList(dateKey) {
   const dayEvents = eventsByDateKey(dateKey);
 
@@ -711,15 +1001,18 @@ function renderEventList(dateKey) {
     return;
   }
 
+  const sharedIds = sharedEventIdSet();
+
   el.eventList.innerHTML = dayEvents
     .map((event) => {
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
       const recurringIcon = event.recurring ? iconHtml('repeat', 'icon-inline') : '';
+      const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
       return `
         <div class="event-list-item-wrap" data-id="${event._id}">
           <div class="event-list-item">
             <div>
-              <strong>${recurringIcon}${escapeHtml(event.title)}</strong><br />
+              <strong>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</strong><br />
               <span class="badge"><span class="person-dot" style="background:${dotColor}"></span>por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
             </div>
             <button type="button" class="btn btn-secondary" data-edit="${event._id}">Editar</button>
@@ -808,6 +1101,7 @@ function openEventForm(event, dateKey) {
   }
 
   renderFormAttachmentsPreview();
+  renderEventInviteSection(event);
   showFormView();
 }
 
@@ -823,6 +1117,17 @@ async function reloadEvents() {
   renderCalendar();
   renderUpcomingEvents();
   if (isMobile()) renderMonthList();
+  if (!el.viewGallery.classList.contains('hidden')) renderGallery();
+}
+
+async function reloadInvitations() {
+  state.invitations = await api.getInvitations();
+  renderInviteBoard();
+  renderCalendar();
+  renderUpcomingEvents();
+  if (!el.eventForm.classList.contains('hidden') && state.editingEventId) {
+    renderEventInviteSection(state.events.find((e) => e._id === state.editingEventId));
+  }
 }
 
 el.eventFiles.addEventListener('change', () => {
@@ -903,7 +1208,20 @@ el.modalOverlay.addEventListener('click', (event) => {
   if (event.target === el.modalOverlay) closeModal();
 });
 
+el.lightboxClose.addEventListener('click', closeLightbox);
+el.lightboxPrev.addEventListener('click', () => showLightboxOffset(-1));
+el.lightboxNext.addEventListener('click', () => showLightboxOffset(1));
+el.lightboxOverlay.addEventListener('click', (event) => {
+  if (event.target === el.lightboxOverlay) closeLightbox();
+});
+
 document.addEventListener('keydown', (event) => {
+  if (el.lightboxOverlay.classList.contains('is-open')) {
+    if (event.key === 'Escape') closeLightbox();
+    if (event.key === 'ArrowLeft') showLightboxOffset(-1);
+    if (event.key === 'ArrowRight') showLightboxOffset(1);
+    return;
+  }
   if (event.key === 'Escape' && el.modalOverlay.classList.contains('is-open')) closeModal();
 });
 
@@ -1017,7 +1335,7 @@ async function init() {
 
   try {
     state.users = await api.getUsers();
-    renderUsersSidebar();
+    populateCreatorFilter();
     if (user) el.userAvatar.style.background = personColorFor(user._id);
   } catch (err) {
     console.error('Não foi possível carregar os usuários:', err.message);
@@ -1031,6 +1349,12 @@ async function init() {
       api.logout();
       window.location.href = 'login.html';
     }
+  }
+
+  try {
+    await reloadInvitations();
+  } catch (err) {
+    console.error('Não foi possível carregar os convites:', err.message);
   }
 }
 
