@@ -277,6 +277,22 @@ function categoryChipHtml(event) {
   return `<span class="category-chip" style="background:${category.color}">${escapeHtml(category.label)}</span>`;
 }
 
+const SPECIAL_CATEGORY_ICONS = { aniversario: 'birthday', saude: 'medical' };
+
+function specialCategoryIconHtml(event, extraClass = '') {
+  const iconName = SPECIAL_CATEGORY_ICONS[event.category];
+  return iconName ? iconHtml(iconName, extraClass) : '';
+}
+
+// Selo(s) que "vestem" a célula do dia, estourando pra fora do topo, quando o dia
+// tem algum evento de categoria especial (aniversário/saúde) — não fica preso ao pill.
+function dayIconBadgeHtml(dayEvents) {
+  const icons = [...new Set(dayEvents.map((event) => SPECIAL_CATEGORY_ICONS[event.category]).filter(Boolean))];
+  if (icons.length === 0) return '';
+  const iconsHtml = icons.map((name) => iconHtml(name)).join('');
+  return `<span class="calendar-day-special-badge">${iconsHtml}</span>`;
+}
+
 function renderEventPill(event, sharedIds) {
   const bg = pillColorFor(event);
   const recurringIcon = isEventRecurring(event) ? iconHtml('repeat', 'icon-inline') : '';
@@ -289,12 +305,13 @@ function eventListItemHtml(event, sharedIds) {
   const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
   const recurringIcon = isEventRecurring(event) ? iconHtml('repeat', 'icon-inline') : '';
   const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
+  const specialIcon = specialCategoryIconHtml(event, 'icon-inline');
 
   return `
     <div class="event-list-item-wrap" data-id="${event._id}">
       <div class="event-list-item">
         <div>
-          <strong>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</strong>${categoryChipHtml(event)}<br />
+          <strong>${specialIcon}${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</strong>${categoryChipHtml(event)}<br />
           <span class="badge"><span class="person-dot" style="background:${dotColor}"></span>por ${escapeHtml(event.creator?.name || 'desconhecido')}</span>
         </div>
         <button type="button" class="btn btn-secondary" data-edit="${event._id}">Editar</button>
@@ -342,9 +359,10 @@ function renderUpcomingEvents() {
       const dotColor = event.creator ? personColorFor(event.creator._id) : 'var(--color-text-muted)';
       const recurringIcon = isEventRecurring(event) ? iconHtml('repeat', 'icon-inline') : '';
       const sharedIcon = sharedIds.has(event._id) ? iconHtml('heart', 'icon-inline shared-badge-icon') : '';
+      const specialIcon = specialCategoryIconHtml(event, 'icon-inline');
       return `
         <button type="button" class="sidebar-list-item is-clickable" data-date="${dateKey}">
-          <span><span class="person-dot" style="background:${dotColor}"></span>${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</span>
+          <span><span class="person-dot" style="background:${dotColor}"></span>${specialIcon}${sharedIcon}${recurringIcon}${escapeHtml(event.title)}</span>
           <span>${d}/${m}</span>
         </button>
       `;
@@ -876,6 +894,7 @@ function renderCalendar() {
 
       return `
         <button type="button" class="calendar-day${isToday ? ' is-today' : ''}" data-date="${dateKey}">
+          ${dayIconBadgeHtml(dayEvents)}
           <div class="calendar-day-header">
             <span class="calendar-day-number">${date.getDate()}</span>
             ${hasOtherAttachment ? `<span class="calendar-day-attachment-badge">${iconHtml('paperclip')}</span>` : ''}
@@ -959,6 +978,7 @@ function renderWeek() {
 
       return `
         <button type="button" class="calendar-day calendar-week-day${isToday ? ' is-today' : ''}" data-date="${dateKey}">
+          ${dayIconBadgeHtml(dayEvents)}
           <div class="calendar-day-header">
             <span class="calendar-day-weekday">${WEEKDAYS[date.getDay()]}</span>
             <span class="calendar-day-number">${date.getDate()}</span>

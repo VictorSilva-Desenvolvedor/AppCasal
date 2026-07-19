@@ -239,6 +239,7 @@
 
 .calendar-day {
   @apply rounded-lg shadow-sm cursor-pointer flex flex-col;
+  position: relative;
   min-height: 64px;
   min-width: 0;
   background: var(--color-surface);
