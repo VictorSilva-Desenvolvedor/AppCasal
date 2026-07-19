@@ -1,0 +1,355 @@
+/*
+  Fonte única dos tokens de design. O bloco @theme abaixo faz o Tailwind gerar
+  utilities (bg-primary, rounded-lg, text-sm, shadow-md...) que resolvem estas
+  mesmas variáveis em tempo de renderização — por isso trocar de tema via
+  [data-theme]/[data-color-theme] mais abaixo neste arquivo continua
+  funcionando normalmente, sem precisar duplicar valores em outro lugar.
+*/
+@theme {
+  --color-bg: #f4f5fa;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8f9fd;
+  --color-border: #e4e6ed;
+  --color-border-strong: #c7cbd6;
+  --color-text: #1f2430;
+  --color-text-muted: #6b7280;
+
+  /* Cor do texto sobre um fundo sólido de --color-primary / --color-danger
+     (botões cheios, avatar, pills). Calculada por tema mais abaixo — em
+     alguns temas a cor de marca é clara demais para texto branco. */
+  --color-on-primary: #ffffff;
+  --color-on-danger: #ffffff;
+
+  --color-primary: #4f46e5;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+
+  --color-accent: #ec4899;
+  --color-accent-2: #06b6d4;
+
+  --color-success: #16a34a;
+  --color-success-bg: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-bg: #fee2e2;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.1);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.16);
+
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+}
+
+:root {
+  --gradient-brand: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #ec4899 100%);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Cores fixas por pessoa (independem do tema de cor escolhido) */
+  --color-person-1: #2563eb;
+  --color-person-2: #ec4899;
+  --color-person-3: #16a34a;
+  --color-person-4: #d97706;
+  --color-person-5: #7c3aed;
+  --color-person-6: #0d9488;
+}
+
+/* ---------- Temas de cor (data-color-theme) ---------- */
+/* "indigo" é o padrão, já definido em :root acima */
+
+[data-color-theme='rose'] {
+  --color-primary: #e11d48;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --gradient-brand: linear-gradient(135deg, #e11d48 0%, #db2777 55%, #f472b6 100%);
+}
+[data-theme='dark'][data-color-theme='rose'] {
+  --color-primary: #fb7185;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #fb7185 0%, #f472b6 55%, #f9a8d4 100%);
+}
+
+[data-color-theme='blue'] {
+  --color-primary: #2563eb;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --gradient-brand: linear-gradient(135deg, #2563eb 0%, #4f46e5 55%, #06b6d4 100%);
+}
+[data-theme='dark'][data-color-theme='blue'] {
+  --color-primary: #60a5fa;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #60a5fa 0%, #818cf8 55%, #22d3ee 100%);
+}
+
+/* Verde tem o canal G alto demais para ficar legível com texto branco em cima
+   (mesmo na tonalidade "escura" usada no modo claro) — usa tinta escura. */
+[data-color-theme='green'] {
+  --color-primary: #16a34a;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --color-on-primary: #14171c;
+  --gradient-brand: linear-gradient(135deg, #16a34a 0%, #059669 55%, #0d9488 100%);
+}
+[data-theme='dark'][data-color-theme='green'] {
+  --color-primary: #4ade80;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #4ade80 0%, #34d399 55%, #2dd4bf 100%);
+}
+
+/* Laranja também é claro demais para texto branco no botão primário. */
+[data-color-theme='orange'] {
+  --color-primary: #ea580c;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --color-on-primary: #14171c;
+  --gradient-brand: linear-gradient(135deg, #ea580c 0%, #f59e0b 55%, #ec4899 100%);
+}
+[data-theme='dark'][data-color-theme='orange'] {
+  --color-primary: #fb923c;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #fb923c 0%, #fbbf24 55%, #f472b6 100%);
+}
+
+[data-color-theme='red'] {
+  --color-primary: #dc2626;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --gradient-brand: linear-gradient(135deg, #dc2626 0%, #e11d48 55%, #ec4899 100%);
+}
+[data-theme='dark'][data-color-theme='red'] {
+  --color-primary: #f87171;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #f87171 0%, #fb7185 55%, #f9a8d4 100%);
+}
+
+/* Turquesa: mesmo problema do verde/laranja — tinta escura no texto. */
+[data-color-theme='teal'] {
+  --color-primary: #0d9488;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --color-on-primary: #14171c;
+  --gradient-brand: linear-gradient(135deg, #0d9488 0%, #0891b2 55%, #6366f1 100%);
+}
+[data-theme='dark'][data-color-theme='teal'] {
+  --color-primary: #2dd4bf;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #2dd4bf 0%, #22d3ee 55%, #818cf8 100%);
+}
+
+/* Âmbar é o mais claro de todos — precisa de tinta escura mesmo no modo claro. */
+[data-color-theme='amber'] {
+  --color-primary: #d97706;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
+  --color-on-primary: #14171c;
+  --gradient-brand: linear-gradient(135deg, #d97706 0%, #ea580c 55%, #dc2626 100%);
+}
+[data-theme='dark'][data-color-theme='amber'] {
+  --color-primary: #fbbf24;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --gradient-brand: linear-gradient(135deg, #fbbf24 0%, #fb923c 55%, #f87171 100%);
+}
+
+[data-color-theme='miku'] {
+  --color-bg: #e2f5f3;
+  --color-surface: #f8fdfc;
+  --color-surface-alt: #dcedf5;
+  --color-border: #bcdcea;
+  --color-border-strong: #96c3d8;
+  --color-text: #001b29;
+  --color-text-muted: #4d5f8a;
+
+  --color-primary: #4dd4cd;
+  --color-primary-hover: #333c77;
+  --color-primary-light: #d2f4f1;
+  --color-on-primary: #001b29;
+  --gradient-brand: linear-gradient(135deg, #4dd4cd 0%, #a4cbe3 50%, #333c77 100%);
+
+  --shadow-sm: 0 1px 2px rgba(51, 60, 119, 0.08);
+  --shadow-md: 0 4px 16px rgba(51, 60, 119, 0.14);
+  --shadow-lg: 0 12px 32px rgba(51, 60, 119, 0.2);
+
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234d5f8a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+[data-theme='dark'][data-color-theme='miku'] {
+  --color-bg: #001b29;
+  --color-surface: #0b2740;
+  --color-surface-alt: #123350;
+  --color-border: #29496b;
+  --color-border-strong: #3d5f85;
+  --color-text: #eaf7f5;
+  --color-text-muted: #8fb4d6;
+
+  --color-primary: #4dd4cd;
+  --color-primary-hover: #a4cbe3;
+  --color-primary-light: rgba(77, 212, 205, 0.16);
+  --gradient-brand: linear-gradient(135deg, #4dd4cd 0%, #a4cbe3 50%, #001b29 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.65);
+
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238fb4d6' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Tema fixo: sempre preto com detalhes verdes, independente do alternador claro/escuro */
+[data-color-theme='black-green'],
+[data-theme='dark'][data-color-theme='black-green'] {
+  --color-bg: #05080a;
+  --color-surface: #0c1512;
+  --color-surface-alt: #101d17;
+  --color-border: #1f3a2a;
+  --color-border-strong: #2d5a3f;
+  --color-text: #d9ffe2;
+  --color-text-muted: #7fae8c;
+
+  --color-primary: #39ff6a;
+  --color-primary-hover: #22cc55;
+  --color-primary-light: rgba(57, 255, 106, 0.16);
+  --color-on-primary: #05100a;
+  --gradient-brand: linear-gradient(135deg, #0a0f0c 0%, #143a22 45%, #39ff6a 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.7);
+
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2339ff6a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ---------- Modo escuro (base indigo + tokens comuns a todos os temas) ---------- */
+
+[data-theme='dark'] {
+  --color-bg: #0f1115;
+  --color-surface: #181b22;
+  --color-surface-alt: #1f232c;
+  --color-border: #2c303a;
+  --color-border-strong: #3a3f4b;
+  --color-text: #e7e9ee;
+  --color-text-muted: #9aa0ac;
+
+  /* No escuro, as cores de marca ficam mais claras (para se destacar do fundo
+     escuro) — o que significa que precisam de texto escuro em cima, não
+     branco. Vale para todos os temas de cor, por isso fica aqui na regra base. */
+  --color-on-primary: #14171c;
+  --color-on-danger: #14171c;
+
+  --color-primary: #818cf8;
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  --color-accent: #f472b6;
+  --color-accent-2: #22d3ee;
+
+  --color-success: #4ade80;
+  --color-success-bg: rgba(74, 222, 128, 0.14);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.14);
+  --color-danger: #f87171;
+  --color-danger-hover: #ef4444;
+  --color-danger-bg: rgba(248, 113, 113, 0.14);
+
+  --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #f472b6 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239aa0ac' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ---------- Seletor de cor (swatches nas Configurações) ---------- */
+
+.color-swatch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch.is-active {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+.swatch-indigo {
+  background: #4f46e5;
+}
+.swatch-rose {
+  background: #e11d48;
+}
+.swatch-blue {
+  background: #2563eb;
+}
+.swatch-green {
+  background: #16a34a;
+}
+.swatch-orange {
+  background: #ea580c;
+}
+.swatch-red {
+  background: #dc2626;
+}
+.swatch-teal {
+  background: #0d9488;
+}
+.swatch-amber {
+  background: #d97706;
+}
+.swatch-miku {
+  background: linear-gradient(135deg, #4dd4cd 0%, #333c77 100%);
+}
+.swatch-black-green {
+  background: #05080a;
+  border-color: #39ff6a;
+}

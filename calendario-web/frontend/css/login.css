@@ -1,25 +1,20 @@
-.auth-page {
-  min-height: 100vh;
+/*
+  @layer components — telas de login/registro. O plano de fundo do
+  .auth-hero é definido dinamicamente por js/authHero.js (foto de gato
+  aleatória via cataas.com), por isso o background-image fica como CSS puro.
+*/
+
+.auth-page,
+.auth-shell {
+  @apply min-h-screen;
 }
 
 .auth-shell {
-  min-height: 100vh;
-  display: flex;
+  @apply flex flex-col md:flex-row;
 }
 
-/* Painel decorativo com foto de fundo (gatinho aleatório via cataas.com, muda a cada carregamento) */
 .auth-hero {
-  position: relative;
-  flex: 2.2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  background-color: var(--color-primary);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  overflow: hidden;
+  @apply relative hidden md:flex md:flex-[2.2] items-center justify-center p-12 overflow-hidden bg-primary bg-cover bg-center bg-no-repeat;
 }
 
 .auth-hero::before {
@@ -30,21 +25,12 @@
 }
 
 .auth-hero-content {
-  position: relative;
-  z-index: 1;
+  @apply relative z-[1] max-w-[380px] text-left;
   color: #fff;
-  max-width: 380px;
-  text-align: left;
 }
 
 .auth-hero-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 1rem;
-  border-radius: var(--radius-lg);
+  @apply inline-flex items-center justify-center w-[52px] h-[52px] mb-4 rounded-xl;
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(4px);
   color: #fff;
@@ -56,64 +42,36 @@
 }
 
 .auth-hero-content h1 {
-  font-size: 2.2rem;
-  margin-bottom: 0;
+  @apply text-[2.2rem] mb-0;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
 .auth-hero-content p {
+  @apply mt-[0.6rem] mb-0 text-base;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0.6rem 0 0;
-  font-size: 0.95rem;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .auth-form-side {
-  flex: 0 0 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: var(--color-bg);
+  @apply flex-1 md:flex-[0_0_400px] flex items-center justify-center p-6 bg-bg;
 }
 
 .auth-card {
-  width: 100%;
-  max-width: 380px;
-  padding: 2rem;
-  text-align: center;
+  @apply w-full max-w-[380px] p-8 text-center;
 }
 
 .auth-card h2 {
-  font-size: 1.4rem;
+  @apply text-xl;
 }
 
 .auth-card > p {
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  @apply text-base mb-6;
 }
 
 .auth-footer {
-  margin-top: 1.25rem;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
+  @apply mt-5 text-sm text-text-muted;
 }
 
 .auth-hint {
-  margin-top: 1rem;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.75rem;
-}
-
-@media (max-width: 768px) {
-  .auth-hero {
-    display: none;
-  }
-  .auth-form-side {
-    min-width: 0;
-  }
+  @apply mt-4 text-sm text-text-muted bg-surface-alt border border-border rounded-sm px-3 py-2;
 }
