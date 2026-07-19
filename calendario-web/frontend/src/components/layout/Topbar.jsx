@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
+import { NotificationBell } from './NotificationBell.jsx';
 import { GlobalSearchResults } from '../../features/calendar/GlobalSearchResults.jsx';
 import { matchesSearchTerm, toDateKey } from '../../features/calendar/calendarUtils.js';
 import { CATEGORIES } from '../../constants/categories.js';
@@ -71,6 +72,8 @@ export function Topbar({ onToggleSidebar, showFilterBar }) {
         />
         {resultsVisible && <GlobalSearchResults results={results} onSelect={handleSelectResult} />}
       </div>
+
+      <NotificationBell />
 
       {showFilterBar && (
         <div className="filter-bar card">

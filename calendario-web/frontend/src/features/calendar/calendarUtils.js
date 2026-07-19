@@ -81,6 +81,7 @@ export function buildOccurrenceMap(events, rangeStart, rangeEnd) {
 }
 
 export function matchesDateKey(event, dateKey) {
+  if (!dateKey) return false;
   const [y, m, d] = dateKey.split('-').map(Number);
   const target = new Date(y, m - 1, d, 12, 0, 0);
   return getOccurrencesInRange(event.date, normalizeRule(event), target, target).length > 0;
@@ -160,6 +161,22 @@ export function buildMonthCells(viewDate) {
   for (let d = 1; d <= daysInMonth; d += 1) cells.push(new Date(year, month, d));
 
   return cells;
+}
+
+// ---------- Lembretes: estado de formulário <-> array da API ----------
+
+export const DEFAULT_REMINDER_OFFSETS = [5, 3, 1];
+
+export function reminderOffsetsToString(offsets) {
+  return (offsets?.length ? offsets : DEFAULT_REMINDER_OFFSETS).join(', ');
+}
+
+export function parseReminderOffsets(text) {
+  const parsed = text
+    .split(',')
+    .map((part) => parseInt(part.trim(), 10))
+    .filter((n) => Number.isInteger(n) && n >= 1 && n <= 90);
+  return parsed.length ? parsed : DEFAULT_REMINDER_OFFSETS;
 }
 
 // ---------- Recorrência: estado de formulário <-> regra da API ----------

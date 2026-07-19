@@ -48,7 +48,7 @@ export function CalendarPage() {
       openDayModal(navState.openDateKey);
     }
 
-    navigate(location.pathname, { replace: true, state: {} });
+    navigate(location.pathname, { replace: true, state: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.key]);
 

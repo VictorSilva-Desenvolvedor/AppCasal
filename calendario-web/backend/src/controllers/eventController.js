@@ -8,7 +8,7 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { title, description, date, attachments, recurrenceRule, category, hideWhenPast } = req.body;
+  const { title, description, date, attachments, recurrenceRule, category, reminderOffsets, hideWhenPast } = req.body;
 
   if (!title || !date) {
     return res.status(400).json({ message: 'Título e data são obrigatórios' });
@@ -24,6 +24,7 @@ async function create(req, res) {
     recurrenceRule,
     recurring: frequency !== 'none',
     category: category || null,
+    reminderOffsets: Array.isArray(reminderOffsets) && reminderOffsets.length ? reminderOffsets : [5, 3, 1],
     hideWhenPast: Boolean(hideWhenPast),
     creator: req.userId,
   });
@@ -40,7 +41,7 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { title, description, date, attachments, recurrenceRule, category, hideWhenPast } = req.body;
+  const { title, description, date, attachments, recurrenceRule, category, reminderOffsets, hideWhenPast } = req.body;
 
   const before = await Event.findById(req.params.id);
   if (!before) {
@@ -59,6 +60,7 @@ async function update(req, res) {
       recurrenceRule,
       recurring: frequency !== 'none',
       category: category || null,
+      reminderOffsets: Array.isArray(reminderOffsets) && reminderOffsets.length ? reminderOffsets : [5, 3, 1],
       hideWhenPast: Boolean(hideWhenPast),
     },
     { new: true, runValidators: true }

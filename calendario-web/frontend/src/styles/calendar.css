@@ -52,6 +52,17 @@
     w-[34px] h-[34px] text-lg cursor-pointer flex-shrink-0 transition-colors duration-200 hover:bg-bg;
 }
 
+.notification-bell {
+  @apply relative inline-flex items-center justify-center rounded-sm border border-border bg-surface text-text
+    w-[34px] h-[34px] cursor-pointer flex-shrink-0 transition-colors duration-200 hover:bg-bg;
+}
+
+.notification-bell-badge {
+  @apply absolute -top-1.5 -right-1.5 inline-flex items-center justify-center rounded-full text-on-primary
+    text-[0.65rem] font-bold min-w-[18px] h-[18px] px-1;
+  background: var(--color-primary);
+}
+
 .sidebar-header {
   @apply flex flex-col gap-[0.6rem];
 }
