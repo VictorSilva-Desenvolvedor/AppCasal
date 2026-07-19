@@ -35,9 +35,16 @@ app.use('/api/reminders', reminderRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
 
-const frontendDir = path.join(__dirname, '..', '..', 'frontend');
+const frontendDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
 app.use(express.static(frontendDir));
-app.get('/', (req, res) => res.redirect('/pages/login.html'));
+
+// Fallback de SPA: qualquer rota GET que não seja /api/* e não bata em um
+// arquivo estático cai no index.html, para o React Router assumir o
+// client-side routing (inclusive em refresh direto de /app/calendario etc.).
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(frontendDir, 'index.html'));
+});
 
 app.use((err, req, res, next) => {
   console.error(err);
