@@ -1,4 +1,5 @@
 const Event = require('../models/Event');
+const Invitation = require('../models/Invitation');
 const { logActivity, buildUpdateDetails, formatDate } = require('../services/activityLogger');
 
 async function list(req, res) {
@@ -64,6 +65,8 @@ async function remove(req, res) {
   if (!event) {
     return res.status(404).json({ message: 'Evento não encontrado' });
   }
+
+  await Invitation.deleteMany({ event: event._id });
 
   await logActivity({
     actor: req.userId,

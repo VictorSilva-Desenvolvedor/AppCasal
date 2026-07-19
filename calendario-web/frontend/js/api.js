@@ -111,6 +111,22 @@ function deleteUpdateRequest(id) {
   return request(`/update-requests/${id}`, { method: 'DELETE' });
 }
 
+function getInvitations() {
+  return request('/invitations');
+}
+
+function createInvitation(payload) {
+  return request('/invitations', { method: 'POST', body: payload });
+}
+
+function respondInvitation(id, status) {
+  return request(`/invitations/${id}`, { method: 'PUT', body: { status } });
+}
+
+function cancelInvitation(id) {
+  return request(`/invitations/${id}`, { method: 'DELETE' });
+}
+
 export const api = {
   register,
   login,
@@ -130,6 +146,10 @@ export const api = {
   createUpdateRequest,
   updateUpdateRequest,
   deleteUpdateRequest,
+  getInvitations,
+  createInvitation,
+  respondInvitation,
+  cancelInvitation,
 };
 
 export { API_BASE_URL };
