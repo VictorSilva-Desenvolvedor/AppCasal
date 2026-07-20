@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '../ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { NotificationBell } from './NotificationBell.jsx';
 import { GlobalSearchResults } from '../../features/calendar/GlobalSearchResults.jsx';
 import { matchesSearchTerm, toDateKey } from '../../features/calendar/calendarUtils.js';
 import { CATEGORIES } from '../../constants/categories.js';
+import { getAppSection } from './appSections.js';
 
 const GLOBAL_SEARCH_RESULT_LIMIT = 20;
 
 export function Topbar({ onToggleSidebar, showFilterBar }) {
   const { events, users, filters, setFilters } = useCalendarData();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isCalendarSection = getAppSection(location.pathname) === 'calendario';
 
   const [query, setQuery] = useState('');
   const [dismissed, setDismissed] = useState(false);
@@ -69,21 +72,23 @@ export function Topbar({ onToggleSidebar, showFilterBar }) {
         <Icon name="menu" />
       </button>
 
-      <div className="global-search" ref={searchRef}>
-        <input
-          type="text"
-          placeholder="Buscar em todos os eventos (qualquer data)..."
-          autoComplete="off"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setDismissed(false);
-          }}
-        />
-        {resultsVisible && <GlobalSearchResults results={results} onSelect={handleSelectResult} />}
-      </div>
+      {isCalendarSection && (
+        <div className="global-search" ref={searchRef}>
+          <input
+            type="text"
+            placeholder="Buscar em todos os eventos (qualquer data)..."
+            autoComplete="off"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setDismissed(false);
+            }}
+          />
+          {resultsVisible && <GlobalSearchResults results={results} onSelect={handleSelectResult} />}
+        </div>
+      )}
 
-      <NotificationBell />
+      {isCalendarSection && <NotificationBell />}
 
       {showFilterBar && (
         <div className="filter-bar card">
