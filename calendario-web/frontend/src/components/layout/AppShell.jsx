@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
+import { getAppSection } from './appSections.js';
 
 const SIDEBAR_COLLAPSED_KEY = 'calendario_sidebar_collapsed';
 const MOBILE_QUERY = '(max-width: 768px)';
@@ -35,6 +36,7 @@ export function AppShell() {
   }
 
   const showFilterBar = location.pathname.startsWith('/app/calendario');
+  const showSidebar = getAppSection(location.pathname) !== 'financeiro';
 
   function handleQuickNewEvent() {
     navigate('/app/calendario', { state: { quickNewEvent: true } });
@@ -43,19 +45,27 @@ export function AppShell() {
   return (
     <CalendarDataProvider>
       <div className="app-shell">
-        <Sidebar
-          collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          onCloseMobile={() => setMobileOpen(false)}
-          onQuickNewEvent={handleQuickNewEvent}
-        />
-        <div
-          className={`sidebar-backdrop${mobileOpen ? ' is-visible' : ''}`}
-          onClick={() => setMobileOpen(false)}
-        />
+        {showSidebar && (
+          <>
+            <Sidebar
+              collapsed={collapsed}
+              mobileOpen={mobileOpen}
+              onCloseMobile={() => setMobileOpen(false)}
+              onQuickNewEvent={handleQuickNewEvent}
+            />
+            <div
+              className={`sidebar-backdrop${mobileOpen ? ' is-visible' : ''}`}
+              onClick={() => setMobileOpen(false)}
+            />
+          </>
+        )}
 
         <main className="main-content">
-          <Topbar onToggleSidebar={handleToggleSidebar} showFilterBar={showFilterBar} />
+          <Topbar
+            onToggleSidebar={handleToggleSidebar}
+            showFilterBar={showFilterBar}
+            showSidebarToggle={showSidebar}
+          />
           <Outlet />
         </main>
       </div>

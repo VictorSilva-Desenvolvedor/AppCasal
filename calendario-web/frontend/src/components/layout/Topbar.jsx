@@ -10,7 +10,7 @@ import { getAppSection } from './appSections.js';
 
 const GLOBAL_SEARCH_RESULT_LIMIT = 20;
 
-export function Topbar({ onToggleSidebar, showFilterBar }) {
+export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = true }) {
   const { events, users, filters, setFilters } = useCalendarData();
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,15 +62,17 @@ export function Topbar({ onToggleSidebar, showFilterBar }) {
         <Icon name="chevron-left" />
       </button>
 
-      <button
-        type="button"
-        className="sidebar-toggle"
-        title="Mostrar/ocultar barra lateral"
-        aria-label="Mostrar/ocultar barra lateral"
-        onClick={onToggleSidebar}
-      >
-        <Icon name="menu" />
-      </button>
+      {showSidebarToggle && (
+        <button
+          type="button"
+          className="sidebar-toggle"
+          title="Mostrar/ocultar barra lateral"
+          aria-label="Mostrar/ocultar barra lateral"
+          onClick={onToggleSidebar}
+        >
+          <Icon name="menu" />
+        </button>
+      )}
 
       {isCalendarSection && (
         <div className="global-search" ref={searchRef}>
