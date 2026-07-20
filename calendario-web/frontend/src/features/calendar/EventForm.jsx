@@ -14,6 +14,7 @@ import {
   recurrenceStateToRule,
   reminderOffsetsToString,
   parseReminderOffsets,
+  EVENT_COLORS,
 } from './calendarUtils.js';
 
 export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
@@ -25,6 +26,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const [title, setTitle] = useState(event?.title || '');
   const [description, setDescription] = useState(event?.description || '');
   const [category, setCategory] = useState(event?.category || '');
+  const [color, setColor] = useState(event?.color || '');
   const [hideWhenPast, setHideWhenPast] = useState(Boolean(event?.hideWhenPast));
   const [reminderOffsets, setReminderOffsets] = useState(() => reminderOffsetsToString(event?.reminderOffsets));
   const [recurrence, setRecurrence] = useState(() => initialRecurrenceState(event));
@@ -57,6 +59,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
         attachments,
         recurrenceRule: recurrenceStateToRule(recurrence),
         category: category || null,
+        color: color || null,
         reminderOffsets: parseReminderOffsets(reminderOffsets),
         hideWhenPast,
       };
@@ -126,6 +129,28 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="field">
+        <label>Cor do evento</label>
+        <div className="color-swatch-grid">
+          <button
+            type="button"
+            className={`color-swatch swatch-none${color ? '' : ' is-active'}`}
+            title="Usar cor padrão"
+            onClick={() => setColor('')}
+          />
+          {EVENT_COLORS.map((hex) => (
+            <button
+              key={hex}
+              type="button"
+              className={`color-swatch${color === hex ? ' is-active' : ''}`}
+              style={{ backgroundColor: hex }}
+              title={hex}
+              onClick={() => setColor(hex)}
+            />
+          ))}
+        </div>
       </div>
 
       <RecurrenceFields value={recurrence} onChange={setRecurrence} />

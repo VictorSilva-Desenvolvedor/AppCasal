@@ -99,12 +99,14 @@ export function Topbar({ onToggleSidebar, showFilterBar }) {
               </option>
             ))}
           </select>
-          <label className="filter-checkbox flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-text-muted cursor-pointer transition-colors hover:border-primary">
+          <label className="filter-chip flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-text-muted cursor-pointer transition-colors hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white">
             <input
               type="checkbox"
+              className="sr-only"
               checked={filters.onlyWithAttachment}
               onChange={(event) => updateFilter({ onlyWithAttachment: event.target.checked })}
             />
+            <Icon name={filters.onlyWithAttachment ? 'check-circle' : 'paperclip'} className="h-4 w-4" />
             Só com anexo
           </label>
         </div>

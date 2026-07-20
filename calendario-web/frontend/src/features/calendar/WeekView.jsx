@@ -10,6 +10,7 @@ import {
   dateKeyToNoonISO,
   dayIconBadgeSrcs,
   filteredEvents,
+  hasImportantDate,
   isEventRecurring,
   pillColorFor,
   sharedEventIdSet,
@@ -76,6 +77,7 @@ export function WeekView({ viewDate, filters, onSelectDay }) {
           'calendar-day',
           'calendar-week-day',
           isToday && 'is-today',
+          hasImportantDate(dayEvents) && 'is-important-date',
           dnd.isDropTarget(dateKey) && 'is-drop-target',
         ]
           .filter(Boolean)

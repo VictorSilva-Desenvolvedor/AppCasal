@@ -73,6 +73,10 @@ function deleteEvent(id) {
   return request(`/events/${id}`, { method: 'DELETE' });
 }
 
+function getUpcomingReminders() {
+  return request('/events/upcoming-reminders');
+}
+
 function uploadFile(file) {
   const form = new FormData();
   form.append('file', file);
@@ -163,6 +167,7 @@ export const api = {
   createEvent,
   updateEvent,
   deleteEvent,
+  getUpcomingReminders,
   uploadFile,
   getSettings,
   updateSettings,

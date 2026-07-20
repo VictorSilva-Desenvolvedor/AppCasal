@@ -52,6 +52,10 @@
     w-[34px] h-[34px] text-lg cursor-pointer flex-shrink-0 transition-colors duration-200 hover:bg-bg;
 }
 
+.notification-bell-wrapper {
+  @apply relative flex-shrink-0;
+}
+
 .notification-bell {
   @apply relative inline-flex items-center justify-center rounded-sm border border-border bg-surface text-text
     w-[34px] h-[34px] cursor-pointer flex-shrink-0 transition-colors duration-200 hover:bg-bg;
@@ -61,6 +65,10 @@
   @apply absolute -top-1.5 -right-1.5 inline-flex items-center justify-center rounded-full text-on-primary
     text-[0.65rem] font-bold min-w-[18px] h-[18px] px-1;
   background: var(--color-primary);
+}
+
+.notification-bell-panel {
+  @apply left-auto right-0 w-72;
 }
 
 .sidebar-header {
@@ -301,6 +309,11 @@
   border: 2px solid var(--color-primary);
   background: var(--color-primary-light);
   animation: todayPulse 2.4s ease-in-out infinite;
+}
+
+.calendar-day.is-important-date {
+  box-shadow: inset 0 0 0 2px #f59e0b;
+  background: color-mix(in srgb, #f59e0b 12%, var(--color-surface));
 }
 
 .calendar-day.is-drop-target {

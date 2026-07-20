@@ -13,6 +13,7 @@ import {
   dayIconBadgeSrcs,
   fileUrl,
   filteredEvents,
+  hasImportantDate,
   isEventRecurring,
   pillColorFor,
   sharedEventIdSet,
@@ -90,6 +91,7 @@ export function MonthView({ viewDate, filters, onSelectDay }) {
           const cellClassName = [
             'calendar-day',
             isToday && 'is-today',
+            hasImportantDate(dayEvents) && 'is-important-date',
             dnd.isDropTarget(dateKey) && 'is-drop-target',
           ]
             .filter(Boolean)
