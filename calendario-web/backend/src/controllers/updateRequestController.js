@@ -1,4 +1,5 @@
 const UpdateRequest = require('../models/UpdateRequest');
+const { generateTaskDraft } = require('../services/aiService');
 
 async function list(req, res) {
   const requests = await UpdateRequest.find().populate('creator', 'name').sort({ createdAt: -1 });
@@ -52,4 +53,20 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, create, update, remove };
+async function generateDraft(req, res) {
+  const { text } = req.body;
+
+  if (!text || !text.trim()) {
+    return res.status(400).json({ message: 'Descreva a ideia para gerar a tarefa' });
+  }
+
+  try {
+    const draft = await generateTaskDraft(text.trim());
+    res.json(draft);
+  } catch (err) {
+    console.error('Falha ao gerar tarefa com IA:', err.message);
+    res.status(500).json({ message: 'Não foi possível gerar a tarefa com IA. Tente novamente ou preencha manualmente.' });
+  }
+}
+
+module.exports = { list, create, update, remove, generateDraft };

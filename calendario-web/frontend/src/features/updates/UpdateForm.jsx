@@ -4,11 +4,34 @@ import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 
 export function UpdateForm({ onCreated }) {
+  const [idea, setIdea] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const { showToast } = useToast();
+
+  async function handleGenerate() {
+    const trimmedIdea = idea.trim();
+    if (!trimmedIdea) {
+      setError('Descreva a ideia para gerar com IA');
+      return;
+    }
+
+    setError('');
+    setGenerating(true);
+    try {
+      const draft = await api.generateUpdateRequestDraft(trimmedIdea);
+      setTitle(draft.title);
+      setDescription(draft.description);
+    } catch (err) {
+      setError(err.message);
+      showToast(err.message, 'error');
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -23,6 +46,7 @@ export function UpdateForm({ onCreated }) {
     setSaving(true);
     try {
       await api.createUpdateRequest({ title: trimmedTitle, description: description.trim() });
+      setIdea('');
       setTitle('');
       setDescription('');
       await onCreated();
@@ -37,6 +61,18 @@ export function UpdateForm({ onCreated }) {
 
   return (
     <form className="card update-form" onSubmit={handleSubmit}>
+      <div className="field">
+        <label htmlFor="update-idea">Ideia rápida</label>
+        <textarea
+          id="update-idea"
+          placeholder="Ex: botão de anexo do calendário está feio"
+          value={idea}
+          onChange={(event) => setIdea(event.target.value)}
+        />
+        <Button type="button" variant="secondary" loading={generating} onClick={handleGenerate}>
+          Gerar com IA
+        </Button>
+      </div>
       <div className="field">
         <label htmlFor="update-title">Título</label>
         <input

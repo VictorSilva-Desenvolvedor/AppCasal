@@ -117,6 +117,10 @@ function getUpdateRequests() {
   return request('/update-requests');
 }
 
+function generateUpdateRequestDraft(text) {
+  return request('/update-requests/generate', { method: 'POST', body: { text } });
+}
+
 function createUpdateRequest(payload) {
   return request('/update-requests', { method: 'POST', body: payload });
 }
@@ -274,6 +278,7 @@ export const api = {
   updateCurrentUser,
   getActivityLog,
   getUpdateRequests,
+  generateUpdateRequestDraft,
   createUpdateRequest,
   updateUpdateRequest,
   deleteUpdateRequest,
