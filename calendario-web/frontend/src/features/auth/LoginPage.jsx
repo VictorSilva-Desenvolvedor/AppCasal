@@ -18,7 +18,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       await login({ name: name.trim(), password });
-      navigate('/app/calendario', { replace: true });
+      navigate('/app', { replace: true });
     } catch (err) {
       showToast(err.message, 'error');
       setLoading(false);
