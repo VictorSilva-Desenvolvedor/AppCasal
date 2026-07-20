@@ -261,6 +261,14 @@
 
 /* ---------- Objetivos ---------- */
 
+.finance-goal-groups {
+  @apply flex flex-col gap-6;
+}
+
+.finance-goal-groups h3 {
+  @apply mb-3;
+}
+
 .finance-goal-list {
   @apply grid gap-3;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
