@@ -1,7 +1,7 @@
 const FinanceGoal = require('../models/FinanceGoal');
 
 async function list(req, res) {
-  const goals = await FinanceGoal.find().sort({ createdAt: -1 });
+  const goals = await FinanceGoal.find().populate('creator', 'name').sort({ createdAt: -1 });
   res.json(goals);
 }
 
@@ -24,6 +24,7 @@ async function create(req, res) {
     notes: notes || '',
     creator: req.userId,
   });
+  await goal.populate('creator', 'name');
 
   res.status(201).json(goal);
 }
@@ -41,25 +42,38 @@ async function update(req, res) {
     status,
   } = req.body;
 
+  const before = await FinanceGoal.findById(req.params.id);
+  if (!before) {
+    return res.status(404).json({ message: 'Objetivo não encontrado' });
+  }
+  if (String(before.creator) !== req.userId) {
+    const err = new Error('Você só pode editar objetivos que você mesmo criou');
+    err.status = 403;
+    throw err;
+  }
+
   const goal = await FinanceGoal.findByIdAndUpdate(
     req.params.id,
     { name, type, targetAmount, currentAmount, totalInstallments, paidInstallments, installmentAmount, notes, status },
     { new: true, runValidators: true }
-  );
-
-  if (!goal) {
-    return res.status(404).json({ message: 'Objetivo não encontrado' });
-  }
+  ).populate('creator', 'name');
 
   res.json(goal);
 }
 
 async function remove(req, res) {
-  const goal = await FinanceGoal.findByIdAndDelete(req.params.id);
+  const goal = await FinanceGoal.findById(req.params.id);
 
   if (!goal) {
     return res.status(404).json({ message: 'Objetivo não encontrado' });
   }
+  if (String(goal.creator) !== req.userId) {
+    const err = new Error('Você só pode excluir objetivos que você mesmo criou');
+    err.status = 403;
+    throw err;
+  }
+
+  await FinanceGoal.findByIdAndDelete(req.params.id);
 
   res.status(204).send();
 }

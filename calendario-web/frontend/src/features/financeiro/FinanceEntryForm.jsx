@@ -17,14 +17,13 @@ const EMPTY_FORM = {
   paidAmount: '',
   wishType: '',
   reason: '',
-  paidBy: '',
   sharedWith: '',
   splitAmount: '',
 };
 
 export function FinanceEntryForm({ categories, users, monthLocked, editingEntry, onSaved, onCancelEdit }) {
   const { user } = useAuth();
-  const [form, setForm] = useState({ ...EMPTY_FORM, paidBy: user?._id || '' });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
@@ -40,17 +39,16 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         paidAmount: editingEntry.paidAmount ? String(editingEntry.paidAmount) : '',
         wishType: editingEntry.wishType || '',
         reason: editingEntry.reason || '',
-        paidBy: editingEntry.paidBy?._id || '',
         sharedWith: editingEntry.sharedWith?._id || '',
         splitAmount: editingEntry.splitAmount ? String(editingEntry.splitAmount) : '',
       });
     } else {
-      setForm({ ...EMPTY_FORM, paidBy: user?._id || '' });
+      setForm(EMPTY_FORM);
     }
   }, [editingEntry, user]);
 
   const filteredCategories = categories.filter((category) => category.type === form.type);
-  const otherUsers = users.filter((u) => u._id !== form.paidBy);
+  const otherUsers = users.filter((u) => u._id !== user?._id);
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -78,7 +76,6 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
       paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
       wishType: form.wishType || null,
       reason: form.reason,
-      paidBy: form.paidBy || user?._id,
       sharedWith: form.sharedWith || null,
       splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
     };
@@ -93,7 +90,7 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         await api.createFinanceEntry(payload);
         showToast('Lançamento criado', 'success');
       }
-      setForm({ ...EMPTY_FORM, paidBy: user?._id || '' });
+      setForm(EMPTY_FORM);
       await onSaved();
     } catch (err) {
       setError(err.message);
@@ -200,15 +197,6 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
       )}
 
       <div className="finance-form-row">
-        <Field label="Quem pagou" htmlFor="finance-paidby">
-          <select id="finance-paidby" value={form.paidBy} onChange={(event) => update('paidBy', event.target.value)}>
-            {users.map((u) => (
-              <option key={u._id} value={u._id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-        </Field>
         <Field label="Compartilhado com" htmlFor="finance-sharedwith">
           <select
             id="finance-sharedwith"
