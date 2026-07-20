@@ -145,6 +145,93 @@ function cancelInvitation(id) {
   return request(`/invitations/${id}`, { method: 'DELETE' });
 }
 
+function getFinanceCategories() {
+  return request('/finance-categories');
+}
+
+function createFinanceCategory(category) {
+  return request('/finance-categories', { method: 'POST', body: category });
+}
+
+function updateFinanceCategory(id, category) {
+  return request(`/finance-categories/${id}`, { method: 'PUT', body: category });
+}
+
+function deleteFinanceCategory(id) {
+  return request(`/finance-categories/${id}`, { method: 'DELETE' });
+}
+
+function getFinanceEntries(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/finance-entries${query ? `?${query}` : ''}`);
+}
+
+function createFinanceEntry(entry) {
+  return request('/finance-entries', { method: 'POST', body: entry });
+}
+
+function updateFinanceEntry(id, entry) {
+  return request(`/finance-entries/${id}`, { method: 'PUT', body: entry });
+}
+
+function deleteFinanceEntry(id) {
+  return request(`/finance-entries/${id}`, { method: 'DELETE' });
+}
+
+function getFinanceReport(month, year) {
+  return request(`/finance-entries/report?month=${month}&year=${year}`);
+}
+
+function getReimbursements() {
+  return request('/reimbursements');
+}
+
+function createReimbursement(payload) {
+  return request('/reimbursements', { method: 'POST', body: payload });
+}
+
+function settleReimbursement(id) {
+  return request(`/reimbursements/${id}/quitar`, { method: 'PUT' });
+}
+
+function deleteReimbursement(id) {
+  return request(`/reimbursements/${id}`, { method: 'DELETE' });
+}
+
+function getFinanceGoals() {
+  return request('/finance-goals');
+}
+
+function createFinanceGoal(goal) {
+  return request('/finance-goals', { method: 'POST', body: goal });
+}
+
+function updateFinanceGoal(id, goal) {
+  return request(`/finance-goals/${id}`, { method: 'PUT', body: goal });
+}
+
+function deleteFinanceGoal(id) {
+  return request(`/finance-goals/${id}`, { method: 'DELETE' });
+}
+
+function getFinanceMonths() {
+  return request('/finance-months');
+}
+
+function createFinanceMonth(payload) {
+  return request('/finance-months', { method: 'POST', body: payload });
+}
+
+function closeFinanceMonth(id) {
+  return request(`/finance-months/${id}/fechar`, { method: 'PUT' });
+}
+
+function reopenFinanceMonth(id) {
+  return request(`/finance-months/${id}/reabrir`, { method: 'PUT' });
+}
+
 function getVapidPublicKey() {
   return request('/push/vapid-public-key');
 }
@@ -187,6 +274,27 @@ export const api = {
   getVapidPublicKey,
   subscribePush,
   unsubscribePush,
+  getFinanceCategories,
+  createFinanceCategory,
+  updateFinanceCategory,
+  deleteFinanceCategory,
+  getFinanceEntries,
+  createFinanceEntry,
+  updateFinanceEntry,
+  deleteFinanceEntry,
+  getFinanceReport,
+  getReimbursements,
+  createReimbursement,
+  settleReimbursement,
+  deleteReimbursement,
+  getFinanceGoals,
+  createFinanceGoal,
+  updateFinanceGoal,
+  deleteFinanceGoal,
+  getFinanceMonths,
+  createFinanceMonth,
+  closeFinanceMonth,
+  reopenFinanceMonth,
 };
 
 export { API_BASE_URL };

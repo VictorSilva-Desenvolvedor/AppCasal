@@ -12,3 +12,4 @@
 @import "./calendar.css" layer(components);
 @import "./auth.css" layer(components);
 @import "./lobby.css" layer(components);
+@import "./finance.css" layer(components);

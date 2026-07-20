@@ -16,6 +16,11 @@ const updateRequestRoutes = require('./routes/updateRequestRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
 const reminderRoutes = require('./routes/reminderRoutes');
 const pushRoutes = require('./routes/pushRoutes');
+const financeCategoryRoutes = require('./routes/financeCategoryRoutes');
+const financeEntryRoutes = require('./routes/financeEntryRoutes');
+const reimbursementRoutes = require('./routes/reimbursementRoutes');
+const financeGoalRoutes = require('./routes/financeGoalRoutes');
+const financeMonthRoutes = require('./routes/financeMonthRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
 const { checkAndSendReminders } = require('./services/reminderService');
 
@@ -34,6 +39,11 @@ app.use('/api/update-requests', updateRequestRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/finance-categories', financeCategoryRoutes);
+app.use('/api/finance-entries', financeEntryRoutes);
+app.use('/api/reimbursements', reimbursementRoutes);
+app.use('/api/finance-goals', financeGoalRoutes);
+app.use('/api/finance-months', financeMonthRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
 

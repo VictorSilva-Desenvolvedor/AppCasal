@@ -3,7 +3,10 @@ import { Button, Icon } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useTheme } from '../../hooks/useTheme.js';
 
-const LOBBY_APPS = [{ to: '/app/calendario', icon: 'calendar', label: 'Calendário' }];
+const LOBBY_APPS = [
+  { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
+  { to: '/app/financeiro', icon: 'wallet', label: 'Financeiro' },
+];
 
 export function LobbyPage() {
   const { user, logout } = useAuth();

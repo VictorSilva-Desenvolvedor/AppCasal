@@ -1,0 +1,263 @@
+/* ---------- Página Financeiro ---------- */
+
+.finance-page-header {
+  @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+}
+
+.finance-month-nav {
+  @apply flex items-center gap-2 flex-wrap;
+}
+
+.finance-month-nav strong {
+  @apply capitalize min-w-[9rem] text-center;
+}
+
+.finance-tabs {
+  @apply flex gap-[0.35rem] mb-5 flex-wrap;
+}
+
+.finance-tab-btn {
+  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.finance-tab-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+/* ---------- Resumo ---------- */
+
+.finance-summary {
+  @apply flex flex-col gap-4;
+}
+
+.finance-summary-cards {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.finance-summary-card {
+  @apply p-4 flex flex-col gap-1;
+}
+
+.finance-summary-card-label {
+  @apply text-sm text-text-muted;
+}
+
+.finance-summary-card-value {
+  @apply text-xl;
+}
+
+.finance-value--positive {
+  @apply text-success;
+}
+
+.finance-value--negative {
+  @apply text-danger;
+}
+
+.finance-report-card {
+  @apply p-4;
+}
+
+.finance-category-bars {
+  @apply flex flex-col gap-2 mt-2;
+}
+
+.finance-category-bar-row {
+  @apply grid items-center gap-2;
+  grid-template-columns: 8rem 1fr 6rem;
+}
+
+.finance-category-bar-label {
+  @apply text-sm text-text-muted truncate;
+}
+
+.finance-category-bar-track {
+  @apply h-2 rounded-full bg-bg overflow-hidden;
+}
+
+.finance-category-bar-fill {
+  @apply h-full rounded-full;
+}
+
+.finance-category-bar-value {
+  @apply text-sm text-right;
+}
+
+/* ---------- Categorias ---------- */
+
+.finance-category-manager {
+  @apply p-3 mb-4;
+}
+
+.finance-collapsible-toggle {
+  @apply flex items-center gap-1.5 text-sm font-semibold cursor-pointer bg-transparent border-none text-text;
+}
+
+.finance-category-manager-body {
+  @apply mt-3 flex flex-col gap-3;
+}
+
+.finance-category-chip-list {
+  @apply flex flex-wrap gap-2 list-none p-0 m-0;
+}
+
+.finance-category-chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-bg text-sm px-2.5 py-1;
+}
+
+.finance-category-chip-dot {
+  @apply inline-block w-2.5 h-2.5 rounded-full flex-shrink-0;
+}
+
+.finance-category-chip-type {
+  @apply text-xs text-text-muted;
+}
+
+.finance-category-form {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.finance-category-form input[type='text'] {
+  @apply w-auto flex-1 min-w-[140px] rounded-sm border border-border bg-bg px-3 py-[0.4rem];
+}
+
+.finance-category-form select {
+  @apply w-auto rounded-sm border border-border bg-bg px-3 py-[0.4rem];
+}
+
+.finance-category-form input[type='color'] {
+  @apply w-9 h-9 p-0.5 rounded-sm border border-border bg-bg cursor-pointer;
+}
+
+/* ---------- Formulário de lançamento / objetivo ---------- */
+
+.finance-entries-tab,
+.finance-goals-tab {
+  @apply flex flex-col gap-4;
+}
+
+.finance-entry-form,
+.finance-goal-form-card {
+  @apply p-4;
+}
+
+.finance-type-toggle {
+  @apply flex gap-2 mb-4;
+}
+
+.finance-type-toggle-btn {
+  @apply flex-1 text-sm font-semibold px-3 py-2 rounded-sm border border-border bg-bg text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.finance-type-toggle-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.finance-form-row {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.finance-form-actions {
+  @apply flex gap-2;
+}
+
+/* ---------- Lista de lançamentos / reembolsos ---------- */
+
+.finance-entry-list {
+  @apply flex flex-col gap-2;
+}
+
+.finance-entry-item {
+  @apply p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3;
+}
+
+.finance-entry-item-main {
+  @apply flex items-start gap-2.5 min-w-0;
+}
+
+.finance-entry-item-info {
+  @apply flex flex-col gap-0.5 min-w-0;
+}
+
+.finance-entry-item-meta {
+  @apply text-sm text-text-muted;
+}
+
+.finance-entry-item-side {
+  @apply flex items-center gap-2.5 flex-wrap sm:justify-end;
+}
+
+.finance-entry-item-actions {
+  @apply flex items-center gap-1;
+}
+
+.finance-status-pill {
+  @apply bg-bg text-text-muted;
+}
+
+.finance-status--pendente {
+  @apply bg-warning-bg text-warning;
+}
+
+.finance-status--parcial {
+  @apply bg-primary-light text-primary-hover;
+}
+
+.finance-status--pago {
+  @apply bg-success-bg text-success;
+}
+
+/* ---------- Carteira de reembolsos ---------- */
+
+.finance-wallet {
+  @apply flex flex-col gap-4;
+}
+
+.finance-wallet-balances {
+  @apply p-4;
+}
+
+.finance-wallet-balance-list {
+  @apply flex flex-col gap-1.5 mt-2 list-none p-0 m-0 text-sm;
+}
+
+.finance-wallet-form {
+  @apply mt-2;
+}
+
+/* ---------- Objetivos ---------- */
+
+.finance-goal-list {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.finance-goal-card {
+  @apply p-4 flex flex-col gap-2;
+}
+
+.finance-goal-card-header {
+  @apply flex items-center justify-between;
+}
+
+.finance-goal-progress-track {
+  @apply h-2.5 rounded-full bg-bg overflow-hidden;
+}
+
+.finance-goal-progress-fill {
+  @apply h-full rounded-full bg-primary transition-[width] duration-300;
+}
+
+.finance-goal-actions {
+  @apply flex items-center gap-2 mt-1;
+}
+
+.finance-goal-actions input {
+  @apply w-24 rounded-sm border border-border bg-bg px-2 py-1.5;
+}

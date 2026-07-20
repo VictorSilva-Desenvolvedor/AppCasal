@@ -9,6 +9,7 @@ import { personColorFor } from '../../features/calendar/calendarUtils.js';
 
 const NAV_ITEMS = [
   { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
+  { to: '/app/financeiro', icon: 'wallet', label: 'Financeiro' },
   { to: '/app/galeria', icon: 'image', label: 'Galeria' },
   { to: '/app/atividades', icon: 'clock', label: 'Atividades' },
   { to: '/app/atualizacoes', icon: 'tool', label: 'Atualizações' },
