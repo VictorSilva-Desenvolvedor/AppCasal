@@ -76,7 +76,7 @@
 }
 
 .sidebar-title {
-  @apply flex items-center gap-2 font-bold;
+  @apply flex items-center gap-2 font-bold no-underline text-text;
   @apply text-lg;
 }
 

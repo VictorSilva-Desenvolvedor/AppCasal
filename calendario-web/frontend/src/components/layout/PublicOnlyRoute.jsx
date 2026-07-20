@@ -3,6 +3,6 @@ import { useAuth } from '../../hooks/useAuth.js';
 
 export function PublicOnlyRoute() {
   const { isAuthenticated } = useAuth();
-  if (isAuthenticated) return <Navigate to="/app/calendario" replace />;
+  if (isAuthenticated) return <Navigate to="/app" replace />;
   return <Outlet />;
 }

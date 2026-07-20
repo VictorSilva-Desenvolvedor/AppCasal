@@ -18,7 +18,7 @@ export function RegisterPage() {
     setLoading(true);
     try {
       await register({ name: name.trim(), password });
-      navigate('/app/calendario', { replace: true });
+      navigate('/app', { replace: true });
     } catch (err) {
       showToast(err.message, 'error');
       setLoading(false);

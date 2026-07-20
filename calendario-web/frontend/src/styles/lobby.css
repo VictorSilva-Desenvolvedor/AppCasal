@@ -1,0 +1,52 @@
+/*
+  @layer components — tela de lobby (home screen de apps exibida após o
+  login). Fica fora do .app-shell (sem sidebar/topbar), por isso tem seu
+  próprio layout de tela cheia aqui, no mesmo espírito de auth.css.
+*/
+
+.lobby-page {
+  @apply min-h-screen flex flex-col bg-bg px-6 py-8 md:p-12;
+}
+
+.lobby-header {
+  @apply flex items-center justify-between gap-4 mb-10 md:mb-16;
+}
+
+.lobby-greeting {
+  @apply text-xl md:text-2xl font-semibold text-text;
+}
+
+.lobby-header-actions {
+  @apply flex items-center gap-2;
+}
+
+.lobby-icon-btn {
+  @apply w-9 h-9;
+}
+
+.lobby-grid {
+  @apply grid gap-6 mx-auto w-full max-w-[720px]
+    grid-cols-[repeat(auto-fill,minmax(96px,1fr))]
+    sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))];
+}
+
+.lobby-app-tile {
+  @apply flex flex-col items-center gap-2 rounded-lg border-none bg-transparent cursor-pointer
+    text-text text-sm font-semibold p-2
+    transition-transform duration-150 active:scale-95;
+}
+
+.lobby-app-icon {
+  @apply flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl
+    bg-surface border border-border shadow-sm text-primary
+    transition-[transform,box-shadow] duration-150;
+}
+
+.lobby-app-tile:hover .lobby-app-icon {
+  @apply -translate-y-1 shadow-md;
+}
+
+.lobby-app-icon .icon {
+  width: 32px;
+  height: 32px;
+}

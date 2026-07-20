@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.jsx';
 import { PublicOnlyRoute } from './components/layout/PublicOnlyRoute.jsx';
 import { AppShell } from './components/layout/AppShell.jsx';
+import { LobbyPage } from './features/lobby/LobbyPage.jsx';
 import { LoginPage } from './features/auth/LoginPage.jsx';
 import { RegisterPage } from './features/auth/RegisterPage.jsx';
 import { CalendarPage } from './features/calendar/CalendarPage.jsx';
@@ -17,7 +18,7 @@ import { useAuth } from './hooks/useAuth.js';
 
 function RootRedirect() {
   const { isAuthenticated } = useAuth();
-  return <Navigate to={isAuthenticated ? '/app/calendario' : '/login'} replace />;
+  return <Navigate to={isAuthenticated ? '/app' : '/login'} replace />;
 }
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
             </Route>
 
             <Route element={<ProtectedRoute />}>
+              <Route path="/app" element={<LobbyPage />} />
               <Route element={<AppShell />}>
                 <Route path="/app/calendario" element={<CalendarPage />} />
                 <Route path="/app/galeria" element={<GalleryPage />} />

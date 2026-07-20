@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Icon, Button } from '../ui/index.js';
 import { SidebarNavItem } from './SidebarNavItem.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -40,10 +41,10 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent 
   return (
     <aside className={className}>
       <div className="sidebar-header">
-        <div className="sidebar-title">
+        <Link to="/app" className="sidebar-title" title="Voltar para a tela inicial">
           <Icon name="heart" />
           Nosso Calendário
-        </div>
+        </Link>
         <div className="sidebar-user-row">
           <div
             className="sidebar-avatar"
