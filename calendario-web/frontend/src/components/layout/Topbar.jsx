@@ -52,6 +52,16 @@ export function Topbar({ onToggleSidebar, showFilterBar }) {
       <button
         type="button"
         className="sidebar-toggle"
+        title="Voltar para o lobby"
+        aria-label="Voltar para o lobby"
+        onClick={() => navigate('/app')}
+      >
+        <Icon name="chevron-left" />
+      </button>
+
+      <button
+        type="button"
+        className="sidebar-toggle"
         title="Mostrar/ocultar barra lateral"
         aria-label="Mostrar/ocultar barra lateral"
         onClick={onToggleSidebar}
