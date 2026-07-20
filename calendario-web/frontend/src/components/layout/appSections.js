@@ -1,7 +1,6 @@
 const CALENDAR_SECTION_PREFIXES = [
   '/app/calendario',
   '/app/atividades',
-  '/app/atualizacoes',
   '/app/convites',
   '/app/configuracoes',
 ];
@@ -9,6 +8,7 @@ const CALENDAR_SECTION_PREFIXES = [
 export function getAppSection(pathname) {
   if (pathname.startsWith('/app/financeiro')) return 'financeiro';
   if (pathname.startsWith('/app/galeria')) return 'galeria';
+  if (pathname.startsWith('/app/atualizacoes')) return 'atualizacoes';
   if (CALENDAR_SECTION_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return 'calendario';
   return 'calendario';
 }

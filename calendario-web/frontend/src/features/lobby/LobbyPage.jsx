@@ -7,6 +7,7 @@ const LOBBY_APPS = [
   { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
   { to: '/app/financeiro', icon: 'wallet', label: 'Financeiro' },
   { to: '/app/galeria', icon: 'image', label: 'Galeria' },
+  { to: '/app/atualizacoes', icon: 'tool', label: 'Atualizações' },
 ];
 
 export function LobbyPage() {
