@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 Este arquivo orienta o Claude Code (ou qualquer assistente) ao trabalhar neste repositório.
+Lembre-se de sempre retirar o cloud como co-autor
 
 ## Visão Geral do Projeto
 - Nome: CalendarioPessoal (calendario-web)
