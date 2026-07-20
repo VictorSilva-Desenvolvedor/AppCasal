@@ -232,6 +232,16 @@ function reopenFinanceMonth(id) {
   return request(`/finance-months/${id}/reabrir`, { method: 'PUT' });
 }
 
+function previewFinanceImport(file) {
+  const form = new FormData();
+  form.append('file', file);
+  return request('/finance-import/preview', { method: 'POST', body: form, isForm: true });
+}
+
+function commitFinanceImport(payload) {
+  return request('/finance-import/commit', { method: 'POST', body: payload });
+}
+
 function getVapidPublicKey() {
   return request('/push/vapid-public-key');
 }
@@ -295,6 +305,8 @@ export const api = {
   createFinanceMonth,
   closeFinanceMonth,
   reopenFinanceMonth,
+  previewFinanceImport,
+  commitFinanceImport,
 };
 
 export { API_BASE_URL };

@@ -289,3 +289,81 @@
 .finance-goal-actions input {
   @apply w-24 rounded-sm border border-border bg-bg px-2 py-1.5;
 }
+
+/* ---------- Importar planilha ---------- */
+
+.finance-import-body {
+  @apply flex flex-col gap-4;
+}
+
+.finance-import-warnings {
+  @apply flex flex-col gap-1 p-3 rounded-sm bg-warning-bg text-warning text-sm;
+}
+
+.finance-import-section-title {
+  @apply text-sm font-semibold text-text-muted mt-2 mb-1;
+}
+
+.finance-import-row {
+  @apply flex flex-wrap items-center gap-2 p-2 mb-2 rounded-sm border border-border bg-bg;
+}
+
+.finance-import-row.is-excluded {
+  @apply opacity-50;
+}
+
+.finance-import-row input[type='text'],
+.finance-import-row input[type='number'],
+.finance-import-row select {
+  @apply rounded-sm border border-border bg-surface px-2 py-1 text-sm;
+}
+
+.finance-import-row-desc {
+  @apply flex-1 min-w-[130px];
+}
+
+.finance-import-row-amount {
+  @apply w-24;
+}
+
+.finance-import-row-category {
+  @apply w-32;
+}
+
+.finance-import-row-badge {
+  @apply text-xs text-text-muted w-full;
+}
+
+.finance-import-goal-row {
+  @apply flex flex-col gap-2 p-3 mb-2 rounded-sm border border-border bg-bg;
+}
+
+.finance-import-goal-row.is-excluded {
+  @apply opacity-50;
+}
+
+.finance-import-goal-header {
+  @apply flex items-center gap-2;
+}
+
+.finance-import-goal-header input[type='text'] {
+  @apply flex-1 rounded-sm border border-border bg-surface px-2 py-1 text-sm;
+}
+
+.finance-import-goal-grid {
+  @apply grid gap-2;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+
+.finance-import-goal-grid label {
+  @apply flex flex-col gap-0.5 text-xs text-text-muted;
+}
+
+.finance-import-goal-grid input,
+.finance-import-goal-grid select {
+  @apply rounded-sm border border-border bg-surface px-2 py-1 text-sm w-full;
+}
+
+.finance-import-goal-warning {
+  @apply text-xs text-warning;
+}

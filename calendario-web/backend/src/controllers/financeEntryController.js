@@ -184,4 +184,4 @@ async function report(req, res) {
   });
 }
 
-module.exports = { list, create, update, remove, report };
+module.exports = { list, create, update, remove, report, assertMonthOpen };

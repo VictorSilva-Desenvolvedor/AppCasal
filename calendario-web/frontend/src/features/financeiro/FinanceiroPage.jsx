@@ -10,6 +10,7 @@ import { FinanceEntryList } from './FinanceEntryList.jsx';
 import { ReimbursementWallet } from './ReimbursementWallet.jsx';
 import { FinanceGoalForm } from './FinanceGoalForm.jsx';
 import { FinanceGoals } from './FinanceGoals.jsx';
+import { FinanceImportModal } from './FinanceImportModal.jsx';
 import { currentMonthYear, monthLabel } from './financeUtils.js';
 
 const TABS = [
@@ -40,6 +41,7 @@ export function FinanceiroPage() {
   const [months, setMonths] = useState([]);
   const [editingEntry, setEditingEntry] = useState(null);
   const [togglingMonth, setTogglingMonth] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const reloadCategories = useCallback(async () => setCategories(await api.getFinanceCategories()), []);
   const reloadReimbursements = useCallback(async () => setReimbursements(await api.getReimbursements()), []);
@@ -97,6 +99,10 @@ export function FinanceiroPage() {
     await Promise.all([reloadEntries(), reloadReport(), reloadReimbursements()]);
   }
 
+  async function handleImported() {
+    await Promise.all([reloadEntries(), reloadReport(), reloadReimbursements(), reloadGoals()]);
+  }
+
   return (
     <section className="view finance-page">
       <div className="finance-page-header">
@@ -117,8 +123,19 @@ export function FinanceiroPage() {
           <Button variant={isClosed ? 'secondary' : 'primary'} loading={togglingMonth} onClick={handleToggleMonth}>
             {isClosed ? 'Reabrir mês' : 'Finalizar mês'}
           </Button>
+          <Button variant="secondary" onClick={() => setImportOpen(true)}>
+            Importar planilha
+          </Button>
         </div>
       </div>
+
+      <FinanceImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        categories={categories}
+        monthYear={monthYear}
+        onImported={handleImported}
+      />
 
       <div className="finance-tabs">
         {TABS.map((tab) => (
