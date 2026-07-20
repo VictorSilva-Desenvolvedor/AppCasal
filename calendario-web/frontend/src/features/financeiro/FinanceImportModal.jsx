@@ -250,12 +250,12 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
                         disabled={!row.included}
                       />
                       <select
-                        className="finance-import-row-category"
+                        className={`finance-import-row-category${row.category ? '' : ' is-undecided'}`}
                         value={row.category}
                         onChange={(event) => updateEntryRow(row.id, { category: event.target.value })}
                         disabled={!row.included}
                       >
-                        <option value="">Categoria</option>
+                        <option value="">Falta decidir</option>
                         {sectionCategories.map((category) => (
                           <option key={category._id} value={category._id}>
                             {category.name}

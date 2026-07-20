@@ -330,6 +330,10 @@
   @apply w-32;
 }
 
+.finance-import-row-category.is-undecided {
+  @apply text-danger border-danger;
+}
+
 .finance-import-row-badge {
   @apply text-xs text-text-muted w-full;
 }
