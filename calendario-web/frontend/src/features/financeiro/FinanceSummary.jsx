@@ -33,8 +33,40 @@ export function FinanceSummary({ report }) {
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">% da renda gasta</span>
           <strong className="finance-summary-card-value">{Math.round(percentualGasto * 100)}%</strong>
+          <div className="finance-category-bar-track finance-percent-bar-track">
+            <div
+              className={`finance-category-bar-fill ${percentualGasto > 1 ? 'finance-percent-bar-fill--over' : 'finance-percent-bar-fill'}`}
+              style={{ width: `${Math.min(100, percentualGasto * 100)}%` }}
+            />
+          </div>
         </Card>
       </div>
+
+      <Card className="finance-report-card">
+        <h3>Receita x Despesa</h3>
+        <div className="finance-comparison-bars">
+          <div className="finance-category-bar-row">
+            <span className="finance-category-bar-label">Receita</span>
+            <div className="finance-category-bar-track">
+              <div
+                className="finance-category-bar-fill finance-value--positive-bg"
+                style={{ width: `${Math.max(totalReceitas, totalDespesas) ? (totalReceitas / Math.max(totalReceitas, totalDespesas)) * 100 : 0}%` }}
+              />
+            </div>
+            <span className="finance-category-bar-value">{formatCurrency(totalReceitas)}</span>
+          </div>
+          <div className="finance-category-bar-row">
+            <span className="finance-category-bar-label">Despesa</span>
+            <div className="finance-category-bar-track">
+              <div
+                className="finance-category-bar-fill finance-value--negative-bg"
+                style={{ width: `${Math.max(totalReceitas, totalDespesas) ? (totalDespesas / Math.max(totalReceitas, totalDespesas)) * 100 : 0}%` }}
+              />
+            </div>
+            <span className="finance-category-bar-value">{formatCurrency(totalDespesas)}</span>
+          </div>
+        </div>
+      </Card>
 
       <Card className="finance-report-card">
         <h3>Despesas por categoria</h3>

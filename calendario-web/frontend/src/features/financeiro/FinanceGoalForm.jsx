@@ -29,8 +29,8 @@ export function FinanceGoalForm({ onCreated }) {
         name: name.trim(),
         type,
         targetAmount: Number(targetAmount),
-        totalInstallments: type === 'parcelamento' && totalInstallments ? Number(totalInstallments) : null,
-        installmentAmount: type === 'parcelamento' && installmentAmount ? Number(installmentAmount) : null,
+        totalInstallments: totalInstallments ? Number(totalInstallments) : null,
+        installmentAmount: installmentAmount ? Number(installmentAmount) : null,
         notes: notes.trim(),
       });
       setName('');
@@ -69,7 +69,7 @@ export function FinanceGoalForm({ onCreated }) {
             className={`finance-type-toggle-btn${type === 'parcelamento' ? ' is-active' : ''}`}
             onClick={() => setType('parcelamento')}
           >
-            Parcelamento
+            Financiamento
           </button>
         </div>
 
@@ -84,29 +84,31 @@ export function FinanceGoalForm({ onCreated }) {
           />
         </Field>
 
-        {type === 'parcelamento' && (
-          <div className="finance-form-row">
-            <Field label="Total de parcelas" htmlFor="goal-installments">
-              <input
-                id="goal-installments"
-                type="number"
-                min="1"
-                value={totalInstallments}
-                onChange={(event) => setTotalInstallments(event.target.value)}
-              />
-            </Field>
-            <Field label="Valor da parcela" htmlFor="goal-installment-amount">
-              <input
-                id="goal-installment-amount"
-                type="number"
-                min="0"
-                step="0.01"
-                value={installmentAmount}
-                onChange={(event) => setInstallmentAmount(event.target.value)}
-              />
-            </Field>
-          </div>
-        )}
+        <p className="finance-goal-form-hint">
+          Se o objetivo tem um valor fixo por período (ex: parcela do financiamento, aporte mensal da poupança),
+          preencha os campos abaixo — eles são opcionais e valem tanto pra poupança quanto pra financiamento.
+        </p>
+        <div className="finance-form-row">
+          <Field label="Total de parcelas (opcional)" htmlFor="goal-installments">
+            <input
+              id="goal-installments"
+              type="number"
+              min="1"
+              value={totalInstallments}
+              onChange={(event) => setTotalInstallments(event.target.value)}
+            />
+          </Field>
+          <Field label="Valor da parcela (opcional)" htmlFor="goal-installment-amount">
+            <input
+              id="goal-installment-amount"
+              type="number"
+              min="0"
+              step="0.01"
+              value={installmentAmount}
+              onChange={(event) => setInstallmentAmount(event.target.value)}
+            />
+          </Field>
+        </div>
 
         <Field label="Observações (opcional)" htmlFor="goal-notes">
           <input id="goal-notes" type="text" value={notes} onChange={(event) => setNotes(event.target.value)} />

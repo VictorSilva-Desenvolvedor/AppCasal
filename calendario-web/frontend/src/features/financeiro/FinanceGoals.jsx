@@ -7,15 +7,9 @@ import { formatCurrency } from './financeUtils.js';
 function GoalCard({ goal, onChanged }) {
   const [contribution, setContribution] = useState('');
   const { showToast } = useToast();
-  const isParcelamento = goal.type === 'parcelamento';
+  const hasInstallments = Boolean(goal.totalInstallments);
 
-  const progress = isParcelamento
-    ? goal.totalInstallments
-      ? Math.min(100, (goal.paidInstallments / goal.totalInstallments) * 100)
-      : 0
-    : goal.targetAmount
-      ? Math.min(100, (goal.currentAmount / goal.targetAmount) * 100)
-      : 0;
+  const progress = goal.targetAmount ? Math.min(100, (goal.currentAmount / goal.targetAmount) * 100) : 0;
 
   async function handleAddContribution() {
     const value = Number(contribution);
@@ -32,7 +26,10 @@ function GoalCard({ goal, onChanged }) {
 
   async function handlePayInstallment() {
     try {
-      await api.updateFinanceGoal(goal._id, { paidInstallments: goal.paidInstallments + 1 });
+      await api.updateFinanceGoal(goal._id, {
+        paidInstallments: goal.paidInstallments + 1,
+        currentAmount: goal.currentAmount + (goal.installmentAmount || 0),
+      });
       await onChanged();
       showToast('Parcela marcada como paga', 'success');
     } catch (err) {
@@ -64,39 +61,35 @@ function GoalCard({ goal, onChanged }) {
         <div className="finance-goal-progress-fill" style={{ width: `${progress}%` }} />
       </div>
 
-      {isParcelamento ? (
+      <span className="finance-entry-item-meta">
+        {formatCurrency(goal.currentAmount)} de {formatCurrency(goal.targetAmount)}
+      </span>
+      {hasInstallments && (
         <span className="finance-entry-item-meta">
-          {goal.paidInstallments} de {goal.totalInstallments || '?'} parcelas
+          {goal.paidInstallments} de {goal.totalInstallments} parcelas
           {goal.installmentAmount ? ` (${formatCurrency(goal.installmentAmount)}/mês)` : ''}
-        </span>
-      ) : (
-        <span className="finance-entry-item-meta">
-          {formatCurrency(goal.currentAmount)} de {formatCurrency(goal.targetAmount)}
         </span>
       )}
 
       {goal.notes && <span className="finance-entry-item-meta">{goal.notes}</span>}
 
       <div className="finance-goal-actions">
-        {isParcelamento ? (
+        {hasInstallments && (
           <Button variant="secondary" onClick={handlePayInstallment}>
             Marcar parcela paga
           </Button>
-        ) : (
-          <>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Valor"
-              value={contribution}
-              onChange={(event) => setContribution(event.target.value)}
-            />
-            <Button variant="secondary" onClick={handleAddContribution}>
-              Adicionar
-            </Button>
-          </>
         )}
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Valor"
+          value={contribution}
+          onChange={(event) => setContribution(event.target.value)}
+        />
+        <Button variant="secondary" onClick={handleAddContribution}>
+          Adicionar
+        </Button>
       </div>
     </Card>
   );

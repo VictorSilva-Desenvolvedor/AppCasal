@@ -57,6 +57,30 @@
   @apply text-danger;
 }
 
+.finance-value--positive-bg {
+  @apply bg-success;
+}
+
+.finance-value--negative-bg {
+  @apply bg-danger;
+}
+
+.finance-percent-bar-track {
+  @apply mt-1;
+}
+
+.finance-percent-bar-fill {
+  @apply bg-primary;
+}
+
+.finance-percent-bar-fill--over {
+  @apply bg-danger;
+}
+
+.finance-comparison-bars {
+  @apply flex flex-col gap-2 mt-2;
+}
+
 .finance-report-card {
   @apply p-4;
 }
@@ -142,6 +166,10 @@
 .finance-entry-form,
 .finance-goal-form-card {
   @apply p-4;
+}
+
+.finance-goal-form-hint {
+  @apply text-sm text-text-muted -mt-2;
 }
 
 .finance-type-toggle {

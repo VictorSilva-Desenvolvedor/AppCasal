@@ -5,9 +5,14 @@ const connectDB = require('./config/db');
 const User = require('./models/User');
 const Event = require('./models/Event');
 const FinanceCategory = require('./models/FinanceCategory');
+const FinanceEntry = require('./models/FinanceEntry');
+const FinanceGoal = require('./models/FinanceGoal');
 
 const COUPLE_PASSWORD = '2605';
 const COUPLE_NAMES = ['Victor', 'Maria'];
+
+// Data real migrada da planilha "Orçamento mensal 14 julho lIMPO.xlsx" do casal.
+const BUDGET_REFERENCE_DATE = new Date(2026, 6, 14);
 
 const DEFAULT_FINANCE_CATEGORIES = [
   { name: 'Salário', type: 'receita', color: '#16a34a' },
@@ -21,6 +26,93 @@ const DEFAULT_FINANCE_CATEGORIES = [
   { name: 'Educação', type: 'despesa', color: '#0891b2' },
   { name: 'Pessoal', type: 'despesa', color: '#db2777' },
   { name: 'Outros', type: 'despesa', color: '#64748b' },
+];
+
+// Tabela "Renda" (planilha Renda mensal, B3:C6)
+const BUDGET_INCOME = [{ description: 'SALARIO', amount: 3100, category: 'Salário' }];
+
+// Tabela "Despesa" (planilha Despesas mensais, B3:E15) — contas do mês
+const BUDGET_EXPENSES = [
+  { description: 'Internet', amount: 130, category: 'Moradia' },
+  { description: 'Gasolina', amount: 150, category: 'Transporte' },
+  { description: 'Credito celular', amount: 40, category: 'Assinaturas' },
+  { description: 'Assinaturas (spotify e ifood)', amount: 40, category: 'Assinaturas' },
+  { description: 'Alimentação', amount: 380, category: 'Alimentação' },
+  { description: 'academia', amount: 150, category: 'Saúde' },
+  { description: 'Parcela da moto (11/36)', amount: 780.3, category: 'Financiamento' },
+  { description: 'Faculdade', amount: 270, category: 'Educação' },
+  { description: 'Parcela da moto (12/36)', amount: 780.3, category: 'Financiamento' },
+  { description: 'Pasta de amendoim', amount: 125, category: 'Alimentação' },
+  { description: 'oculos + coisa de ver direção celular', amount: 50, category: 'Saúde' },
+];
+
+// Tabela "Despesa4" (B18:E22) — despesas futuras, apenas necessidades
+const BUDGET_NECESSITIES = [
+  {
+    description: 'Luvas moto/ bota impermeavel',
+    amount: 350,
+    category: 'Transporte',
+    reason: 'Segurança + impedir doenças',
+  },
+  { description: 'alarme moto antifurto', amount: 100, category: 'Transporte', reason: 'Segurança' },
+  { description: 'Rastreador antifurto moto', amount: 100, category: 'Transporte', reason: 'Segurança' },
+  { description: 'trava cadeado freio disco', amount: 50, category: 'Transporte', reason: 'Segurança' },
+];
+
+// Tabela "Despesa45" (B24:E34) — despesas futuras, comodidades e desejos
+const BUDGET_WISHES = [
+  {
+    description: 'bau moto 60L',
+    amount: 900,
+    category: 'Transporte',
+    reason: 'Levar capacetes e coisas de viagem',
+  },
+  { description: 'Tenis Melhor', amount: 200, category: 'Pessoal', reason: 'Tenis' },
+  { description: 'Celular novo', amount: 2100, category: 'Pessoal', reason: '2 anos com o mesmo celular e foda' },
+  { description: 'Relogio Redmi', amount: 600, category: 'Pessoal', reason: 'relogio foda faz tudo' },
+  { description: 'Alforge Moto 80L', amount: 350, category: 'Transporte', reason: 'caso o bau seja muito caro' },
+  { description: 'Cabelo', amount: 35, category: 'Pessoal', reason: 'Minha mãe briga comigo se não corta' },
+  { description: 'Kit lavagem moto vonixx', amount: 200, category: 'Transporte', reason: 'limpa a moto foda' },
+  { description: 'central multimidia moto 5 polegadas', amount: 400, category: 'Transporte', reason: 'foda' },
+];
+
+// Planilha "Objetivos"
+const BUDGET_GOALS = [
+  { name: 'Casinha', type: 'poupanca', targetAmount: 12000, currentAmount: 2390, notes: 'Objetivos grandes requerem grandes esforços' },
+  {
+    name: 'Faculdade',
+    type: 'poupanca',
+    targetAmount: 3300,
+    currentAmount: 0,
+    totalInstallments: 12,
+    installmentAmount: 275,
+    paidInstallments: 0,
+  },
+  {
+    name: 'Emergência',
+    type: 'poupanca',
+    targetAmount: 3000,
+    currentAmount: 0,
+    totalInstallments: 24,
+    installmentAmount: 125,
+    paidInstallments: 0,
+  },
+  {
+    name: 'Ipva Moto',
+    type: 'poupanca',
+    targetAmount: 420,
+    currentAmount: 0,
+    notes: 'Pra moto n ser presa',
+  },
+  {
+    name: 'Financiamento da moto',
+    type: 'parcelamento',
+    targetAmount: 36 * 780.3,
+    totalInstallments: 36,
+    installmentAmount: 780.3,
+    paidInstallments: 10,
+    notes: 'vai que um dia se pagar ela consegue comprar outro veiculo ne haha',
+  },
 ];
 
 async function upsertUser(name) {
@@ -66,6 +158,71 @@ async function seed() {
     console.log(`${DEFAULT_FINANCE_CATEGORIES.length} categorias financeiras padrão criadas`);
   } else {
     console.log('Já existem categorias financeiras no banco, nenhuma categoria padrão foi criada');
+  }
+
+  const categories = await FinanceCategory.find();
+  const categoryId = (name) => categories.find((c) => c.name === name)?._id;
+
+  const existingEntries = await FinanceEntry.countDocuments();
+  if (existingEntries === 0) {
+    const receitas = BUDGET_INCOME.map((item) => ({
+      type: 'receita',
+      description: item.description,
+      amount: item.amount,
+      category: categoryId(item.category),
+      date: BUDGET_REFERENCE_DATE,
+      paidBy: victor._id,
+      creator: victor._id,
+    }));
+
+    const despesas = BUDGET_EXPENSES.map((item) => ({
+      type: 'despesa',
+      description: item.description,
+      amount: item.amount,
+      category: categoryId(item.category),
+      date: BUDGET_REFERENCE_DATE,
+      paidBy: victor._id,
+      creator: victor._id,
+    }));
+
+    const necessidades = BUDGET_NECESSITIES.map((item) => ({
+      type: 'despesa',
+      description: item.description,
+      amount: item.amount,
+      category: categoryId(item.category),
+      date: BUDGET_REFERENCE_DATE,
+      wishType: 'necessidade',
+      reason: item.reason,
+      paidBy: victor._id,
+      creator: victor._id,
+    }));
+
+    const desejos = BUDGET_WISHES.map((item) => ({
+      type: 'despesa',
+      description: item.description,
+      amount: item.amount,
+      category: categoryId(item.category),
+      date: BUDGET_REFERENCE_DATE,
+      wishType: 'desejo',
+      reason: item.reason,
+      paidBy: victor._id,
+      creator: victor._id,
+    }));
+
+    const allEntries = [...receitas, ...despesas, ...necessidades, ...desejos];
+    await FinanceEntry.insertMany(allEntries);
+    console.log(`${allEntries.length} lançamentos financeiros migrados da planilha`);
+  } else {
+    console.log('Já existem lançamentos financeiros no banco, nenhum lançamento da planilha foi criado');
+  }
+
+  const existingGoals = await FinanceGoal.countDocuments();
+  if (existingGoals === 0) {
+    const goals = BUDGET_GOALS.map((goal) => ({ ...goal, creator: victor._id }));
+    await FinanceGoal.insertMany(goals);
+    console.log(`${goals.length} objetivos financeiros migrados da planilha`);
+  } else {
+    console.log('Já existem objetivos financeiros no banco, nenhum objetivo da planilha foi criado');
   }
 
   await mongoose.disconnect();
