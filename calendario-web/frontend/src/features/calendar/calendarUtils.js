@@ -20,6 +20,17 @@ export const SPECIAL_CATEGORY_ICONS = {
   saude: '/icon-consulta.png',
 };
 
+export const EVENT_COLORS = [
+  '#2563eb',
+  '#9333ea',
+  '#16a34a',
+  '#f97316',
+  '#dc2626',
+  '#0891b2',
+  '#ca8a04',
+  '#db2777',
+];
+
 export function toDateKey(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -106,6 +117,7 @@ export function personColorFor(users, userId) {
 }
 
 export function pillColorFor(event, users) {
+  if (event.color) return event.color;
   if (event.category && CATEGORIES[event.category]) return CATEGORIES[event.category].color;
   return event.creator ? personColorFor(users, event.creator._id) : 'var(--color-primary)';
 }
@@ -118,6 +130,10 @@ export function specialCategoryIconSrc(event) {
 // especial (aniversário/saúde) — não fica preso a um pill específico.
 export function dayIconBadgeSrcs(dayEvents) {
   return [...new Set(dayEvents.map((event) => SPECIAL_CATEGORY_ICONS[event.category]).filter(Boolean))];
+}
+
+export function hasImportantDate(dayEvents) {
+  return dayEvents.some((event) => event.category === 'aniversario');
 }
 
 export function sharedEventIdSet(invitations) {

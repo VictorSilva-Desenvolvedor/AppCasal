@@ -1,14 +1,51 @@
 const Event = require('../models/Event');
 const Invitation = require('../models/Invitation');
 const { logActivity, buildUpdateDetails, formatDate } = require('../services/activityLogger');
+const { normalizeRule, getOccurrencesInRange, toUTCDateOnly } = require('../utils/recurrence');
+
+const DEFAULT_REMINDER_OFFSETS = [5, 3, 1];
 
 async function list(req, res) {
   const events = await Event.find().populate('creator', 'name').sort({ date: 1 });
   res.json(events);
 }
 
+async function upcomingReminders(req, res) {
+  const todayUTC = toUTCDateOnly(new Date());
+  const events = await Event.find();
+
+  const maxOffset = events.reduce((max, event) => {
+    const offsets = event.reminderOffsets?.length ? event.reminderOffsets : DEFAULT_REMINDER_OFFSETS;
+    return Math.max(max, ...offsets);
+  }, Math.max(...DEFAULT_REMINDER_OFFSETS));
+  const rangeEnd = new Date(todayUTC.getTime() + maxOffset * 86400000);
+
+  const reminders = [];
+  for (const event of events) {
+    const offsets = event.reminderOffsets?.length ? event.reminderOffsets : DEFAULT_REMINDER_OFFSETS;
+    const rule = normalizeRule(event);
+
+    for (const occurrence of getOccurrencesInRange(event.date, rule, todayUTC, rangeEnd)) {
+      const diffDays = Math.round((occurrence.getTime() - todayUTC.getTime()) / 86400000);
+      if (!offsets.includes(diffDays)) continue;
+
+      reminders.push({
+        eventId: event._id,
+        title: event.title,
+        category: event.category,
+        occurrenceDate: occurrence,
+        diffDays,
+      });
+    }
+  }
+
+  reminders.sort((a, b) => a.diffDays - b.diffDays);
+  res.json(reminders);
+}
+
 async function create(req, res) {
-  const { title, description, date, attachments, recurrenceRule, category, reminderOffsets, hideWhenPast } = req.body;
+  const { title, description, date, attachments, recurrenceRule, category, color, reminderOffsets, hideWhenPast } =
+    req.body;
 
   if (!title || !date) {
     return res.status(400).json({ message: 'Título e data são obrigatórios' });
@@ -24,6 +61,7 @@ async function create(req, res) {
     recurrenceRule,
     recurring: frequency !== 'none',
     category: category || null,
+    color: color || null,
     reminderOffsets: Array.isArray(reminderOffsets) && reminderOffsets.length ? reminderOffsets : [5, 3, 1],
     hideWhenPast: Boolean(hideWhenPast),
     creator: req.userId,
@@ -41,7 +79,8 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { title, description, date, attachments, recurrenceRule, category, reminderOffsets, hideWhenPast } = req.body;
+  const { title, description, date, attachments, recurrenceRule, category, color, reminderOffsets, hideWhenPast } =
+    req.body;
 
   const before = await Event.findById(req.params.id);
   if (!before) {
@@ -60,6 +99,7 @@ async function update(req, res) {
       recurrenceRule,
       recurring: frequency !== 'none',
       category: category || null,
+      color: color || null,
       reminderOffsets: Array.isArray(reminderOffsets) && reminderOffsets.length ? reminderOffsets : [5, 3, 1],
       hideWhenPast: Boolean(hideWhenPast),
     },
@@ -96,4 +136,4 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, create, update, remove };
+module.exports = { list, create, update, remove, upcomingReminders };

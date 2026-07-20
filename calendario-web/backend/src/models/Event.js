@@ -39,6 +39,7 @@ const eventSchema = new mongoose.Schema(
     recurring: { type: Boolean, default: false },
     recurrenceRule: { type: recurrenceRuleSchema, default: () => ({}) },
     category: { type: String, enum: CATEGORIES, default: null },
+    color: { type: String, default: null },
     reminderOffsets: {
       type: [Number],
       default: [5, 3, 1],

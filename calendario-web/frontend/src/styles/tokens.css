@@ -353,3 +353,12 @@
   background: #05080a;
   border-color: #39ff6a;
 }
+.swatch-none {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-surface),
+    var(--color-surface) 4px,
+    var(--color-border) 4px,
+    var(--color-border) 8px
+  );
+}
