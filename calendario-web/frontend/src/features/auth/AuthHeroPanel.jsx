@@ -23,7 +23,7 @@ export function AuthHeroPanel({ tagline }) {
         <div className="auth-hero-logo">
           <Icon name="heart" />
         </div>
-        <h1>Nosso Calendário</h1>
+        <h1>AppCasal</h1>
         {tagline && <p>{tagline}</p>}
       </div>
     </aside>

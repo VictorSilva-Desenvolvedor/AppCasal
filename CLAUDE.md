@@ -4,7 +4,7 @@ Este arquivo orienta o Claude Code (ou qualquer assistente) ao trabalhar neste r
 Lembre-se de sempre retirar o cloud como co-autor
 
 ## Visão Geral do Projeto
-- Nome: CalendarioPessoal (calendario-web)
+- Nome: AppCasal (calendario-web)
 - Objetivo: Aplicação web de calendário pessoal — autenticação de usuários, criação/gestão de eventos, upload de anexos, configurações de usuário, log de atividades e solicitações de atualização.
 - Stack:
   - Backend: Node.js + Express 5, MongoDB via Mongoose, autenticação com JWT + bcrypt, upload de arquivos com Multer + Cloudinary.
