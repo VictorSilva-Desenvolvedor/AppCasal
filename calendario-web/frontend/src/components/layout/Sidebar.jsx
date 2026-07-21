@@ -45,7 +45,7 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent 
       <div className="sidebar-header">
         <Link to="/app" className="sidebar-title" title="Voltar para a tela inicial">
           <Icon name="heart" />
-          Nosso Calendário
+          AppCasal
         </Link>
         <div className="sidebar-user-row">
           <div
