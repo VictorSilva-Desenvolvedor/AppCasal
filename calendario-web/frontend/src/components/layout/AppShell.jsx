@@ -3,24 +3,18 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
+import { useTheme } from '../../hooks/useTheme.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
 import { getAppSection } from './appSections.js';
 
-const SIDEBAR_COLLAPSED_KEY = 'calendario_sidebar_collapsed';
 const MOBILE_QUERY = '(max-width: 768px)';
 
 export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(MOBILE_QUERY);
-  const [collapsed, setCollapsed] = useState(
-    () => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1',
-  );
+  const { sidebarCollapsed: collapsed, setSidebarCollapsed: setCollapsed } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0');
-  }, [collapsed]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -32,7 +26,7 @@ export function AppShell() {
 
   function handleToggleSidebar() {
     if (isMobile) setMobileOpen((open) => !open);
-    else setCollapsed((value) => !value);
+    else setCollapsed(!collapsed);
   }
 
   const showFilterBar = location.pathname.startsWith('/app/calendario');

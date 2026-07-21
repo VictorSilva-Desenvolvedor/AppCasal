@@ -1,25 +1,26 @@
 const Settings = require('../models/Settings');
 
-async function getSettingsDoc() {
-  let settings = await Settings.findOne();
+async function getSettingsDoc(userId) {
+  let settings = await Settings.findOne({ user: userId });
   if (!settings) {
-    settings = await Settings.create({});
+    settings = await Settings.create({ user: userId });
   }
   return settings;
 }
 
 async function get(req, res) {
-  const settings = await getSettingsDoc();
+  const settings = await getSettingsDoc(req.userId);
   res.json(settings);
 }
 
 async function update(req, res) {
-  const { theme, colorTheme, background } = req.body;
-  const settings = await getSettingsDoc();
+  const { theme, colorTheme, background, sidebarCollapsed } = req.body;
+  const settings = await getSettingsDoc(req.userId);
 
   if (theme !== undefined) settings.theme = theme;
   if (colorTheme !== undefined) settings.colorTheme = colorTheme;
   if (background !== undefined) settings.background = background;
+  if (sidebarCollapsed !== undefined) settings.sidebarCollapsed = sidebarCollapsed;
 
   await settings.save();
   res.json(settings);

@@ -9,6 +9,7 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('light');
   const [colorTheme, setColorThemeState] = useState('indigo');
   const [background, setBackground] = useState('');
+  const [sidebarCollapsed, setSidebarCollapsedState] = useState(false);
 
   // Fora da área autenticada (login/registro) o app legado nunca aplica tema
   // salvo — sempre indigo/claro. Só carregamos as configurações reais depois
@@ -18,6 +19,7 @@ export function ThemeProvider({ children }) {
     if (!isAuthenticated) {
       setTheme('light');
       setColorThemeState('indigo');
+      setSidebarCollapsedState(false);
       return;
     }
 
@@ -27,6 +29,7 @@ export function ThemeProvider({ children }) {
         setTheme(settings.theme || 'light');
         setColorThemeState(settings.colorTheme || 'indigo');
         setBackground(settings.background || '');
+        setSidebarCollapsedState(settings.sidebarCollapsed || false);
       })
       .catch((err) => console.error('Não foi possível carregar as configurações:', err.message));
   }, [isAuthenticated]);
@@ -45,7 +48,7 @@ export function ThemeProvider({ children }) {
     try {
       await api.updateSettings({ theme: next });
     } catch (err) {
-      console.error('Não foi possível salvar o tema compartilhado:', err.message);
+      console.error('Não foi possível salvar o tema:', err.message);
     }
   }
 
@@ -61,7 +64,26 @@ export function ThemeProvider({ children }) {
     return settings;
   }
 
-  const value = { theme, setTheme, colorTheme, setColorTheme, toggleTheme, background, saveThemeAndBackground };
+  async function setSidebarCollapsed(value) {
+    setSidebarCollapsedState(value);
+    try {
+      await api.updateSettings({ sidebarCollapsed: value });
+    } catch (err) {
+      console.error('Não foi possível salvar a preferência da barra lateral:', err.message);
+    }
+  }
+
+  const value = {
+    theme,
+    setTheme,
+    colorTheme,
+    setColorTheme,
+    toggleTheme,
+    background,
+    saveThemeAndBackground,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+  };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
