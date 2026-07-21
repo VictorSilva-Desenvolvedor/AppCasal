@@ -120,10 +120,8 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
       setError('Selecione ao menos um item para importar');
       return;
     }
-    if (includedEntries.some((row) => !row.category)) {
-      setError('Escolha uma categoria para todos os lançamentos selecionados');
-      return;
-    }
+
+    const uncategorizedCount = includedEntries.filter((row) => !row.category).length;
 
     const payload = {
       date: importDate,
@@ -131,7 +129,7 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
         type: row.type,
         description: row.description.trim(),
         amount: Number(row.amount),
-        category: row.category,
+        category: row.category || null,
         wishType: row.wishType,
         reason: row.reason,
       })),
@@ -154,6 +152,12 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
         `Importação concluída: ${result.entriesCreated} lançamento(s), ${result.goalsCreated} objetivo(s)`,
         'success'
       );
+      if (uncategorizedCount > 0) {
+        showToast(
+          `${uncategorizedCount} lançamento(s) importado(s) sem categoria — edite depois para organizar`,
+          'warning'
+        );
+      }
       await onImported();
       handleClose();
     } catch (err) {

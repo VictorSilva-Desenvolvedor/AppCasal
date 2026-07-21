@@ -82,7 +82,7 @@ export function FinanceSummary({ report }) {
                     className="finance-category-bar-fill"
                     style={{
                       width: `${maxCategoria ? (item.total / maxCategoria) * 100 : 0}%`,
-                      background: item.color,
+                      background: item.categoryId ? item.color : 'var(--color-danger)',
                     }}
                   />
                 </div>

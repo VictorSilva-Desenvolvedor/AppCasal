@@ -60,8 +60,8 @@ async function create(req, res) {
   const { type, description, amount, category, date, paidAmount, wishType, reason, sharedWith, splitAmount } =
     req.body;
 
-  if (!type || !description || amount === undefined || !category || !date) {
-    return res.status(400).json({ message: 'Tipo, descrição, valor, categoria e data são obrigatórios' });
+  if (!type || !description || amount === undefined || !date) {
+    return res.status(400).json({ message: 'Tipo, descrição, valor e data são obrigatórios' });
   }
   if (sharedWith && !splitAmount) {
     return res.status(400).json({ message: 'Informe o valor do reembolso ao compartilhar uma despesa' });
@@ -73,7 +73,7 @@ async function create(req, res) {
     type,
     description,
     amount,
-    category,
+    category: category || null,
     date,
     paidAmount: paidAmount || 0,
     wishType: wishType || null,
@@ -116,7 +116,7 @@ async function update(req, res) {
       type,
       description,
       amount,
-      category,
+      category: category || null,
       date,
       paidAmount,
       wishType: wishType || null,

@@ -5,7 +5,7 @@ const financeEntrySchema = new mongoose.Schema(
     type: { type: String, enum: ['receita', 'despesa'], required: true },
     description: { type: String, required: true, trim: true },
     amount: { type: Number, required: true, min: 0 },
-    category: { type: mongoose.Schema.Types.ObjectId, ref: 'FinanceCategory', required: true },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'FinanceCategory', default: null },
     date: { type: Date, required: true },
     paidAmount: { type: Number, default: 0, min: 0 },
     wishType: { type: String, enum: ['necessidade', 'desejo'], default: null },

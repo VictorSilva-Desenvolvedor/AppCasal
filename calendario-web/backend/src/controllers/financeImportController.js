@@ -33,7 +33,6 @@ function validateEntryPayload(entry) {
   if (typeof entry.amount !== 'number' || !Number.isFinite(entry.amount) || entry.amount < 0) {
     return 'Valor inválido';
   }
-  if (!entry.category) return 'Categoria é obrigatória';
   if (entry.type !== 'receita' && entry.type !== 'despesa') return 'Tipo inválido';
   return null;
 }
@@ -83,7 +82,7 @@ async function commit(req, res) {
     type: entry.type,
     description: String(entry.description).trim(),
     amount: entry.amount,
-    category: entry.category,
+    category: entry.category || null,
     date,
     wishType: entry.wishType || null,
     reason: entry.reason || '',

@@ -1,6 +1,6 @@
 import { Icon } from './Icon.jsx';
 
-const TOAST_ICONS = { success: 'check-circle', error: 'alert-circle' };
+const TOAST_ICONS = { success: 'check-circle', error: 'alert-circle', warning: 'alert-circle' };
 
 export function Toast({ message, type = 'success', leaving = false, onLeaveEnd }) {
   return (

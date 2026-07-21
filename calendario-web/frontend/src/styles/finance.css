@@ -217,6 +217,10 @@
   @apply text-sm text-text-muted;
 }
 
+.finance-missing-category {
+  @apply text-danger font-semibold;
+}
+
 .finance-entry-item-side {
   @apply flex items-center gap-2.5 flex-wrap sm:justify-end;
 }

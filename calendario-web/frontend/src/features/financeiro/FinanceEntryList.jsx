@@ -36,12 +36,17 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted }) {
             <div className="finance-entry-item-main">
               <span
                 className="finance-category-chip-dot"
-                style={{ background: entry.category?.color || '#64748b' }}
+                style={{ background: entry.category?.color || 'var(--color-danger)' }}
               />
               <div className="finance-entry-item-info">
                 <strong>{entry.description}</strong>
                 <span className="finance-entry-item-meta">
-                  {entry.category?.name || 'Sem categoria'} · {formatEntryDate(entry.date)} · pago por{' '}
+                  {entry.category?.name ? (
+                    entry.category.name
+                  ) : (
+                    <span className="finance-missing-category">Sem categoria</span>
+                  )}{' '}
+                  · {formatEntryDate(entry.date)} · pago por{' '}
                   {entry.paidBy?.name || '—'}
                   {entry.sharedWith && ` · dividido com ${entry.sharedWith.name}`}
                 </span>

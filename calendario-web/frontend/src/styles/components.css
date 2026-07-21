@@ -305,3 +305,7 @@
 .toast-error {
   @apply border-danger text-danger;
 }
+
+.toast-warning {
+  @apply border-warning text-warning;
+}
