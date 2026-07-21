@@ -16,6 +16,10 @@
   @apply flex gap-[0.35rem] mb-5 flex-wrap;
 }
 
+.finance-view-toggle {
+  @apply flex gap-2 mb-4 max-w-xs;
+}
+
 .finance-tab-btn {
   @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
     transition-colors duration-150 hover:border-primary;
@@ -265,14 +269,6 @@
 }
 
 /* ---------- Objetivos ---------- */
-
-.finance-goal-groups {
-  @apply flex flex-col gap-6;
-}
-
-.finance-goal-groups h3 {
-  @apply mb-3;
-}
 
 .finance-goal-list {
   @apply grid gap-3;

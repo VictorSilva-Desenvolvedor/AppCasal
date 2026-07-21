@@ -1,7 +1,10 @@
 const FinanceGoal = require('../models/FinanceGoal');
 
 async function list(req, res) {
-  const goals = await FinanceGoal.find().populate('creator', 'name').sort({ createdAt: -1 });
+  const { creator } = req.query;
+  const filter = creator ? { creator } : {};
+
+  const goals = await FinanceGoal.find(filter).populate('creator', 'name').sort({ createdAt: -1 });
   res.json(goals);
 }
 
