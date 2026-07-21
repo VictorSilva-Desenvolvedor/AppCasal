@@ -9,7 +9,9 @@ const SYSTEM_INSTRUCTION =
 async function generateTaskDraft(rawText) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY não configurada');
+    const err = new Error('GEMINI_API_KEY não configurada');
+    err.code = 'AI_NOT_CONFIGURED';
+    throw err;
   }
 
   const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {

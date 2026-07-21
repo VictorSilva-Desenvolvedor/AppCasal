@@ -65,6 +65,9 @@ async function generateDraft(req, res) {
     res.json(draft);
   } catch (err) {
     console.error('Falha ao gerar tarefa com IA:', err.message);
+    if (err.code === 'AI_NOT_CONFIGURED') {
+      return res.status(503).json({ message: 'Geração com IA indisponível no momento. Preencha manualmente.' });
+    }
     res.status(500).json({ message: 'Não foi possível gerar a tarefa com IA. Tente novamente ou preencha manualmente.' });
   }
 }
