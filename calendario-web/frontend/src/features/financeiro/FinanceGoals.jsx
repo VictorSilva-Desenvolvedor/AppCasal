@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button, Card, IconButton, Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
-import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
 import { formatCurrency } from './financeUtils.js';
 
@@ -100,49 +99,15 @@ function GoalCard({ goal, onChanged, readOnly }) {
   );
 }
 
-export function FinanceGoals({ goals, onChanged }) {
-  const { user } = useAuth();
-
+export function FinanceGoals({ goals, onChanged, readOnly }) {
   if (goals.length === 0) {
     return <p className="sidebar-empty">Nenhum objetivo cadastrado ainda</p>;
   }
 
-  const myGoals = goals.filter((goal) => goal.creator?._id === user?._id);
-  const otherGoalsByPerson = new Map();
-  goals
-    .filter((goal) => goal.creator?._id !== user?._id)
-    .forEach((goal) => {
-      const key = goal.creator?._id || 'sem-dono';
-      if (!otherGoalsByPerson.has(key)) {
-        otherGoalsByPerson.set(key, { name: goal.creator?.name || 'Sem dono', goals: [] });
-      }
-      otherGoalsByPerson.get(key).goals.push(goal);
-    });
-
   return (
-    <div className="finance-goal-groups">
-      <div>
-        <h3>Meus objetivos</h3>
-        {myGoals.length === 0 ? (
-          <p className="sidebar-empty">Você ainda não tem objetivos cadastrados</p>
-        ) : (
-          <div className="finance-goal-list">
-            {myGoals.map((goal) => (
-              <GoalCard key={goal._id} goal={goal} onChanged={onChanged} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {Array.from(otherGoalsByPerson.values()).map((group) => (
-        <div key={group.name}>
-          <h3>Objetivos de {group.name}</h3>
-          <div className="finance-goal-list">
-            {group.goals.map((goal) => (
-              <GoalCard key={goal._id} goal={goal} onChanged={onChanged} readOnly />
-            ))}
-          </div>
-        </div>
+    <div className="finance-goal-list">
+      {goals.map((goal) => (
+        <GoalCard key={goal._id} goal={goal} onChanged={onChanged} readOnly={readOnly} />
       ))}
     </div>
   );

@@ -41,7 +41,7 @@ async function syncReimbursement(entry, req) {
 }
 
 async function list(req, res) {
-  const { month, year, type, category } = req.query;
+  const { month, year, type, category, paidBy } = req.query;
   const filter = {};
 
   if (month && year) {
@@ -51,6 +51,7 @@ async function list(req, res) {
   }
   if (type) filter.type = type;
   if (category) filter.category = category;
+  if (paidBy) filter.paidBy = paidBy;
 
   const entries = await FinanceEntry.find(filter).populate(ENTRY_POPULATE).sort({ date: -1 });
   res.json(entries);
@@ -152,7 +153,7 @@ async function remove(req, res) {
 }
 
 async function report(req, res) {
-  const { month, year } = req.query;
+  const { month, year, paidBy } = req.query;
   if (!month || !year) {
     return res.status(400).json({ message: 'Mês e ano são obrigatórios' });
   }
@@ -160,7 +161,10 @@ async function report(req, res) {
   const start = new Date(Number(year), Number(month) - 1, 1);
   const end = new Date(Number(year), Number(month), 1);
 
-  const allEntries = await FinanceEntry.find({ date: { $gte: start, $lt: end } }).populate('category');
+  const allEntries = await FinanceEntry.find({
+    date: { $gte: start, $lt: end },
+    ...(paidBy && { paidBy }),
+  }).populate('category');
   // Itens de planejamento futuro (necessidade/desejo) ainda não são gasto real,
   // então ficam de fora do total/saldo do mês — só aparecem na aba Comodidades.
   const entries = allEntries.filter((e) => !e.wishType);

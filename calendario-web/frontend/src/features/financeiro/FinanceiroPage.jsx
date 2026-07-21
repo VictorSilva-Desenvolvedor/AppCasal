@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Icon, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
 import { FinanceSummary } from './FinanceSummary.jsx';
 import { FinanceCategoryManager } from './FinanceCategoryManager.jsx';
@@ -30,10 +31,12 @@ function shiftMonthYear({ month, year }, direction) {
 
 export function FinanceiroPage() {
   const { users } = useCalendarData();
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('resumo');
   const [monthYear, setMonthYear] = useState(currentMonthYear);
+  const [viewScope, setViewScope] = useState(() => user?._id ?? null);
   const [categories, setCategories] = useState([]);
   const [entries, setEntries] = useState([]);
   const [report, setReport] = useState(null);
@@ -46,23 +49,26 @@ export function FinanceiroPage() {
 
   const reloadCategories = useCallback(async () => setCategories(await api.getFinanceCategories()), []);
   const reloadReimbursements = useCallback(async () => setReimbursements(await api.getReimbursements()), []);
-  const reloadGoals = useCallback(async () => setGoals(await api.getFinanceGoals()), []);
+  const reloadGoals = useCallback(async () => setGoals(await api.getFinanceGoals(viewScope)), [viewScope]);
   const reloadMonths = useCallback(async () => setMonths(await api.getFinanceMonths()), []);
 
   const reloadEntries = useCallback(async () => {
-    setEntries(await api.getFinanceEntries({ month: monthYear.month, year: monthYear.year }));
-  }, [monthYear]);
+    setEntries(await api.getFinanceEntries({ month: monthYear.month, year: monthYear.year, paidBy: viewScope }));
+  }, [monthYear, viewScope]);
 
   const reloadReport = useCallback(async () => {
-    setReport(await api.getFinanceReport(monthYear.month, monthYear.year));
-  }, [monthYear]);
+    setReport(await api.getFinanceReport(monthYear.month, monthYear.year, viewScope));
+  }, [monthYear, viewScope]);
 
   useEffect(() => {
     reloadCategories();
     reloadMonths();
     reloadReimbursements();
+  }, [reloadCategories, reloadMonths, reloadReimbursements]);
+
+  useEffect(() => {
     reloadGoals();
-  }, [reloadCategories, reloadMonths, reloadReimbursements, reloadGoals]);
+  }, [reloadGoals]);
 
   useEffect(() => {
     reloadEntries();
@@ -72,6 +78,8 @@ export function FinanceiroPage() {
 
   const currentMonthRecord = months.find((m) => m.month === monthYear.month && m.year === monthYear.year);
   const isClosed = currentMonthRecord?.status === 'fechado';
+  const isMyView = viewScope === user?._id;
+  const otherUser = users.find((u) => u._id !== user?._id);
 
   const regularEntries = entries.filter((entry) => !entry.wishType);
   const necessidadeEntries = entries.filter((entry) => entry.wishType === 'necessidade');
@@ -142,6 +150,25 @@ export function FinanceiroPage() {
         onImported={handleImported}
       />
 
+      {otherUser && (
+        <div className="finance-view-toggle">
+          <button
+            type="button"
+            className={`finance-type-toggle-btn${isMyView ? ' is-active' : ''}`}
+            onClick={() => setViewScope(user._id)}
+          >
+            Meu
+          </button>
+          <button
+            type="button"
+            className={`finance-type-toggle-btn${!isMyView ? ' is-active' : ''}`}
+            onClick={() => setViewScope(otherUser._id)}
+          >
+            {otherUser.name}
+          </button>
+        </div>
+      )}
+
       <div className="finance-tabs">
         {TABS.map((tab) => (
           <button
@@ -160,14 +187,21 @@ export function FinanceiroPage() {
       {activeTab === 'lancamentos' && (
         <div className="finance-entries-tab">
           <FinanceCategoryManager categories={categories} onChanged={reloadCategories} />
-          <FinanceEntryForm
-            categories={categories}
-            users={users}
-            monthLocked={isClosed}
-            editingEntry={null}
-            onSaved={handleEntrySaved}
-            onCancelEdit={() => {}}
-          />
+          {isMyView ? (
+            <FinanceEntryForm
+              categories={categories}
+              users={users}
+              monthLocked={isClosed}
+              editingEntry={null}
+              onSaved={handleEntrySaved}
+              onCancelEdit={() => {}}
+            />
+          ) : (
+            <p className="finance-goal-form-hint">
+              Você está vendo os lançamentos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um
+              lançamento.
+            </p>
+          )}
           <FinanceEntryList
             entries={regularEntries}
             monthLocked={isClosed}
@@ -183,8 +217,14 @@ export function FinanceiroPage() {
 
       {activeTab === 'objetivos' && (
         <div className="finance-goals-tab">
-          <FinanceGoalForm onCreated={reloadGoals} />
-          <FinanceGoals goals={goals} onChanged={reloadGoals} />
+          {isMyView ? (
+            <FinanceGoalForm onCreated={reloadGoals} />
+          ) : (
+            <p className="finance-goal-form-hint">
+              Você está vendo os objetivos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um objetivo.
+            </p>
+          )}
+          <FinanceGoals goals={goals} onChanged={reloadGoals} readOnly={!isMyView} />
         </div>
       )}
 

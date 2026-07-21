@@ -184,8 +184,9 @@ function deleteFinanceEntry(id) {
   return request(`/finance-entries/${id}`, { method: 'DELETE' });
 }
 
-function getFinanceReport(month, year) {
-  return request(`/finance-entries/report?month=${month}&year=${year}`);
+function getFinanceReport(month, year, paidBy) {
+  const query = new URLSearchParams({ month, year, ...(paidBy && { paidBy }) }).toString();
+  return request(`/finance-entries/report?${query}`);
 }
 
 function getReimbursements() {
@@ -204,8 +205,9 @@ function deleteReimbursement(id) {
   return request(`/reimbursements/${id}`, { method: 'DELETE' });
 }
 
-function getFinanceGoals() {
-  return request('/finance-goals');
+function getFinanceGoals(creator) {
+  const query = creator ? `?${new URLSearchParams({ creator }).toString()}` : '';
+  return request(`/finance-goals${query}`);
 }
 
 function createFinanceGoal(goal) {
