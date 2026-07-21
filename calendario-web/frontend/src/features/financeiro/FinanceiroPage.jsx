@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Icon, Pill } from '../../components/ui/index.js';
+import { Button, Card, Icon, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -18,6 +18,7 @@ const TABS = [
   { value: 'lancamentos', label: 'Lançamentos' },
   { value: 'reembolsos', label: 'Carteira' },
   { value: 'objetivos', label: 'Objetivos' },
+  { value: 'comodidades', label: 'Comodidades' },
 ];
 
 function shiftMonthYear({ month, year }, direction) {
@@ -71,6 +72,10 @@ export function FinanceiroPage() {
 
   const currentMonthRecord = months.find((m) => m.month === monthYear.month && m.year === monthYear.year);
   const isClosed = currentMonthRecord?.status === 'fechado';
+
+  const regularEntries = entries.filter((entry) => !entry.wishType);
+  const necessidadeEntries = entries.filter((entry) => entry.wishType === 'necessidade');
+  const desejoEntries = entries.filter((entry) => entry.wishType === 'desejo');
 
   async function handleToggleMonth() {
     setTogglingMonth(true);
@@ -159,12 +164,12 @@ export function FinanceiroPage() {
             categories={categories}
             users={users}
             monthLocked={isClosed}
-            editingEntry={editingEntry}
+            editingEntry={null}
             onSaved={handleEntrySaved}
-            onCancelEdit={() => setEditingEntry(null)}
+            onCancelEdit={() => {}}
           />
           <FinanceEntryList
-            entries={entries}
+            entries={regularEntries}
             monthLocked={isClosed}
             onEdit={setEditingEntry}
             onDeleted={handleEntryDeleted}
@@ -182,6 +187,45 @@ export function FinanceiroPage() {
           <FinanceGoals goals={goals} onChanged={reloadGoals} />
         </div>
       )}
+
+      {activeTab === 'comodidades' && (
+        <div className="finance-wishlist-tab">
+          <Card className="finance-report-card">
+            <h3>Necessidades futuras</h3>
+            <FinanceEntryList
+              entries={necessidadeEntries}
+              monthLocked={isClosed}
+              onEdit={setEditingEntry}
+              onDeleted={handleEntryDeleted}
+            />
+          </Card>
+          <Card className="finance-report-card">
+            <h3>Comodidades e desejos futuros</h3>
+            <FinanceEntryList
+              entries={desejoEntries}
+              monthLocked={isClosed}
+              onEdit={setEditingEntry}
+              onDeleted={handleEntryDeleted}
+            />
+          </Card>
+        </div>
+      )}
+
+      <Modal open={Boolean(editingEntry)} onClose={() => setEditingEntry(null)} title="Editar lançamento">
+        {editingEntry && (
+          <FinanceEntryForm
+            categories={categories}
+            users={users}
+            monthLocked={isClosed}
+            editingEntry={editingEntry}
+            onSaved={async () => {
+              await handleEntrySaved();
+              setEditingEntry(null);
+            }}
+            onCancelEdit={() => setEditingEntry(null)}
+          />
+        )}
+      </Modal>
     </section>
   );
 }

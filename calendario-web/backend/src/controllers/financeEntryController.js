@@ -160,7 +160,10 @@ async function report(req, res) {
   const start = new Date(Number(year), Number(month) - 1, 1);
   const end = new Date(Number(year), Number(month), 1);
 
-  const entries = await FinanceEntry.find({ date: { $gte: start, $lt: end } }).populate('category');
+  const allEntries = await FinanceEntry.find({ date: { $gte: start, $lt: end } }).populate('category');
+  // Itens de planejamento futuro (necessidade/desejo) ainda não são gasto real,
+  // então ficam de fora do total/saldo do mês — só aparecem na aba Comodidades.
+  const entries = allEntries.filter((e) => !e.wishType);
 
   const totalReceitas = entries.filter((e) => e.type === 'receita').reduce((sum, e) => sum + e.amount, 0);
   const totalDespesas = entries.filter((e) => e.type === 'despesa').reduce((sum, e) => sum + e.amount, 0);

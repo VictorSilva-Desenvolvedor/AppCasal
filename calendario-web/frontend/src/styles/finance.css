@@ -159,7 +159,8 @@
 /* ---------- Formulário de lançamento / objetivo ---------- */
 
 .finance-entries-tab,
-.finance-goals-tab {
+.finance-goals-tab,
+.finance-wishlist-tab {
   @apply flex flex-col gap-4;
 }
 
