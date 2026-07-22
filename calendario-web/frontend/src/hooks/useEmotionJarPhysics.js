@@ -13,6 +13,7 @@ const REST_FRAMES_TO_SETTLE = 15; // frames consecutivos parada antes de travar 
 const STEP_DT = 1 / 60;
 const INSTANT_SETTLE_STEPS = 240; // ~4s simulados — avanço instantâneo no carregamento inicial
 const MAX_REALTIME_FRAMES = 600; // trava de segurança: força repouso após ~10s reais
+const SHAKE_KICK_FACTOR = 4.5; // converte px de arraste da jarra em impulso de velocidade nas bolhas
 
 // Pequena variação de comportamento por categoria (seção 5 do documento:
 // "ansioso: movimento mais instável" vs. "calmo: esfera suave") — só ajusta
@@ -252,5 +253,21 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey) {
     []
   );
 
-  return { blobs };
+  // Chamado quando o usuário arrasta a jarra na tela (EmotionJar.jsx). Não
+  // mexe em gravidade/colisão — só injeta um impulso inercial (na direção
+  // oposta ao movimento do recipiente, como conteúdo real reagindo a um
+  // solavanco) e acorda o loop já existente pra animar a reação.
+  function shake(deltaX) {
+    if (!deltaX) return;
+    blobsRef.current.forEach((b) => {
+      b.resting = false;
+      b.restFrames = 0;
+      b.vx += -deltaX * SHAKE_KICK_FACTOR;
+    });
+    frameCountRef.current = 0;
+    publish();
+    runRealtimeLoop();
+  }
+
+  return { blobs, shake };
 }
