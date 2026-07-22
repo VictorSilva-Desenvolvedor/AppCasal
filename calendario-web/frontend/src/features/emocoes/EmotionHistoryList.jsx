@@ -21,7 +21,7 @@ export function EmotionHistoryList({ days }) {
                 <span aria-hidden="true">{EMOTIONS[predominant]?.emoji}</span> {EMOTIONS[predominant]?.label}
               </span>
             </div>
-            <div className="emotion-history-dots">
+            <div className="emotion-history-jar">
               {entries.map((entry) => (
                 <span
                   key={entry._id}

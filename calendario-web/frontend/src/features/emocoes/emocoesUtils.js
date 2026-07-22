@@ -1,5 +1,6 @@
 export const PERIODS = ['manha', 'tarde', 'noite'];
 export const PERIOD_LABELS = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
+export const PERIOD_ICONS = { manha: 'sunrise', tarde: 'sun', noite: 'moon' };
 export const PERIOD_QUESTIONS = {
   manha: 'Como você está se sentindo nesta manhã?',
   tarde: 'Como foi sua tarde emocionalmente?',
@@ -19,10 +20,6 @@ export function currentPeriod(date = new Date()) {
   if (h < 12) return 'manha';
   if (h < 18) return 'tarde';
   return 'noite';
-}
-
-export function isPeriodLoggable(period, date = new Date()) {
-  return PERIODS.indexOf(period) <= PERIODS.indexOf(currentPeriod(date));
 }
 
 export function groupEntriesByPeriod(entries) {

@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { EMOTIONS } from '../../constants/emotions.js';
 import { useEmotionJarPhysics } from '../../hooks/useEmotionJarPhysics.js';
 
-export function EmotionJar({ entries }) {
+export function EmotionJar({ entries, resetKey }) {
   const containerRef = useRef(null);
 
   const blobEntries = useMemo(
@@ -16,10 +16,11 @@ export function EmotionJar({ entries }) {
     [entries]
   );
 
-  const { blobs } = useEmotionJarPhysics(blobEntries, containerRef);
+  const { blobs } = useEmotionJarPhysics(blobEntries, containerRef, resetKey);
 
   return (
     <div className="emotion-jar">
+      <div className="emotion-jar-lid" />
       <div className="emotion-jar-glass" ref={containerRef}>
         {blobs.map((blob) => (
           <span
@@ -38,7 +39,6 @@ export function EmotionJar({ entries }) {
         ))}
         {blobs.length === 0 && <p className="emotion-jar-empty-hint">A jarra está vazia — registre como você está se sentindo</p>}
       </div>
-      <div className="emotion-jar-lid" />
     </div>
   );
 }

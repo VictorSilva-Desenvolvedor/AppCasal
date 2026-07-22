@@ -1,56 +1,198 @@
-/* ---------- Página Emoções do Dia ---------- */
+/*
+  Identidade visual — Emoções do Dia. Fonte própria (Nunito) e paleta neutra
+  (--emo-*) escopadas dentro de .emotion-page: não sobrescrevem os tokens
+  globais do app (tokens.css), usados pelo resto do AppCasal (Calendário,
+  Financeiro, Configurações etc. continuam em Inter + paleta de tema).
+*/
+@import '@fontsource/nunito/400.css';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/700.css';
+
+.emotion-page {
+  --emo-brand: #6c5ce7;
+  --emo-bg: #fbf7f0;
+  --emo-glass: rgba(255, 255, 255, 0.6);
+  --emo-text: #2b2a33;
+  --emo-text-muted: #8a8794;
+
+  font-family: 'Nunito', var(--font-sans);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--emo-text);
+  background: linear-gradient(180deg, var(--emo-bg), color-mix(in oklch, var(--emo-bg) 90%, black));
+  padding: 1.5rem;
+  min-height: 640px;
+}
+
+[data-theme='dark'] .emotion-page {
+  --emo-bg: #14161f;
+  --emo-glass: rgba(34, 38, 58, 0.55);
+  --emo-text: #f1effa;
+  --emo-text-muted: #9b98ae;
+}
+
+.emotion-page .icon-btn:hover {
+  background: color-mix(in oklch, var(--emo-brand) 14%, transparent);
+  color: var(--emo-brand);
+}
+
+/* ---------- Cabeçalho ---------- */
 
 .emotion-page-header {
-  @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+  @apply flex items-center justify-between gap-3 mb-2;
+}
+
+.emotion-page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.emotion-header-actions {
+  @apply flex items-center gap-2;
+}
+
+.emotion-history-btn {
+  @apply w-10 h-10;
+  background: var(--emo-glass);
+  backdrop-filter: blur(6px);
 }
 
 .emotion-view-toggle {
-  @apply flex gap-2 mb-4 max-w-xs;
+  @apply flex gap-1 rounded-full p-1;
+  background: var(--emo-glass);
+  backdrop-filter: blur(6px);
 }
 
 .emotion-type-toggle-btn {
-  @apply flex-1 text-sm font-semibold px-3 py-2 rounded-sm border border-border bg-bg text-text-muted cursor-pointer
-    transition-colors duration-150 hover:border-primary;
+  @apply text-sm font-semibold px-3 py-1.5 rounded-full border-none cursor-pointer;
+  background: transparent;
+  color: var(--emo-text-muted);
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .emotion-type-toggle-btn.is-active {
-  @apply text-on-primary border-transparent;
-  background: var(--color-primary);
+  background: var(--emo-brand);
+  color: #fff;
 }
 
-.emotion-tabs {
-  @apply flex gap-[0.35rem] mb-5 flex-wrap;
+/* ---------- Tela inicial (hero: chip + pergunta + jarra + FAB) ---------- */
+
+.emotion-hero {
+  @apply flex flex-col items-center text-center gap-3 pt-2 pb-6;
 }
 
-.emotion-tab-btn {
-  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
-    transition-colors duration-150 hover:border-primary;
+.emotion-period-chip {
+  @apply inline-flex items-center gap-1.5 rounded-full text-sm font-semibold px-3 py-1.5;
+  background: color-mix(in oklch, var(--emo-brand) 15%, transparent);
+  color: var(--emo-brand);
 }
 
-.emotion-tab-btn.is-active {
-  @apply text-on-primary border-transparent;
-  background: var(--color-primary);
+.emotion-period-chip .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.emotion-hero-question {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  max-width: 26rem;
+}
+
+.emotion-mini-summary {
+  @apply flex items-center justify-center gap-2;
+}
+
+.emotion-mini-dot {
+  @apply inline-block rounded-full;
+  width: 14px;
+  height: 14px;
+}
+
+.emotion-fab {
+  @apply flex items-center justify-center rounded-full border-none cursor-pointer;
+  width: 64px;
+  height: 64px;
+  background: var(--emo-brand);
+  color: #fff;
+  box-shadow: 0 10px 24px color-mix(in oklch, var(--emo-brand) 45%, transparent);
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.emotion-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.emotion-fab:active {
+  transform: scale(0.96);
+}
+
+.emotion-fab .icon {
+  width: 28px;
+  height: 28px;
 }
 
 /* ---------- Jarra ---------- */
 
 .emotion-jar {
-  @apply flex flex-col items-center gap-1 my-4;
+  /* .emotion-jar-glass só tem filhos position:absolute (não contribuem pra
+     largura intrínseca) — dentro de um pai flex com align-items:center, isso
+     colapsava a jarra pra ~0px de largura. width:100% explícito quebra esse
+     encolhimento e dá uma base real pro w-full/max-w do vidro abaixo. */
+  @apply flex flex-col items-center gap-1 w-full;
 }
 
 .emotion-jar-glass {
-  @apply relative w-full max-w-[320px] rounded-t-2xl rounded-b-3xl border-[3px] border-primary/50 overflow-hidden;
-  height: 360px;
+  @apply relative w-full max-w-[280px] rounded-t-2xl rounded-b-3xl overflow-hidden;
+  height: clamp(280px, 45vh, 420px);
+  border: 2px solid color-mix(in oklch, var(--emo-text) 25%, transparent);
   background: linear-gradient(
     180deg,
-    color-mix(in oklch, var(--color-primary) 10%, transparent),
-    color-mix(in oklch, var(--color-accent) 16%, transparent)
+    var(--emo-glass),
+    color-mix(in oklch, var(--emo-glass) 70%, var(--emo-text) 20%)
   );
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.12), var(--shadow-md);
+}
+
+/* Reflexo diagonal de vidro — uma faixa clara e desfocada por cima do
+   conteúdo, sugerindo luz refletindo na lateral da jarra (seção 4). */
+.emotion-jar-glass::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 14%;
+  width: 16%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.04) 55%, transparent);
+  border-radius: 999px;
+  filter: blur(2px);
+  pointer-events: none;
 }
 
 .emotion-jar-lid {
-  @apply w-[55%] max-w-[190px] h-3.5 rounded-full border-[3px] border-primary/50 bg-primary-light;
-  margin-top: -2px;
+  @apply relative w-[58%] max-w-[190px] h-4 rounded-md mx-auto;
+  background: linear-gradient(180deg, var(--emo-glass), color-mix(in oklch, var(--emo-text) 25%, var(--emo-glass)));
+  border: 2px solid var(--emo-glass);
+  margin-bottom: -7px;
+  z-index: 1;
+}
+
+.emotion-jar-lid::before {
+  content: '';
+  position: absolute;
+  inset: 2px 6px;
+  border-radius: 3px;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--emo-text) 40%, transparent) 0px,
+    color-mix(in oklch, var(--emo-text) 40%, transparent) 2px,
+    transparent 2px,
+    transparent 6px
+  );
 }
 
 .emotion-blob {
@@ -58,10 +200,8 @@
   top: 0;
   left: 0;
   /* Posição é escrita a cada frame via style.transform pelo hook de física —
-     uma transition CSS aqui competiria com a simulação e deixaria o
-     movimento com atraso/travado. As animações visuais (squash, glow, pulso)
-     ficam no .emotion-blob-inner, que não tem posição própria, evitando que
-     as duas disputem a mesma propriedade "transform". */
+     uma transition CSS aqui competiria com a simulação. As animações visuais
+     (squash, glow, pulso) ficam no .emotion-blob-inner, sem posição própria. */
 }
 
 .emotion-blob-inner {
@@ -69,7 +209,9 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: var(--blob-color);
+  /* Brilho branco sutil no canto superior esquerdo, reforçando o efeito
+     "vidro/gel" (seção 5), por cima da cor cheia da emoção. */
+  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.65), transparent 45%), var(--blob-color);
   box-shadow: var(--shadow-sm);
 }
 
@@ -98,14 +240,14 @@
   }
 }
 
-/* Verniz visual por categoria (seção 5 do documento) — o corpo físico
-   continua um círculo simples; só a aparência do .emotion-blob-inner muda. */
+/* Verniz visual por categoria (seção 5) — o corpo físico continua um círculo
+   simples; só a aparência do .emotion-blob-inner muda. */
 .emotion-blob.is-settled .emotion-blob-inner {
   animation: emotionSquash 0.35s ease-out;
 }
 
 .emotion-blob[data-category='positiva'] .emotion-blob-inner {
-  box-shadow: 0 0 12px 2px color-mix(in oklch, var(--blob-color) 55%, transparent);
+  box-shadow: 0 0 14px 3px color-mix(in oklch, var(--blob-color) 60%, transparent);
 }
 
 .emotion-blob[data-category='neutra'] .emotion-blob-inner {
@@ -117,149 +259,323 @@
 }
 
 .emotion-jar-empty-hint {
-  @apply absolute inset-0 flex items-center justify-center text-center text-sm text-text-muted px-6;
+  @apply absolute inset-0 flex items-center justify-center text-center text-sm px-6;
+  color: var(--emo-text-muted);
 }
 
-/* ---------- Prompt de registro por período ---------- */
+/* ---------- Bottom sheet de registro ---------- */
 
-.emotion-period-grid {
-  @apply grid gap-3 mb-4;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.emotion-sheet-overlay {
+  @apply fixed inset-0 flex items-end justify-center;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s var(--ease), visibility 0.2s var(--ease);
 }
 
-.emotion-period-card {
-  @apply p-4 flex flex-col gap-2;
+.emotion-sheet-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
 }
 
-.emotion-period-card-header {
-  @apply flex items-center justify-between;
+.emotion-sheet {
+  @apply relative w-full max-w-[420px] overflow-y-auto;
+  max-height: 88vh;
+  background: var(--emo-bg);
+  border-radius: 24px 24px 0 0;
+  padding: 1.25rem 1.25rem 2rem;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(24px);
+  transition: transform 0.25s var(--ease);
 }
 
-.emotion-period-add-btn {
-  @apply w-8 h-8;
+.emotion-sheet-overlay.is-open .emotion-sheet {
+  transform: translateY(0);
 }
 
-.emotion-period-question {
-  @apply text-sm text-text-muted -mt-1;
+.emotion-sheet-handle {
+  @apply mx-auto rounded-full;
+  width: 40px;
+  height: 4px;
+  background: var(--emo-text-muted);
+  opacity: 0.4;
+  margin-bottom: 0.75rem;
 }
 
-.emotion-period-empty {
-  @apply text-sm text-text-muted;
+.emotion-sheet-close {
+  @apply absolute top-3 right-3 w-8 h-8;
+  color: var(--emo-text-muted);
 }
 
-.emotion-period-chip-list {
-  @apply flex flex-wrap gap-1.5;
+.emotion-sheet-back {
+  @apply absolute top-3 left-3 w-8 h-8;
+  color: var(--emo-text-muted);
 }
 
-.emotion-chip {
-  @apply inline-flex items-center gap-1 rounded-full text-xs font-semibold px-2.5 py-1 border;
-  background: color-mix(in oklch, var(--chip-color, var(--color-primary)) 16%, transparent);
-  border-color: color-mix(in oklch, var(--chip-color, var(--color-primary)) 40%, transparent);
-  color: var(--chip-color, var(--color-primary));
-}
-
-/* ---------- Formulário de registro ---------- */
+/* ---------- Formulário de registro (2 painéis com slide) ---------- */
 
 .emotion-entry-form {
+  @apply overflow-hidden;
+}
+
+.emotion-slide-track {
+  @apply flex;
+  width: 200%;
+  transition: transform 0.3s var(--ease);
+}
+
+.emotion-slide-track--categoria {
+  transform: translateX(0%);
+}
+
+.emotion-slide-track--intensidade {
+  transform: translateX(-50%);
+}
+
+.emotion-slide-panel {
+  width: 50%;
+  flex-shrink: 0;
+  padding: 0 0.15rem;
+}
+
+/* ---------- Painel de categoria ---------- */
+
+.emotion-category-picker {
   @apply flex flex-col gap-4;
 }
 
-.emotion-picker-group-label {
-  @apply text-sm font-semibold text-text-muted mb-1.5;
+.emotion-category-tabs {
+  @apply flex gap-4;
+  border-bottom: 1px solid color-mix(in oklch, var(--emo-text-muted) 30%, transparent);
 }
 
-.emotion-picker-grid {
-  @apply grid gap-2;
-  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+.emotion-category-tab {
+  @apply pb-2 text-sm font-semibold cursor-pointer bg-transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  color: var(--emo-text-muted);
 }
 
-.emotion-picker-btn {
-  @apply flex flex-col items-center gap-1 rounded-md border border-border bg-bg px-2 py-2 text-xs text-text-muted cursor-pointer
-    transition-[border-color,background,transform] duration-150 hover:-translate-y-px hover:shadow-sm;
+.emotion-category-tab.is-active {
+  color: var(--emo-text);
+  border-bottom-color: var(--tab-accent);
 }
 
-.emotion-picker-btn.is-selected {
-  @apply text-text font-semibold;
-  border-color: var(--chip-color);
-  background: color-mix(in oklch, var(--chip-color) 16%, transparent);
+.emotion-category-grid {
+  @apply grid grid-cols-3 gap-x-2 gap-y-4 pt-1;
 }
 
-.emotion-picker-emoji {
-  @apply text-xl leading-none;
+.emotion-category-btn {
+  @apply flex flex-col items-center gap-1.5 bg-transparent cursor-pointer;
+  border: none;
 }
 
-.emotion-picker-label {
-  @apply truncate w-full text-center;
+.emotion-category-circle {
+  @apply flex items-center justify-center rounded-full text-2xl mx-auto;
+  width: 56px;
+  height: 56px;
+  background: var(--chip-color);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
 
-.emotion-intensity-row {
-  @apply mt-1;
+.emotion-category-btn.is-selected .emotion-category-circle {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px var(--emo-brand), var(--shadow-md);
 }
 
-.emotion-intensity-buttons {
-  @apply flex gap-2;
+.emotion-category-label {
+  font-size: 13px;
+  color: var(--emo-text-muted);
+  text-align: center;
 }
 
-.emotion-intensity-btn {
-  @apply flex-1 rounded-sm border border-border bg-bg py-2 text-sm font-semibold text-text-muted cursor-pointer
-    transition-colors duration-150 hover:border-primary;
+/* ---------- Painel de intensidade ---------- */
+
+.emotion-intensity-panel {
+  @apply relative flex flex-col items-center gap-3 pt-8;
 }
 
-.emotion-intensity-btn.is-selected {
-  @apply text-on-primary border-transparent;
-  background: var(--color-primary);
+.emotion-intensity-preview {
+  @apply flex items-center justify-center;
+  height: 90px;
 }
 
-.emotion-form-actions {
-  @apply flex gap-2;
+.emotion-intensity-preview-sphere {
+  @apply rounded-full;
+  box-shadow: var(--shadow-md);
+  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.65), transparent 45%), var(--preview-color);
+  transition: width 0.12s ease, height 0.12s ease;
+}
+
+.emotion-intensity-emotion-label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.emotion-intensity-slider-wrap {
+  @apply w-full mt-2;
+}
+
+.emotion-intensity-range {
+  @apply w-full appearance-none cursor-pointer;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--fill-color) var(--fill-percent),
+    color-mix(in oklch, var(--emo-text-muted) 30%, transparent) var(--fill-percent)
+  );
+}
+
+.emotion-intensity-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--fill-color);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.emotion-intensity-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--fill-color);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.emotion-intensity-slider-labels {
+  @apply flex justify-between mt-1.5;
+  font-size: 13px;
+  color: var(--emo-text-muted);
 }
 
 /* ---------- Resumo do dia ---------- */
 
+.emotion-summary {
+  @apply flex flex-col gap-3 mt-5;
+}
+
+.emotion-summary-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
 .emotion-summary-card {
-  @apply p-4 flex flex-col gap-3 mt-4;
+  @apply p-4;
+  background: var(--emo-glass);
+  border: none;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
 }
 
 .emotion-summary-empty {
-  @apply text-sm text-text-muted;
-}
-
-.emotion-summary-row {
-  @apply flex items-center justify-between gap-2 text-sm;
-}
-
-.emotion-summary-label {
-  @apply text-text-muted;
-}
-
-.emotion-summary-value {
-  @apply font-semibold;
+  font-size: 14px;
+  color: var(--emo-text-muted);
+  margin: 0;
 }
 
 .emotion-summary-periods {
-  @apply flex flex-col gap-2 mt-2 pt-2 border-t border-border;
+  @apply flex flex-col gap-2;
 }
 
-.emotion-summary-period {
-  @apply flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3;
+.emotion-summary-period-card {
+  @apply flex items-start gap-3 p-4;
+  background: var(--emo-glass);
+  border: none;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  animation: slideUp 0.3s var(--ease);
+}
+
+.emotion-summary-period-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--emo-brand);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.emotion-summary-period-body {
+  @apply flex-1 flex flex-col gap-1.5;
 }
 
 .emotion-summary-period-label {
-  @apply text-sm font-semibold text-text-muted w-16 shrink-0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--emo-text-muted);
+}
+
+.emotion-summary-period-entry {
+  @apply flex items-center justify-between gap-3;
+}
+
+.emotion-summary-period-entry-label {
+  font-size: 15px;
 }
 
 .emotion-summary-period-empty {
-  @apply text-sm text-text-muted;
+  font-size: 14px;
+  color: var(--emo-text-muted);
+}
+
+.emotion-intensity-bar {
+  @apply flex gap-1;
+}
+
+.emotion-intensity-bar-segment {
+  width: 14px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--emo-text-muted) 25%, transparent);
+}
+
+.emotion-summary-highlights {
+  @apply grid grid-cols-2 gap-3;
+}
+
+.emotion-summary-highlight-card {
+  @apply flex flex-col gap-1 p-3;
+  border: none;
+  border-radius: 16px;
+  background: color-mix(in oklch, var(--highlight-color) 12%, var(--emo-glass));
+  animation: slideUp 0.3s var(--ease);
+}
+
+.emotion-summary-highlight-card--brand {
+  background: color-mix(in oklch, var(--emo-brand) 12%, var(--emo-glass));
+}
+
+.emotion-summary-highlight-label {
+  font-size: 13px;
+  color: var(--emo-text-muted);
+}
+
+.emotion-summary-highlight-value {
+  font-weight: 700;
 }
 
 /* ---------- Histórico ---------- */
 
 .emotion-history-list {
-  @apply flex flex-col gap-2;
+  @apply flex flex-col gap-2 mt-2;
 }
 
 .emotion-history-card {
   @apply p-3 flex flex-col gap-2;
+  background: var(--emo-glass);
+  border: none;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  animation: slideUp 0.3s var(--ease);
 }
 
 .emotion-history-card-header {
@@ -267,11 +583,14 @@
 }
 
 .emotion-history-card-predominant {
-  @apply text-sm text-text-muted;
+  font-size: 14px;
+  color: var(--emo-text-muted);
 }
 
-.emotion-history-dots {
-  @apply flex flex-wrap items-center gap-1.5;
+.emotion-history-jar {
+  @apply flex flex-wrap items-end gap-1.5 p-2 rounded-xl;
+  background: color-mix(in oklch, var(--emo-text-muted) 8%, transparent);
+  min-height: 32px;
 }
 
 .emotion-history-dot {
