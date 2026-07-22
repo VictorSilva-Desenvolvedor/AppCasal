@@ -12,7 +12,6 @@ const CALENDAR_NAV_ITEMS = [
   { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
   { to: '/app/atividades', icon: 'clock', label: 'Atividades' },
   { to: '/app/convites', icon: 'user-plus', label: 'Convites' },
-  { to: '/app/configuracoes', icon: 'settings', label: 'Configurações' },
 ];
 
 function initialsOf(name) {
