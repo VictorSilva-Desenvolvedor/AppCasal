@@ -1,11 +1,34 @@
 const Invitation = require('../models/Invitation');
 const Event = require('../models/Event');
+const User = require('../models/User');
+const Settings = require('../models/Settings');
+const { sendWhatsappMessage } = require('../services/whatsappService');
+const { sendPushNotification } = require('../services/pushService');
 
 const POPULATE = [
   { path: 'event', select: 'title date' },
   { path: 'inviter', select: 'name' },
   { path: 'invitee', select: 'name' },
 ];
+
+async function notifyInvitee(invitation) {
+  const [invitee, settings] = await Promise.all([
+    User.findById(invitation.invitee._id, 'name whatsappNumber'),
+    Settings.findOne({ user: invitation.invitee._id }),
+  ]);
+  if (!invitee || settings?.notifyOnInvite === false) return;
+
+  const text = `📅 ${invitation.inviter.name} te convidou para o evento "${invitation.event.title}".`;
+  const channel = settings?.notificationChannel || 'both';
+
+  let delivered = false;
+  if (channel !== 'push' && invitee.whatsappNumber) {
+    delivered = await sendWhatsappMessage(invitee.whatsappNumber, text);
+  }
+  if (!delivered && channel !== 'whatsapp') {
+    await sendPushNotification(invitee._id, { title: 'Novo convite', body: text });
+  }
+}
 
 async function list(req, res) {
   const invitations = await Invitation.find({
@@ -46,6 +69,8 @@ async function create(req, res) {
   const invitation = await Invitation.create({ event: eventId, inviter: req.userId, invitee: inviteeId });
   await invitation.populate(POPULATE);
   res.status(201).json(invitation);
+
+  notifyInvitee(invitation).catch((err) => console.error('Falha ao notificar convite:', err.message));
 }
 
 async function respond(req, res) {

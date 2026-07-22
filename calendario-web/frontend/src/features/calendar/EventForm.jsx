@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { useAuth } from '../../hooks/useAuth.js';
+import { useTheme } from '../../hooks/useTheme.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { CATEGORIES } from '../../constants/categories.js';
 import { RecurrenceFields } from './RecurrenceFields.jsx';
@@ -20,6 +21,7 @@ import {
 export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const isEditing = Boolean(event);
   const { user } = useAuth();
+  const { hidePastEventsByDefault } = useTheme();
   const { users, invitations, refetchEvents, refetchInvitations } = useCalendarData();
   const { showToast } = useToast();
 
@@ -27,7 +29,9 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const [description, setDescription] = useState(event?.description || '');
   const [category, setCategory] = useState(event?.category || '');
   const [color, setColor] = useState(event?.color || '');
-  const [hideWhenPast, setHideWhenPast] = useState(Boolean(event?.hideWhenPast));
+  const [hideWhenPast, setHideWhenPast] = useState(() =>
+    isEditing ? Boolean(event?.hideWhenPast) : hidePastEventsByDefault
+  );
   const [reminderOffsets, setReminderOffsets] = useState(() => reminderOffsetsToString(event?.reminderOffsets));
   const [recurrence, setRecurrence] = useState(() => initialRecurrenceState(event));
   const [pendingFiles, setPendingFiles] = useState([]);
