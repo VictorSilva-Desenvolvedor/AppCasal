@@ -11,6 +11,12 @@ const settingsSchema = new mongoose.Schema(
     },
     background: { type: String, default: '' },
     sidebarCollapsed: { type: Boolean, default: false },
+    notificationChannel: { type: String, enum: ['whatsapp', 'push', 'both'], default: 'both' },
+    remindersMuted: { type: Boolean, default: false },
+    notifyOnInvite: { type: Boolean, default: true },
+    hidePastEventsByDefault: { type: Boolean, default: false },
+    financeDefaultScope: { type: String, enum: ['self', 'partner'], default: 'self' },
+    activityLogLimit: { type: Number, enum: [50, 100, 200, 500], default: 200 },
   },
   { timestamps: true }
 );

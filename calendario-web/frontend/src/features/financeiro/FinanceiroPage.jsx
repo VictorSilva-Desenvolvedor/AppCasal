@@ -3,6 +3,7 @@ import { Button, Card, Icon, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
+import { useTheme } from '../../hooks/useTheme.js';
 import { useToast } from '../../hooks/useToast.js';
 import { FinanceSummary } from './FinanceSummary.jsx';
 import { FinanceCategoryManager } from './FinanceCategoryManager.jsx';
@@ -32,11 +33,22 @@ function shiftMonthYear({ month, year }, direction) {
 export function FinanceiroPage() {
   const { users } = useCalendarData();
   const { user } = useAuth();
+  const { financeDefaultScope } = useTheme();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('resumo');
   const [monthYear, setMonthYear] = useState(currentMonthYear);
   const [viewScope, setViewScope] = useState(() => user?._id ?? null);
+  const [scopeDefaultApplied, setScopeDefaultApplied] = useState(false);
+
+  useEffect(() => {
+    if (scopeDefaultApplied || !user || !users.length) return;
+    if (financeDefaultScope === 'partner') {
+      const partner = users.find((u) => u._id !== user._id);
+      if (partner) setViewScope(partner._id);
+    }
+    setScopeDefaultApplied(true);
+  }, [scopeDefaultApplied, financeDefaultScope, users, user]);
   const [categories, setCategories] = useState([]);
   const [entries, setEntries] = useState([]);
   const [report, setReport] = useState(null);

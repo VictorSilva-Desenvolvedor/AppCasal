@@ -1,6 +1,7 @@
 const Event = require('../models/Event');
 const Invitation = require('../models/Invitation');
 const ReminderLog = require('../models/ReminderLog');
+const Settings = require('../models/Settings');
 const { sendWhatsappMessage } = require('./whatsappService');
 const { sendPushNotification } = require('./pushService');
 const { normalizeRule, getOccurrencesInRange, toUTCDateOnly } = require('../utils/recurrence');
@@ -16,14 +17,10 @@ function formatBR(date) {
 }
 
 async function resolveRecipients(event) {
-  const recipients = new Map();
+  const candidates = new Map();
 
   if (event.creator) {
-    if (event.creator.whatsappNumber) {
-      recipients.set(String(event.creator._id), event.creator);
-    } else {
-      console.error(`Criador ${event.creator.name} sem WhatsApp cadastrado; ignorando para o evento "${event.title}".`);
-    }
+    candidates.set(String(event.creator._id), event.creator);
   }
 
   const invitations = await Invitation.find({ event: event._id, status: 'accepted' }).populate(
@@ -34,14 +31,28 @@ async function resolveRecipients(event) {
   for (const inv of invitations) {
     const user = inv.invitee;
     if (!user) continue;
-    if (!user.whatsappNumber) {
-      console.error(`Convidado ${user.name} sem WhatsApp cadastrado; ignorando para o evento "${event.title}".`);
-      continue;
-    }
-    recipients.set(String(user._id), user);
+    candidates.set(String(user._id), user);
   }
 
-  return Array.from(recipients.values());
+  const ids = Array.from(candidates.keys());
+  const settingsList = await Settings.find({ user: { $in: ids } });
+  const settingsByUser = new Map(settingsList.map((s) => [String(s.user), s]));
+
+  const recipients = [];
+  for (const [id, user] of candidates) {
+    const settings = settingsByUser.get(id);
+    if (settings?.remindersMuted) continue;
+
+    const channel = settings?.notificationChannel || 'both';
+    if (channel === 'whatsapp' && !user.whatsappNumber) {
+      console.error(`${user.name} sem WhatsApp cadastrado; ignorando para o evento "${event.title}".`);
+      continue;
+    }
+
+    recipients.push({ user, channel });
+  }
+
+  return recipients;
 }
 
 async function checkAndSendReminders() {
@@ -73,7 +84,7 @@ async function checkAndSendReminders() {
       for (const { occurrence, diff } of qualifying) {
         const text = `🔔 Lembrete: "${event.title}" é em ${diff} dia${diff > 1 ? 's' : ''} (${formatBR(occurrence)}).`;
 
-        for (const recipient of recipients) {
+        for (const { user: recipient, channel } of recipients) {
           const filter = { event: event._id, recipient: recipient._id, offsetDays: diff, occurrenceDate: occurrence };
           const already = await ReminderLog.findOneAndUpdate(
             filter,
@@ -86,20 +97,24 @@ async function checkAndSendReminders() {
             continue;
           }
 
-          const ok = await sendWhatsappMessage(recipient.whatsappNumber, text);
-          if (ok) {
-            sent++;
-          } else {
-            const pushed = await sendPushNotification(recipient._id, {
+          let delivered = false;
+
+          if (channel !== 'push' && recipient.whatsappNumber) {
+            delivered = await sendWhatsappMessage(recipient.whatsappNumber, text);
+          }
+
+          if (!delivered && channel !== 'whatsapp') {
+            delivered = await sendPushNotification(recipient._id, {
               title: 'Lembrete de evento',
               body: text,
             });
-            if (pushed) {
-              sent++;
-            } else {
-              skipped++;
-              await ReminderLog.deleteOne(filter);
-            }
+          }
+
+          if (delivered) {
+            sent++;
+          } else {
+            skipped++;
+            await ReminderLog.deleteOne(filter);
           }
         }
       }

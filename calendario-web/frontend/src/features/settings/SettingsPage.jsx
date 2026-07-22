@@ -5,6 +5,7 @@ import { useToast } from '../../hooks/useToast.js';
 import { ColorThemeSwatches } from './ColorThemeSwatches.jsx';
 import { ProfileForm } from './ProfileForm.jsx';
 import { PushNotificationToggle } from './PushNotificationToggle.jsx';
+import { PreferencesForm } from './PreferencesForm.jsx';
 
 export function SettingsPage() {
   const { theme, background, saveThemeAndBackground } = useTheme();
@@ -73,6 +74,7 @@ export function SettingsPage() {
 
       <ProfileForm />
       <PushNotificationToggle />
+      <PreferencesForm />
     </section>
   );
 }

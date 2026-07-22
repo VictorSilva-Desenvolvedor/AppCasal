@@ -1,7 +1,10 @@
 const ActivityLog = require('../models/ActivityLog');
+const Settings = require('../models/Settings');
 
 async function list(req, res) {
-  const logs = await ActivityLog.find().populate('actor', 'name').sort({ createdAt: -1 }).limit(200);
+  const settings = await Settings.findOne({ user: req.userId });
+  const limit = settings?.activityLogLimit || 200;
+  const logs = await ActivityLog.find().populate('actor', 'name').sort({ createdAt: -1 }).limit(limit);
   res.json(logs);
 }
 
