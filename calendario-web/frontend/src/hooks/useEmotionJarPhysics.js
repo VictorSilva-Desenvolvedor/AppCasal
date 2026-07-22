@@ -28,8 +28,8 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-function radiusForIntensity(intensity) {
-  return 14 + intensity * 4; // 18–34px
+export function radiusForIntensity(intensity) {
+  return 5 + intensity * 3; // raio -> diâmetro 16/22/28/34/40px (intensidade 1–5)
 }
 
 function createBlob(entry, bounds) {
@@ -145,12 +145,15 @@ function stepPhysics(blobs, dt, bounds) {
   return blobs;
 }
 
-export function useEmotionJarPhysics(entries, containerRef) {
+const UNSET_RESET_KEY = Symbol('unset');
+
+export function useEmotionJarPhysics(entries, containerRef, resetKey) {
   const [blobs, setBlobs] = useState([]);
   const blobsRef = useRef([]);
   const rafRef = useRef(null);
   const lastTimeRef = useRef(null);
   const frameCountRef = useRef(0);
+  const lastResetKeyRef = useRef(UNSET_RESET_KEY);
 
   function getBounds() {
     const el = containerRef.current;
@@ -208,6 +211,21 @@ export function useEmotionJarPhysics(entries, containerRef) {
     const bounds = getBounds();
     if (!bounds) return;
 
+    const isDatasetReset = resetKey !== lastResetKeyRef.current;
+    lastResetKeyRef.current = resetKey;
+
+    if (isDatasetReset) {
+      // Montagem inicial ou troca "Meu"/parceiro: o conjunto de dados inteiro
+      // é novo pra esta jarra — recria tudo do zero e avança a física
+      // instantaneamente, sem reproduzir a queda do dia inteiro na tela.
+      blobsRef.current = entries.map((entry) => createBlob(entry, bounds));
+      for (let i = 0; i < INSTANT_SETTLE_STEPS; i++) {
+        stepPhysics(blobsRef.current, STEP_DT, bounds);
+      }
+      publish();
+      return;
+    }
+
     const currentIds = new Set(entries.map((e) => e._id));
     blobsRef.current = blobsRef.current.filter((b) => currentIds.has(b.id));
 
@@ -219,23 +237,13 @@ export function useEmotionJarPhysics(entries, containerRef) {
       return;
     }
 
-    const jarWasEmpty = blobsRef.current.length === 0;
+    // Registro novo dentro do mesmo dataset (mesmo "Meu"/parceiro de antes):
+    // sempre cai animado, mesmo que a jarra estivesse vazia até agora.
     newEntries.forEach((entry) => blobsRef.current.push(createBlob(entry, bounds)));
-
-    if (jarWasEmpty) {
-      // Carregamento inicial (ou troca "Meu"/parceiro): avança a física
-      // instantaneamente, sem reproduzir a queda do dia inteiro na tela.
-      for (let i = 0; i < INSTANT_SETTLE_STEPS; i++) {
-        stepPhysics(blobsRef.current, STEP_DT, bounds);
-      }
-      publish();
-    } else {
-      // Registro novo desta sessão: cai animado.
-      publish();
-      runRealtimeLoop();
-    }
+    publish();
+    runRealtimeLoop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entries]);
+  }, [entries, resetKey]);
 
   useEffect(
     () => () => {

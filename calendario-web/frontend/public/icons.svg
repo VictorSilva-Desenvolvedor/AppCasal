@@ -134,5 +134,15 @@
       <line x1="9" y1="9.5" x2="9.01" y2="9.5"></line>
       <line x1="15" y1="9.5" x2="15.01" y2="9.5"></line>
     </symbol>
+
+    <symbol id="icon-sunrise" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 18a5 5 0 0 0-10 0"></path>
+      <line x1="12" y1="2" x2="12" y2="9"></line>
+      <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
+      <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
+      <line x1="1" y1="18" x2="3" y2="18"></line>
+      <line x1="21" y1="18" x2="23" y2="18"></line>
+      <line x1="4" y1="18" x2="20" y2="18"></line>
+    </symbol>
   </defs>
 </svg>
