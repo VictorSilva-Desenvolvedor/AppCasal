@@ -248,6 +248,25 @@ function commitFinanceImport(payload) {
   return request('/finance-import/commit', { method: 'POST', body: payload });
 }
 
+function getEmotionEntries(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/emotion-entries${query ? `?${query}` : ''}`);
+}
+
+function createEmotionEntry(entry) {
+  return request('/emotion-entries', { method: 'POST', body: entry });
+}
+
+function updateEmotionEntry(id, entry) {
+  return request(`/emotion-entries/${id}`, { method: 'PUT', body: entry });
+}
+
+function deleteEmotionEntry(id) {
+  return request(`/emotion-entries/${id}`, { method: 'DELETE' });
+}
+
 function getVapidPublicKey() {
   return request('/push/vapid-public-key');
 }
@@ -291,6 +310,10 @@ export const api = {
   getVapidPublicKey,
   subscribePush,
   unsubscribePush,
+  getEmotionEntries,
+  createEmotionEntry,
+  updateEmotionEntry,
+  deleteEmotionEntry,
   getFinanceCategories,
   createFinanceCategory,
   updateFinanceCategory,

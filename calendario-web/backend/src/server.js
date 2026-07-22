@@ -22,6 +22,7 @@ const reimbursementRoutes = require('./routes/reimbursementRoutes');
 const financeGoalRoutes = require('./routes/financeGoalRoutes');
 const financeMonthRoutes = require('./routes/financeMonthRoutes');
 const financeImportRoutes = require('./routes/financeImportRoutes');
+const emotionEntryRoutes = require('./routes/emotionEntryRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
 const { checkAndSendReminders } = require('./services/reminderService');
 
@@ -46,6 +47,7 @@ app.use('/api/reimbursements', reimbursementRoutes);
 app.use('/api/finance-goals', financeGoalRoutes);
 app.use('/api/finance-months', financeMonthRoutes);
 app.use('/api/finance-import', financeImportRoutes);
+app.use('/api/emotion-entries', emotionEntryRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
 

@@ -6,6 +6,7 @@ import { useTheme } from '../../hooks/useTheme.js';
 const LOBBY_APPS = [
   { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
   { to: '/app/financeiro', icon: 'wallet', label: 'Financeiro' },
+  { to: '/app/emocoes', icon: 'smile', label: 'Emoções do Dia' },
   { to: '/app/galeria', icon: 'image', label: 'Galeria' },
   { to: '/app/atividades', icon: 'clock', label: 'Atividades' },
   { to: '/app/atualizacoes', icon: 'tool', label: 'Atualizações' },

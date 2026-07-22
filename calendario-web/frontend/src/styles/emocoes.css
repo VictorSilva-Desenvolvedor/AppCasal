@@ -1,0 +1,279 @@
+/* ---------- Página Emoções do Dia ---------- */
+
+.emotion-page-header {
+  @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+}
+
+.emotion-view-toggle {
+  @apply flex gap-2 mb-4 max-w-xs;
+}
+
+.emotion-type-toggle-btn {
+  @apply flex-1 text-sm font-semibold px-3 py-2 rounded-sm border border-border bg-bg text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.emotion-type-toggle-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.emotion-tabs {
+  @apply flex gap-[0.35rem] mb-5 flex-wrap;
+}
+
+.emotion-tab-btn {
+  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.emotion-tab-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+/* ---------- Jarra ---------- */
+
+.emotion-jar {
+  @apply flex flex-col items-center gap-1 my-4;
+}
+
+.emotion-jar-glass {
+  @apply relative w-full max-w-[320px] rounded-t-2xl rounded-b-3xl border-[3px] border-primary/50 overflow-hidden;
+  height: 360px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--color-primary) 10%, transparent),
+    color-mix(in oklch, var(--color-accent) 16%, transparent)
+  );
+}
+
+.emotion-jar-lid {
+  @apply w-[55%] max-w-[190px] h-3.5 rounded-full border-[3px] border-primary/50 bg-primary-light;
+  margin-top: -2px;
+}
+
+.emotion-blob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Posição é escrita a cada frame via style.transform pelo hook de física —
+     uma transition CSS aqui competiria com a simulação e deixaria o
+     movimento com atraso/travado. As animações visuais (squash, glow, pulso)
+     ficam no .emotion-blob-inner, que não tem posição própria, evitando que
+     as duas disputem a mesma propriedade "transform". */
+}
+
+.emotion-blob-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--blob-color);
+  box-shadow: var(--shadow-sm);
+}
+
+@keyframes emotionSquash {
+  0% {
+    transform: scale(1, 1);
+  }
+  30% {
+    transform: scale(1.25, 0.75);
+  }
+  60% {
+    transform: scale(0.92, 1.08);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+@keyframes emotionPulseRing {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--blob-color) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in oklch, var(--blob-color) 55%, transparent);
+  }
+}
+
+/* Verniz visual por categoria (seção 5 do documento) — o corpo físico
+   continua um círculo simples; só a aparência do .emotion-blob-inner muda. */
+.emotion-blob.is-settled .emotion-blob-inner {
+  animation: emotionSquash 0.35s ease-out;
+}
+
+.emotion-blob[data-category='positiva'] .emotion-blob-inner {
+  box-shadow: 0 0 12px 2px color-mix(in oklch, var(--blob-color) 55%, transparent);
+}
+
+.emotion-blob[data-category='neutra'] .emotion-blob-inner {
+  opacity: 0.88;
+}
+
+.emotion-blob[data-category='dificil'].is-settled .emotion-blob-inner {
+  animation: emotionSquash 0.35s ease-out, emotionPulseRing 1.6s ease-in-out infinite;
+}
+
+.emotion-jar-empty-hint {
+  @apply absolute inset-0 flex items-center justify-center text-center text-sm text-text-muted px-6;
+}
+
+/* ---------- Prompt de registro por período ---------- */
+
+.emotion-period-grid {
+  @apply grid gap-3 mb-4;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.emotion-period-card {
+  @apply p-4 flex flex-col gap-2;
+}
+
+.emotion-period-card-header {
+  @apply flex items-center justify-between;
+}
+
+.emotion-period-add-btn {
+  @apply w-8 h-8;
+}
+
+.emotion-period-question {
+  @apply text-sm text-text-muted -mt-1;
+}
+
+.emotion-period-empty {
+  @apply text-sm text-text-muted;
+}
+
+.emotion-period-chip-list {
+  @apply flex flex-wrap gap-1.5;
+}
+
+.emotion-chip {
+  @apply inline-flex items-center gap-1 rounded-full text-xs font-semibold px-2.5 py-1 border;
+  background: color-mix(in oklch, var(--chip-color, var(--color-primary)) 16%, transparent);
+  border-color: color-mix(in oklch, var(--chip-color, var(--color-primary)) 40%, transparent);
+  color: var(--chip-color, var(--color-primary));
+}
+
+/* ---------- Formulário de registro ---------- */
+
+.emotion-entry-form {
+  @apply flex flex-col gap-4;
+}
+
+.emotion-picker-group-label {
+  @apply text-sm font-semibold text-text-muted mb-1.5;
+}
+
+.emotion-picker-grid {
+  @apply grid gap-2;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+}
+
+.emotion-picker-btn {
+  @apply flex flex-col items-center gap-1 rounded-md border border-border bg-bg px-2 py-2 text-xs text-text-muted cursor-pointer
+    transition-[border-color,background,transform] duration-150 hover:-translate-y-px hover:shadow-sm;
+}
+
+.emotion-picker-btn.is-selected {
+  @apply text-text font-semibold;
+  border-color: var(--chip-color);
+  background: color-mix(in oklch, var(--chip-color) 16%, transparent);
+}
+
+.emotion-picker-emoji {
+  @apply text-xl leading-none;
+}
+
+.emotion-picker-label {
+  @apply truncate w-full text-center;
+}
+
+.emotion-intensity-row {
+  @apply mt-1;
+}
+
+.emotion-intensity-buttons {
+  @apply flex gap-2;
+}
+
+.emotion-intensity-btn {
+  @apply flex-1 rounded-sm border border-border bg-bg py-2 text-sm font-semibold text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.emotion-intensity-btn.is-selected {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.emotion-form-actions {
+  @apply flex gap-2;
+}
+
+/* ---------- Resumo do dia ---------- */
+
+.emotion-summary-card {
+  @apply p-4 flex flex-col gap-3 mt-4;
+}
+
+.emotion-summary-empty {
+  @apply text-sm text-text-muted;
+}
+
+.emotion-summary-row {
+  @apply flex items-center justify-between gap-2 text-sm;
+}
+
+.emotion-summary-label {
+  @apply text-text-muted;
+}
+
+.emotion-summary-value {
+  @apply font-semibold;
+}
+
+.emotion-summary-periods {
+  @apply flex flex-col gap-2 mt-2 pt-2 border-t border-border;
+}
+
+.emotion-summary-period {
+  @apply flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3;
+}
+
+.emotion-summary-period-label {
+  @apply text-sm font-semibold text-text-muted w-16 shrink-0;
+}
+
+.emotion-summary-period-empty {
+  @apply text-sm text-text-muted;
+}
+
+/* ---------- Histórico ---------- */
+
+.emotion-history-list {
+  @apply flex flex-col gap-2;
+}
+
+.emotion-history-card {
+  @apply p-3 flex flex-col gap-2;
+}
+
+.emotion-history-card-header {
+  @apply flex items-center justify-between gap-2;
+}
+
+.emotion-history-card-predominant {
+  @apply text-sm text-text-muted;
+}
+
+.emotion-history-dots {
+  @apply flex flex-wrap items-center gap-1.5;
+}
+
+.emotion-history-dot {
+  @apply inline-block rounded-full;
+}

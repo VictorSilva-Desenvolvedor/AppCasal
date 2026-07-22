@@ -15,6 +15,7 @@ import { UpdatesPage } from './features/updates/UpdatesPage.jsx';
 import { InvitesPage } from './features/invites/InvitesPage.jsx';
 import { SettingsPage } from './features/settings/SettingsPage.jsx';
 import { FinanceiroPage } from './features/financeiro/FinanceiroPage.jsx';
+import { EmocoesPage } from './features/emocoes/EmocoesPage.jsx';
 import { useAuth } from './hooks/useAuth.js';
 
 function RootRedirect() {
@@ -40,6 +41,7 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route path="/app/calendario" element={<CalendarPage />} />
                 <Route path="/app/financeiro" element={<FinanceiroPage />} />
+                <Route path="/app/emocoes" element={<EmocoesPage />} />
                 <Route path="/app/galeria" element={<GalleryPage />} />
                 <Route path="/app/atividades" element={<ActivityPage />} />
                 <Route path="/app/atualizacoes" element={<UpdatesPage />} />
