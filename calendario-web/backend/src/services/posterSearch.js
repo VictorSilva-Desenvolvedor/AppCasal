@@ -1,3 +1,5 @@
+const { summarizeGameSynopsis } = require('./aiService');
+
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w342';
 
 function formatRuntime(minutes) {
@@ -11,6 +13,21 @@ function formatRuntime(minutes) {
 function truncate(text, max) {
   if (!text) return '';
   return text.length > max ? `${text.slice(0, max).trim()}…` : text;
+}
+
+// A RAWG não tem parâmetro de idioma (ao contrário do TMDB, que já busca
+// filme/série em pt-BR) — aqui usamos o Gemini pra resumir/traduzir a
+// descrição em inglês. Se a IA falhar por qualquer motivo, cai pro texto
+// bruto cortado em vez de quebrar o enriquecimento do item inteiro.
+async function translateSynopsis(rawText) {
+  if (!rawText) return '';
+
+  try {
+    return await summarizeGameSynopsis(rawText);
+  } catch (err) {
+    console.error('Falha ao traduzir sinopse com IA:', err.message);
+    return truncate(rawText, 200);
+  }
 }
 
 async function searchTmdb(mediaType, query) {
@@ -118,7 +135,7 @@ async function gameDetails(id) {
     director: (data.developers || []).map((dev) => dev.name).join(', '),
     duration: data.playtime ? `~${data.playtime}h para zerar` : '',
     rating: data.rating ? Number(data.rating.toFixed(1)) : null,
-    synopsis: truncate(data.description_raw, 500),
+    synopsis: await translateSynopsis(data.description_raw),
   };
 }
 
