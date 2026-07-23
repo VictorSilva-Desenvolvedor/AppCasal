@@ -12,6 +12,64 @@ const TYPES = ['casal', 'individual', 'espelhado', 'alternado', 'colaborativo'];
 const QUANTITATIVE_ALLOWED_TYPES = ['casal', 'individual', 'espelhado'];
 const FREQUENCY_KINDS = ['diario', 'dias_semana', 'vezes_por_semana', 'quinzenal'];
 
+// Compartilhado entre create e update: type é sempre imutável no update (não
+// dá pra reinterpretar o histórico de check-ins com uma estrutura diferente),
+// mas meta/frequência/duração podem mudar a qualquer momento — o cron de
+// streak (habitStreakService.js) lê esses campos ao vivo a cada avaliação.
+function resolveHabitConfig(type, { goalType, targetValue, unit, frequency, durationType, challengeDays }) {
+  const resolvedGoalType = goalType === 'quantitativo' ? 'quantitativo' : 'binario';
+  if (resolvedGoalType === 'quantitativo') {
+    if (!QUANTITATIVE_ALLOWED_TYPES.includes(type)) {
+      const err = new Error('Meta quantitativa não é válida para esse tipo de hábito');
+      err.status = 400;
+      throw err;
+    }
+    if (!targetValue || targetValue <= 0) {
+      const err = new Error('Meta quantitativa precisa de um valor alvo maior que zero');
+      err.status = 400;
+      throw err;
+    }
+  }
+
+  const resolvedFrequency = {
+    kind: FREQUENCY_KINDS.includes(frequency?.kind) ? frequency.kind : 'diario',
+    daysOfWeek: [],
+    timesPerWeek: null,
+  };
+  if (resolvedFrequency.kind === 'dias_semana') {
+    if (!Array.isArray(frequency?.daysOfWeek) || frequency.daysOfWeek.length === 0) {
+      const err = new Error('Selecione ao menos um dia da semana');
+      err.status = 400;
+      throw err;
+    }
+    resolvedFrequency.daysOfWeek = frequency.daysOfWeek;
+  }
+  if (resolvedFrequency.kind === 'vezes_por_semana') {
+    if (!frequency?.timesPerWeek || frequency.timesPerWeek < 1 || frequency.timesPerWeek > 7) {
+      const err = new Error('Informe quantas vezes por semana (1 a 7)');
+      err.status = 400;
+      throw err;
+    }
+    resolvedFrequency.timesPerWeek = frequency.timesPerWeek;
+  }
+
+  const resolvedDurationType = durationType === 'desafio' ? 'desafio' : 'para_sempre';
+  if (resolvedDurationType === 'desafio' && (!challengeDays || challengeDays < 1)) {
+    const err = new Error('Informe a duração do desafio em dias');
+    err.status = 400;
+    throw err;
+  }
+
+  return {
+    goalType: resolvedGoalType,
+    targetValue: resolvedGoalType === 'quantitativo' ? targetValue : null,
+    unit: resolvedGoalType === 'quantitativo' ? unit || '' : '',
+    frequency: resolvedFrequency,
+    durationType: resolvedDurationType,
+    challengeDays: resolvedDurationType === 'desafio' ? challengeDays : null,
+  };
+}
+
 async function list(req, res) {
   const { type, active } = req.query;
   const filter = {};
@@ -66,38 +124,7 @@ async function create(req, res) {
     return res.status(400).json({ message: 'Hábitos colaborativos precisam de pelo menos uma subtarefa' });
   }
 
-  const resolvedGoalType = goalType === 'quantitativo' ? 'quantitativo' : 'binario';
-  if (resolvedGoalType === 'quantitativo') {
-    if (!QUANTITATIVE_ALLOWED_TYPES.includes(type)) {
-      return res.status(400).json({ message: 'Meta quantitativa não é válida para esse tipo de hábito' });
-    }
-    if (!targetValue || targetValue <= 0) {
-      return res.status(400).json({ message: 'Meta quantitativa precisa de um valor alvo maior que zero' });
-    }
-  }
-
-  const resolvedFrequency = {
-    kind: FREQUENCY_KINDS.includes(frequency?.kind) ? frequency.kind : 'diario',
-    daysOfWeek: [],
-    timesPerWeek: null,
-  };
-  if (resolvedFrequency.kind === 'dias_semana') {
-    if (!Array.isArray(frequency?.daysOfWeek) || frequency.daysOfWeek.length === 0) {
-      return res.status(400).json({ message: 'Selecione ao menos um dia da semana' });
-    }
-    resolvedFrequency.daysOfWeek = frequency.daysOfWeek;
-  }
-  if (resolvedFrequency.kind === 'vezes_por_semana') {
-    if (!frequency?.timesPerWeek || frequency.timesPerWeek < 1 || frequency.timesPerWeek > 7) {
-      return res.status(400).json({ message: 'Informe quantas vezes por semana (1 a 7)' });
-    }
-    resolvedFrequency.timesPerWeek = frequency.timesPerWeek;
-  }
-
-  const resolvedDurationType = durationType === 'desafio' ? 'desafio' : 'para_sempre';
-  if (resolvedDurationType === 'desafio' && (!challengeDays || challengeDays < 1)) {
-    return res.status(400).json({ message: 'Informe a duração do desafio em dias' });
-  }
+  const resolved = resolveHabitConfig(type, { goalType, targetValue, unit, frequency, durationType, challengeDays });
 
   const habit = await Habit.create({
     name,
@@ -110,13 +137,13 @@ async function create(req, res) {
     reminderTime: reminderTime || null,
     category: category || undefined,
     difficulty: difficulty || undefined,
-    frequency: resolvedFrequency,
-    durationType: resolvedDurationType,
-    challengeDays: resolvedDurationType === 'desafio' ? challengeDays : null,
-    challengeStartDay: resolvedDurationType === 'desafio' ? todayKeyInTimezone() : null,
-    goalType: resolvedGoalType,
-    targetValue: resolvedGoalType === 'quantitativo' ? targetValue : null,
-    unit: resolvedGoalType === 'quantitativo' ? unit || '' : '',
+    frequency: resolved.frequency,
+    durationType: resolved.durationType,
+    challengeDays: resolved.challengeDays,
+    challengeStartDay: resolved.durationType === 'desafio' ? todayKeyInTimezone() : null,
+    goalType: resolved.goalType,
+    targetValue: resolved.targetValue,
+    unit: resolved.unit,
     maxMissesPerWeek: maxMissesPerWeek ?? undefined,
     freezesPerMonth: freezesPerMonth ?? undefined,
     createdBy: req.userId,
@@ -142,8 +169,26 @@ async function update(req, res) {
     throw err;
   }
 
-  const { name, emoji, color, reminderTime, active, category, difficulty, maxMissesPerWeek, freezesPerMonth, subtasks } =
-    req.body;
+  const {
+    name,
+    emoji,
+    color,
+    reminderTime,
+    active,
+    category,
+    difficulty,
+    maxMissesPerWeek,
+    freezesPerMonth,
+    subtasks,
+    owner,
+    startingUserId,
+    goalType,
+    targetValue,
+    unit,
+    frequency,
+    durationType,
+    challengeDays,
+  } = req.body;
   const patch = {};
   if (name !== undefined) patch.name = name;
   if (emoji !== undefined) patch.emoji = emoji;
@@ -154,6 +199,37 @@ async function update(req, res) {
   if (difficulty !== undefined) patch.difficulty = difficulty;
   if (maxMissesPerWeek !== undefined) patch.maxMissesPerWeek = maxMissesPerWeek;
   if (freezesPerMonth !== undefined) patch.freezesPerMonth = freezesPerMonth;
+
+  // type é imutável (ver resolveHabitConfig), mas os campos abaixo são lidos
+  // ao vivo pelo cron de streak (habitStreakService.js) e podem ser editados
+  // a qualquer momento, mesmo com check-ins já registrados.
+  if (owner !== undefined && habit.type === 'individual') {
+    if (!owner) {
+      const err = new Error('Hábitos individuais precisam de um dono');
+      err.status = 400;
+      throw err;
+    }
+    patch.owner = owner;
+  }
+  if (startingUserId !== undefined && habit.type === 'alternado') {
+    patch.currentTurnUserId = startingUserId;
+  }
+  if (goalType !== undefined || frequency !== undefined || durationType !== undefined) {
+    const resolved = resolveHabitConfig(habit.type, { goalType, targetValue, unit, frequency, durationType, challengeDays });
+    patch.goalType = resolved.goalType;
+    patch.targetValue = resolved.targetValue;
+    patch.unit = resolved.unit;
+    patch.frequency = resolved.frequency;
+    patch.durationType = resolved.durationType;
+    patch.challengeDays = resolved.challengeDays;
+
+    if (resolved.durationType === 'desafio' && !habit.challengeStartDay) {
+      patch.challengeStartDay = todayKeyInTimezone();
+    } else if (resolved.durationType === 'para_sempre') {
+      patch.challengeStartDay = null;
+      patch.challengeCompletedAt = null;
+    }
+  }
 
   // Subtasks (só colaborativo): só permite ADICIONAR itens novos ou ARQUIVAR
   // existentes (active:false) — nunca editar o label de uma subtask que já
@@ -181,17 +257,19 @@ async function update(req, res) {
     patch.subtasks = nextSubtasks;
   }
 
-  const updated = await Habit.findByIdAndUpdate(req.params.id, patch, {
-    new: true,
-    runValidators: true,
-  }).populate(POPULATE);
+  // .save() (em vez de findByIdAndUpdate) garante que os validators do schema
+  // (ex.: owner exigido só para type === 'individual') enxerguem o documento
+  // completo, já que agora o patch pode incluir owner/currentTurnUserId.
+  Object.assign(habit, patch);
+  await habit.save();
+  await habit.populate(POPULATE);
 
-  res.json(updated);
+  res.json(habit);
 
   notifyPartner({
     actorId: req.userId,
     title: 'Hábito atualizado',
-    body: `🎯 O hábito "${updated.name}" foi atualizado.`,
+    body: `🎯 O hábito "${habit.name}" foi atualizado.`,
     link: '/app/habitos',
     category: 'habit',
   }).catch((err) => console.error('Falha ao notificar atualização de hábito:', err.message));

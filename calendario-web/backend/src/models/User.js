@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     photo: { type: String, default: '' },
     whatsappNumber: { type: String, default: '', trim: true },
+    includeInHabits: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

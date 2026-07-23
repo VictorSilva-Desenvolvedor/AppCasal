@@ -211,7 +211,7 @@ async function evaluateHabitStreaks() {
   const todayKey = todayKeyInTimezone();
   const yesterdayKey = addDaysToKey(todayKey, -1);
   const habits = await Habit.find({ active: true });
-  const users = await User.find();
+  const users = await User.find({ includeInHabits: true });
 
   for (const habit of habits) {
     try {

@@ -27,7 +27,7 @@ async function checkAndSendHabitReminders() {
   const habits = await Habit.find({ active: true, reminderTime: nowStr });
   if (habits.length === 0) return { sent: 0, skipped: 0 };
 
-  const users = await User.find();
+  const users = await User.find({ includeInHabits: true });
 
   let sent = 0;
   let skipped = 0;

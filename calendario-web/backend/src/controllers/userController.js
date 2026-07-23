@@ -1,7 +1,7 @@
 const User = require('../models/User');
 
 async function list(req, res) {
-  const users = await User.find().select('name').sort('name');
+  const users = await User.find().select('name includeInHabits').sort('name');
   res.json(users);
 }
 

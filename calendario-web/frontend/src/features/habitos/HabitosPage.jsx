@@ -16,7 +16,8 @@ import { groupCheckinsByHabit, groupCheckinsByDay, isDayComplete, toDayKey } fro
 const JOINT_CHECKIN_TYPES = ['casal', 'espelhado'];
 
 export function HabitosPage() {
-  const { users } = useCalendarData();
+  const { users: allUsers } = useCalendarData();
+  const users = allUsers.filter((u) => u.includeInHabits !== false);
   const { user } = useAuth();
   const { showToast } = useToast();
 

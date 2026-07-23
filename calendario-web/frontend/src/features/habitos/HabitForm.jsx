@@ -110,6 +110,14 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
         difficulty,
         maxMissesPerWeek: Number(maxMissesPerWeek),
         freezesPerMonth: Number(freezesPerMonth),
+        owner: type === 'individual' ? owner : undefined,
+        startingUserId: type === 'alternado' ? startingUserId : undefined,
+        goalType,
+        targetValue: goalType === 'quantitativo' ? Number(targetValue) : undefined,
+        unit: goalType === 'quantitativo' ? unit : undefined,
+        frequency: { kind: frequencyKind, daysOfWeek, timesPerWeek: Number(timesPerWeek) },
+        durationType,
+        challengeDays: durationType === 'desafio' ? Number(challengeDays) : undefined,
       };
 
       let saved;
@@ -122,15 +130,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
         const payload = {
           ...basePayload,
           type,
-          owner: type === 'individual' ? owner : undefined,
-          startingUserId: type === 'alternado' ? startingUserId : undefined,
           subtasks: type === 'colaborativo' ? subtaskInputs.filter((s) => s.label.trim()) : undefined,
-          goalType,
-          targetValue: goalType === 'quantitativo' ? Number(targetValue) : undefined,
-          unit: goalType === 'quantitativo' ? unit : undefined,
-          frequency: { kind: frequencyKind, daysOfWeek, timesPerWeek: Number(timesPerWeek) },
-          durationType,
-          challengeDays: durationType === 'desafio' ? Number(challengeDays) : undefined,
         };
         saved = await api.createHabit(payload);
       }
@@ -187,11 +187,16 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 </button>
               ))}
             </div>
+            {isEditing && (
+              <p className="habit-form-hint">
+                Não é possível trocar o tipo depois que o hábito já tem check-ins registrados.
+              </p>
+            )}
           </Field>
 
           {type === 'individual' && (
             <Field label="De quem é esse hábito" htmlFor="habit-owner">
-              <select id="habit-owner" value={owner} disabled={isEditing} onChange={(event) => setOwner(event.target.value)}>
+              <select id="habit-owner" value={owner} onChange={(event) => setOwner(event.target.value)}>
                 {users.map((u) => (
                   <option key={u._id} value={u._id}>
                     {u.name}
@@ -202,11 +207,10 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
           )}
 
           {type === 'alternado' && (
-            <Field label="Quem começa" htmlFor="habit-starting-user">
+            <Field label={isEditing ? 'De quem é a vez agora' : 'Quem começa'} htmlFor="habit-starting-user">
               <select
                 id="habit-starting-user"
                 value={startingUserId}
-                disabled={isEditing}
                 onChange={(event) => setStartingUserId(event.target.value)}
               >
                 {users.map((u) => (
@@ -316,7 +320,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 <button
                   type="button"
                   className={`habit-type-toggle-btn${goalType === 'binario' ? ' is-active' : ''}`}
-                  disabled={isEditing}
                   onClick={() => setGoalType('binario')}
                 >
                   Sim/não
@@ -324,7 +327,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 <button
                   type="button"
                   className={`habit-type-toggle-btn${goalType === 'quantitativo' ? ' is-active' : ''}`}
-                  disabled={isEditing}
                   onClick={() => setGoalType('quantitativo')}
                 >
                   Quantidade
@@ -340,7 +342,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                     min="1"
                     step="0.01"
                     value={targetValue}
-                    disabled={isEditing}
                     onChange={(event) => setTargetValue(event.target.value)}
                   />
                 </Field>
@@ -350,7 +351,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                     type="text"
                     maxLength={20}
                     value={unit}
-                    disabled={isEditing}
                     placeholder="Ex: copos"
                     onChange={(event) => setUnit(event.target.value)}
                   />
@@ -370,7 +370,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
             <select
               id="habit-frequency-kind"
               value={frequencyKind}
-              disabled={isEditing}
               onChange={(event) => setFrequencyKind(event.target.value)}
             >
               <option value="diario">Diário</option>
@@ -388,7 +387,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                     <input
                       type="checkbox"
                       checked={daysOfWeek.includes(day)}
-                      disabled={isEditing}
                       onChange={() => toggleWeekday(day)}
                     />
                     {label}
@@ -406,7 +404,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 min="1"
                 max="7"
                 value={timesPerWeek}
-                disabled={isEditing}
                 onChange={(event) => setTimesPerWeek(event.target.value)}
               />
             </Field>
@@ -421,7 +418,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
               <button
                 type="button"
                 className={`habit-type-toggle-btn${durationType === 'para_sempre' ? ' is-active' : ''}`}
-                disabled={isEditing}
                 onClick={() => setDurationType('para_sempre')}
               >
                 Para sempre
@@ -429,7 +425,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
               <button
                 type="button"
                 className={`habit-type-toggle-btn${durationType === 'desafio' ? ' is-active' : ''}`}
-                disabled={isEditing}
                 onClick={() => setDurationType('desafio')}
               >
                 Desafio com prazo
@@ -443,7 +438,6 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 type="number"
                 min="1"
                 value={challengeDays}
-                disabled={isEditing}
                 onChange={(event) => setChallengeDays(event.target.value)}
               />
             </Field>
