@@ -1,59 +1,22 @@
 /*
-  Identidade visual — Hábitos. Fonte própria (Quicksand, só pra títulos) e
-  paleta quente (--habit-*) escopadas dentro de .habit-page: não sobrescrevem
-  os tokens globais do app (tokens.css), usados pelo resto do AppCasal
-  (Calendário, Financeiro, Configurações etc. continuam em Inter + paleta de
-  tema). Mesmo padrão já usado em emocoes.css.
+  Hábitos usa os mesmos tokens globais do resto do AppCasal (tokens.css) —
+  as variáveis --habit-* abaixo são só apelidos locais pros papéis de cor
+  específicos da feature (destaque, parceiro, streak), sempre resolvendo
+  pra var(--color-*) global, então [data-color-theme]/[data-theme] seguem
+  valendo normalmente aqui dentro.
 */
-@import '@fontsource/quicksand/400.css';
-@import '@fontsource/quicksand/600.css';
-@import '@fontsource/quicksand/700.css';
 
 .habit-page {
-  --habit-coral: #ff6b6b;
-  --habit-purple: #6c5b7b;
-  --habit-peach: #ffd3b6;
-  --habit-teal: #4ecdc4;
-  --habit-bg: #faf9f6;
-  --habit-text: #2d2a32;
-  --habit-text-muted: color-mix(in oklch, var(--habit-text) 55%, transparent);
-  --habit-card-bg: color-mix(in oklch, var(--habit-peach) 40%, white);
+  --habit-coral: var(--color-primary);
+  --habit-purple: var(--color-accent);
+  --habit-teal: var(--color-success);
+  --habit-text: var(--color-text);
+  --habit-text-muted: var(--color-text-muted);
+  --habit-card-bg: var(--color-surface);
 
   @apply relative pb-24;
-  font-family: 'Inter', var(--font-sans);
-  color: var(--habit-text);
-  background: var(--habit-bg);
-
-  /* Cantos mais generosos em toda a feature — sobrescreve os tokens globais
-     de raio só dentro de .habit-page; como são custom properties reais (não
-     constantes de build), Card/Button/Modal/Field herdam automaticamente. */
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
-  --radius-xl: 28px;
-}
-
-[data-theme='dark'] .habit-page {
-  --habit-bg: #201d24;
-  --habit-text: #f5f1ec;
-  --habit-text-muted: color-mix(in oklch, var(--habit-text) 55%, transparent);
-  --habit-card-bg: color-mix(in oklch, var(--habit-purple) 22%, #201d24);
-}
-
-/* Padrão decorativo de fundo — linhas onduladas suaves se cruzando, bem
-   sutil, atrás do conteúdo (não deve competir com a leitura dos cards). */
-.habit-bg-pattern {
-  @apply absolute inset-0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.12;
-  background-repeat: repeat;
-  background-size: 160px 80px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'%3E%3Cpath d='M0 40 Q 20 10 40 40 T 80 40 T 120 40 T 160 40' fill='none' stroke='%23FF6B6B' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M0 60 Q 20 30 40 60 T 80 60 T 120 60 T 160 60' fill='none' stroke='%236C5B7B' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-}
-
-[data-theme='dark'] .habit-bg-pattern {
-  opacity: 0.16;
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 .habit-page-header {
@@ -66,15 +29,6 @@
 
 .habit-page-title {
   @apply text-2xl font-semibold m-0;
-  font-family: 'Quicksand', var(--font-sans);
-  font-weight: 600;
-}
-
-/* Modal.jsx renderiza inline (sem portal), então o título do modal aberto a
-   partir desta página também é descendente de .habit-page. */
-.habit-page .modal-header h2 {
-  font-family: 'Quicksand', var(--font-sans);
-  font-weight: 600;
 }
 
 .habit-type-toggle-btn {
@@ -88,7 +42,7 @@
 .habit-type-toggle-btn.is-active {
   background: var(--habit-coral);
   border-color: var(--habit-coral);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .habit-type-toggle-btn:disabled {
@@ -112,9 +66,9 @@
   border-left: 4px solid var(--habit-color, var(--habit-purple));
 }
 
-/* Barra de gradiente coral→roxo no topo do card quando os dois completam o
-   hábito de casal no mesmo dia — a "mistura visual" da união, sem repintar
-   o card inteiro (mantém legibilidade do texto). */
+/* Barra de gradiente no topo do card quando os dois completam o hábito de
+   casal no mesmo dia — a "mistura visual" da união, sem repintar o card
+   inteiro (mantém legibilidade do texto). */
 .habit-card.is-united::before {
   content: '';
   position: absolute;
@@ -136,9 +90,7 @@
 }
 
 .habit-card-name {
-  @apply text-base m-0;
-  font-family: 'Quicksand', var(--font-sans);
-  font-weight: 600;
+  @apply text-base m-0 font-semibold;
 }
 
 .habit-card-type {
@@ -147,9 +99,7 @@
 }
 
 .habit-card-streak {
-  @apply flex items-center gap-1 text-sm whitespace-nowrap;
-  font-family: 'Quicksand', var(--font-sans);
-  font-weight: 700;
+  @apply flex items-center gap-1 text-sm whitespace-nowrap font-bold;
   color: var(--habit-teal);
 }
 
@@ -205,19 +155,6 @@
   @apply flex-1;
 }
 
-.habit-page .btn-primary {
-  background: var(--habit-coral);
-  color: #fff;
-}
-
-.habit-page .btn-primary:hover:not(:disabled) {
-  background: color-mix(in oklch, var(--habit-coral) 85%, black);
-}
-
-.habit-page .btn-primary:active:not(:disabled) {
-  background: color-mix(in oklch, var(--habit-coral) 72%, black);
-}
-
 .habit-checkin-btn:disabled {
   @apply flex items-center justify-center gap-1.5;
   background: var(--habit-teal);
@@ -241,14 +178,14 @@
   width: 60px;
   height: 60px;
   background: var(--habit-coral);
-  color: #fff;
+  color: var(--color-on-primary);
   box-shadow: var(--shadow-lg);
   transition: transform 0.15s var(--ease), background-color 0.15s;
 }
 
 .habit-fab:hover {
   transform: translateY(-2px) scale(1.05);
-  background: color-mix(in oklch, var(--habit-coral) 85%, black);
+  background: var(--color-primary-hover);
 }
 
 .habit-fab:active {
@@ -325,8 +262,8 @@
 }
 
 .habit-history-cell--partial {
-  background: color-mix(in oklch, var(--habit-peach) 60%, transparent);
-  color: color-mix(in oklch, var(--habit-coral) 75%, var(--habit-text));
+  background: var(--color-warning-bg);
+  color: color-mix(in oklch, var(--color-warning) 75%, var(--habit-text));
 }
 
 .habit-history-cell--missed {
@@ -348,13 +285,12 @@
 }
 
 .habit-history-cell--frozen {
-  background: color-mix(in oklch, #7fc7d9 45%, transparent);
-  color: color-mix(in oklch, #2f7d95 85%, var(--habit-text));
+  background: color-mix(in oklch, var(--color-accent-2) 45%, transparent);
+  color: color-mix(in oklch, var(--color-accent-2) 85%, var(--habit-text));
 }
 
 .habit-history-subtitle {
   @apply text-sm font-semibold mt-4 mb-2;
-  font-family: 'Quicksand', var(--font-sans);
   color: var(--habit-text);
 }
 
@@ -377,7 +313,7 @@
 
 .habit-turn-chip.is-mine {
   background: var(--habit-coral);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .habit-turn-chip .icon {
@@ -482,7 +418,7 @@
 /* ---------- Freeze ---------- */
 
 .habit-freeze-btn {
-  color: color-mix(in oklch, #7fc7d9 70%, var(--habit-text));
+  color: color-mix(in oklch, var(--color-accent-2) 70%, var(--habit-text));
 }
 
 .habit-freeze-btn:disabled {
@@ -493,7 +429,7 @@
 
 .habit-recovery-banner {
   @apply flex flex-col gap-1.5 p-3 rounded-md text-xs;
-  background: color-mix(in oklch, var(--habit-peach) 45%, transparent);
+  background: var(--color-warning-bg);
 }
 
 .habit-recovery-title {
@@ -572,7 +508,7 @@
 .habit-streak-chart-bar {
   @apply w-full rounded-t-sm;
   min-height: 4px;
-  background: color-mix(in oklch, var(--habit-peach) 65%, transparent);
+  background: color-mix(in oklch, var(--habit-coral) 35%, transparent);
 }
 
 .habit-streak-chart-bar.is-current {
