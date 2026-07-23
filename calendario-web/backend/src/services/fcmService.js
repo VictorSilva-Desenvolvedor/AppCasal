@@ -12,9 +12,12 @@ if (process.env.FCM_SERVICE_ACCOUNT_JSON) {
       credential: cert(JSON.parse(process.env.FCM_SERVICE_ACCOUNT_JSON)),
     });
     fcmReady = true;
+    console.log('[FCM] firebase-admin inicializado com sucesso — push notifications ativo.');
   } catch (err) {
-    console.error('Falha ao iniciar firebase-admin:', err.message);
+    console.error('[FCM] Falha ao iniciar firebase-admin:', err.message);
   }
+} else {
+  console.warn('[FCM] FCM_SERVICE_ACCOUNT_JSON não definida — push notifications desativado.');
 }
 
 function isFcmReady() {

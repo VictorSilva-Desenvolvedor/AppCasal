@@ -29,6 +29,7 @@ const habitCheckinRoutes = require('./routes/habitCheckinRoutes');
 const watchlistItemRoutes = require('./routes/watchlistItemRoutes');
 const watchlistRatingRoutes = require('./routes/watchlistRatingRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
+const { isFcmReady } = require('./services/fcmService');
 const { checkAndSendReminders } = require('./services/reminderService');
 const { checkAndSendHabitReminders } = require('./services/habitReminderService');
 const { evaluateHabitStreaks } = require('./services/habitStreakService');
@@ -61,7 +62,7 @@ app.use('/api/habit-checkins', habitCheckinRoutes);
 app.use('/api/watchlist-items', watchlistItemRoutes);
 app.use('/api/watchlist-ratings', watchlistRatingRoutes);
 
-app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
+app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady(), fcm: isFcmReady() }));
 
 const frontendDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
 app.use(express.static(frontendDir));
