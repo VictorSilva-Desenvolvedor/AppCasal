@@ -5,5 +5,10 @@
   "server": {
     "url": "https://calendariopessoalmariaxvictor.onrender.com",
     "cleartext": false
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
   }
 }

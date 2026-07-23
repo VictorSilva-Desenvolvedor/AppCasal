@@ -28,6 +28,19 @@ export function useFcmRegistration() {
       }
       if (!granted || cancelled) return;
 
+      // Precisa bater com o channelId enviado pelo backend (fcmService.js)
+      // — sem um canal explícito de importância alta, o Android usa o
+      // canal "Miscellaneous" padrão do FCM (importância normal), que não
+      // gera heads-up nem som.
+      await PushNotifications.createChannel({
+        id: 'appcasal_default',
+        name: 'AppCasal',
+        description: 'Notificações de atividade do parceiro',
+        importance: 4, // IMPORTANCE_HIGH
+        visibility: 1, // pública (mostra na tela de bloqueio)
+        vibration: true,
+      });
+
       registrationListener = await PushNotifications.addListener('registration', (token) => {
         api.registerDeviceToken(token.value).catch((err) => console.error('Falha ao registrar token FCM:', err.message));
       });
