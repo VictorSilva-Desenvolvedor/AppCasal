@@ -2,6 +2,7 @@ const WatchlistItem = require('../models/WatchlistItem');
 const WatchlistRating = require('../models/WatchlistRating');
 const { searchPoster, getDetails } = require('../services/posterSearch');
 const { notifyPartner } = require('../services/notificationService');
+const { logActivity } = require('../services/activityLogger');
 
 const POPULATE = { path: 'creator', select: 'name' };
 const TYPES = ['filme', 'serie', 'jogo'];
@@ -41,6 +42,16 @@ async function create(req, res) {
   });
 
   const populated = await item.populate(POPULATE);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'created',
+    module: 'watchlist',
+    item,
+    itemTitle: item.title,
+    team: req.userTeam,
+  });
+
   res.status(201).json(populated);
 
   notifyPartner({
@@ -74,9 +85,20 @@ async function update(req, res) {
     runValidators: true,
   }).populate(POPULATE);
 
+  const justWatched = status === 'visto_ouvido' && previous.status !== 'visto_ouvido';
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'watchlist',
+    item,
+    itemTitle: item.title,
+    details: justWatched ? 'Marcado como visto/jogado' : 'Item da watchlist atualizado',
+    team: req.userTeam,
+  });
+
   res.json(item);
 
-  const justWatched = status === 'visto_ouvido' && previous.status !== 'visto_ouvido';
   notifyPartner({
     actorId: req.userId,
     title: justWatched ? 'Item assistido' : 'Watchlist atualizada',
@@ -116,6 +138,14 @@ async function remove(req, res) {
 
   // Avaliações órfãs de um item excluído não fazem sentido — remove junto.
   await WatchlistRating.deleteMany({ item: item._id });
+
+  await logActivity({
+    actor: req.userId,
+    action: 'deleted',
+    module: 'watchlist',
+    itemTitle: item.title,
+    team: req.userTeam,
+  });
 
   res.status(204).send();
 

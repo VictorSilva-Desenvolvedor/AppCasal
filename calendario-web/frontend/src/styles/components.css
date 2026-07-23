@@ -232,6 +232,10 @@
   @apply border-l-danger;
 }
 
+.activity-feed-item--archived {
+  @apply border-l-warning;
+}
+
 .activity-feed-item-header {
   @apply flex justify-between items-center gap-2 text-base;
 }

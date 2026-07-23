@@ -3,7 +3,15 @@ import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
 
-const ACTION_LABELS = { created: 'criou', updated: 'editou', deleted: 'excluiu' };
+const ACTION_LABELS = { created: 'criou', updated: 'editou', deleted: 'excluiu', archived: 'arquivou' };
+const MODULE_LABELS = {
+  evento: 'Calendário',
+  financeiro: 'Financeiro',
+  habito: 'Hábitos',
+  emocao: 'Emoções',
+  watchlist: 'Watchlist',
+  convite: 'Convites',
+};
 
 function formatLogTimestamp(date) {
   return new Date(date).toLocaleString('pt-BR', {
@@ -38,7 +46,7 @@ export function ActivityPage() {
   return (
     <section className="view">
       <h2>Atividades</h2>
-      <p>Histórico de quem criou, editou ou excluiu eventos no calendário.</p>
+      <p>Histórico de atividades no Calendário, Financeiro, Hábitos, Emoções, Watchlist e Convites.</p>
       <div className="activity-feed">
         {error && <p className="sidebar-empty">Não foi possível carregar as atividades</p>}
         {!error && logs && logs.length === 0 && (
@@ -57,7 +65,10 @@ export function ActivityPage() {
                     <span className="person-dot" style={{ background: dotColor }} />
                     <strong>{actorName}</strong> {actionLabel} &quot;{log.eventTitle}&quot;
                   </span>
-                  <span className="badge">{formatLogTimestamp(log.createdAt)}</span>
+                  <span>
+                    <span className="pill">{MODULE_LABELS[log.module] || log.module}</span>
+                    <span className="badge">{formatLogTimestamp(log.createdAt)}</span>
+                  </span>
                 </div>
                 {log.details && <p className="activity-feed-item-details">{log.details}</p>}
               </div>

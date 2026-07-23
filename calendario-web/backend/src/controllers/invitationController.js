@@ -2,6 +2,7 @@ const Invitation = require('../models/Invitation');
 const Event = require('../models/Event');
 const User = require('../models/User');
 const { notifyPartner } = require('../services/notificationService');
+const { logActivity } = require('../services/activityLogger');
 
 const POPULATE = [
   { path: 'event', select: 'title date' },
@@ -77,6 +78,17 @@ async function create(req, res) {
 
   const invitation = await Invitation.create({ event: eventId, inviter: req.userId, invitee: inviteeId });
   await invitation.populate(POPULATE);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'created',
+    module: 'convite',
+    item: invitation,
+    itemTitle: invitation.event.title,
+    details: `Convidou ${invitation.invitee.name} para o evento`,
+    team: req.userTeam,
+  });
+
   res.status(201).json(invitation);
 
   notifyInvitee(invitation).catch((err) => console.error('Falha ao notificar convite:', err.message));
@@ -102,6 +114,17 @@ async function respond(req, res) {
   invitation.status = status;
   await invitation.save();
   await invitation.populate(POPULATE);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'convite',
+    item: invitation,
+    itemTitle: invitation.event.title,
+    details: status === 'accepted' ? 'Aceitou o convite' : 'Recusou o convite',
+    team: req.userTeam,
+  });
+
   res.json(invitation);
 
   notifyInviter(invitation).catch((err) => console.error('Falha ao notificar resposta de convite:', err.message));
@@ -119,7 +142,20 @@ async function remove(req, res) {
     return res.status(400).json({ message: 'Só é possível cancelar convites pendentes' });
   }
 
+  // Populado só depois das checagens de permissão acima (que comparam ObjectId
+  // cru com req.userId — um documento populado quebraria esse .toString()).
+  await invitation.populate(POPULATE);
   await invitation.deleteOne();
+
+  await logActivity({
+    actor: req.userId,
+    action: 'deleted',
+    module: 'convite',
+    itemTitle: invitation.event.title,
+    details: `Cancelou o convite para ${invitation.invitee.name}`,
+    team: req.userTeam,
+  });
+
   res.status(204).send();
 }
 

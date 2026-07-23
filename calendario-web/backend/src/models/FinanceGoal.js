@@ -11,6 +11,7 @@ const financeGoalSchema = new mongoose.Schema(
     installmentAmount: { type: Number, default: null, min: 0 },
     notes: { type: String, default: '' },
     status: { type: String, enum: ['ativo', 'concluido'], default: 'ativo' },
+    archivedUntil: { type: Date, default: null },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     team: { type: String, default: 'principal' },
   },

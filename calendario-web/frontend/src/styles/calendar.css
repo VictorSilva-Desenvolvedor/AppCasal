@@ -112,7 +112,7 @@
 }
 
 .sidebar-list {
-  @apply flex flex-col gap-[0.35rem] max-h-40 overflow-y-auto;
+  @apply flex flex-col gap-[0.35rem] max-h-80 overflow-y-auto;
 }
 
 .sidebar-list-item {

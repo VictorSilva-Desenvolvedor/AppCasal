@@ -1,5 +1,6 @@
 const FinanceGoal = require('../models/FinanceGoal');
 const { notifyPartner } = require('../services/notificationService');
+const { logActivity } = require('../services/activityLogger');
 
 async function list(req, res) {
   const { creator } = req.query;
@@ -31,6 +32,16 @@ async function create(req, res) {
   });
   await goal.populate('creator', 'name');
 
+  await logActivity({
+    actor: req.userId,
+    action: 'created',
+    module: 'financeiro',
+    item: goal,
+    itemTitle: goal.name,
+    details: `Meta: R$ ${Number(goal.targetAmount).toFixed(2)}`,
+    team: req.userTeam,
+  });
+
   res.status(201).json(goal);
 
   notifyPartner({
@@ -53,6 +64,7 @@ async function update(req, res) {
     installmentAmount,
     notes,
     status,
+    archivedUntil,
   } = req.body;
 
   const before = await FinanceGoal.findById(req.params.id);
@@ -67,9 +79,30 @@ async function update(req, res) {
 
   const goal = await FinanceGoal.findByIdAndUpdate(
     req.params.id,
-    { name, type, targetAmount, currentAmount, totalInstallments, paidInstallments, installmentAmount, notes, status },
+    {
+      name,
+      type,
+      targetAmount,
+      currentAmount,
+      totalInstallments,
+      paidInstallments,
+      installmentAmount,
+      notes,
+      status,
+      archivedUntil,
+    },
     { new: true, runValidators: true }
   ).populate('creator', 'name');
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'financeiro',
+    item: goal,
+    itemTitle: goal.name,
+    details: 'Objetivo atualizado',
+    team: req.userTeam,
+  });
 
   res.json(goal);
 
@@ -95,6 +128,14 @@ async function remove(req, res) {
   }
 
   await FinanceGoal.findByIdAndDelete(req.params.id);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'deleted',
+    module: 'financeiro',
+    itemTitle: goal.name,
+    team: req.userTeam,
+  });
 
   res.status(204).send();
 

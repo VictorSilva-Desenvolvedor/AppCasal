@@ -72,7 +72,7 @@ async function create(req, res) {
   await logActivity({
     actor: req.userId,
     action: 'created',
-    event,
+    item: event,
     details: `Criou o evento para ${formatDate(event.date)}`,
     team: req.userTeam,
   });
@@ -120,7 +120,7 @@ async function update(req, res) {
   await logActivity({
     actor: req.userId,
     action: 'updated',
-    event,
+    item: event,
     details: buildUpdateDetails(before, event),
     team: req.userTeam,
   });
@@ -148,8 +148,7 @@ async function remove(req, res) {
   await logActivity({
     actor: req.userId,
     action: 'deleted',
-    event,
-    eventTitle: event.title,
+    itemTitle: event.title,
     details: `Excluiu o evento de ${formatDate(event.date)}`,
     team: req.userTeam,
   });

@@ -1,14 +1,33 @@
 const FinanceEntry = require('../models/FinanceEntry');
 const FinanceMonth = require('../models/FinanceMonth');
+const FinanceGoal = require('../models/FinanceGoal');
 const Reimbursement = require('../models/Reimbursement');
 const { notifyPartner } = require('../services/notificationService');
+const { logActivity } = require('../services/activityLogger');
 
 const ENTRY_POPULATE = [
   { path: 'category' },
   { path: 'paidBy', select: 'name' },
   { path: 'sharedWith', select: 'name' },
   { path: 'creator', select: 'name' },
+  { path: 'linkedGoal', select: 'name' },
 ];
+
+async function syncLinkedGoal(entry) {
+  if (!entry.linkedGoal || entry.goalSynced) return;
+  if (entry.paidAmount < entry.amount) return;
+
+  const goalId = entry.linkedGoal._id || entry.linkedGoal;
+  const goal = await FinanceGoal.findById(goalId);
+  if (!goal) return;
+
+  const goalUpdate = { currentAmount: goal.currentAmount + entry.paidAmount };
+  if (goal.totalInstallments) {
+    goalUpdate.paidInstallments = Math.min(goal.totalInstallments, goal.paidInstallments + 1);
+  }
+  await FinanceGoal.findByIdAndUpdate(goal._id, goalUpdate);
+  await FinanceEntry.findByIdAndUpdate(entry._id, { goalSynced: true });
+}
 
 async function assertMonthOpen(date, team) {
   const d = new Date(date);
@@ -71,6 +90,7 @@ async function create(req, res) {
     wishType,
     reason,
     image,
+    linkedGoal,
     sharedWith,
     splitAmount,
   } = req.body;
@@ -95,6 +115,7 @@ async function create(req, res) {
     wishType: wishType || null,
     reason: reason || '',
     image: image || null,
+    linkedGoal: linkedGoal || null,
     paidBy: req.userId,
     sharedWith: sharedWith || null,
     splitAmount: sharedWith ? splitAmount : null,
@@ -103,6 +124,17 @@ async function create(req, res) {
   });
 
   await syncReimbursement(entry, req);
+  await syncLinkedGoal(entry);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'created',
+    module: 'financeiro',
+    item: entry,
+    itemTitle: entry.description,
+    details: `Lançou ${type === 'receita' ? 'uma receita' : 'uma despesa'} de R$ ${Number(amount).toFixed(2)}`,
+    team: req.userTeam,
+  });
 
   const populated = await entry.populate(ENTRY_POPULATE);
   res.status(201).json(populated);
@@ -128,6 +160,7 @@ async function update(req, res) {
     wishType,
     reason,
     image,
+    linkedGoal,
     sharedWith,
     splitAmount,
   } = req.body;
@@ -161,6 +194,7 @@ async function update(req, res) {
       wishType: wishType || null,
       reason,
       image: image || null,
+      linkedGoal: linkedGoal || null,
       sharedWith: sharedWith || null,
       splitAmount: sharedWith ? splitAmount : null,
     },
@@ -168,6 +202,17 @@ async function update(req, res) {
   ).populate(ENTRY_POPULATE);
 
   await syncReimbursement(entry, req);
+  await syncLinkedGoal(entry);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'financeiro',
+    item: entry,
+    itemTitle: entry.description,
+    details: 'Lançamento atualizado',
+    team: req.userTeam,
+  });
 
   res.json(entry);
 
@@ -195,6 +240,14 @@ async function remove(req, res) {
 
   await FinanceEntry.findByIdAndDelete(entry._id);
   await Reimbursement.deleteMany({ relatedEntry: entry._id });
+
+  await logActivity({
+    actor: req.userId,
+    action: 'deleted',
+    module: 'financeiro',
+    itemTitle: entry.description,
+    team: req.userTeam,
+  });
 
   res.status(204).send();
 

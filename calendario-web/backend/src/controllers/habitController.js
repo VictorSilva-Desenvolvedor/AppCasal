@@ -3,6 +3,7 @@ const HabitCheckin = require('../models/HabitCheckin');
 const HabitReminderLog = require('../models/HabitReminderLog');
 const { todayKeyInTimezone } = require('../utils/dayKey');
 const { notifyPartner } = require('../services/notificationService');
+const { logActivity } = require('../services/activityLogger');
 
 const POPULATE = [
   { path: 'createdBy', select: 'name' },
@@ -152,6 +153,16 @@ async function create(req, res) {
     team: req.userTeam,
   });
   const populated = await habit.populate(POPULATE);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'created',
+    module: 'habito',
+    item: habit,
+    itemTitle: habit.name,
+    team: req.userTeam,
+  });
+
   res.status(201).json(populated);
 
   notifyPartner({
@@ -267,6 +278,16 @@ async function update(req, res) {
   await habit.save();
   await habit.populate(POPULATE);
 
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'habito',
+    item: habit,
+    itemTitle: habit.name,
+    details: 'Hábito atualizado',
+    team: req.userTeam,
+  });
+
   res.json(habit);
 
   notifyPartner({
@@ -290,6 +311,17 @@ async function archive(req, res) {
   habit.active = false;
   await habit.save();
   await habit.populate(POPULATE);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'archived',
+    module: 'habito',
+    item: habit,
+    itemTitle: habit.name,
+    details: 'Hábito arquivado',
+    team: req.userTeam,
+  });
+
   res.json(habit);
 
   notifyPartner({
@@ -316,6 +348,15 @@ async function remove(req, res) {
   await Habit.findByIdAndDelete(habit._id);
   await HabitCheckin.deleteMany({ habit: habit._id });
   await HabitReminderLog.deleteMany({ habit: habit._id });
+
+  await logActivity({
+    actor: req.userId,
+    action: 'deleted',
+    module: 'habito',
+    itemTitle: habit.name,
+    details: 'Hábito excluído permanentemente',
+    team: req.userTeam,
+  });
 
   res.status(204).send();
 

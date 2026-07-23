@@ -18,11 +18,12 @@ const EMPTY_FORM = {
   nature: 'unica',
   wishType: '',
   reason: '',
+  linkedGoal: '',
   sharedWith: '',
   splitAmount: '',
 };
 
-export function FinanceEntryForm({ categories, users, monthLocked, editingEntry, forcedType, onSaved, onCancelEdit }) {
+export function FinanceEntryForm({ categories, users, goals = [], monthLocked, editingEntry, forcedType, onSaved, onCancelEdit }) {
   const { user } = useAuth();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
@@ -54,6 +55,7 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         nature: editingEntry.nature || 'unica',
         wishType: editingEntry.wishType || '',
         reason: editingEntry.reason || '',
+        linkedGoal: editingEntry.linkedGoal?._id || '',
         sharedWith: editingEntry.sharedWith?._id || '',
         splitAmount: editingEntry.splitAmount ? String(editingEntry.splitAmount) : '',
       });
@@ -100,6 +102,7 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         wishType: form.wishType || null,
         reason: form.reason,
         image,
+        linkedGoal: form.linkedGoal || null,
         sharedWith: form.sharedWith || null,
         splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
       };
@@ -208,6 +211,25 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
               <option value="fixa">Fixa (repete todo mês)</option>
               <option value="com_prazo">Com prazo</option>
               <option value="a_decidir">A decidir</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {form.type === 'despesa' && goals.length > 0 && (
+        <div className="finance-form-row">
+          <Field label="Vincular a objetivo (opcional)" htmlFor="finance-linked-goal">
+            <select
+              id="finance-linked-goal"
+              value={form.linkedGoal}
+              onChange={(event) => update('linkedGoal', event.target.value)}
+            >
+              <option value="">Nenhum</option>
+              {goals.map((goal) => (
+                <option key={goal._id} value={goal._id}>
+                  {goal.name}
+                </option>
+              ))}
             </select>
           </Field>
         </div>

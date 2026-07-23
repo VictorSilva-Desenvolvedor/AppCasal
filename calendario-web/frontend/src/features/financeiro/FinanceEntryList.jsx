@@ -85,6 +85,9 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, grou
                 {entry.reason && ` — ${entry.reason}`}
               </span>
             )}
+            {entry.linkedGoal && (
+              <span className="finance-entry-item-meta">Vinculado a &quot;{entry.linkedGoal.name}&quot;</span>
+            )}
           </div>
         </div>
 

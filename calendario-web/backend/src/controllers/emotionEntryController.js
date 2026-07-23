@@ -1,5 +1,10 @@
 const EmotionEntry = require('../models/EmotionEntry');
 const { notifyPartner } = require('../services/notificationService');
+const { logActivity } = require('../services/activityLogger');
+
+// Título genérico: este controller nunca expõe a emoção/nota em texto compartilhado
+// (mesmo padrão já usado nas notificações de notifyPartner abaixo).
+const GENERIC_ITEM_TITLE = 'um registro de emoção';
 
 const ENTRY_POPULATE = { path: 'user', select: 'name' };
 
@@ -33,6 +38,16 @@ async function create(req, res) {
     team: req.userTeam,
   });
   const populated = await entry.populate(ENTRY_POPULATE);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'created',
+    module: 'emocao',
+    item: entry,
+    itemTitle: GENERIC_ITEM_TITLE,
+    team: req.userTeam,
+  });
+
   res.status(201).json(populated);
 
   notifyPartner({
@@ -80,9 +95,20 @@ async function update(req, res) {
     runValidators: true,
   }).populate(ENTRY_POPULATE);
 
+  const isHelpTextOnly = req.body.helpText !== undefined && !isOwner;
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'emocao',
+    item: updated,
+    itemTitle: GENERIC_ITEM_TITLE,
+    details: isHelpTextOnly ? 'Sugestão de apoio adicionada' : 'Registro de emoção atualizado',
+    team: req.userTeam,
+  });
+
   res.json(updated);
 
-  const isHelpTextOnly = req.body.helpText !== undefined && !isOwner;
   notifyPartner({
     actorId: req.userId,
     title: isHelpTextOnly ? 'Sugestão de apoio' : 'Registro de emoção atualizado',
@@ -104,6 +130,15 @@ async function remove(req, res) {
   }
 
   await EmotionEntry.findByIdAndDelete(entry._id);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'deleted',
+    module: 'emocao',
+    itemTitle: GENERIC_ITEM_TITLE,
+    team: req.userTeam,
+  });
+
   res.status(204).send();
 
   notifyPartner({

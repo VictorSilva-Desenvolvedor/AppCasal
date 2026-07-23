@@ -37,3 +37,7 @@ export function paymentStatus(entry) {
 export function formatEntryDate(date) {
   return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
+
+export function isGoalArchived(goal) {
+  return Boolean(goal.archivedUntil) && new Date(goal.archivedUntil) > new Date();
+}

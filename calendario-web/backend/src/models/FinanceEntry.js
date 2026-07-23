@@ -18,6 +18,8 @@ const financeEntrySchema = new mongoose.Schema(
     wishType: { type: String, enum: ['necessidade', 'desejo'], default: null },
     reason: { type: String, default: '' },
     image: { type: financeEntryImageSchema, default: null },
+    linkedGoal: { type: mongoose.Schema.Types.ObjectId, ref: 'FinanceGoal', default: null },
+    goalSynced: { type: Boolean, default: false },
     paidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     sharedWith: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     splitAmount: { type: Number, default: null, min: 0 },

@@ -31,13 +31,14 @@ function recurrenceLabel(rule) {
   return rule.interval > 1 ? `${label} (a cada ${rule.interval})` : label;
 }
 
-async function logActivity({ actor, action, event, eventTitle, details, team }) {
+async function logActivity({ actor, action, module = 'evento', item, itemTitle, itemId, details, team }) {
   try {
     await ActivityLog.create({
       actor,
       action,
-      eventTitle: eventTitle || event?.title,
-      eventId: action === 'deleted' ? null : event?._id,
+      module,
+      eventTitle: itemTitle || item?.title,
+      eventId: action === 'deleted' ? null : (itemId ?? item?._id ?? null),
       details,
       team,
     });

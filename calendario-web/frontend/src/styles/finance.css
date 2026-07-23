@@ -307,6 +307,19 @@
   @apply p-4 flex flex-col gap-2;
 }
 
+.finance-goal-card.is-archived {
+  opacity: 0.65;
+}
+
+.finance-goal-archived-badge {
+  @apply text-[0.65rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ml-2 align-middle
+    bg-bg text-text-muted border border-border;
+}
+
+.finance-archived-goals-body {
+  @apply mt-3;
+}
+
 .finance-goal-card-header {
   @apply flex items-center justify-between;
 }
@@ -332,8 +345,9 @@
 }
 
 .finance-installment-grid {
-  @apply grid gap-1 mt-1;
+  @apply grid gap-1 mt-1 overflow-y-auto;
   grid-template-columns: repeat(12, minmax(0, 1fr));
+  max-height: 6.5rem;
 }
 
 .finance-installment-cell {

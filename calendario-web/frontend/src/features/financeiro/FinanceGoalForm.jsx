@@ -15,13 +15,11 @@ const EMPTY_FORM = {
 export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit }) {
   const [type, setType] = useState(editingGoal?.type || forcedType || 'poupanca');
   const [form, setForm] = useState(EMPTY_FORM);
-  const [installmentAmountTouched, setInstallmentAmountTouched] = useState(false);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
-    setInstallmentAmountTouched(false);
     if (editingGoal) {
       setType(editingGoal.type);
       setForm({
@@ -32,7 +30,6 @@ export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit
         paidInstallments: editingGoal.paidInstallments ? String(editingGoal.paidInstallments) : '',
         notes: editingGoal.notes || '',
       });
-      setInstallmentAmountTouched(true);
     } else {
       setType(forcedType || 'poupanca');
       setForm(EMPTY_FORM);
@@ -40,12 +37,12 @@ export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit
   }, [editingGoal, forcedType]);
 
   useEffect(() => {
-    if (installmentAmountTouched || !form.targetAmount || !form.totalInstallments) return;
+    if (!form.targetAmount || !form.totalInstallments) return;
     const computed = Number(form.targetAmount) / Number(form.totalInstallments);
     if (Number.isFinite(computed)) {
       setForm((prev) => ({ ...prev, installmentAmount: computed.toFixed(2) }));
     }
-  }, [form.targetAmount, form.totalInstallments, installmentAmountTouched]);
+  }, [form.targetAmount, form.totalInstallments]);
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -142,17 +139,18 @@ export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit
               onChange={(event) => update('totalInstallments', event.target.value)}
             />
           </Field>
-          <Field label="Valor da parcela (opcional)" htmlFor="goal-installment-amount">
+          <Field
+            label={form.totalInstallments ? 'Valor da parcela (calculado)' : 'Valor da parcela (opcional)'}
+            htmlFor="goal-installment-amount"
+          >
             <input
               id="goal-installment-amount"
               type="number"
               min="0"
               step="0.01"
               value={form.installmentAmount}
-              onChange={(event) => {
-                setInstallmentAmountTouched(true);
-                update('installmentAmount', event.target.value);
-              }}
+              disabled={Boolean(form.totalInstallments)}
+              onChange={(event) => update('installmentAmount', event.target.value)}
             />
           </Field>
         </div>

@@ -12,8 +12,9 @@ import { FinanceEntryList } from './FinanceEntryList.jsx';
 import { ReimbursementWallet } from './ReimbursementWallet.jsx';
 import { FinanceGoalForm } from './FinanceGoalForm.jsx';
 import { FinanceGoals } from './FinanceGoals.jsx';
+import { ArchiveGoalForm } from './ArchiveGoalForm.jsx';
 import { FinanceImportModal } from './FinanceImportModal.jsx';
-import { currentMonthYear, monthLabel } from './financeUtils.js';
+import { currentMonthYear, isGoalArchived, monthLabel } from './financeUtils.js';
 
 const TABS = [
   { value: 'resumo', label: 'Resumo' },
@@ -60,6 +61,7 @@ export function FinanceiroPage() {
   const [addType, setAddType] = useState(null);
   const [editingGoal, setEditingGoal] = useState(null);
   const [addGoalType, setAddGoalType] = useState(null);
+  const [archivingGoal, setArchivingGoal] = useState(null);
   const [togglingMonth, setTogglingMonth] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
@@ -105,6 +107,7 @@ export function FinanceiroPage() {
   const regularEntries = entries.filter((entry) => !entry.wishType);
   const necessidadeEntries = entries.filter((entry) => entry.wishType === 'necessidade');
   const desejoEntries = entries.filter((entry) => entry.wishType === 'desejo');
+  const linkableGoals = goals.filter((goal) => !isGoalArchived(goal));
 
   async function handleToggleMonth() {
     setTogglingMonth(true);
@@ -253,7 +256,13 @@ export function FinanceiroPage() {
               Você está vendo os objetivos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um objetivo.
             </p>
           )}
-          <FinanceGoals goals={goals} onChanged={reloadGoals} onEdit={setEditingGoal} readOnly={!isMyView} />
+          <FinanceGoals
+            goals={goals}
+            onChanged={reloadGoals}
+            onEdit={setEditingGoal}
+            onArchive={setArchivingGoal}
+            readOnly={!isMyView}
+          />
         </div>
       )}
 
@@ -285,6 +294,7 @@ export function FinanceiroPage() {
           <FinanceEntryForm
             categories={categories}
             users={users}
+            goals={linkableGoals}
             monthLocked={isClosed}
             editingEntry={editingEntry}
             onSaved={async () => {
@@ -305,6 +315,7 @@ export function FinanceiroPage() {
           <FinanceEntryForm
             categories={categories}
             users={users}
+            goals={linkableGoals}
             monthLocked={isClosed}
             editingEntry={null}
             forcedType={addType}
@@ -343,6 +354,19 @@ export function FinanceiroPage() {
               setAddGoalType(null);
             }}
             onCancelEdit={() => setAddGoalType(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal open={Boolean(archivingGoal)} onClose={() => setArchivingGoal(null)} title="Arquivar objetivo">
+        {archivingGoal && (
+          <ArchiveGoalForm
+            goal={archivingGoal}
+            onArchived={async () => {
+              await reloadGoals();
+              setArchivingGoal(null);
+            }}
+            onCancel={() => setArchivingGoal(null)}
           />
         )}
       </Modal>

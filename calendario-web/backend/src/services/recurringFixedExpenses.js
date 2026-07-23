@@ -49,6 +49,8 @@ async function generateForNewMonth(month, year, team) {
       reason: entry.reason,
       nature: entry.nature,
       recurringRootId: rootId,
+      linkedGoal: entry.linkedGoal,
+      goalSynced: false,
       paidBy: entry.paidBy,
       sharedWith: entry.sharedWith,
       splitAmount: entry.splitAmount,
