@@ -1,7 +1,7 @@
 import { Card } from '../../components/ui/index.js';
 import { formatCurrency, monthLabel } from './financeUtils.js';
 
-const NATURE_LABEL = { fixa: 'Fixas', com_prazo: 'Com prazo', unica: 'Únicas' };
+const NATURE_LABEL = { fixa: 'Fixas', com_prazo: 'Com prazo', unica: 'Únicas', a_decidir: 'A decidir' };
 
 function formatPct(value) {
   if (value === null || value === undefined) return '—';

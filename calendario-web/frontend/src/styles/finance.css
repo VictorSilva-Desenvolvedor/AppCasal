@@ -218,6 +218,22 @@
   @apply mt-0;
 }
 
+.finance-entry-subsection-header {
+  @apply text-xs font-medium text-text-muted mt-2 mb-1 pl-1;
+}
+
+.finance-entry-thumb {
+  @apply w-10 h-10 rounded-sm object-cover cursor-pointer border border-border flex-shrink-0;
+}
+
+.finance-entry-image-large {
+  @apply w-full h-auto rounded-sm;
+}
+
+.finance-image-field-preview {
+  @apply flex items-center gap-2 mt-2;
+}
+
 .finance-entry-item {
   @apply p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3;
 }
@@ -313,6 +329,24 @@
 
 .finance-goal-actions input {
   @apply w-24 rounded-sm border border-border bg-bg px-2 py-1.5;
+}
+
+.finance-installment-grid {
+  @apply grid gap-1 mt-1;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.finance-installment-cell {
+  @apply text-xs font-semibold rounded-sm border border-border bg-bg text-text-muted py-1 cursor-pointer
+    transition-colors duration-150;
+}
+
+.finance-installment-cell.is-paid {
+  @apply bg-success-bg text-success border-transparent;
+}
+
+.finance-installment-cell:disabled {
+  @apply cursor-default opacity-70;
 }
 
 /* ---------- Importar planilha ---------- */
