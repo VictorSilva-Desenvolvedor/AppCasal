@@ -309,3 +309,11 @@
 .toast-warning {
   @apply border-warning text-warning;
 }
+
+.toast-action {
+  @apply ml-auto pl-3 font-bold text-primary bg-transparent border-none cursor-pointer whitespace-nowrap;
+}
+
+.toast-action:hover {
+  @apply underline;
+}

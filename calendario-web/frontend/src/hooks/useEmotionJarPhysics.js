@@ -14,6 +14,7 @@ const STEP_DT = 1 / 60;
 const INSTANT_SETTLE_STEPS = 240; // ~4s simulados — avanço instantâneo no carregamento inicial
 const MAX_REALTIME_FRAMES = 600; // trava de segurança: força repouso após ~10s reais
 const SHAKE_KICK_FACTOR = 4.5; // converte px de arraste da jarra em impulso de velocidade nas bolhas
+const POP_DURATION_MS = 320; // duração da animação CSS de "estourar" antes da remoção real do blob
 
 // Pequena variação de comportamento por categoria (seção 5 do documento:
 // "ansioso: movimento mais instável" vs. "calmo: esfera suave") — só ajusta
@@ -48,7 +49,26 @@ function createBlob(entry, bounds) {
     category: entry.category || 'neutra',
     resting: false,
     restFrames: 0,
+    popping: false,
+    poppedAt: null,
   };
+}
+
+// Remove definitivamente blobs cujo tempo de animação de "pop" (CSS) já
+// expirou e acorda os remanescentes (resting=false) pra reacomodarem por
+// gravidade — sem isso, um blob removido deixaria um vão "flutuando" no
+// lugar, com os blobs de cima presos na posição de repouso antiga.
+function removeExpiredPops(blobs, now) {
+  const before = blobs.length;
+  const remaining = blobs.filter((b) => !(b.popping && now - b.poppedAt >= POP_DURATION_MS));
+  const removedSome = remaining.length < before;
+  if (removedSome) {
+    remaining.forEach((b) => {
+      b.resting = false;
+      b.restFrames = 0;
+    });
+  }
+  return { blobs: remaining, removedSome };
 }
 
 function resolveBlobCollision(a, b) {
@@ -96,7 +116,7 @@ function resolveBlobCollision(a, b) {
 
 function stepPhysics(blobs, dt, bounds) {
   blobs.forEach((b) => {
-    if (b.resting) return;
+    if (b.resting || b.popping) return;
 
     const tuning = CATEGORY_TUNING[b.category] || DEFAULT_TUNING;
 
@@ -124,12 +144,13 @@ function stepPhysics(blobs, dt, bounds) {
 
   for (let i = 0; i < blobs.length; i++) {
     for (let j = i + 1; j < blobs.length; j++) {
+      if (blobs[i].popping || blobs[j].popping) continue;
       resolveBlobCollision(blobs[i], blobs[j]);
     }
   }
 
   blobs.forEach((b) => {
-    if (b.resting) return;
+    if (b.resting || b.popping) return;
     const speed = Math.hypot(b.vx, b.vy);
     if (speed < REST_SPEED) {
       b.restFrames += 1;
@@ -195,10 +216,13 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey) {
         return;
       }
 
+      const { blobs: afterPop } = removeExpiredPops(blobsRef.current, time);
+      blobsRef.current = afterPop;
+
       stepPhysics(blobsRef.current, dt, bounds);
       publish();
 
-      if (blobsRef.current.some((b) => !b.resting)) {
+      if (blobsRef.current.some((b) => !b.resting || b.popping)) {
         rafRef.current = requestAnimationFrame(frame);
       } else {
         rafRef.current = null;
@@ -228,12 +252,30 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey) {
     }
 
     const currentIds = new Set(entries.map((e) => e._id));
-    blobsRef.current = blobsRef.current.filter((b) => currentIds.has(b.id));
+
+    // Um id que saiu de `entries` não é removido na hora — é marcado como
+    // "popping" pra tocar a animação CSS de estourar; a remoção de fato (e o
+    // acordar dos remanescentes pra reacomodar) acontece dentro do loop de
+    // física, em removeExpiredPops(). Se um id popping reaparecer (Desfazer
+    // clicado a tempo), a física retoma normalmente.
+    let removedAny = false;
+    blobsRef.current.forEach((b) => {
+      if (currentIds.has(b.id)) {
+        if (b.popping) {
+          b.popping = false;
+          b.poppedAt = null;
+        }
+      } else if (!b.popping) {
+        b.popping = true;
+        b.poppedAt = performance.now();
+        removedAny = true;
+      }
+    });
 
     const existingIds = new Set(blobsRef.current.map((b) => b.id));
     const newEntries = entries.filter((e) => !existingIds.has(e._id));
 
-    if (!newEntries.length) {
+    if (!newEntries.length && !removedAny) {
       publish();
       return;
     }
