@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui/index.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
-import { TYPE_META, ratingByUser, isFullyRated, initialOf } from './watchlistUtils.js';
+import { TYPE_META, RATING_SCALE, ratingByUser, isFullyRated, initialOf } from './watchlistUtils.js';
 
 function HeartsDisplay({ hearts }) {
   return (
@@ -74,6 +74,23 @@ export function WatchlistCard({
       </button>
 
       <h4 className="watchlist-card-title">{item.title}</h4>
+
+      {(item.genres?.length > 0 || item.duration || item.rating != null) && (
+        <div className="watchlist-card-meta">
+          {item.genres?.slice(0, 2).map((genre) => (
+            <span key={genre} className="watchlist-genre-chip">
+              {genre}
+            </span>
+          ))}
+          {item.duration && <span>{item.duration}</span>}
+          {item.rating != null && (
+            <span>
+              ★ {item.rating}/{RATING_SCALE[item.type] ?? 10}
+            </span>
+          )}
+        </div>
+      )}
+
       {item.note && <p className="watchlist-card-note">"{item.note}"</p>}
 
       <div className="watchlist-card-footer">

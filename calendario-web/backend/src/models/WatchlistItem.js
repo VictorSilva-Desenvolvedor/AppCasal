@@ -15,6 +15,14 @@ const watchlistItemSchema = new mongoose.Schema(
 
     note: { type: String, default: '', trim: true, maxlength: 280 },
     posterUrl: { type: String, default: '', trim: true },
+
+    // Metadados vindos do TMDB/RAWG na hora de escolher a capa (services/posterSearch.js).
+    genres: { type: [String], default: [] },
+    director: { type: String, default: '', trim: true },
+    duration: { type: String, default: '', trim: true },
+    rating: { type: Number, default: null },
+    synopsis: { type: String, default: '', trim: true, maxlength: 500 },
+
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }

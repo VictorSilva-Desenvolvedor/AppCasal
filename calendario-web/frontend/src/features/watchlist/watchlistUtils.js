@@ -10,6 +10,10 @@ export const TYPE_META = {
   jogo: { label: 'Jogo', emoji: '🎮', icon: 'gamepad', colorVar: '--watch-rosa' },
 };
 
+export const DIRECTOR_LABEL = { filme: 'Direção', serie: 'Criação', jogo: 'Desenvolvedora' };
+export const RATING_SCALE = { filme: 10, serie: 10, jogo: 5 };
+export const RATING_SOURCE = { filme: 'TMDB', serie: 'TMDB', jogo: 'RAWG' };
+
 function ratingUserId(rating) {
   return rating.user?._id ?? rating.user;
 }
