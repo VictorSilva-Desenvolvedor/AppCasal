@@ -301,6 +301,18 @@ function deleteHabitCheckin(id) {
   return request(`/habit-checkins/${id}`, { method: 'DELETE' });
 }
 
+function freezeHabit(id, day) {
+  return request(`/habits/${id}/freeze`, { method: 'POST', body: { day } });
+}
+
+function setHabitCheckinReaction(id, emoji) {
+  return request(`/habit-checkins/${id}/reactions`, { method: 'POST', body: { emoji } });
+}
+
+function removeHabitCheckinReaction(id) {
+  return request(`/habit-checkins/${id}/reactions`, { method: 'DELETE' });
+}
+
 function getVapidPublicKey() {
   return request('/push/vapid-public-key');
 }
@@ -311,6 +323,44 @@ function subscribePush(subscription) {
 
 function unsubscribePush(endpoint) {
   return request('/push/unsubscribe', { method: 'POST', body: { endpoint } });
+}
+
+function getWatchlistItems(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/watchlist-items${query ? `?${query}` : ''}`);
+}
+
+function createWatchlistItem(payload) {
+  return request('/watchlist-items', { method: 'POST', body: payload });
+}
+
+function updateWatchlistItem(id, payload) {
+  return request(`/watchlist-items/${id}`, { method: 'PUT', body: payload });
+}
+
+function deleteWatchlistItem(id) {
+  return request(`/watchlist-items/${id}`, { method: 'DELETE' });
+}
+
+function getWatchlistRatings(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/watchlist-ratings${query ? `?${query}` : ''}`);
+}
+
+function createWatchlistRating(payload) {
+  return request('/watchlist-ratings', { method: 'POST', body: payload });
+}
+
+function updateWatchlistRating(id, payload) {
+  return request(`/watchlist-ratings/${id}`, { method: 'PUT', body: payload });
+}
+
+function deleteWatchlistRating(id) {
+  return request(`/watchlist-ratings/${id}`, { method: 'DELETE' });
 }
 
 export const api = {
@@ -355,6 +405,9 @@ export const api = {
   getHabitCheckins,
   createHabitCheckin,
   deleteHabitCheckin,
+  freezeHabit,
+  setHabitCheckinReaction,
+  removeHabitCheckinReaction,
   getFinanceCategories,
   createFinanceCategory,
   updateFinanceCategory,
@@ -378,6 +431,14 @@ export const api = {
   reopenFinanceMonth,
   previewFinanceImport,
   commitFinanceImport,
+  getWatchlistItems,
+  createWatchlistItem,
+  updateWatchlistItem,
+  deleteWatchlistItem,
+  getWatchlistRatings,
+  createWatchlistRating,
+  updateWatchlistRating,
+  deleteWatchlistRating,
 };
 
 export { API_BASE_URL };

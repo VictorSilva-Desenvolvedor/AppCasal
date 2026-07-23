@@ -7,9 +7,13 @@ import { useToast } from '../../hooks/useToast.js';
 import { HabitCard } from './HabitCard.jsx';
 import { HabitForm } from './HabitForm.jsx';
 import { HabitCheckinForm } from './HabitCheckinForm.jsx';
+import { HabitSubtaskChecklist } from './HabitSubtaskChecklist.jsx';
+import { HabitJointWaitingView } from './HabitJointWaitingView.jsx';
 import { HabitHistoryView } from './HabitHistoryView.jsx';
 import { HabitLogo } from './HabitLogo.jsx';
-import { groupCheckinsByHabit, toDayKey } from './habitUtils.js';
+import { groupCheckinsByHabit, groupCheckinsByDay, isDayComplete, toDayKey } from './habitUtils.js';
+
+const JOINT_CHECKIN_TYPES = ['casal', 'espelhado'];
 
 export function HabitosPage() {
   const { users } = useCalendarData();
@@ -22,6 +26,7 @@ export function HabitosPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
   const [checkinHabit, setCheckinHabit] = useState(null);
+  const [checkinMode, setCheckinMode] = useState('form'); // 'form' | 'waiting'
   const [historyHabit, setHistoryHabit] = useState(null);
 
   const reload = useCallback(async () => {
@@ -65,9 +70,36 @@ export function HabitosPage() {
     }
   }
 
-  function handleCheckinSaved() {
+  function handleCheckinModalClose() {
     setCheckinHabit(null);
+    setCheckinMode('form');
+  }
+
+  async function handleCheckinSaved() {
+    const habit = checkinHabit;
+    await reload();
+
+    if (habit && JOINT_CHECKIN_TYPES.includes(habit.type)) {
+      const todayKey = toDayKey(new Date());
+      try {
+        const freshCheckins = await api.getHabitCheckins({ habit: habit._id, day: todayKey });
+        const checkinsByDay = groupCheckinsByDay(freshCheckins);
+        if (!isDayComplete(habit, todayKey, checkinsByDay, users)) {
+          setCheckinMode('waiting');
+          return;
+        }
+      } catch {
+        // se a checagem falhar, cai no comportamento padrão de fechar o modal
+      }
+    }
+
+    handleCheckinModalClose();
+  }
+
+  function handleJointComplete() {
+    showToast('Vocês completaram juntos! 💕', 'success');
     reload();
+    handleCheckinModalClose();
   }
 
   return (
@@ -103,6 +135,8 @@ export function HabitosPage() {
             onEdit={handleOpenEdit}
             onArchive={handleArchive}
             onViewHistory={setHistoryHabit}
+            onFrozen={reload}
+            onReacted={reload}
           />
         ))}
       </div>
@@ -123,17 +157,35 @@ export function HabitosPage() {
 
       <Modal
         open={!!checkinHabit}
-        onClose={() => setCheckinHabit(null)}
-        title={`Check-in: ${checkinHabit?.name ?? ''}`}
+        onClose={handleCheckinModalClose}
+        title={checkinMode === 'waiting' ? 'Check-in conjunto' : `Check-in: ${checkinHabit?.name ?? ''}`}
       >
-        {checkinHabit && (
-          <HabitCheckinForm
+        {checkinHabit && checkinMode === 'waiting' && (
+          <HabitJointWaitingView
             habit={checkinHabit}
             day={toDayKey(new Date())}
-            onSaved={handleCheckinSaved}
-            onCancel={() => setCheckinHabit(null)}
+            users={users}
+            onComplete={handleJointComplete}
+            onClose={handleCheckinModalClose}
           />
         )}
+        {checkinHabit &&
+          checkinMode === 'form' &&
+          (checkinHabit.type === 'colaborativo' ? (
+            <HabitSubtaskChecklist
+              habit={checkinHabit}
+              day={toDayKey(new Date())}
+              checkins={checkinsByHabit.get(checkinHabit._id) || []}
+              onChanged={reload}
+            />
+          ) : (
+            <HabitCheckinForm
+              habit={checkinHabit}
+              day={toDayKey(new Date())}
+              onSaved={handleCheckinSaved}
+              onCancel={handleCheckinModalClose}
+            />
+          ))}
       </Modal>
 
       <Modal open={!!historyHabit} onClose={() => setHistoryHabit(null)} title={`Histórico: ${historyHabit?.name ?? ''}`}>

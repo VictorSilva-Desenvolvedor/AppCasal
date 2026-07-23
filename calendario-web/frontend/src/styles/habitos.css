@@ -346,3 +346,259 @@
 .habit-history-legend-item .habit-history-cell {
   @apply w-4 h-4;
 }
+
+.habit-history-cell--frozen {
+  background: color-mix(in oklch, #7fc7d9 45%, transparent);
+  color: color-mix(in oklch, #2f7d95 85%, var(--habit-text));
+}
+
+.habit-history-subtitle {
+  @apply text-sm font-semibold mt-4 mb-2;
+  font-family: 'Quicksand', var(--font-sans);
+  color: var(--habit-text);
+}
+
+.habit-history-subtitle:first-child {
+  @apply mt-0;
+}
+
+/* ---------- Progresso semanal / turno (alternado) ---------- */
+
+.habit-week-progress {
+  @apply text-xs m-0;
+  color: var(--habit-text-muted);
+}
+
+.habit-turn-chip {
+  @apply flex items-center gap-1.5 text-xs font-medium m-0 w-fit px-2 py-1 rounded-full;
+  background: color-mix(in oklch, var(--habit-purple) 14%, transparent);
+  color: var(--habit-purple);
+}
+
+.habit-turn-chip.is-mine {
+  background: var(--habit-coral);
+  color: #fff;
+}
+
+.habit-turn-chip .icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- Colaborativo: resumo + checklist ---------- */
+
+.habit-subtask-summary {
+  @apply text-xs font-semibold w-fit px-2.5 py-1 rounded-full border-none cursor-pointer;
+  background: color-mix(in oklch, var(--habit-teal) 18%, transparent);
+  color: color-mix(in oklch, var(--habit-teal) 70%, var(--habit-text));
+}
+
+.habit-subtask-checklist {
+  @apply flex flex-col gap-2 m-0 p-0 list-none;
+}
+
+.habit-subtask-item {
+  @apply flex items-center gap-2 text-sm;
+}
+
+.habit-subtask-checkbox {
+  @apply flex items-center justify-center w-6 h-6 rounded-md border cursor-pointer flex-shrink-0;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--habit-teal);
+}
+
+.habit-subtask-item.is-done .habit-subtask-checkbox {
+  background: var(--habit-teal);
+  border-color: var(--habit-teal);
+  color: #fff;
+}
+
+.habit-subtask-checkbox .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.habit-subtask-label {
+  @apply flex-1;
+}
+
+.habit-subtask-item.is-done .habit-subtask-label {
+  text-decoration: line-through;
+  color: var(--habit-text-muted);
+}
+
+.habit-subtask-by {
+  @apply text-xs;
+  color: var(--habit-text-muted);
+}
+
+.habit-subtask-editor {
+  @apply flex flex-col gap-2;
+}
+
+.habit-subtask-editor-row {
+  @apply flex items-center gap-2;
+}
+
+.habit-subtask-editor-row input {
+  @apply flex-1;
+}
+
+/* ---------- Reação rápida ---------- */
+
+.habit-reaction-picker {
+  @apply relative inline-flex items-center gap-1 ml-1;
+}
+
+.habit-reaction-trigger {
+  @apply inline-flex items-center justify-center w-5 h-5 rounded-full border-none cursor-pointer text-xs leading-none;
+  background: color-mix(in oklch, var(--habit-text) 10%, transparent);
+  color: var(--habit-text-muted);
+}
+
+.habit-reaction-trigger.is-active {
+  background: transparent;
+}
+
+.habit-reaction-options {
+  @apply absolute z-10 flex gap-1 p-1.5 rounded-full;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 4px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+.habit-reaction-options button {
+  @apply text-base leading-none border-none bg-transparent cursor-pointer;
+}
+
+.habit-reaction-summary {
+  @apply text-xs;
+}
+
+/* ---------- Freeze ---------- */
+
+.habit-freeze-btn {
+  color: color-mix(in oklch, #7fc7d9 70%, var(--habit-text));
+}
+
+.habit-freeze-btn:disabled {
+  @apply opacity-40 cursor-not-allowed;
+}
+
+/* ---------- Desafio de recuperação ---------- */
+
+.habit-recovery-banner {
+  @apply flex flex-col gap-1.5 p-3 rounded-md text-xs;
+  background: color-mix(in oklch, var(--habit-peach) 45%, transparent);
+}
+
+.habit-recovery-title {
+  @apply font-semibold;
+  color: var(--habit-text);
+}
+
+.habit-recovery-progress {
+  @apply w-full h-1.5 rounded-full overflow-hidden;
+  background: color-mix(in oklch, var(--habit-text) 12%, transparent);
+}
+
+.habit-recovery-progress-fill {
+  @apply h-full rounded-full;
+  background: linear-gradient(90deg, var(--habit-coral), var(--habit-purple));
+  transition: width 0.3s var(--ease);
+}
+
+.habit-recovery-hint {
+  color: var(--habit-text-muted);
+}
+
+/* ---------- Check-in conjunto (tela de espera) ---------- */
+
+.habit-joint-waiting {
+  @apply flex flex-col items-center text-center gap-3 py-6;
+}
+
+.habit-joint-waiting-icon {
+  color: var(--habit-coral);
+}
+
+.habit-joint-waiting-icon .icon {
+  width: 48px;
+  height: 48px;
+}
+
+.habit-joint-waiting-text {
+  color: var(--habit-text-muted);
+}
+
+@keyframes habit-joint-celebration {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.35);
+  }
+  60% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.habit-joint-celebration {
+  animation: habit-joint-celebration 0.7s var(--ease);
+}
+
+/* ---------- Gráfico de histórico de streaks ---------- */
+
+.habit-streak-chart {
+  @apply flex items-end gap-2 h-24 mb-2;
+}
+
+.habit-streak-chart-empty {
+  @apply text-sm;
+  color: var(--habit-text-muted);
+}
+
+.habit-streak-chart-bar-wrap {
+  @apply flex flex-col items-center justify-end gap-1 flex-1 h-full;
+}
+
+.habit-streak-chart-bar {
+  @apply w-full rounded-t-sm;
+  min-height: 4px;
+  background: color-mix(in oklch, var(--habit-peach) 65%, transparent);
+}
+
+.habit-streak-chart-bar.is-current {
+  background: var(--habit-teal);
+}
+
+.habit-streak-chart-value {
+  @apply text-xs;
+  color: var(--habit-text-muted);
+}
+
+/* ---------- Frequência: dias da semana ---------- */
+
+.habit-weekday-picker {
+  @apply flex flex-wrap gap-3 text-sm;
+}
+
+.habit-weekday-picker label {
+  @apply flex items-center gap-1.5;
+}
+
+.habit-form-hint {
+  @apply text-sm;
+  color: var(--habit-text-muted);
+}
+
+.habit-form-sections {
+  @apply flex-wrap mb-4;
+}

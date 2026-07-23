@@ -1,0 +1,417 @@
+/*
+  Identidade visual — Watchlist a Dois. Fonte própria (Fraunces, só pra
+  títulos) e paleta quente/afetiva (--watch-*) escopadas dentro de
+  .watchlist-page: não sobrescrevem os tokens globais do app (tokens.css),
+  usados pelo resto do AppCasal (Calendário, Financeiro, Configurações etc.
+  continuam em Inter + paleta de tema indigo). Mesmo padrão de habitos.css e
+  emocoes.css.
+*/
+@import '@fontsource/fraunces/500.css';
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/fraunces/700.css';
+
+.watchlist-page {
+  --watch-bg: #faf6f1;
+  --watch-text: #2b2530;
+  --watch-text-muted: color-mix(in oklch, var(--watch-text) 55%, transparent);
+
+  --watch-terracota: #d97757;
+  --watch-petroleo: #3b6e8f;
+  --watch-rosa: #c97b9a;
+  --watch-vinho: #8c3b4a;
+
+  --watch-col-quero: #ede9f2;
+  --watch-col-vendo: #f5e6b8;
+  --watch-col-visto: #d8e2d3;
+
+  --watch-card-bg: color-mix(in oklch, var(--watch-rosa) 8%, white);
+
+  @apply relative pb-24;
+  font-family: 'Inter', var(--font-sans);
+  color: var(--watch-text);
+  background: var(--watch-bg);
+
+  /* Cantos mais generosos em toda a feature (post-it, não retângulo de
+     produtividade) — sobrescreve os tokens globais de raio só aqui dentro;
+     Card/Button/Modal herdam automaticamente por consumirem var(). */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+}
+
+[data-theme='dark'] .watchlist-page {
+  --watch-bg: #1f1b24;
+  --watch-text: #f5efe6;
+  --watch-text-muted: color-mix(in oklch, var(--watch-text) 55%, transparent);
+  --watch-card-bg: color-mix(in oklch, var(--watch-rosa) 16%, #241f2b);
+}
+
+/* Modal.jsx renderiza inline (sem portal), então o título do modal aberto a
+   partir desta página também é descendente de .watchlist-page. */
+.watchlist-page .modal-header h2 {
+  font-family: 'Fraunces', var(--font-sans);
+  font-weight: 600;
+}
+
+/* Botão primário (Adicionar/Avaliar) usa o vinho de destaque — o único lugar
+   além dos corações onde essa cor aparece, por pedido explícito do usuário
+   (accent só em detalhes, nunca em áreas grandes). */
+.watchlist-page .btn-primary {
+  background: var(--watch-vinho);
+  color: #fff;
+}
+.watchlist-page .btn-primary:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--watch-vinho) 85%, black);
+}
+.watchlist-page .btn-primary:active:not(:disabled) {
+  background: color-mix(in oklch, var(--watch-vinho) 72%, black);
+}
+
+/* ---------- Cabeçalho ---------- */
+
+.watchlist-page-header {
+  @apply flex items-center gap-3 justify-between mb-4;
+}
+.watchlist-page-header-title {
+  @apply flex items-center gap-2;
+}
+.watchlist-page-title {
+  @apply text-2xl font-semibold m-0;
+  font-family: 'Fraunces', var(--font-sans);
+  font-weight: 600;
+}
+
+/* ---------- Filtros rápidos ---------- */
+
+.watchlist-filters {
+  @apply flex flex-wrap items-center justify-between gap-3 mb-4;
+}
+
+.watchlist-type-toggle {
+  @apply flex flex-wrap gap-2;
+}
+
+.watchlist-type-toggle-btn {
+  @apply text-sm font-semibold px-3 py-1.5 rounded-full border cursor-pointer inline-flex items-center gap-1.5;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--watch-text-muted);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.watchlist-type-toggle-btn.is-active {
+  background: var(--watch-type-color, var(--watch-vinho));
+  border-color: var(--watch-type-color, var(--watch-vinho));
+  color: #fff;
+}
+
+.watchlist-pending-toggle.is-active {
+  background: var(--watch-vinho);
+  border-color: var(--watch-vinho);
+}
+
+/* ---------- Board / colunas ---------- */
+
+.watchlist-board {
+  @apply flex flex-col md:flex-row gap-4 items-stretch md:items-start;
+}
+
+.watchlist-column {
+  @apply flex-1 min-w-0 rounded-lg shadow-sm flex flex-col gap-3;
+  padding: 0.85rem;
+}
+
+.watchlist-column--quero-ver {
+  background: var(--watch-col-quero);
+}
+.watchlist-column--em-andamento {
+  background: var(--watch-col-vendo);
+}
+.watchlist-column--visto-ouvido {
+  background: var(--watch-col-visto);
+}
+
+[data-theme='dark'] .watchlist-column--quero-ver {
+  background: color-mix(in oklch, #ede9f2 22%, var(--watch-bg));
+}
+[data-theme='dark'] .watchlist-column--em-andamento {
+  background: color-mix(in oklch, #f5e6b8 20%, var(--watch-bg));
+}
+[data-theme='dark'] .watchlist-column--visto-ouvido {
+  background: color-mix(in oklch, #d8e2d3 20%, var(--watch-bg));
+}
+
+.watchlist-column h3 {
+  @apply flex items-center gap-2 text-sm uppercase tracking-wide m-0;
+  font-family: 'Fraunces', var(--font-sans);
+  color: var(--watch-text);
+  opacity: 0.85;
+}
+
+.watchlist-column-count {
+  @apply text-xs px-2 py-[0.1rem] rounded-full font-bold;
+  background: color-mix(in oklch, var(--watch-vinho) 16%, white);
+  color: var(--watch-vinho);
+}
+
+.watchlist-column-list {
+  @apply flex flex-col gap-3;
+  min-height: 60px;
+}
+
+.watchlist-empty {
+  @apply text-sm italic;
+  color: var(--watch-text-muted);
+}
+
+/* Mesmo mecanismo visual do .update-column-list.drag-over, só com o vinho no
+   lugar do indigo, pra ficar coerente com o resto da identidade da feature. */
+.watchlist-column-list.drag-over {
+  @apply rounded-md transition-[background,outline-color] duration-200;
+  background: color-mix(in oklch, var(--watch-vinho) 10%, transparent);
+  outline: 2px dashed var(--watch-vinho);
+  outline-offset: -2px;
+}
+
+/* ---------- Card ---------- */
+
+.watchlist-card {
+  @apply relative flex flex-col gap-2 cursor-grab;
+  padding: 2.1rem 1rem 1rem;
+  background: var(--watch-card-bg);
+  border-left: 4px solid var(--watch-type-color, var(--watch-vinho));
+  box-shadow: 0 6px 16px rgba(31, 27, 36, 0.1), 0 1px 3px rgba(31, 27, 36, 0.08);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+[data-theme='dark'] .watchlist-card {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-card:hover {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 10px 22px rgba(31, 27, 36, 0.14), 0 2px 5px rgba(31, 27, 36, 0.1);
+}
+
+.watchlist-card.dragging {
+  @apply opacity-50 cursor-grabbing;
+}
+
+.watchlist-card-badge {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.7rem;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.watchlist-card-delete {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 28px;
+  height: 28px;
+}
+
+.watchlist-card-title {
+  @apply text-base m-0 pr-6;
+  font-family: 'Fraunces', var(--font-sans);
+  font-weight: 600;
+  color: var(--watch-text);
+}
+
+.watchlist-card-note {
+  @apply text-sm italic m-0;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-card-footer {
+  @apply flex items-center justify-between gap-2;
+}
+
+.watchlist-card-author {
+  @apply flex items-center gap-1.5 text-xs;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-avatar {
+  @apply inline-flex items-center justify-center rounded-full font-bold flex-shrink-0;
+  width: 20px;
+  height: 20px;
+  font-size: 0.65rem;
+  color: #fff;
+  background: var(--author-color, var(--watch-vinho));
+}
+
+/* ---------- Avaliação conjunta ---------- */
+
+.watchlist-card-ratings {
+  @apply flex flex-col gap-1.5 pt-2 mt-1 border-t;
+  border-color: color-mix(in oklch, var(--watch-text) 12%, transparent);
+}
+
+.watchlist-rating-row {
+  @apply flex items-center gap-1.5 text-xs flex-wrap;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-rating-name {
+  @apply font-semibold;
+  color: var(--watch-text);
+}
+
+.watchlist-rating-comment {
+  @apply italic;
+}
+
+.watchlist-rating-pending {
+  @apply italic opacity-70;
+}
+
+.watchlist-rate-btn {
+  @apply mt-1 text-xs w-fit;
+}
+
+.watchlist-hearts {
+  @apply inline-flex items-center gap-0.5;
+}
+
+/* Corações reaproveitam o icon-heart existente (fill:none por padrão) — a
+   classe .is-filled troca fill:none por fill:vinho, sem precisar de um par
+   de ícones "outline/filled" novo. */
+.watchlist-hearts .icon,
+.watchlist-heart-picker-btn .icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--watch-vinho);
+  transition: transform 0.15s var(--ease), fill 0.2s;
+}
+
+.watchlist-hearts .icon.is-filled,
+.watchlist-heart-picker-btn .icon.is-filled {
+  fill: var(--watch-vinho);
+}
+
+.watchlist-heart-picker {
+  @apply flex gap-1;
+}
+
+.watchlist-heart-picker-btn {
+  @apply bg-transparent border-none cursor-pointer p-1;
+}
+
+.watchlist-heart-picker-btn:hover .icon {
+  transform: scale(1.2);
+}
+
+/* ---------- Botão flutuante de adicionar ---------- */
+
+.watchlist-fab {
+  @apply fixed right-5 bottom-24 sm:bottom-8 flex items-center justify-center rounded-full border-none cursor-pointer;
+  width: 60px;
+  height: 60px;
+  background: var(--watch-vinho);
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.15s var(--ease), background-color 0.15s;
+}
+
+.watchlist-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: color-mix(in oklch, var(--watch-vinho) 85%, black);
+}
+
+.watchlist-fab:active {
+  transform: scale(0.96);
+}
+
+.watchlist-fab .icon {
+  width: 26px;
+  height: 26px;
+}
+
+/* ---------- Formulários ---------- */
+
+.watchlist-form-actions {
+  @apply flex gap-2 mt-4;
+}
+
+.watchlist-form-actions .btn {
+  @apply flex-1;
+}
+
+/* ---------- Logotipo da feature ---------- */
+
+.watchlist-logo {
+  @apply flex-shrink-0;
+}
+
+/* ---------- Microinterações: settle wobble no drop ---------- */
+
+@keyframes watchlist-settle {
+  0% {
+    transform: scale(1.04) rotate(-2deg);
+  }
+  40% {
+    transform: scale(0.98) rotate(1.5deg);
+  }
+  70% {
+    transform: scale(1.01) rotate(-0.5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.watchlist-card.just-dropped {
+  animation: watchlist-settle 0.4s var(--ease);
+}
+
+/* ---------- Microinterações: coração/confete quando os DOIS avaliam ---------- */
+
+@keyframes watchlist-heart-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+.watchlist-card.watchlist-celebrate .watchlist-card-badge {
+  animation: watchlist-heart-pulse 0.6s ease-in-out 2;
+}
+
+@keyframes watchlist-confetti-rise {
+  0% {
+    transform: translateY(0) scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-70px) scale(1) rotate(calc(var(--i) * 37deg));
+    opacity: 0;
+  }
+}
+
+.watchlist-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.watchlist-confetti-heart {
+  position: absolute;
+  left: calc(10% + (var(--i) * 10%));
+  bottom: 10%;
+  color: var(--watch-vinho);
+  font-size: 1.1rem;
+  animation: watchlist-confetti-rise 1.2s ease-out forwards;
+  animation-delay: calc(var(--i) * 0.05s);
+}

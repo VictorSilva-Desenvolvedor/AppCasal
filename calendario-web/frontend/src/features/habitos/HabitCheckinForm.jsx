@@ -6,15 +6,28 @@ import { HABIT_EMOJIS } from '../../constants/habitEmojis.js';
 
 export function HabitCheckinForm({ habit, day, onSaved, onCancel }) {
   const { showToast } = useToast();
+  const isQuantitative = habit.goalType === 'quantitativo';
   const [emoji, setEmoji] = useState(habit.emoji);
   const [note, setNote] = useState('');
+  const [value, setValue] = useState(1);
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isQuantitative && (!value || value <= 0)) {
+      showToast('Informe uma quantidade maior que zero', 'error');
+      return;
+    }
+
     setSaving(true);
     try {
-      const checkin = await api.createHabitCheckin({ habit: habit._id, day, note, emoji });
+      const checkin = await api.createHabitCheckin({
+        habit: habit._id,
+        day,
+        note,
+        emoji,
+        value: isQuantitative ? Number(value) : undefined,
+      });
       showToast('Check-in registrado!', 'success');
       onSaved(checkin);
     } catch (err) {
@@ -26,6 +39,20 @@ export function HabitCheckinForm({ habit, day, onSaved, onCancel }) {
 
   return (
     <form className="habit-checkin-form" onSubmit={handleSubmit}>
+      {isQuantitative && (
+        <Field label={`Quantidade${habit.unit ? ` (${habit.unit})` : ''}`} htmlFor="habit-checkin-value">
+          <input
+            id="habit-checkin-value"
+            type="number"
+            min="0.01"
+            step="0.01"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            autoFocus
+          />
+        </Field>
+      )}
+
       <Field label="Como foi?">
         <div className="habit-emoji-picker">
           {HABIT_EMOJIS.map((option) => (
@@ -57,7 +84,7 @@ export function HabitCheckinForm({ habit, day, onSaved, onCancel }) {
           Cancelar
         </Button>
         <Button type="submit" loading={saving}>
-          Concluir hoje
+          {isQuantitative ? 'Registrar' : 'Concluir hoje'}
         </Button>
       </div>
     </form>

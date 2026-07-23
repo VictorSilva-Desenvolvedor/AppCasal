@@ -11,6 +11,11 @@ const FinanceGoal = require('./models/FinanceGoal');
 const COUPLE_PASSWORD = '2605';
 const COUPLE_NAMES = ['Victor', 'Maria'];
 
+// Conta fixa para verificação manual/dev (curl, Playwright, etc.) — reaproveitar
+// sempre essa conta em vez de registrar uma nova a cada sessão de teste.
+const TEST_USER_NAME = 'Teste';
+const TEST_USER_PASSWORD = 'Teste@123';
+
 // Data real migrada da planilha "Orçamento mensal 14 julho lIMPO.xlsx" do casal.
 const BUDGET_REFERENCE_DATE = new Date(2026, 6, 14);
 
@@ -115,11 +120,11 @@ const BUDGET_GOALS = [
   },
 ];
 
-async function upsertUser(name) {
+async function upsertUser(name, password = COUPLE_PASSWORD) {
   let user = await User.findOne({ name });
   if (!user) {
-    user = await User.create({ name, password: COUPLE_PASSWORD });
-    console.log('Usuário criado:', name, '/', COUPLE_PASSWORD);
+    user = await User.create({ name, password });
+    console.log('Usuário criado:', name, '/', password);
   } else {
     console.log('Usuário já existia:', name);
   }
@@ -129,7 +134,8 @@ async function upsertUser(name) {
 async function seed() {
   await connectDB();
 
-  const [victor, maria] = await Promise.all(COUPLE_NAMES.map(upsertUser));
+  const [victor, maria] = await Promise.all(COUPLE_NAMES.map((name) => upsertUser(name)));
+  await upsertUser(TEST_USER_NAME, TEST_USER_PASSWORD);
 
   const existingEvents = await Event.countDocuments();
   if (existingEvents === 0) {

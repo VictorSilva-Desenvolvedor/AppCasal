@@ -1,8 +1,13 @@
 const HabitCheckin = require('../models/HabitCheckin');
 const Habit = require('../models/Habit');
-const { notifyPartnerNudge } = require('../services/habitNudgeService');
+const User = require('../models/User');
+const { notifyPartnerNudge, notifyCollaborativeNudge } = require('../services/habitNudgeService');
+const { todayKeyInTimezone, addDaysToKey } = require('../utils/dayKey');
 
-const POPULATE = { path: 'user', select: 'name' };
+const POPULATE = [
+  { path: 'user', select: 'name' },
+  { path: 'reactions.user', select: 'name' },
+];
 
 async function list(req, res) {
   const { habit, user, day } = req.query;
@@ -16,10 +21,23 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { habit: habitId, day, note, emoji } = req.body;
+  const { habit: habitId, day, note, emoji, subtask, value } = req.body;
 
   if (!habitId || !day) {
     return res.status(400).json({ message: 'Hábito e dia são obrigatórios' });
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    return res.status(400).json({ message: 'Dia inválido' });
+  }
+
+  // Check-in retroativo: só hoje ou ontem (ver suposição declarada no plano).
+  const todayKey = todayKeyInTimezone();
+  const minDay = addDaysToKey(todayKey, -1);
+  if (day > todayKey) {
+    return res.status(400).json({ message: 'Não é possível fazer check-in de um dia futuro' });
+  }
+  if (day < minDay) {
+    return res.status(400).json({ message: 'Check-in retroativo só é permitido para hoje ou ontem' });
   }
 
   const habit = await Habit.findById(habitId);
@@ -31,6 +49,35 @@ async function create(req, res) {
     err.status = 403;
     throw err;
   }
+  if (habit.type === 'alternado' && String(habit.currentTurnUserId) !== req.userId) {
+    const err = new Error('Não é sua vez neste hábito');
+    err.status = 403;
+    throw err;
+  }
+
+  let subtaskId = null;
+  if (habit.type === 'colaborativo') {
+    const matchedSubtask = habit.subtasks.find((s) => s.active && String(s._id) === subtask);
+    if (!matchedSubtask) {
+      return res.status(400).json({ message: 'Subtarefa inválida' });
+    }
+    subtaskId = matchedSubtask._id;
+    const existing = await HabitCheckin.exists({ habit: habitId, day, subtask: subtaskId });
+    if (existing) {
+      return res.status(409).json({ message: 'Essa subtarefa já foi concluída nesse dia' });
+    }
+  } else if (habit.goalType === 'quantitativo') {
+    if (!value || value <= 0) {
+      return res.status(400).json({ message: 'Informe uma quantidade maior que zero' });
+    }
+    // Múltiplos lançamentos no mesmo dia são permitidos e somados na leitura
+    // (ver HabitCheckin.js) — sem checagem de duplicidade aqui.
+  } else {
+    const existing = await HabitCheckin.exists({ habit: habitId, user: req.userId, day, subtask: null });
+    if (existing) {
+      return res.status(409).json({ message: 'Você já fez check-in nesse dia' });
+    }
+  }
 
   const checkin = await HabitCheckin.create({
     habit: habitId,
@@ -38,12 +85,24 @@ async function create(req, res) {
     note: note || '',
     emoji: emoji || '',
     user: req.userId,
+    subtask: subtaskId,
+    value: habit.goalType === 'quantitativo' ? value : null,
   });
+
+  if (habit.type === 'alternado') {
+    const otherUser = await User.findOne({ _id: { $ne: req.userId } });
+    if (otherUser) {
+      await Habit.updateOne({ _id: habit._id }, { currentTurnUserId: otherUser._id });
+    }
+  }
+
   const populated = await checkin.populate(POPULATE);
   res.status(201).json(populated);
 
-  if (habit.type === 'casal') {
+  if (['casal', 'espelhado'].includes(habit.type)) {
     notifyPartnerNudge(checkin, habit).catch((err) => console.error('Falha ao notificar parceiro:', err.message));
+  } else if (habit.type === 'colaborativo') {
+    notifyCollaborativeNudge(checkin, habit).catch((err) => console.error('Falha ao notificar parceiro:', err.message));
   }
 }
 
@@ -60,4 +119,33 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, create, remove };
+async function setReaction(req, res) {
+  const { emoji } = req.body;
+  if (!emoji) return res.status(400).json({ message: 'Emoji é obrigatório' });
+
+  const checkin = await HabitCheckin.findById(req.params.id);
+  if (!checkin) return res.status(404).json({ message: 'Check-in não encontrado' });
+  if (String(checkin.user) === req.userId) {
+    const err = new Error('Você não pode reagir ao seu próprio check-in');
+    err.status = 403;
+    throw err;
+  }
+
+  checkin.reactions = checkin.reactions.filter((r) => String(r.user) !== req.userId);
+  checkin.reactions.push({ user: req.userId, emoji });
+  await checkin.save();
+  const populated = await checkin.populate(POPULATE);
+  res.json(populated);
+}
+
+async function removeReaction(req, res) {
+  const checkin = await HabitCheckin.findById(req.params.id);
+  if (!checkin) return res.status(404).json({ message: 'Check-in não encontrado' });
+
+  checkin.reactions = checkin.reactions.filter((r) => String(r.user) !== req.userId);
+  await checkin.save();
+  const populated = await checkin.populate(POPULATE);
+  res.json(populated);
+}
+
+module.exports = { list, create, remove, setReaction, removeReaction };

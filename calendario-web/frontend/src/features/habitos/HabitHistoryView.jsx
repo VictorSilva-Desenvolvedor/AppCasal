@@ -1,8 +1,10 @@
 import { buildHistoryDays, computeDayStatus } from './habitUtils.js';
+import { HabitStreakHistoryChart } from './HabitStreakHistoryChart.jsx';
 
 const STATUS_LABEL = {
   complete: 'Completo',
   partial: 'Parcial',
+  frozen: 'Congelado',
   missed: 'Falhou',
   none: 'Sem dado',
 };
@@ -12,6 +14,10 @@ export function HabitHistoryView({ habit, checkins, users }) {
 
   return (
     <div className="habit-history">
+      <h4 className="habit-history-subtitle">Streaks ao longo do tempo</h4>
+      <HabitStreakHistoryChart habit={habit} />
+
+      <h4 className="habit-history-subtitle">Últimos 35 dias</h4>
       <div className="habit-history-grid">
         {days.map((dayKey) => {
           const status = computeDayStatus(habit, dayKey, checkins, users);
@@ -33,6 +39,9 @@ export function HabitHistoryView({ habit, checkins, users }) {
         </span>
         <span className="habit-history-legend-item">
           <span className="habit-history-cell habit-history-cell--partial" /> Parcial
+        </span>
+        <span className="habit-history-legend-item">
+          <span className="habit-history-cell habit-history-cell--frozen" /> Congelado
         </span>
         <span className="habit-history-legend-item">
           <span className="habit-history-cell habit-history-cell--missed" /> Falhou

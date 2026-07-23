@@ -30,7 +30,7 @@ export function AppShell() {
   }
 
   const showFilterBar = location.pathname.startsWith('/app/calendario');
-  const showSidebar = !['financeiro', 'atualizacoes', 'emocoes', 'habitos'].includes(getAppSection(location.pathname));
+  const showSidebar = !['financeiro', 'atualizacoes', 'emocoes', 'habitos', 'watchlist'].includes(getAppSection(location.pathname));
 
   function handleQuickNewEvent() {
     navigate('/app/calendario', { state: { quickNewEvent: true } });

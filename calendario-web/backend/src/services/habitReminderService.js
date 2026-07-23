@@ -1,62 +1,51 @@
 const Habit = require('../models/Habit');
-const HabitCheckin = require('../models/HabitCheckin');
 const HabitReminderLog = require('../models/HabitReminderLog');
 const Settings = require('../models/Settings');
 const User = require('../models/User');
 const { sendWhatsappMessage } = require('./whatsappService');
 const { sendPushNotification } = require('./pushService');
+const { todayKeyInTimezone } = require('../utils/dayKey');
+const { resolveTargetUsersAndCompletion } = require('./habitStreakService');
 
 const TIMEZONE = 'America/Sao_Paulo';
 
 // node-cron's `timezone` option só controla QUANDO o callback dispara, não o
-// que `new Date()` retorna dentro dele — por isso resolvemos hora/dia explicitamente
-// no fuso do app, em vez de confiar no relógio local do processo.
-function nowInTimezone() {
-  const now = new Date();
-  const nowStr = now.toLocaleTimeString('pt-BR', {
+// que `new Date()` retorna dentro dele — por isso resolvemos a hora atual
+// explicitamente no fuso do app, em vez de confiar no relógio local do processo.
+function currentTimeInTimezone() {
+  return new Date().toLocaleTimeString('pt-BR', {
     timeZone: TIMEZONE,
     hour: '2-digit',
     minute: '2-digit',
     hourCycle: 'h23',
   });
-  const todayStr = new Intl.DateTimeFormat('en-CA', {
-    timeZone: TIMEZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now);
-  return { nowStr, todayStr };
 }
 
 async function checkAndSendHabitReminders() {
-  const { nowStr, todayStr } = nowInTimezone();
+  const nowStr = currentTimeInTimezone();
+  const todayStr = todayKeyInTimezone();
   const habits = await Habit.find({ active: true, reminderTime: nowStr });
   if (habits.length === 0) return { sent: 0, skipped: 0 };
 
   const users = await User.find();
-  const usersById = new Map(users.map((u) => [String(u._id), u]));
 
   let sent = 0;
   let skipped = 0;
 
   for (const habit of habits) {
     try {
-      const targetIds = habit.type === 'casal' ? users.map((u) => String(u._id)) : [String(habit.owner)];
+      const targets = await resolveTargetUsersAndCompletion(habit, todayStr, users);
 
-      for (const userId of targetIds) {
-        const targetUser = usersById.get(userId);
-        if (!targetUser) continue;
+      for (const { user: targetUser, done } of targets) {
+        if (done) continue; // já completou a parte dele hoje, não precisa lembrete
 
-        const settings = await Settings.findOne({ user: userId });
+        const settings = await Settings.findOne({ user: targetUser._id });
         if (settings?.habitRemindersMuted) {
           skipped++;
           continue;
         }
 
-        const already = await HabitCheckin.exists({ habit: habit._id, user: userId, day: todayStr });
-        if (already) continue; // já fez o check-in hoje, não precisa lembrete
-
-        const filter = { habit: habit._id, user: userId, day: todayStr };
+        const filter = { habit: habit._id, user: targetUser._id, day: todayStr };
         const existingLog = await HabitReminderLog.findOneAndUpdate(
           filter,
           { $setOnInsert: filter },
