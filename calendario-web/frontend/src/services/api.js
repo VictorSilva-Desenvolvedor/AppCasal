@@ -344,6 +344,11 @@ function deleteWatchlistItem(id) {
   return request(`/watchlist-items/${id}`, { method: 'DELETE' });
 }
 
+function searchWatchlistPoster(type, query) {
+  const params = new URLSearchParams({ type, query });
+  return request(`/watchlist-items/poster-search?${params.toString()}`);
+}
+
 function getWatchlistRatings(filters = {}) {
   const query = new URLSearchParams(
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
@@ -435,6 +440,7 @@ export const api = {
   createWatchlistItem,
   updateWatchlistItem,
   deleteWatchlistItem,
+  searchWatchlistPoster,
   getWatchlistRatings,
   createWatchlistRating,
   updateWatchlistRating,

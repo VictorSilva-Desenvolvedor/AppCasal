@@ -24,7 +24,7 @@ export function WatchlistCard({
   onDelete,
   onRate,
 }) {
-  const meta = TYPE_META[item.type];
+  const meta = TYPE_META[item.type] || TYPE_META.filme;
   const authorName = item.creator?.name || 'desconhecido';
   const authorColor = item.creator ? personColorFor(users, item.creator._id) : 'var(--watch-vinho)';
   const canRate = item.status === 'visto_ouvido';
@@ -47,6 +47,7 @@ export function WatchlistCard({
   const classes = [
     'card',
     'watchlist-card',
+    item.posterUrl && 'has-poster',
     dragging && 'dragging',
     justDropped && 'just-dropped',
     fullyRated && 'is-fully-rated',
@@ -57,6 +58,8 @@ export function WatchlistCard({
 
   return (
     <div className={classes} data-type={item.type} style={{ '--watch-type-color': `var(${meta.colorVar})` }} {...dragProps}>
+      {item.posterUrl && <img className="watchlist-card-poster" src={item.posterUrl} alt="" aria-hidden="true" />}
+
       <span className="watchlist-card-badge" aria-hidden="true">
         {meta.emoji}
       </span>

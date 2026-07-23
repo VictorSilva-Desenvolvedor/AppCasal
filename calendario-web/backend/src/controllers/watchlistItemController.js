@@ -1,7 +1,9 @@
 const WatchlistItem = require('../models/WatchlistItem');
 const WatchlistRating = require('../models/WatchlistRating');
+const { searchPoster } = require('../services/posterSearch');
 
 const POPULATE = { path: 'creator', select: 'name' };
+const TYPES = ['filme', 'serie', 'jogo'];
 
 async function list(req, res) {
   const { type, status } = req.query;
@@ -14,12 +16,12 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { title, type, note } = req.body;
+  const { title, type, note, posterUrl } = req.body;
 
   if (!title || !type) {
     return res.status(400).json({ message: 'Título e tipo são obrigatórios' });
   }
-  if (!['filme', 'serie', 'musica'].includes(type)) {
+  if (!TYPES.includes(type)) {
     return res.status(400).json({ message: 'Tipo inválido' });
   }
 
@@ -27,6 +29,7 @@ async function create(req, res) {
     title,
     type,
     note: note || '',
+    posterUrl: posterUrl || '',
     creator: req.userId,
   });
 
@@ -35,12 +38,13 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { title, type, status, note } = req.body;
+  const { title, type, status, note, posterUrl } = req.body;
   const changes = {};
   if (title !== undefined) changes.title = title;
   if (type !== undefined) changes.type = type;
   if (status !== undefined) changes.status = status;
   if (note !== undefined) changes.note = note;
+  if (posterUrl !== undefined) changes.posterUrl = posterUrl;
 
   const item = await WatchlistItem.findByIdAndUpdate(req.params.id, changes, {
     new: true,
@@ -50,6 +54,17 @@ async function update(req, res) {
   if (!item) return res.status(404).json({ message: 'Item não encontrado' });
 
   res.json(item);
+}
+
+async function posterSearchHandler(req, res) {
+  const { type, query } = req.query;
+
+  if (!TYPES.includes(type)) {
+    return res.status(400).json({ message: 'Tipo inválido' });
+  }
+
+  const results = await searchPoster(type, (query || '').trim());
+  res.json(results);
 }
 
 async function remove(req, res) {
@@ -62,4 +77,4 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { list, create, update, remove };
+module.exports = { list, create, update, remove, posterSearchHandler };

@@ -206,6 +206,19 @@
   line-height: 1;
 }
 
+.watchlist-card.has-poster {
+  overflow: hidden;
+  padding-top: 0.75rem;
+}
+
+.watchlist-card-poster {
+  display: block;
+  width: calc(100% + 2rem);
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  margin: -0.75rem -1rem 0.75rem;
+}
+
 .watchlist-card-delete {
   position: absolute;
   top: 0.4rem;
@@ -333,6 +346,41 @@
 }
 
 /* ---------- Formulários ---------- */
+
+.watchlist-poster-search {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.watchlist-poster-clear {
+  @apply text-xs underline cursor-pointer bg-transparent border-none p-0;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-poster-results {
+  @apply flex gap-2 flex-wrap mt-2;
+}
+
+.watchlist-poster-option {
+  @apply cursor-pointer p-0 border-2 rounded-sm overflow-hidden;
+  width: 64px;
+  height: 96px;
+  border-color: transparent;
+  background: var(--color-surface);
+  transition: border-color 0.15s;
+}
+
+.watchlist-poster-option img {
+  @apply w-full h-full object-cover block;
+}
+
+.watchlist-poster-option.is-selected {
+  border-color: var(--watch-vinho);
+}
+
+.watchlist-poster-option-empty {
+  @apply flex items-center justify-center text-center text-xs p-1 h-full;
+  color: var(--watch-text-muted);
+}
 
 .watchlist-form-actions {
   @apply flex gap-2 mt-4;

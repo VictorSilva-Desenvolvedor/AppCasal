@@ -1,13 +1,13 @@
 export const STATUS_COLUMNS = [
-  { status: 'quero_ver', label: 'Quero ver/ouvir' },
-  { status: 'em_andamento', label: 'Vendo/Ouvindo' },
-  { status: 'visto_ouvido', label: 'Visto/Ouvido' },
+  { status: 'quero_ver', label: 'Quero ver/jogar' },
+  { status: 'em_andamento', label: 'Vendo/Jogando' },
+  { status: 'visto_ouvido', label: 'Visto/Jogado' },
 ];
 
 export const TYPE_META = {
   filme: { label: 'Filme', emoji: '🎬', icon: 'film', colorVar: '--watch-terracota' },
   serie: { label: 'Série', emoji: '📺', icon: 'tv', colorVar: '--watch-petroleo' },
-  musica: { label: 'Música', emoji: '🎵', icon: 'music', colorVar: '--watch-rosa' },
+  jogo: { label: 'Jogo', emoji: '🎮', icon: 'gamepad', colorVar: '--watch-rosa' },
 };
 
 function ratingUserId(rating) {

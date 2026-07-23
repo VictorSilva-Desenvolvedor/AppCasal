@@ -29,7 +29,7 @@ export function WatchlistFilters({ typeFilter, onTypeFilterChange, onlyPending, 
         className={`watchlist-type-toggle-btn watchlist-pending-toggle${onlyPending ? ' is-active' : ''}`}
         onClick={() => onOnlyPendingChange(!onlyPending)}
       >
-        Só o que falta ver/ouvir
+        Só o que falta ver/jogar
       </button>
     </div>
   );

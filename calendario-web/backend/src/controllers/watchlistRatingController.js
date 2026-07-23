@@ -27,7 +27,7 @@ async function create(req, res) {
     return res.status(404).json({ message: 'Item não encontrado' });
   }
   if (item.status !== 'visto_ouvido') {
-    return res.status(400).json({ message: 'Só é possível avaliar itens já vistos/ouvidos' });
+    return res.status(400).json({ message: 'Só é possível avaliar itens já vistos/jogados' });
   }
 
   const rating = await WatchlistRating.create({
