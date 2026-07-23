@@ -24,6 +24,7 @@ const watchlistItemSchema = new mongoose.Schema(
     synopsis: { type: String, default: '', trim: true, maxlength: 500 },
 
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

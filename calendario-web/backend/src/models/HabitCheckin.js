@@ -31,6 +31,7 @@ const habitCheckinSchema = new mongoose.Schema(
     value: { type: Number, default: null, min: 0 },
 
     reactions: { type: [reactionSchema], default: [] },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

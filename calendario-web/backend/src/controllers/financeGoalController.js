@@ -3,7 +3,7 @@ const { notifyPartner } = require('../services/notificationService');
 
 async function list(req, res) {
   const { creator } = req.query;
-  const filter = creator ? { creator } : {};
+  const filter = creator ? { creator, team: req.userTeam } : { team: req.userTeam };
 
   const goals = await FinanceGoal.find(filter).populate('creator', 'name').sort({ createdAt: -1 });
   res.json(goals);
@@ -27,6 +27,7 @@ async function create(req, res) {
     installmentAmount: installmentAmount || null,
     notes: notes || '',
     creator: req.userId,
+    team: req.userTeam,
   });
   await goal.populate('creator', 'name');
 
@@ -55,7 +56,7 @@ async function update(req, res) {
   } = req.body;
 
   const before = await FinanceGoal.findById(req.params.id);
-  if (!before) {
+  if (!before || String(before.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Objetivo não encontrado' });
   }
   if (String(before.creator) !== req.userId) {
@@ -84,7 +85,7 @@ async function update(req, res) {
 async function remove(req, res) {
   const goal = await FinanceGoal.findById(req.params.id);
 
-  if (!goal) {
+  if (!goal || String(goal.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Objetivo não encontrado' });
   }
   if (String(goal.creator) !== req.userId) {

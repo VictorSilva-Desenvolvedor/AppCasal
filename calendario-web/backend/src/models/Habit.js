@@ -132,6 +132,7 @@ const habitSchema = new mongoose.Schema(
 
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     active: { type: Boolean, default: true },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

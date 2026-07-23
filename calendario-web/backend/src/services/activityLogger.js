@@ -31,7 +31,7 @@ function recurrenceLabel(rule) {
   return rule.interval > 1 ? `${label} (a cada ${rule.interval})` : label;
 }
 
-async function logActivity({ actor, action, event, eventTitle, details }) {
+async function logActivity({ actor, action, event, eventTitle, details, team }) {
   try {
     await ActivityLog.create({
       actor,
@@ -39,6 +39,7 @@ async function logActivity({ actor, action, event, eventTitle, details }) {
       eventTitle: eventTitle || event?.title,
       eventId: action === 'deleted' ? null : event?._id,
       details,
+      team,
     });
   } catch (err) {
     console.error('Falha ao registrar log de atividade:', err.message);

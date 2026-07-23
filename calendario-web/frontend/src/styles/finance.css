@@ -177,6 +177,10 @@
   @apply text-sm text-text-muted -mt-2;
 }
 
+.finance-add-entry-actions {
+  @apply flex gap-2 mb-4;
+}
+
 .finance-type-toggle {
   @apply flex gap-2 mb-4;
 }
@@ -204,6 +208,14 @@
 
 .finance-entry-list {
   @apply flex flex-col gap-2;
+}
+
+.finance-entry-section-header {
+  @apply flex items-center gap-2 text-sm font-semibold text-text-muted mt-4 mb-2;
+}
+
+.finance-entry-section-header:first-child {
+  @apply mt-0;
 }
 
 .finance-entry-item {
@@ -289,6 +301,10 @@
 
 .finance-goal-progress-fill {
   @apply h-full rounded-full bg-primary transition-[width] duration-300;
+}
+
+.finance-goal-remaining {
+  @apply font-medium;
 }
 
 .finance-goal-actions {

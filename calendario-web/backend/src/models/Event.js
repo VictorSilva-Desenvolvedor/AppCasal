@@ -49,6 +49,7 @@ const eventSchema = new mongoose.Schema(
       },
     },
     hideWhenPast: { type: Boolean, default: false },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

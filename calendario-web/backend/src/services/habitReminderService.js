@@ -5,7 +5,7 @@ const User = require('../models/User');
 const { sendWhatsappMessage } = require('./whatsappService');
 const { sendPushNotification } = require('./pushService');
 const { todayKeyInTimezone } = require('../utils/dayKey');
-const { resolveTargetUsersAndCompletion } = require('./habitStreakService');
+const { resolveTargetUsersAndCompletion, groupUsersByTeam } = require('./habitStreakService');
 
 const TIMEZONE = 'America/Sao_Paulo';
 
@@ -27,14 +27,14 @@ async function checkAndSendHabitReminders() {
   const habits = await Habit.find({ active: true, reminderTime: nowStr });
   if (habits.length === 0) return { sent: 0, skipped: 0 };
 
-  const users = await User.find({ includeInHabits: true });
+  const usersByTeam = groupUsersByTeam(await User.find({ includeInHabits: true }));
 
   let sent = 0;
   let skipped = 0;
 
   for (const habit of habits) {
     try {
-      const targets = await resolveTargetUsersAndCompletion(habit, todayStr, users);
+      const targets = await resolveTargetUsersAndCompletion(habit, todayStr, usersByTeam.get(habit.team) || []);
 
       for (const { user: targetUser, done } of targets) {
         if (done) continue; // já completou a parte dele hoje, não precisa lembrete

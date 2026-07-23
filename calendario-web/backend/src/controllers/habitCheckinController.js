@@ -12,7 +12,7 @@ const POPULATE = [
 
 async function list(req, res) {
   const { habit, user, day } = req.query;
-  const filter = {};
+  const filter = { team: req.userTeam };
   if (habit) filter.habit = habit;
   if (user) filter.user = user;
   if (day) filter.day = day;
@@ -42,7 +42,7 @@ async function create(req, res) {
   }
 
   const habit = await Habit.findById(habitId);
-  if (!habit || !habit.active) {
+  if (!habit || !habit.active || String(habit.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Hábito não encontrado' });
   }
   if (habit.type === 'individual' && String(habit.owner) !== req.userId) {
@@ -88,10 +88,11 @@ async function create(req, res) {
     user: req.userId,
     subtask: subtaskId,
     value: habit.goalType === 'quantitativo' ? value : null,
+    team: req.userTeam,
   });
 
   if (habit.type === 'alternado') {
-    const otherUser = await User.findOne({ _id: { $ne: req.userId }, includeInHabits: true });
+    const otherUser = await User.findOne({ _id: { $ne: req.userId }, includeInHabits: true, team: habit.team });
     if (otherUser) {
       await Habit.updateOne({ _id: habit._id }, { currentTurnUserId: otherUser._id });
     }
@@ -109,7 +110,7 @@ async function create(req, res) {
 
 async function remove(req, res) {
   const checkin = await HabitCheckin.findById(req.params.id);
-  if (!checkin) return res.status(404).json({ message: 'Check-in não encontrado' });
+  if (!checkin || String(checkin.team) !== req.userTeam) return res.status(404).json({ message: 'Check-in não encontrado' });
   if (String(checkin.user) !== req.userId) {
     const err = new Error('Você só pode excluir seus próprios check-ins');
     err.status = 403;
@@ -137,7 +138,7 @@ async function setReaction(req, res) {
   if (!emoji) return res.status(400).json({ message: 'Emoji é obrigatório' });
 
   const checkin = await HabitCheckin.findById(req.params.id);
-  if (!checkin) return res.status(404).json({ message: 'Check-in não encontrado' });
+  if (!checkin || String(checkin.team) !== req.userTeam) return res.status(404).json({ message: 'Check-in não encontrado' });
   if (String(checkin.user) === req.userId) {
     const err = new Error('Você não pode reagir ao seu próprio check-in');
     err.status = 403;
@@ -163,7 +164,7 @@ async function setReaction(req, res) {
 
 async function removeReaction(req, res) {
   const checkin = await HabitCheckin.findById(req.params.id);
-  if (!checkin) return res.status(404).json({ message: 'Check-in não encontrado' });
+  if (!checkin || String(checkin.team) !== req.userTeam) return res.status(404).json({ message: 'Check-in não encontrado' });
 
   const checkinUserId = checkin.user;
   checkin.reactions = checkin.reactions.filter((r) => String(r.user) !== req.userId);

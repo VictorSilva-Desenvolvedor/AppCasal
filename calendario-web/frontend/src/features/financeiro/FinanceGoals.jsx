@@ -10,6 +10,11 @@ function GoalCard({ goal, onChanged, readOnly }) {
   const hasInstallments = Boolean(goal.totalInstallments);
 
   const progress = goal.targetAmount ? Math.min(100, (goal.currentAmount / goal.targetAmount) * 100) : 0;
+  const remainingInstallments = hasInstallments ? Math.max(0, goal.totalInstallments - goal.paidInstallments) : null;
+  const remainingAmount =
+    hasInstallments && goal.installmentAmount
+      ? remainingInstallments * goal.installmentAmount
+      : Math.max(0, goal.targetAmount - goal.currentAmount);
 
   async function handleAddContribution() {
     const value = Number(contribution);
@@ -72,6 +77,13 @@ function GoalCard({ goal, onChanged, readOnly }) {
           {goal.installmentAmount ? ` (${formatCurrency(goal.installmentAmount)}/mês)` : ''}
         </span>
       )}
+
+      <span className="finance-entry-item-meta finance-goal-remaining">
+        Faltam {formatCurrency(remainingAmount)}
+        {hasInstallments
+          ? ` · ${remainingInstallments} parcela${remainingInstallments === 1 ? '' : 's'} restante${remainingInstallments === 1 ? '' : 's'}`
+          : ''}
+      </span>
 
       {goal.notes && <span className="finance-entry-item-meta">{goal.notes}</span>}
 

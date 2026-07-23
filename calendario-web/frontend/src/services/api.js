@@ -222,6 +222,16 @@ function getFinanceReport(month, year, paidBy) {
   return request(`/finance-entries/report?${query}`);
 }
 
+function getFinanceHistory(month, year, months, paidBy) {
+  const query = new URLSearchParams({
+    month,
+    year,
+    ...(months && { months }),
+    ...(paidBy && { paidBy }),
+  }).toString();
+  return request(`/finance-entries/report/history?${query}`);
+}
+
 function getReimbursements() {
   return request('/reimbursements');
 }
@@ -507,6 +517,7 @@ export const api = {
   updateFinanceEntry,
   deleteFinanceEntry,
   getFinanceReport,
+  getFinanceHistory,
   getReimbursements,
   createReimbursement,
   settleReimbursement,

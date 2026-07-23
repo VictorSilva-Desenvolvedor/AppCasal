@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Card, Field } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -9,10 +9,18 @@ export function FinanceGoalForm({ onCreated }) {
   const [targetAmount, setTargetAmount] = useState('');
   const [totalInstallments, setTotalInstallments] = useState('');
   const [installmentAmount, setInstallmentAmount] = useState('');
+  const [installmentAmountTouched, setInstallmentAmountTouched] = useState(false);
+  const [paidInstallments, setPaidInstallments] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    if (installmentAmountTouched || !targetAmount || !totalInstallments) return;
+    const computed = Number(targetAmount) / Number(totalInstallments);
+    if (Number.isFinite(computed)) setInstallmentAmount(computed.toFixed(2));
+  }, [targetAmount, totalInstallments, installmentAmountTouched]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -31,12 +39,15 @@ export function FinanceGoalForm({ onCreated }) {
         targetAmount: Number(targetAmount),
         totalInstallments: totalInstallments ? Number(totalInstallments) : null,
         installmentAmount: installmentAmount ? Number(installmentAmount) : null,
+        paidInstallments: paidInstallments ? Number(paidInstallments) : 0,
         notes: notes.trim(),
       });
       setName('');
       setTargetAmount('');
       setTotalInstallments('');
       setInstallmentAmount('');
+      setInstallmentAmountTouched(false);
+      setPaidInstallments('');
       setNotes('');
       await onCreated();
       showToast('Objetivo criado', 'success');
@@ -105,10 +116,23 @@ export function FinanceGoalForm({ onCreated }) {
               min="0"
               step="0.01"
               value={installmentAmount}
-              onChange={(event) => setInstallmentAmount(event.target.value)}
+              onChange={(event) => {
+                setInstallmentAmountTouched(true);
+                setInstallmentAmount(event.target.value);
+              }}
             />
           </Field>
         </div>
+
+        <Field label="Parcelas já pagas (opcional)" htmlFor="goal-paid-installments">
+          <input
+            id="goal-paid-installments"
+            type="number"
+            min="0"
+            value={paidInstallments}
+            onChange={(event) => setPaidInstallments(event.target.value)}
+          />
+        </Field>
 
         <Field label="Observações (opcional)" htmlFor="goal-notes">
           <input id="goal-notes" type="text" value={notes} onChange={(event) => setNotes(event.target.value)} />

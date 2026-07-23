@@ -17,7 +17,7 @@ async function preview(req, res) {
   }
 
   const parsed = await parseBudgetWorkbook(req.file.buffer);
-  const categories = await FinanceCategory.find();
+  const categories = await FinanceCategory.find({ team: req.userTeam });
 
   res.json({
     income: withSuggestion(parsed.income, categories, 'receita'),
@@ -77,7 +77,7 @@ async function commit(req, res) {
     }
   }
 
-  await assertMonthOpen(date);
+  await assertMonthOpen(date, req.userTeam);
 
   const entryDocs = entries.map((entry) => ({
     type: entry.type,
@@ -89,6 +89,7 @@ async function commit(req, res) {
     reason: entry.reason || '',
     paidBy: req.userId,
     creator: req.userId,
+    team: req.userTeam,
   }));
 
   const goalDocs = goals.map((goal) => ({
@@ -101,6 +102,7 @@ async function commit(req, res) {
     installmentAmount: goal.installmentAmount || null,
     notes: goal.notes || '',
     creator: req.userId,
+    team: req.userTeam,
   }));
 
   const [createdEntries, createdGoals] = await Promise.all([

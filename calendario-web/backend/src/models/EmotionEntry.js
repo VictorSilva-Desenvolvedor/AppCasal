@@ -25,6 +25,7 @@ const emotionEntrySchema = new mongoose.Schema(
     helpTextBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     helpTextAt: { type: Date, default: null },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

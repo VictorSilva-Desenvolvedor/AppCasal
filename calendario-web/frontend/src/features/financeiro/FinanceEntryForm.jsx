@@ -15,13 +15,14 @@ const EMPTY_FORM = {
   category: '',
   date: toDateInputValue(new Date()),
   paidAmount: '',
+  nature: 'unica',
   wishType: '',
   reason: '',
   sharedWith: '',
   splitAmount: '',
 };
 
-export function FinanceEntryForm({ categories, users, monthLocked, editingEntry, onSaved, onCancelEdit }) {
+export function FinanceEntryForm({ categories, users, monthLocked, editingEntry, forcedType, onSaved, onCancelEdit }) {
   const { user } = useAuth();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
@@ -37,15 +38,16 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         category: editingEntry.category?._id || '',
         date: toDateInputValue(editingEntry.date),
         paidAmount: editingEntry.paidAmount ? String(editingEntry.paidAmount) : '',
+        nature: editingEntry.nature || 'unica',
         wishType: editingEntry.wishType || '',
         reason: editingEntry.reason || '',
         sharedWith: editingEntry.sharedWith?._id || '',
         splitAmount: editingEntry.splitAmount ? String(editingEntry.splitAmount) : '',
       });
     } else {
-      setForm(EMPTY_FORM);
+      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
     }
-  }, [editingEntry, user]);
+  }, [editingEntry, forcedType, user]);
 
   const filteredCategories = categories.filter((category) => category.type === form.type);
   const otherUsers = users.filter((u) => u._id !== user?._id);
@@ -74,6 +76,7 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
       category: form.category,
       date: form.date,
       paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
+      nature: form.type === 'despesa' ? form.nature : 'unica',
       wishType: form.wishType || null,
       reason: form.reason,
       sharedWith: form.sharedWith || null,
@@ -90,7 +93,7 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         await api.createFinanceEntry(payload);
         showToast('Lançamento criado', 'success');
       }
-      setForm(EMPTY_FORM);
+      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
       await onSaved();
     } catch (err) {
       setError(err.message);
@@ -102,22 +105,24 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
 
   return (
     <form className="card finance-entry-form" onSubmit={handleSubmit}>
-      <div className="finance-type-toggle">
-        <button
-          type="button"
-          className={`finance-type-toggle-btn${form.type === 'despesa' ? ' is-active' : ''}`}
-          onClick={() => update('type', 'despesa')}
-        >
-          Despesa
-        </button>
-        <button
-          type="button"
-          className={`finance-type-toggle-btn${form.type === 'receita' ? ' is-active' : ''}`}
-          onClick={() => update('type', 'receita')}
-        >
-          Receita
-        </button>
-      </div>
+      {!forcedType && (
+        <div className="finance-type-toggle">
+          <button
+            type="button"
+            className={`finance-type-toggle-btn${form.type === 'despesa' ? ' is-active' : ''}`}
+            onClick={() => update('type', 'despesa')}
+          >
+            Despesa
+          </button>
+          <button
+            type="button"
+            className={`finance-type-toggle-btn${form.type === 'receita' ? ' is-active' : ''}`}
+            onClick={() => update('type', 'receita')}
+          >
+            Receita
+          </button>
+        </div>
+      )}
 
       <Field label="Descrição" htmlFor="finance-description">
         <input
@@ -173,6 +178,18 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
           />
         </Field>
       </div>
+
+      {form.type === 'despesa' && (
+        <div className="finance-form-row">
+          <Field label="Natureza da despesa" htmlFor="finance-nature">
+            <select id="finance-nature" value={form.nature} onChange={(event) => update('nature', event.target.value)}>
+              <option value="unica">Única</option>
+              <option value="fixa">Fixa (repete todo mês)</option>
+              <option value="com_prazo">Com prazo</option>
+            </select>
+          </Field>
+        </div>
+      )}
 
       {form.type === 'despesa' && (
         <div className="finance-form-row">

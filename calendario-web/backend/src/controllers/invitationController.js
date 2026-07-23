@@ -1,5 +1,6 @@
 const Invitation = require('../models/Invitation');
 const Event = require('../models/Event');
+const User = require('../models/User');
 const { notifyPartner } = require('../services/notificationService');
 
 const POPULATE = [
@@ -53,11 +54,16 @@ async function create(req, res) {
   }
 
   const event = await Event.findById(eventId);
-  if (!event) {
+  if (!event || String(event.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Evento não encontrado' });
   }
   if (event.creator.toString() !== req.userId) {
     return res.status(403).json({ message: 'Só quem criou o evento pode convidar' });
+  }
+
+  const inviteeUser = await User.findById(inviteeId);
+  if (!inviteeUser || inviteeUser.team !== req.userTeam) {
+    return res.status(403).json({ message: 'Esse usuário não pode ser convidado' });
   }
 
   const existing = await Invitation.findOne({

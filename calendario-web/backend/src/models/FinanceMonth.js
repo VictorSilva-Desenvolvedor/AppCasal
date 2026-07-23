@@ -7,10 +7,11 @@ const financeMonthSchema = new mongoose.Schema(
     status: { type: String, enum: ['aberto', 'fechado'], default: 'aberto' },
     closedAt: { type: Date, default: null },
     closedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );
 
-financeMonthSchema.index({ month: 1, year: 1 }, { unique: true });
+financeMonthSchema.index({ month: 1, year: 1, team: 1 }, { unique: true });
 
 module.exports = mongoose.model('FinanceMonth', financeMonthSchema);

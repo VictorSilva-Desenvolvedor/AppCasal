@@ -37,6 +37,19 @@ function isPeriodComplete(habit, dayKey, checkinsForDay, users) {
   });
 }
 
+// Agrupa usuários por equipe — hábitos "casal"/"colaborativo"/"alternado" só
+// podem avaliar/lembrar usuários da mesma equipe do hábito, senão um hábito
+// real passaria a exigir check-in da equipe de teste (e vice-versa).
+function groupUsersByTeam(users) {
+  const byTeam = new Map();
+  for (const user of users) {
+    const list = byTeam.get(user.team) || [];
+    list.push(user);
+    byTeam.set(user.team, list);
+  }
+  return byTeam;
+}
+
 // Resolve, para lembrete/nudge, quem são os "alvos" desse hábito num dia e se
 // cada um já completou sua parte — evita duplicar a ramificação por tipo em
 // habitNudgeService/habitReminderService.
@@ -211,15 +224,15 @@ async function evaluateHabitStreaks() {
   const todayKey = todayKeyInTimezone();
   const yesterdayKey = addDaysToKey(todayKey, -1);
   const habits = await Habit.find({ active: true });
-  const users = await User.find({ includeInHabits: true });
+  const usersByTeam = groupUsersByTeam(await User.find({ includeInHabits: true }));
 
   for (const habit of habits) {
     try {
-      await evaluateOneHabit(habit, yesterdayKey, users);
+      await evaluateOneHabit(habit, yesterdayKey, usersByTeam.get(habit.team) || []);
     } catch (err) {
       console.error(`Falha ao avaliar streak do hábito "${habit.name}" (${habit._id}):`, err.message);
     }
   }
 }
 
-module.exports = { evaluateHabitStreaks, isPeriodComplete, resolveTargetUsersAndCompletion };
+module.exports = { evaluateHabitStreaks, isPeriodComplete, resolveTargetUsersAndCompletion, groupUsersByTeam };

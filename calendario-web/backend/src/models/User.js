@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema(
     photo: { type: String, default: '' },
     whatsappNumber: { type: String, default: '', trim: true },
     includeInHabits: { type: Boolean, default: true },
+    // Isola dados entre o casal principal e a equipe de teste — não tem
+    // relação com includeInHabits (que só controla pareamento de hábitos).
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );
