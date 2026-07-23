@@ -3,54 +3,85 @@ import { Button, Card, Field } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 
-export function FinanceGoalForm({ onCreated }) {
-  const [name, setName] = useState('');
-  const [type, setType] = useState('poupanca');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [totalInstallments, setTotalInstallments] = useState('');
-  const [installmentAmount, setInstallmentAmount] = useState('');
+const EMPTY_FORM = {
+  name: '',
+  targetAmount: '',
+  totalInstallments: '',
+  installmentAmount: '',
+  paidInstallments: '',
+  notes: '',
+};
+
+export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit }) {
+  const [type, setType] = useState(editingGoal?.type || forcedType || 'poupanca');
+  const [form, setForm] = useState(EMPTY_FORM);
   const [installmentAmountTouched, setInstallmentAmountTouched] = useState(false);
-  const [paidInstallments, setPaidInstallments] = useState('');
-  const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
-    if (installmentAmountTouched || !targetAmount || !totalInstallments) return;
-    const computed = Number(targetAmount) / Number(totalInstallments);
-    if (Number.isFinite(computed)) setInstallmentAmount(computed.toFixed(2));
-  }, [targetAmount, totalInstallments, installmentAmountTouched]);
+    setInstallmentAmountTouched(false);
+    if (editingGoal) {
+      setType(editingGoal.type);
+      setForm({
+        name: editingGoal.name,
+        targetAmount: String(editingGoal.targetAmount),
+        totalInstallments: editingGoal.totalInstallments ? String(editingGoal.totalInstallments) : '',
+        installmentAmount: editingGoal.installmentAmount ? String(editingGoal.installmentAmount) : '',
+        paidInstallments: editingGoal.paidInstallments ? String(editingGoal.paidInstallments) : '',
+        notes: editingGoal.notes || '',
+      });
+      setInstallmentAmountTouched(true);
+    } else {
+      setType(forcedType || 'poupanca');
+      setForm(EMPTY_FORM);
+    }
+  }, [editingGoal, forcedType]);
+
+  useEffect(() => {
+    if (installmentAmountTouched || !form.targetAmount || !form.totalInstallments) return;
+    const computed = Number(form.targetAmount) / Number(form.totalInstallments);
+    if (Number.isFinite(computed)) {
+      setForm((prev) => ({ ...prev, installmentAmount: computed.toFixed(2) }));
+    }
+  }, [form.targetAmount, form.totalInstallments, installmentAmountTouched]);
+
+  function update(field, value) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError('');
 
-    if (!name.trim() || !targetAmount) {
+    if (!form.name.trim() || !form.targetAmount) {
       setError('Informe nome e valor alvo');
       return;
     }
 
+    const payload = {
+      name: form.name.trim(),
+      type,
+      targetAmount: Number(form.targetAmount),
+      totalInstallments: form.totalInstallments ? Number(form.totalInstallments) : null,
+      installmentAmount: form.installmentAmount ? Number(form.installmentAmount) : null,
+      paidInstallments: form.paidInstallments ? Number(form.paidInstallments) : 0,
+      notes: form.notes.trim(),
+    };
+
     setSaving(true);
     try {
-      await api.createFinanceGoal({
-        name: name.trim(),
-        type,
-        targetAmount: Number(targetAmount),
-        totalInstallments: totalInstallments ? Number(totalInstallments) : null,
-        installmentAmount: installmentAmount ? Number(installmentAmount) : null,
-        paidInstallments: paidInstallments ? Number(paidInstallments) : 0,
-        notes: notes.trim(),
-      });
-      setName('');
-      setTargetAmount('');
-      setTotalInstallments('');
-      setInstallmentAmount('');
-      setInstallmentAmountTouched(false);
-      setPaidInstallments('');
-      setNotes('');
-      await onCreated();
-      showToast('Objetivo criado', 'success');
+      if (editingGoal) {
+        await api.updateFinanceGoal(editingGoal._id, payload);
+        showToast('Objetivo atualizado', 'success');
+      } else {
+        await api.createFinanceGoal(payload);
+        showToast('Objetivo criado', 'success');
+      }
+      setForm(EMPTY_FORM);
+      setType(forcedType || 'poupanca');
+      await onSaved();
     } catch (err) {
       setError(err.message);
       showToast(err.message, 'error');
@@ -61,28 +92,30 @@ export function FinanceGoalForm({ onCreated }) {
 
   return (
     <Card className="finance-goal-form-card">
-      <h3>Novo objetivo</h3>
+      <h3>{editingGoal ? 'Editar objetivo' : 'Novo objetivo'}</h3>
       <form className="finance-goal-form" onSubmit={handleSubmit}>
         <Field label="Nome" htmlFor="goal-name">
-          <input id="goal-name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
+          <input id="goal-name" type="text" value={form.name} onChange={(event) => update('name', event.target.value)} />
         </Field>
 
-        <div className="finance-type-toggle">
-          <button
-            type="button"
-            className={`finance-type-toggle-btn${type === 'poupanca' ? ' is-active' : ''}`}
-            onClick={() => setType('poupanca')}
-          >
-            Poupança
-          </button>
-          <button
-            type="button"
-            className={`finance-type-toggle-btn${type === 'parcelamento' ? ' is-active' : ''}`}
-            onClick={() => setType('parcelamento')}
-          >
-            Financiamento
-          </button>
-        </div>
+        {(!forcedType || editingGoal) && (
+          <div className="finance-type-toggle">
+            <button
+              type="button"
+              className={`finance-type-toggle-btn${type === 'poupanca' ? ' is-active' : ''}`}
+              onClick={() => setType('poupanca')}
+            >
+              Poupança
+            </button>
+            <button
+              type="button"
+              className={`finance-type-toggle-btn${type === 'parcelamento' ? ' is-active' : ''}`}
+              onClick={() => setType('parcelamento')}
+            >
+              Financiamento
+            </button>
+          </div>
+        )}
 
         <Field label="Valor alvo" htmlFor="goal-target">
           <input
@@ -90,8 +123,8 @@ export function FinanceGoalForm({ onCreated }) {
             type="number"
             min="0"
             step="0.01"
-            value={targetAmount}
-            onChange={(event) => setTargetAmount(event.target.value)}
+            value={form.targetAmount}
+            onChange={(event) => update('targetAmount', event.target.value)}
           />
         </Field>
 
@@ -105,8 +138,8 @@ export function FinanceGoalForm({ onCreated }) {
               id="goal-installments"
               type="number"
               min="1"
-              value={totalInstallments}
-              onChange={(event) => setTotalInstallments(event.target.value)}
+              value={form.totalInstallments}
+              onChange={(event) => update('totalInstallments', event.target.value)}
             />
           </Field>
           <Field label="Valor da parcela (opcional)" htmlFor="goal-installment-amount">
@@ -115,10 +148,10 @@ export function FinanceGoalForm({ onCreated }) {
               type="number"
               min="0"
               step="0.01"
-              value={installmentAmount}
+              value={form.installmentAmount}
               onChange={(event) => {
                 setInstallmentAmountTouched(true);
-                setInstallmentAmount(event.target.value);
+                update('installmentAmount', event.target.value);
               }}
             />
           </Field>
@@ -129,19 +162,26 @@ export function FinanceGoalForm({ onCreated }) {
             id="goal-paid-installments"
             type="number"
             min="0"
-            value={paidInstallments}
-            onChange={(event) => setPaidInstallments(event.target.value)}
+            value={form.paidInstallments}
+            onChange={(event) => update('paidInstallments', event.target.value)}
           />
         </Field>
 
         <Field label="Observações (opcional)" htmlFor="goal-notes">
-          <input id="goal-notes" type="text" value={notes} onChange={(event) => setNotes(event.target.value)} />
+          <input id="goal-notes" type="text" value={form.notes} onChange={(event) => update('notes', event.target.value)} />
         </Field>
 
         <p className="error-text">{error}</p>
-        <Button type="submit" loading={saving}>
-          Criar objetivo
-        </Button>
+        <div className="finance-form-actions">
+          <Button type="submit" loading={saving}>
+            {editingGoal ? 'Salvar alterações' : 'Criar objetivo'}
+          </Button>
+          {editingGoal && (
+            <Button type="button" variant="secondary" onClick={onCancelEdit}>
+              Cancelar
+            </Button>
+          )}
+        </div>
       </form>
     </Card>
   );

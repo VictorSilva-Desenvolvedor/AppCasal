@@ -58,6 +58,8 @@ export function FinanceiroPage() {
   const [months, setMonths] = useState([]);
   const [editingEntry, setEditingEntry] = useState(null);
   const [addType, setAddType] = useState(null);
+  const [editingGoal, setEditingGoal] = useState(null);
+  const [addGoalType, setAddGoalType] = useState(null);
   const [togglingMonth, setTogglingMonth] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
@@ -238,13 +240,20 @@ export function FinanceiroPage() {
       {activeTab === 'objetivos' && (
         <div className="finance-goals-tab">
           {isMyView ? (
-            <FinanceGoalForm onCreated={reloadGoals} />
+            <div className="finance-add-entry-actions">
+              <Button variant="secondary" onClick={() => setAddGoalType('poupanca')}>
+                <Icon name="plus" /> Poupança
+              </Button>
+              <Button variant="secondary" onClick={() => setAddGoalType('parcelamento')}>
+                <Icon name="plus" /> Financiamento
+              </Button>
+            </div>
           ) : (
             <p className="finance-goal-form-hint">
               Você está vendo os objetivos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um objetivo.
             </p>
           )}
-          <FinanceGoals goals={goals} onChanged={reloadGoals} readOnly={!isMyView} />
+          <FinanceGoals goals={goals} onChanged={reloadGoals} onEdit={setEditingGoal} readOnly={!isMyView} />
         </div>
       )}
 
@@ -304,6 +313,36 @@ export function FinanceiroPage() {
               setAddType(null);
             }}
             onCancelEdit={() => setAddType(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal open={Boolean(editingGoal)} onClose={() => setEditingGoal(null)} title="Editar objetivo">
+        {editingGoal && (
+          <FinanceGoalForm
+            editingGoal={editingGoal}
+            onSaved={async () => {
+              await reloadGoals();
+              setEditingGoal(null);
+            }}
+            onCancelEdit={() => setEditingGoal(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        open={Boolean(addGoalType)}
+        onClose={() => setAddGoalType(null)}
+        title={addGoalType === 'parcelamento' ? 'Novo financiamento' : 'Novo objetivo de poupança'}
+      >
+        {addGoalType && (
+          <FinanceGoalForm
+            forcedType={addGoalType}
+            onSaved={async () => {
+              await reloadGoals();
+              setAddGoalType(null);
+            }}
+            onCancelEdit={() => setAddGoalType(null)}
           />
         )}
       </Modal>

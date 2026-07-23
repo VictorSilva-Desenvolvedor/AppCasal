@@ -60,8 +60,20 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { type, description, amount, category, date, paidAmount, nature, wishType, reason, sharedWith, splitAmount } =
-    req.body;
+  const {
+    type,
+    description,
+    amount,
+    category,
+    date,
+    paidAmount,
+    nature,
+    wishType,
+    reason,
+    image,
+    sharedWith,
+    splitAmount,
+  } = req.body;
 
   if (!type || !description || amount === undefined || !date) {
     return res.status(400).json({ message: 'Tipo, descrição, valor e data são obrigatórios' });
@@ -82,6 +94,7 @@ async function create(req, res) {
     nature: nature || 'unica',
     wishType: wishType || null,
     reason: reason || '',
+    image: image || null,
     paidBy: req.userId,
     sharedWith: sharedWith || null,
     splitAmount: sharedWith ? splitAmount : null,
@@ -104,8 +117,20 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { type, description, amount, category, date, paidAmount, nature, wishType, reason, sharedWith, splitAmount } =
-    req.body;
+  const {
+    type,
+    description,
+    amount,
+    category,
+    date,
+    paidAmount,
+    nature,
+    wishType,
+    reason,
+    image,
+    sharedWith,
+    splitAmount,
+  } = req.body;
 
   const before = await FinanceEntry.findById(req.params.id);
   if (!before || String(before.team) !== req.userTeam) {
@@ -135,6 +160,7 @@ async function update(req, res) {
       nature: nature || 'unica',
       wishType: wishType || null,
       reason,
+      image: image || null,
       sharedWith: sharedWith || null,
       splitAmount: sharedWith ? splitAmount : null,
     },

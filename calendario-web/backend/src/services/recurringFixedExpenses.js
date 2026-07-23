@@ -12,7 +12,7 @@ async function generateForNewMonth(month, year, team) {
 
   const prevFixedEntries = await FinanceEntry.find({
     type: 'despesa',
-    nature: 'fixa',
+    nature: { $in: ['fixa', 'a_decidir'] },
     team,
     date: { $gte: prevStart, $lt: prevEnd },
   }).sort({ date: -1 });
@@ -27,7 +27,11 @@ async function generateForNewMonth(month, year, team) {
 
   const newStart = new Date(year, month - 1, 1);
   const newEnd = new Date(year, month, 1);
-  const existingInNewMonth = await FinanceEntry.find({ nature: 'fixa', team, date: { $gte: newStart, $lt: newEnd } });
+  const existingInNewMonth = await FinanceEntry.find({
+    nature: { $in: ['fixa', 'a_decidir'] },
+    team,
+    date: { $gte: newStart, $lt: newEnd },
+  });
   const existingSeriesKeys = new Set(existingInNewMonth.map((e) => String(e.recurringRootId || e._id)));
 
   const toCreate = [];
@@ -43,7 +47,7 @@ async function generateForNewMonth(month, year, team) {
       paidAmount: 0,
       wishType: null,
       reason: entry.reason,
-      nature: 'fixa',
+      nature: entry.nature,
       recurringRootId: rootId,
       paidBy: entry.paidBy,
       sharedWith: entry.sharedWith,

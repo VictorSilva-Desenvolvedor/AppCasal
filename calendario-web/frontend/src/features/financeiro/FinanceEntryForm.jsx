@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Field } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -27,9 +27,22 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [removeImage, setRemoveImage] = useState(false);
   const { showToast } = useToast();
 
+  const existingImage = editingEntry?.image || null;
+  const imagePreviewUrl = useMemo(() => (imageFile ? URL.createObjectURL(imageFile) : null), [imageFile]);
+
   useEffect(() => {
+    return () => {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    };
+  }, [imagePreviewUrl]);
+
+  useEffect(() => {
+    setImageFile(null);
+    setRemoveImage(false);
     if (editingEntry) {
       setForm({
         type: editingEntry.type,
@@ -69,22 +82,28 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
       return;
     }
 
-    const payload = {
-      type: form.type,
-      description: form.description.trim(),
-      amount: Number(form.amount),
-      category: form.category,
-      date: form.date,
-      paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
-      nature: form.type === 'despesa' ? form.nature : 'unica',
-      wishType: form.wishType || null,
-      reason: form.reason,
-      sharedWith: form.sharedWith || null,
-      splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
-    };
-
     setSaving(true);
     try {
+      let image = removeImage ? null : existingImage;
+      if (imageFile) {
+        image = await api.uploadFile(imageFile);
+      }
+
+      const payload = {
+        type: form.type,
+        description: form.description.trim(),
+        amount: Number(form.amount),
+        category: form.category,
+        date: form.date,
+        paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
+        nature: form.type === 'despesa' ? form.nature : 'unica',
+        wishType: form.wishType || null,
+        reason: form.reason,
+        image,
+        sharedWith: form.sharedWith || null,
+        splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
+      };
+
       if (editingEntry) {
         await api.updateFinanceEntry(editingEntry._id, payload);
         showToast('Lançamento atualizado', 'success');
@@ -94,6 +113,8 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         showToast('Lançamento criado', 'success');
       }
       setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
+      setImageFile(null);
+      setRemoveImage(false);
       await onSaved();
     } catch (err) {
       setError(err.message);
@@ -186,6 +207,7 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
               <option value="unica">Única</option>
               <option value="fixa">Fixa (repete todo mês)</option>
               <option value="com_prazo">Com prazo</option>
+              <option value="a_decidir">A decidir</option>
             </select>
           </Field>
         </div>
@@ -211,6 +233,39 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
             </Field>
           )}
         </div>
+      )}
+
+      {form.type === 'despesa' && form.wishType && (
+        <Field label="Imagem (opcional)" htmlFor="finance-image">
+          <input
+            id="finance-image"
+            type="file"
+            accept="image/*"
+            onChange={(event) => {
+              setImageFile(event.target.files[0] || null);
+              setRemoveImage(false);
+            }}
+          />
+          {(imagePreviewUrl || (existingImage && !removeImage)) && (
+            <div className="finance-image-field-preview">
+              <img
+                className="finance-entry-thumb"
+                src={imagePreviewUrl || existingImage.url}
+                alt={existingImage?.name || 'Imagem'}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setImageFile(null);
+                  setRemoveImage(true);
+                }}
+              >
+                Remover imagem
+              </Button>
+            </div>
+          )}
+        </Field>
       )}
 
       <div className="finance-form-row">
