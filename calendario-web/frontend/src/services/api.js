@@ -366,6 +366,10 @@ function unregisterDeviceToken(token) {
   return request('/push/device-token', { method: 'DELETE', body: { token } });
 }
 
+function testPush() {
+  return request('/push/test', { method: 'POST' });
+}
+
 function getNotifications(limit) {
   const query = limit ? `?${new URLSearchParams({ limit }).toString()}` : '';
   return request(`/notifications${query}`);
@@ -465,6 +469,7 @@ export const api = {
   unsubscribePush,
   registerDeviceToken,
   unregisterDeviceToken,
+  testPush,
   getNotifications,
   getUnreadNotificationCount,
   markNotificationRead,

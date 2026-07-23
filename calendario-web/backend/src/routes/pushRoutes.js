@@ -5,6 +5,7 @@ const {
   unsubscribe,
   registerDeviceToken,
   unregisterDeviceToken,
+  testPush,
 } = require('../controllers/pushController');
 const auth = require('../middleware/auth');
 
@@ -17,5 +18,6 @@ router.post('/subscribe', subscribe);
 router.post('/unsubscribe', unsubscribe);
 router.post('/device-token', registerDeviceToken);
 router.delete('/device-token', unregisterDeviceToken);
+router.post('/test', testPush);
 
 module.exports = router;

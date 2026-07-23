@@ -1,5 +1,6 @@
 const PushSubscription = require('../models/PushSubscription');
 const DeviceToken = require('../models/DeviceToken');
+const { isFcmReady, sendFcmPush } = require('../services/fcmService');
 
 function getVapidPublicKey(req, res) {
   res.json({ publicKey: process.env.VAPID_PUBLIC_KEY || null });
@@ -56,4 +57,23 @@ async function unregisterDeviceToken(req, res) {
   res.status(204).send();
 }
 
-module.exports = { getVapidPublicKey, subscribe, unsubscribe, registerDeviceToken, unregisterDeviceToken };
+async function testPush(req, res) {
+  if (!isFcmReady()) {
+    return res.json({ fcmReady: false, deviceCount: 0, sent: false, message: 'FCM não configurado no backend (FCM_SERVICE_ACCOUNT_JSON ausente ou inválida).' });
+  }
+
+  const deviceCount = await DeviceToken.countDocuments({ user: req.userId });
+  if (deviceCount === 0) {
+    return res.json({ fcmReady: true, deviceCount: 0, sent: false, message: 'Nenhum dispositivo registrado para este usuário. Abra o app no celular (ele registra o token automaticamente ao iniciar).' });
+  }
+
+  const sent = await sendFcmPush(req.userId, {
+    title: 'Teste de notificação',
+    body: 'Se você está vendo isso, o push está funcionando!',
+    link: '/',
+  });
+
+  res.json({ fcmReady: true, deviceCount, sent, message: sent ? 'Push enviado.' : 'Envio falhou — veja o log do backend para o motivo.' });
+}
+
+module.exports = { getVapidPublicKey, subscribe, unsubscribe, registerDeviceToken, unregisterDeviceToken, testPush };
