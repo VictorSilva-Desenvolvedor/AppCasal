@@ -1,71 +1,31 @@
 /*
-  Identidade visual — Watchlist a Dois. Fonte própria (Fraunces, só pra
-  títulos) e paleta quente/afetiva (--watch-*) escopadas dentro de
-  .watchlist-page: não sobrescrevem os tokens globais do app (tokens.css),
-  usados pelo resto do AppCasal (Calendário, Financeiro, Configurações etc.
-  continuam em Inter + paleta de tema indigo). Mesmo padrão de habitos.css e
-  emocoes.css.
+  Watchlist a Dois usa os mesmos tokens globais do resto do AppCasal
+  (tokens.css) — as variáveis --watch-* abaixo são só apelidos locais pros
+  papéis de cor da feature (destaque, fundo, colunas do quadro), sempre
+  resolvendo pra var(--color-*) global, então [data-color-theme]/
+  [data-theme] seguem valendo aqui dentro. As cores por tipo de item
+  (--watch-terracota/petroleo/rosa, ver watchlistUtils.js) continuam fixas
+  de propósito — identificam Filme/Série/Jogo, não o tema do app.
 */
-@import '@fontsource/fraunces/500.css';
-@import '@fontsource/fraunces/600.css';
-@import '@fontsource/fraunces/700.css';
 
 .watchlist-page {
-  --watch-bg: #faf6f1;
-  --watch-text: #2b2530;
-  --watch-text-muted: color-mix(in oklch, var(--watch-text) 55%, transparent);
+  --watch-text: var(--color-text);
+  --watch-text-muted: var(--color-text-muted);
 
   --watch-terracota: #d97757;
   --watch-petroleo: #3b6e8f;
   --watch-rosa: #c97b9a;
-  --watch-vinho: #8c3b4a;
+  --watch-vinho: var(--color-primary);
 
-  --watch-col-quero: #ede9f2;
-  --watch-col-vendo: #f5e6b8;
-  --watch-col-visto: #d8e2d3;
+  --watch-col-quero: color-mix(in oklch, var(--color-primary) 14%, var(--color-surface));
+  --watch-col-vendo: color-mix(in oklch, var(--color-warning) 18%, var(--color-surface));
+  --watch-col-visto: color-mix(in oklch, var(--color-success) 16%, var(--color-surface));
 
-  --watch-card-bg: color-mix(in oklch, var(--watch-rosa) 8%, white);
+  --watch-card-bg: var(--color-surface);
 
   @apply relative pb-24;
-  font-family: 'Inter', var(--font-sans);
   color: var(--watch-text);
-  background: var(--watch-bg);
-
-  /* Cantos mais generosos em toda a feature (post-it, não retângulo de
-     produtividade) — sobrescreve os tokens globais de raio só aqui dentro;
-     Card/Button/Modal herdam automaticamente por consumirem var(). */
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 26px;
-}
-
-[data-theme='dark'] .watchlist-page {
-  --watch-bg: #1f1b24;
-  --watch-text: #f5efe6;
-  --watch-text-muted: color-mix(in oklch, var(--watch-text) 55%, transparent);
-  --watch-card-bg: color-mix(in oklch, var(--watch-rosa) 16%, #241f2b);
-}
-
-/* Modal.jsx renderiza inline (sem portal), então o título do modal aberto a
-   partir desta página também é descendente de .watchlist-page. */
-.watchlist-page .modal-header h2 {
-  font-family: 'Fraunces', var(--font-sans);
-  font-weight: 600;
-}
-
-/* Botão primário (Adicionar/Avaliar) usa o vinho de destaque — o único lugar
-   além dos corações onde essa cor aparece, por pedido explícito do usuário
-   (accent só em detalhes, nunca em áreas grandes). */
-.watchlist-page .btn-primary {
-  background: var(--watch-vinho);
-  color: #fff;
-}
-.watchlist-page .btn-primary:hover:not(:disabled) {
-  background: color-mix(in oklch, var(--watch-vinho) 85%, black);
-}
-.watchlist-page .btn-primary:active:not(:disabled) {
-  background: color-mix(in oklch, var(--watch-vinho) 72%, black);
+  background: var(--color-bg);
 }
 
 /* ---------- Cabeçalho ---------- */
@@ -78,8 +38,6 @@
 }
 .watchlist-page-title {
   @apply text-2xl font-semibold m-0;
-  font-family: 'Fraunces', var(--font-sans);
-  font-weight: 600;
 }
 
 /* ---------- Filtros rápidos ---------- */
@@ -109,6 +67,7 @@
 .watchlist-pending-toggle.is-active {
   background: var(--watch-vinho);
   border-color: var(--watch-vinho);
+  color: var(--color-on-primary);
 }
 
 /* ---------- Board / colunas ---------- */
@@ -132,26 +91,15 @@
   background: var(--watch-col-visto);
 }
 
-[data-theme='dark'] .watchlist-column--quero-ver {
-  background: color-mix(in oklch, #ede9f2 22%, var(--watch-bg));
-}
-[data-theme='dark'] .watchlist-column--em-andamento {
-  background: color-mix(in oklch, #f5e6b8 20%, var(--watch-bg));
-}
-[data-theme='dark'] .watchlist-column--visto-ouvido {
-  background: color-mix(in oklch, #d8e2d3 20%, var(--watch-bg));
-}
-
 .watchlist-column h3 {
   @apply flex items-center gap-2 text-sm uppercase tracking-wide m-0;
-  font-family: 'Fraunces', var(--font-sans);
   color: var(--watch-text);
   opacity: 0.85;
 }
 
 .watchlist-column-count {
   @apply text-xs px-2 py-[0.1rem] rounded-full font-bold;
-  background: color-mix(in oklch, var(--watch-vinho) 16%, white);
+  background: color-mix(in oklch, var(--watch-vinho) 16%, var(--color-surface));
   color: var(--watch-vinho);
 }
 
@@ -165,8 +113,9 @@
   color: var(--watch-text-muted);
 }
 
-/* Mesmo mecanismo visual do .update-column-list.drag-over, só com o vinho no
-   lugar do indigo, pra ficar coerente com o resto da identidade da feature. */
+/* Mesmo mecanismo visual do .update-column-list.drag-over, só com a cor de
+   destaque da watchlist no lugar do indigo, pra ficar coerente com a
+   identidade da feature. */
 .watchlist-column-list.drag-over {
   @apply rounded-md transition-[background,outline-color] duration-200;
   background: color-mix(in oklch, var(--watch-vinho) 10%, transparent);
@@ -228,14 +177,17 @@
 }
 
 .watchlist-card-title {
-  @apply text-base m-0 pr-6;
-  font-family: 'Fraunces', var(--font-sans);
-  font-weight: 600;
+  @apply text-base m-0 pr-6 font-semibold;
   color: var(--watch-text);
 }
 
 .watchlist-card-note {
   @apply text-sm italic m-0;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-card-meta {
+  @apply flex flex-wrap items-center gap-1.5 text-xs;
   color: var(--watch-text-muted);
 }
 
@@ -326,14 +278,14 @@
   width: 60px;
   height: 60px;
   background: var(--watch-vinho);
-  color: #fff;
+  color: var(--color-on-primary);
   box-shadow: var(--shadow-lg);
   transition: transform 0.15s var(--ease), background-color 0.15s;
 }
 
 .watchlist-fab:hover {
   transform: translateY(-2px) scale(1.05);
-  background: color-mix(in oklch, var(--watch-vinho) 85%, black);
+  background: var(--color-primary-hover);
 }
 
 .watchlist-fab:active {
@@ -347,12 +299,13 @@
 
 /* ---------- Formulários ---------- */
 
-.watchlist-poster-search {
-  @apply flex items-center gap-3 flex-wrap;
+.watchlist-search-hint {
+  @apply text-xs m-0 mt-1;
+  color: var(--watch-text-muted);
 }
 
 .watchlist-poster-clear {
-  @apply text-xs underline cursor-pointer bg-transparent border-none p-0;
+  @apply text-xs underline cursor-pointer bg-transparent border-none p-0 mt-2;
   color: var(--watch-text-muted);
 }
 
@@ -369,17 +322,62 @@
   transition: border-color 0.15s;
 }
 
-.watchlist-poster-option img {
-  @apply w-full h-full object-cover block;
+.watchlist-poster-option:hover {
+  border-color: var(--watch-type-color, var(--watch-vinho));
 }
 
-.watchlist-poster-option.is-selected {
-  border-color: var(--watch-vinho);
+.watchlist-poster-option img {
+  @apply w-full h-full object-cover block;
 }
 
 .watchlist-poster-option-empty {
   @apply flex items-center justify-center text-center text-xs p-1 h-full;
   color: var(--watch-text-muted);
+}
+
+.watchlist-genre-chip {
+  @apply text-xs rounded-full px-2 py-0.5 inline-block;
+  background: color-mix(in oklch, var(--watch-type-color, var(--watch-vinho)) 16%, transparent);
+  color: var(--watch-text);
+}
+
+.watchlist-detail-preview {
+  @apply flex flex-col gap-2 p-3 rounded-sm mt-1;
+  background: var(--color-surface-alt, var(--color-surface));
+  border: 1px solid var(--color-border);
+}
+
+.watchlist-detail-preview-header {
+  @apply flex gap-3 items-start;
+}
+
+.watchlist-detail-preview-poster {
+  @apply rounded-sm object-cover flex-shrink-0;
+  width: 56px;
+  height: 84px;
+}
+
+.watchlist-detail-preview-info {
+  @apply flex flex-col gap-1;
+}
+
+.watchlist-detail-preview-director {
+  @apply text-xs;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-detail-preview-genres {
+  @apply flex flex-wrap gap-1;
+}
+
+.watchlist-detail-preview-synopsis {
+  @apply text-sm m-0;
+  color: var(--watch-text-muted);
+}
+
+.watchlist-detail-preview-stats {
+  @apply flex gap-3 flex-wrap text-xs font-semibold;
+  color: var(--watch-text);
 }
 
 .watchlist-form-actions {
