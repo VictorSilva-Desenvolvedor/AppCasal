@@ -14,33 +14,61 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { day, period, emotion, intensity, note } = req.body;
+  const { day, period, emotion, intensity, note, reasons, reasonOther } = req.body;
 
   if (!day || !period || !emotion || !intensity) {
     return res.status(400).json({ message: 'Dia, período, emoção e intensidade são obrigatórios' });
   }
 
-  const entry = await EmotionEntry.create({ day, period, emotion, intensity, note: note || '', user: req.userId });
+  const entry = await EmotionEntry.create({
+    day,
+    period,
+    emotion,
+    intensity,
+    note: note || '',
+    reasons: reasons || [],
+    reasonOther: reasonOther || '',
+    user: req.userId,
+  });
   const populated = await entry.populate(ENTRY_POPULATE);
   res.status(201).json(populated);
 }
 
 async function update(req, res) {
-  const { emotion, intensity, note } = req.body;
-
   const entry = await EmotionEntry.findById(req.params.id);
   if (!entry) return res.status(404).json({ message: 'Registro não encontrado' });
-  if (String(entry.user) !== req.userId) {
+
+  const isOwner = String(entry.user) === req.userId;
+  const patch = {};
+
+  if (isOwner) {
+    const { emotion, intensity, note, reasons, reasonOther } = req.body;
+    if (emotion !== undefined) patch.emotion = emotion;
+    if (intensity !== undefined) patch.intensity = intensity;
+    if (note !== undefined) patch.note = note;
+    if (reasons !== undefined) patch.reasons = reasons;
+    if (reasonOther !== undefined) patch.reasonOther = reasonOther;
+  }
+
+  // "O que pode ajudar" pode ser escrito por qualquer um dos 2 usuários do
+  // app (o dono do registro respondendo a si mesmo depois, ou o parceiro
+  // sugerindo algo) — por isso não entra no bloco isOwner acima.
+  if (req.body.helpText !== undefined) {
+    patch.helpText = req.body.helpText;
+    patch.helpTextBy = req.userId;
+    patch.helpTextAt = new Date();
+  }
+
+  if (!Object.keys(patch).length) {
     const err = new Error('Você só pode editar seus próprios registros de emoção');
     err.status = 403;
     throw err;
   }
 
-  const updated = await EmotionEntry.findByIdAndUpdate(
-    req.params.id,
-    { emotion, intensity, note },
-    { new: true, runValidators: true }
-  ).populate(ENTRY_POPULATE);
+  const updated = await EmotionEntry.findByIdAndUpdate(req.params.id, patch, {
+    new: true,
+    runValidators: true,
+  }).populate(ENTRY_POPULATE);
 
   res.json(updated);
 }

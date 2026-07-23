@@ -1,24 +1,14 @@
+import { useState } from 'react';
 import { Card, Icon } from '../../components/ui/index.js';
 import { EMOTIONS } from '../../constants/emotions.js';
 import { PERIODS, PERIOD_ICONS, PERIOD_LABELS, groupEntriesByPeriod, mostIntenseEntry, predominantEmotion } from './emocoesUtils.js';
+import { EmotionSummaryEntryRow } from './EmotionSummaryEntryRow.jsx';
 
-const INTENSITY_SEGMENTS = [1, 2, 3, 4, 5];
+export function EmotionDaySummary({ entries, canDelete = false, onRequestDelete, onOpenDetail }) {
+  // Qual row está com o swipe revelado — sobe pra cá (em vez de ficar local
+  // em cada row) pra poder fechar automaticamente qualquer outra já aberta.
+  const [openRowId, setOpenRowId] = useState(null);
 
-function IntensityBar({ intensity, color }) {
-  return (
-    <div className="emotion-intensity-bar">
-      {INTENSITY_SEGMENTS.map((segment) => (
-        <span
-          key={segment}
-          className="emotion-intensity-bar-segment"
-          style={segment <= intensity ? { background: color } : undefined}
-        />
-      ))}
-    </div>
-  );
-}
-
-export function EmotionDaySummary({ entries }) {
   if (!entries.length) {
     return (
       <Card className="emotion-summary-card">
@@ -42,17 +32,17 @@ export function EmotionDaySummary({ entries }) {
             <div className="emotion-summary-period-body">
               <span className="emotion-summary-period-label">{PERIOD_LABELS[period]}</span>
               {byPeriod[period].length ? (
-                byPeriod[period].map((entry) => {
-                  const meta = EMOTIONS[entry.emotion];
-                  return (
-                    <div key={entry._id} className="emotion-summary-period-entry">
-                      <span className="emotion-summary-period-entry-label">
-                        <span aria-hidden="true">{meta?.emoji}</span> {meta?.label}
-                      </span>
-                      <IntensityBar intensity={entry.intensity} color={meta?.color} />
-                    </div>
-                  );
-                })
+                byPeriod[period].map((entry) => (
+                  <EmotionSummaryEntryRow
+                    key={entry._id}
+                    entry={entry}
+                    canDelete={canDelete}
+                    isOpen={openRowId === entry._id}
+                    onOpenChange={setOpenRowId}
+                    onRequestDelete={onRequestDelete}
+                    onOpenDetail={onOpenDetail}
+                  />
+                ))
               ) : (
                 <span className="emotion-summary-period-empty">Sem registro</span>
               )}
