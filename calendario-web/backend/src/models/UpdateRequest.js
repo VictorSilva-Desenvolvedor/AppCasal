@@ -6,6 +6,7 @@ const updateRequestSchema = new mongoose.Schema(
     description: { type: String, default: '' },
     status: { type: String, enum: ['todo', 'in_progress', 'done'], default: 'todo' },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

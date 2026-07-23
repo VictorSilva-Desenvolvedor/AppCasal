@@ -11,10 +11,15 @@ const FinanceGoal = require('./models/FinanceGoal');
 const COUPLE_PASSWORD = '2605';
 const COUPLE_NAMES = ['Victor', 'Maria'];
 
-// Conta fixa para verificação manual/dev (curl, Playwright, etc.) — reaproveitar
-// sempre essa conta em vez de registrar uma nova a cada sessão de teste.
-const TEST_USER_NAME = 'Teste';
-const TEST_USER_PASSWORD = 'Teste@123';
+// Equipe de teste fixa para verificação manual/dev (curl, Playwright, etc.) —
+// reaproveitar sempre essas 2 contas em vez de registrar novas a cada sessão
+// de teste. Ficam na equipe ('team') 'teste', isoladas dos dados reais do
+// casal principal (team 'principal') em todas as features.
+const TEST_TEAM = 'teste';
+const TEST_USERS = [
+  { name: 'Teste', password: 'Teste@123' },
+  { name: 'Teste2', password: 'Teste2@123' },
+];
 
 // Data real migrada da planilha "Orçamento mensal 14 julho lIMPO.xlsx" do casal.
 const BUDGET_REFERENCE_DATE = new Date(2026, 6, 14);
@@ -120,18 +125,19 @@ const BUDGET_GOALS = [
   },
 ];
 
-async function upsertUser(name, password = COUPLE_PASSWORD, includeInHabits = true) {
+async function upsertUser(name, password = COUPLE_PASSWORD, includeInHabits = true, team = 'principal') {
   let user = await User.findOne({ name });
   if (!user) {
-    user = await User.create({ name, password, includeInHabits });
+    user = await User.create({ name, password, includeInHabits, team });
     console.log('Usuário criado:', name, '/', password);
   } else {
     // Comparar com o documento hidratado não basta: o Mongoose aplica o
     // default do schema em memória mesmo quando o campo nunca foi gravado no
     // banco, então `user.includeInHabits !== includeInHabits` pode dar falso
     // negativo e o campo nunca é persistido de fato. updateOne grava direto.
-    await User.updateOne({ _id: user._id }, { $set: { includeInHabits } });
+    await User.updateOne({ _id: user._id }, { $set: { includeInHabits, team } });
     user.includeInHabits = includeInHabits;
+    user.team = team;
     console.log('Usuário já existia:', name);
   }
   return user;
@@ -141,7 +147,7 @@ async function seed() {
   await connectDB();
 
   const [victor, maria] = await Promise.all(COUPLE_NAMES.map((name) => upsertUser(name)));
-  await upsertUser(TEST_USER_NAME, TEST_USER_PASSWORD, false);
+  await Promise.all(TEST_USERS.map(({ name, password }) => upsertUser(name, password, true, TEST_TEAM)));
 
   const existingEvents = await Event.countDocuments();
   if (existingEvents === 0) {
@@ -164,7 +170,7 @@ async function seed() {
     console.log('Já existem eventos no banco, nenhum evento de exemplo foi criado');
   }
 
-  const existingCategories = await FinanceCategory.countDocuments();
+  const existingCategories = await FinanceCategory.countDocuments({ team: 'principal' });
   if (existingCategories === 0) {
     await FinanceCategory.insertMany(DEFAULT_FINANCE_CATEGORIES);
     console.log(`${DEFAULT_FINANCE_CATEGORIES.length} categorias financeiras padrão criadas`);
@@ -172,7 +178,17 @@ async function seed() {
     console.log('Já existem categorias financeiras no banco, nenhuma categoria padrão foi criada');
   }
 
-  const categories = await FinanceCategory.find();
+  // Equipe de teste precisa das próprias categorias — sandbox isolado, não
+  // reaproveita as categorias reais do casal principal.
+  const existingTestCategories = await FinanceCategory.countDocuments({ team: TEST_TEAM });
+  if (existingTestCategories === 0) {
+    await FinanceCategory.insertMany(DEFAULT_FINANCE_CATEGORIES.map((c) => ({ ...c, team: TEST_TEAM })));
+    console.log(`${DEFAULT_FINANCE_CATEGORIES.length} categorias financeiras padrão criadas para a equipe de teste`);
+  } else {
+    console.log('Já existem categorias financeiras da equipe de teste, nenhuma categoria padrão foi criada');
+  }
+
+  const categories = await FinanceCategory.find({ team: 'principal' });
   const categoryId = (name) => categories.find((c) => c.name === name)?._id;
 
   const existingEntries = await FinanceEntry.countDocuments();

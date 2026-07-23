@@ -7,6 +7,7 @@ const activityLogSchema = new mongoose.Schema(
     eventTitle: { type: String, required: true },
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', default: null },
     details: { type: String, default: '' },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

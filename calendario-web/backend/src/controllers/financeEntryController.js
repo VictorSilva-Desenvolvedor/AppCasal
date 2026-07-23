@@ -10,9 +10,9 @@ const ENTRY_POPULATE = [
   { path: 'creator', select: 'name' },
 ];
 
-async function assertMonthOpen(date) {
+async function assertMonthOpen(date, team) {
   const d = new Date(date);
-  const month = await FinanceMonth.findOne({ month: d.getMonth() + 1, year: d.getFullYear() });
+  const month = await FinanceMonth.findOne({ month: d.getMonth() + 1, year: d.getFullYear(), team });
 
   if (month && month.status === 'fechado') {
     const err = new Error('Este mês está finalizado — reabra o mês para editar lançamentos');
@@ -36,6 +36,7 @@ async function syncReimbursement(entry, req) {
       description: `Divisão de "${entry.description}"`,
       relatedEntry: entry._id,
       creator: req.userId,
+      team: req.userTeam,
     },
     { upsert: true, setDefaultsOnInsert: true }
   );
@@ -43,7 +44,7 @@ async function syncReimbursement(entry, req) {
 
 async function list(req, res) {
   const { month, year, type, category, paidBy } = req.query;
-  const filter = {};
+  const filter = { team: req.userTeam };
 
   if (month && year) {
     const start = new Date(Number(year), Number(month) - 1, 1);
@@ -59,7 +60,7 @@ async function list(req, res) {
 }
 
 async function create(req, res) {
-  const { type, description, amount, category, date, paidAmount, wishType, reason, sharedWith, splitAmount } =
+  const { type, description, amount, category, date, paidAmount, nature, wishType, reason, sharedWith, splitAmount } =
     req.body;
 
   if (!type || !description || amount === undefined || !date) {
@@ -69,7 +70,7 @@ async function create(req, res) {
     return res.status(400).json({ message: 'Informe o valor do reembolso ao compartilhar uma despesa' });
   }
 
-  await assertMonthOpen(date);
+  await assertMonthOpen(date, req.userTeam);
 
   const entry = await FinanceEntry.create({
     type,
@@ -78,12 +79,14 @@ async function create(req, res) {
     category: category || null,
     date,
     paidAmount: paidAmount || 0,
+    nature: nature || 'unica',
     wishType: wishType || null,
     reason: reason || '',
     paidBy: req.userId,
     sharedWith: sharedWith || null,
     splitAmount: sharedWith ? splitAmount : null,
     creator: req.userId,
+    team: req.userTeam,
   });
 
   await syncReimbursement(entry, req);
@@ -101,11 +104,11 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { type, description, amount, category, date, paidAmount, wishType, reason, sharedWith, splitAmount } =
+  const { type, description, amount, category, date, paidAmount, nature, wishType, reason, sharedWith, splitAmount } =
     req.body;
 
   const before = await FinanceEntry.findById(req.params.id);
-  if (!before) {
+  if (!before || String(before.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Lançamento não encontrado' });
   }
   if (String(before.paidBy) !== req.userId) {
@@ -117,8 +120,8 @@ async function update(req, res) {
     return res.status(400).json({ message: 'Informe o valor do reembolso ao compartilhar uma despesa' });
   }
 
-  await assertMonthOpen(before.date);
-  if (date !== undefined) await assertMonthOpen(date);
+  await assertMonthOpen(before.date, req.userTeam);
+  if (date !== undefined) await assertMonthOpen(date, req.userTeam);
 
   const entry = await FinanceEntry.findByIdAndUpdate(
     req.params.id,
@@ -129,6 +132,7 @@ async function update(req, res) {
       category: category || null,
       date,
       paidAmount,
+      nature: nature || 'unica',
       wishType: wishType || null,
       reason,
       sharedWith: sharedWith || null,
@@ -152,7 +156,7 @@ async function update(req, res) {
 
 async function remove(req, res) {
   const entry = await FinanceEntry.findById(req.params.id);
-  if (!entry) {
+  if (!entry || String(entry.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Lançamento não encontrado' });
   }
   if (String(entry.paidBy) !== req.userId) {
@@ -161,7 +165,7 @@ async function remove(req, res) {
     throw err;
   }
 
-  await assertMonthOpen(entry.date);
+  await assertMonthOpen(entry.date, req.userTeam);
 
   await FinanceEntry.findByIdAndDelete(entry._id);
   await Reimbursement.deleteMany({ relatedEntry: entry._id });
@@ -177,17 +181,13 @@ async function remove(req, res) {
   }).catch((err) => console.error('Falha ao notificar remoção de lançamento:', err.message));
 }
 
-async function report(req, res) {
-  const { month, year, paidBy } = req.query;
-  if (!month || !year) {
-    return res.status(400).json({ message: 'Mês e ano são obrigatórios' });
-  }
-
+async function computeMonthTotals(month, year, paidBy, team) {
   const start = new Date(Number(year), Number(month) - 1, 1);
   const end = new Date(Number(year), Number(month), 1);
 
   const allEntries = await FinanceEntry.find({
     date: { $gte: start, $lt: end },
+    team,
     ...(paidBy && { paidBy }),
   }).populate('category');
   // Itens de planejamento futuro (necessidade/desejo) ainda não são gasto real,
@@ -196,10 +196,27 @@ async function report(req, res) {
 
   const totalReceitas = entries.filter((e) => e.type === 'receita').reduce((sum, e) => sum + e.amount, 0);
   const totalDespesas = entries.filter((e) => e.type === 'despesa').reduce((sum, e) => sum + e.amount, 0);
+
+  return { entries, totalReceitas, totalDespesas };
+}
+
+function pctChange(current, previous) {
+  if (!previous) return null;
+  return ((current - previous) / previous) * 100;
+}
+
+async function report(req, res) {
+  const { month, year, paidBy } = req.query;
+  if (!month || !year) {
+    return res.status(400).json({ message: 'Mês e ano são obrigatórios' });
+  }
+
+  const { entries, totalReceitas, totalDespesas } = await computeMonthTotals(month, year, paidBy, req.userTeam);
   const saldo = totalReceitas - totalDespesas;
   const percentualGasto = totalReceitas > 0 ? totalDespesas / totalReceitas : 0;
 
   const categoryMap = new Map();
+  const natureMap = new Map();
   entries
     .filter((e) => e.type === 'despesa')
     .forEach((e) => {
@@ -214,7 +231,26 @@ async function report(req, res) {
         });
       }
       categoryMap.get(key).total += e.amount;
+
+      const natureKey = e.nature || 'unica';
+      natureMap.set(natureKey, (natureMap.get(natureKey) || 0) + e.amount);
     });
+
+  const topDespesas = entries
+    .filter((e) => e.type === 'despesa')
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5)
+    .map((e) => ({
+      _id: e._id,
+      description: e.description,
+      amount: e.amount,
+      date: e.date,
+      category: e.category ? { name: e.category.name, color: e.category.color } : null,
+    }));
+
+  const prevMonth = Number(month) === 1 ? 12 : Number(month) - 1;
+  const prevYear = Number(month) === 1 ? Number(year) - 1 : Number(year);
+  const prevTotals = await computeMonthTotals(prevMonth, prevYear, paidBy, req.userTeam);
 
   res.json({
     totalReceitas,
@@ -222,7 +258,38 @@ async function report(req, res) {
     saldo,
     percentualGasto,
     porCategoria: Array.from(categoryMap.values()).sort((a, b) => b.total - a.total),
+    porNatureza: Array.from(natureMap.entries()).map(([natureza, total]) => ({ natureza, total })),
+    topDespesas,
+    comparativoMesAnterior: {
+      totalReceitasAnterior: prevTotals.totalReceitas,
+      totalDespesasAnterior: prevTotals.totalDespesas,
+      variacaoReceitasPct: pctChange(totalReceitas, prevTotals.totalReceitas),
+      variacaoDespesasPct: pctChange(totalDespesas, prevTotals.totalDespesas),
+    },
   });
 }
 
-module.exports = { list, create, update, remove, report, assertMonthOpen };
+async function history(req, res) {
+  const { month, year, months, paidBy } = req.query;
+  if (!month || !year) {
+    return res.status(400).json({ message: 'Mês e ano são obrigatórios' });
+  }
+  const count = Math.min(12, Math.max(1, Number(months) || 6));
+
+  const targets = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(Number(year), Number(month) - 1 - i, 1);
+    targets.push({ month: d.getMonth() + 1, year: d.getFullYear() });
+  }
+
+  const points = await Promise.all(
+    targets.map(async ({ month: m, year: y }) => {
+      const { totalReceitas, totalDespesas } = await computeMonthTotals(m, y, paidBy, req.userTeam);
+      return { month: m, year: y, totalReceitas, totalDespesas, saldo: totalReceitas - totalDespesas };
+    })
+  );
+
+  res.json(points);
+}
+
+module.exports = { list, create, update, remove, report, history, assertMonthOpen };

@@ -1,7 +1,9 @@
 const User = require('../models/User');
 
 async function list(req, res) {
-  const users = await User.find().select('name includeInHabits').sort('name');
+  // Escopo por equipe (team) é o que isola a equipe de teste do casal
+  // principal — includeInHabits só controla pareamento dentro dos hábitos.
+  const users = await User.find({ team: req.userTeam }).select('name includeInHabits').sort('name');
   res.json(users);
 }
 

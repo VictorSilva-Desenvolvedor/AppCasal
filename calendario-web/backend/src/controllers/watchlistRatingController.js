@@ -6,7 +6,7 @@ const POPULATE = { path: 'user', select: 'name' };
 
 async function list(req, res) {
   const { item } = req.query;
-  const filter = {};
+  const filter = { team: req.userTeam };
   if (item) filter.item = item;
 
   const ratings = await WatchlistRating.find(filter).populate(POPULATE).sort({ createdAt: 1 });
@@ -24,7 +24,7 @@ async function create(req, res) {
   }
 
   const item = await WatchlistItem.findById(itemId);
-  if (!item) {
+  if (!item || String(item.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Item não encontrado' });
   }
   if (item.status !== 'visto_ouvido') {
@@ -36,6 +36,7 @@ async function create(req, res) {
     hearts,
     comment: comment || '',
     user: req.userId,
+    team: req.userTeam,
   });
 
   const populated = await rating.populate(POPULATE);
@@ -52,7 +53,7 @@ async function create(req, res) {
 
 async function update(req, res) {
   const rating = await WatchlistRating.findById(req.params.id);
-  if (!rating) return res.status(404).json({ message: 'Avaliação não encontrada' });
+  if (!rating || String(rating.team) !== req.userTeam) return res.status(404).json({ message: 'Avaliação não encontrada' });
   if (String(rating.user) !== req.userId) {
     const err = new Error('Você só pode editar sua própria avaliação');
     err.status = 403;
@@ -82,7 +83,7 @@ async function update(req, res) {
 
 async function remove(req, res) {
   const rating = await WatchlistRating.findById(req.params.id);
-  if (!rating) return res.status(404).json({ message: 'Avaliação não encontrada' });
+  if (!rating || String(rating.team) !== req.userTeam) return res.status(404).json({ message: 'Avaliação não encontrada' });
   if (String(rating.user) !== req.userId) {
     const err = new Error('Você só pode excluir sua própria avaliação');
     err.status = 403;

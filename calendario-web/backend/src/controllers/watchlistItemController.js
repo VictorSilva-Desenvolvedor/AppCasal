@@ -8,7 +8,7 @@ const TYPES = ['filme', 'serie', 'jogo'];
 
 async function list(req, res) {
   const { type, status } = req.query;
-  const filter = {};
+  const filter = { team: req.userTeam };
   if (type) filter.type = type;
   if (status) filter.status = status;
 
@@ -37,6 +37,7 @@ async function create(req, res) {
     rating: rating ?? null,
     synopsis: synopsis || '',
     creator: req.userId,
+    team: req.userTeam,
   });
 
   const populated = await item.populate(POPULATE);
@@ -65,8 +66,8 @@ async function update(req, res) {
   if (rating !== undefined) changes.rating = rating;
   if (synopsis !== undefined) changes.synopsis = synopsis;
 
-  const previous = await WatchlistItem.findById(req.params.id, 'status');
-  if (!previous) return res.status(404).json({ message: 'Item não encontrado' });
+  const previous = await WatchlistItem.findById(req.params.id, 'status team');
+  if (!previous || String(previous.team) !== req.userTeam) return res.status(404).json({ message: 'Item não encontrado' });
 
   const item = await WatchlistItem.findByIdAndUpdate(req.params.id, changes, {
     new: true,
@@ -110,7 +111,7 @@ async function posterDetailsHandler(req, res) {
 }
 
 async function remove(req, res) {
-  const item = await WatchlistItem.findByIdAndDelete(req.params.id);
+  const item = await WatchlistItem.findOneAndDelete({ _id: req.params.id, team: req.userTeam });
   if (!item) return res.status(404).json({ message: 'Item não encontrado' });
 
   // Avaliações órfãs de um item excluído não fazem sentido — remove junto.

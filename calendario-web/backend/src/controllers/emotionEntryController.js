@@ -5,7 +5,7 @@ const ENTRY_POPULATE = { path: 'user', select: 'name' };
 
 async function list(req, res) {
   const { user, day, period } = req.query;
-  const filter = {};
+  const filter = { team: req.userTeam };
   if (user) filter.user = user;
   if (day) filter.day = day;
   if (period) filter.period = period;
@@ -30,6 +30,7 @@ async function create(req, res) {
     reasons: reasons || [],
     reasonOther: reasonOther || '',
     user: req.userId,
+    team: req.userTeam,
   });
   const populated = await entry.populate(ENTRY_POPULATE);
   res.status(201).json(populated);
@@ -45,7 +46,7 @@ async function create(req, res) {
 
 async function update(req, res) {
   const entry = await EmotionEntry.findById(req.params.id);
-  if (!entry) return res.status(404).json({ message: 'Registro não encontrado' });
+  if (!entry || String(entry.team) !== req.userTeam) return res.status(404).json({ message: 'Registro não encontrado' });
 
   const isOwner = String(entry.user) === req.userId;
   const patch = {};
@@ -95,7 +96,7 @@ async function update(req, res) {
 
 async function remove(req, res) {
   const entry = await EmotionEntry.findById(req.params.id);
-  if (!entry) return res.status(404).json({ message: 'Registro não encontrado' });
+  if (!entry || String(entry.team) !== req.userTeam) return res.status(404).json({ message: 'Registro não encontrado' });
   if (String(entry.user) !== req.userId) {
     const err = new Error('Você só pode excluir seus próprios registros de emoção');
     err.status = 403;

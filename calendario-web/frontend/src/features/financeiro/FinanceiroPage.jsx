@@ -52,10 +52,12 @@ export function FinanceiroPage() {
   const [categories, setCategories] = useState([]);
   const [entries, setEntries] = useState([]);
   const [report, setReport] = useState(null);
+  const [history, setHistory] = useState([]);
   const [reimbursements, setReimbursements] = useState([]);
   const [goals, setGoals] = useState([]);
   const [months, setMonths] = useState([]);
   const [editingEntry, setEditingEntry] = useState(null);
+  const [addType, setAddType] = useState(null);
   const [togglingMonth, setTogglingMonth] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
@@ -72,6 +74,10 @@ export function FinanceiroPage() {
     setReport(await api.getFinanceReport(monthYear.month, monthYear.year, viewScope));
   }, [monthYear, viewScope]);
 
+  const reloadHistory = useCallback(async () => {
+    setHistory(await api.getFinanceHistory(monthYear.month, monthYear.year, 6, viewScope));
+  }, [monthYear, viewScope]);
+
   useEffect(() => {
     reloadCategories();
     reloadMonths();
@@ -85,8 +91,9 @@ export function FinanceiroPage() {
   useEffect(() => {
     reloadEntries();
     reloadReport();
+    reloadHistory();
     setEditingEntry(null);
-  }, [reloadEntries, reloadReport]);
+  }, [reloadEntries, reloadReport, reloadHistory]);
 
   const currentMonthRecord = months.find((m) => m.month === monthYear.month && m.year === monthYear.year);
   const isClosed = currentMonthRecord?.status === 'fechado';
@@ -194,20 +201,20 @@ export function FinanceiroPage() {
         ))}
       </div>
 
-      {activeTab === 'resumo' && <FinanceSummary report={report} />}
+      {activeTab === 'resumo' && <FinanceSummary report={report} goals={goals} history={history} />}
 
       {activeTab === 'lancamentos' && (
         <div className="finance-entries-tab">
           <FinanceCategoryManager categories={categories} onChanged={reloadCategories} />
           {isMyView ? (
-            <FinanceEntryForm
-              categories={categories}
-              users={users}
-              monthLocked={isClosed}
-              editingEntry={null}
-              onSaved={handleEntrySaved}
-              onCancelEdit={() => {}}
-            />
+            <div className="finance-add-entry-actions">
+              <Button variant="secondary" onClick={() => setAddType('despesa')}>
+                <Icon name="plus" className="finance-value--negative" /> Despesa
+              </Button>
+              <Button variant="secondary" onClick={() => setAddType('receita')}>
+                <Icon name="plus" className="finance-value--positive" /> Receita
+              </Button>
+            </div>
           ) : (
             <p className="finance-goal-form-hint">
               Você está vendo os lançamentos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um
@@ -219,6 +226,7 @@ export function FinanceiroPage() {
             monthLocked={isClosed}
             onEdit={setEditingEntry}
             onDeleted={handleEntryDeleted}
+            groupByNature
           />
         </div>
       )}
@@ -275,6 +283,27 @@ export function FinanceiroPage() {
               setEditingEntry(null);
             }}
             onCancelEdit={() => setEditingEntry(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        open={Boolean(addType)}
+        onClose={() => setAddType(null)}
+        title={addType === 'receita' ? 'Nova receita' : 'Nova despesa'}
+      >
+        {addType && (
+          <FinanceEntryForm
+            categories={categories}
+            users={users}
+            monthLocked={isClosed}
+            editingEntry={null}
+            forcedType={addType}
+            onSaved={async () => {
+              await handleEntrySaved();
+              setAddType(null);
+            }}
+            onCancelEdit={() => setAddType(null)}
           />
         )}
       </Modal>

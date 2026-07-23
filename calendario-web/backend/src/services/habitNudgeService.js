@@ -7,7 +7,7 @@ const { notifyPartner } = require('./notificationService');
 // com includeInHabits (o app pode ter contas extras, ex. de teste, que não
 // contam pra isso).
 async function notifyPartnerNudge(checkin, habit) {
-  const partner = await User.findOne({ _id: { $ne: checkin.user }, includeInHabits: true });
+  const partner = await User.findOne({ _id: { $ne: checkin.user }, includeInHabits: true, team: habit.team });
   if (!partner) return;
 
   const alreadyDone = await HabitCheckin.exists({ habit: habit._id, user: partner._id, day: checkin.day });
@@ -28,7 +28,7 @@ async function notifyPartnerNudge(checkin, habit) {
 // Avisa o parceiro quando uma subtarefa de um hábito colaborativo é
 // concluída e ainda restam outras subtarefas sem check-in no dia.
 async function notifyCollaborativeNudge(checkin, habit) {
-  const partner = await User.findOne({ _id: { $ne: checkin.user }, includeInHabits: true });
+  const partner = await User.findOne({ _id: { $ne: checkin.user }, includeInHabits: true, team: habit.team });
   if (!partner) return;
 
   const activeSubtasks = habit.subtasks.filter((s) => s.active);

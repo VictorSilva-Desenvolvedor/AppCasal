@@ -12,6 +12,7 @@ const financeGoalSchema = new mongoose.Schema(
     notes: { type: String, default: '' },
     status: { type: String, enum: ['ativo', 'concluido'], default: 'ativo' },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    team: { type: String, default: 'principal' },
   },
   { timestamps: true }
 );

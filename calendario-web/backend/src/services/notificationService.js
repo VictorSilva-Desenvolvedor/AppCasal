@@ -17,9 +17,13 @@ async function notifyPartner({
   category = 'general',
   settingsFlag = 'notifyOnPartnerActivity',
 }) {
-  const recipient = recipientId
-    ? await User.findById(recipientId)
-    : await User.findOne({ _id: { $ne: actorId }, includeInHabits: true });
+  let recipient;
+  if (recipientId) {
+    recipient = await User.findById(recipientId);
+  } else {
+    const actor = await User.findById(actorId, 'team');
+    recipient = actor && (await User.findOne({ _id: { $ne: actorId }, includeInHabits: true, team: actor.team }));
+  }
   if (!recipient) return;
 
   await Notification.create({ recipient: recipient._id, actor: actorId, title, body, link, category });

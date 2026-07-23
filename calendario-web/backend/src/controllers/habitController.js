@@ -74,7 +74,7 @@ function resolveHabitConfig(type, { goalType, targetValue, unit, frequency, dura
 
 async function list(req, res) {
   const { type, active } = req.query;
-  const filter = {};
+  const filter = { team: req.userTeam };
   if (type) filter.type = type;
 
   if (active === 'all') {
@@ -149,6 +149,7 @@ async function create(req, res) {
     maxMissesPerWeek: maxMissesPerWeek ?? undefined,
     freezesPerMonth: freezesPerMonth ?? undefined,
     createdBy: req.userId,
+    team: req.userTeam,
   });
   const populated = await habit.populate(POPULATE);
   res.status(201).json(populated);
@@ -164,7 +165,7 @@ async function create(req, res) {
 
 async function update(req, res) {
   const habit = await Habit.findById(req.params.id);
-  if (!habit) return res.status(404).json({ message: 'Hábito não encontrado' });
+  if (!habit || String(habit.team) !== req.userTeam) return res.status(404).json({ message: 'Hábito não encontrado' });
   if (String(habit.createdBy) !== req.userId) {
     const err = new Error('Você só pode editar hábitos que você criou');
     err.status = 403;
@@ -279,7 +280,7 @@ async function update(req, res) {
 
 async function archive(req, res) {
   const habit = await Habit.findById(req.params.id);
-  if (!habit) return res.status(404).json({ message: 'Hábito não encontrado' });
+  if (!habit || String(habit.team) !== req.userTeam) return res.status(404).json({ message: 'Hábito não encontrado' });
   if (String(habit.createdBy) !== req.userId) {
     const err = new Error('Você só pode arquivar hábitos que você criou');
     err.status = 403;
@@ -302,7 +303,7 @@ async function archive(req, res) {
 
 async function remove(req, res) {
   const habit = await Habit.findById(req.params.id);
-  if (!habit) return res.status(404).json({ message: 'Hábito não encontrado' });
+  if (!habit || String(habit.team) !== req.userTeam) return res.status(404).json({ message: 'Hábito não encontrado' });
   if (String(habit.createdBy) !== req.userId) {
     const err = new Error('Você só pode excluir hábitos que você criou');
     err.status = 403;
@@ -329,7 +330,9 @@ async function remove(req, res) {
 
 async function freeze(req, res) {
   const habit = await Habit.findById(req.params.id);
-  if (!habit || !habit.active) return res.status(404).json({ message: 'Hábito não encontrado' });
+  if (!habit || !habit.active || String(habit.team) !== req.userTeam) {
+    return res.status(404).json({ message: 'Hábito não encontrado' });
+  }
   if (habit.type === 'individual' && String(habit.owner) !== req.userId) {
     const err = new Error('Este hábito individual não é seu');
     err.status = 403;

@@ -7,13 +7,13 @@ const { notifyPartner } = require('../services/notificationService');
 const DEFAULT_REMINDER_OFFSETS = [5, 3, 1];
 
 async function list(req, res) {
-  const events = await Event.find().populate('creator', 'name').sort({ date: 1 });
+  const events = await Event.find({ team: req.userTeam }).populate('creator', 'name').sort({ date: 1 });
   res.json(events);
 }
 
 async function upcomingReminders(req, res) {
   const todayUTC = toUTCDateOnly(new Date());
-  const events = await Event.find();
+  const events = await Event.find({ team: req.userTeam });
 
   const maxOffset = events.reduce((max, event) => {
     const offsets = event.reminderOffsets?.length ? event.reminderOffsets : DEFAULT_REMINDER_OFFSETS;
@@ -66,6 +66,7 @@ async function create(req, res) {
     reminderOffsets: Array.isArray(reminderOffsets) && reminderOffsets.length ? reminderOffsets : [5, 3, 1],
     hideWhenPast: Boolean(hideWhenPast),
     creator: req.userId,
+    team: req.userTeam,
   });
 
   await logActivity({
@@ -73,6 +74,7 @@ async function create(req, res) {
     action: 'created',
     event,
     details: `Criou o evento para ${formatDate(event.date)}`,
+    team: req.userTeam,
   });
 
   const populated = await event.populate('creator', 'name');
@@ -92,7 +94,7 @@ async function update(req, res) {
     req.body;
 
   const before = await Event.findById(req.params.id);
-  if (!before) {
+  if (!before || String(before.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Evento não encontrado' });
   }
 
@@ -120,6 +122,7 @@ async function update(req, res) {
     action: 'updated',
     event,
     details: buildUpdateDetails(before, event),
+    team: req.userTeam,
   });
 
   res.json(event);
@@ -134,7 +137,7 @@ async function update(req, res) {
 }
 
 async function remove(req, res) {
-  const event = await Event.findByIdAndDelete(req.params.id);
+  const event = await Event.findOneAndDelete({ _id: req.params.id, team: req.userTeam });
 
   if (!event) {
     return res.status(404).json({ message: 'Evento não encontrado' });
@@ -148,6 +151,7 @@ async function remove(req, res) {
     event,
     eventTitle: event.title,
     details: `Excluiu o evento de ${formatDate(event.date)}`,
+    team: req.userTeam,
   });
 
   res.status(204).send();

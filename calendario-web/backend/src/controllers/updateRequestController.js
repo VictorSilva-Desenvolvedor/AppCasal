@@ -3,7 +3,7 @@ const { generateTaskDraft } = require('../services/aiService');
 const { notifyPartner } = require('../services/notificationService');
 
 async function list(req, res) {
-  const requests = await UpdateRequest.find().populate('creator', 'name').sort({ createdAt: -1 });
+  const requests = await UpdateRequest.find({ team: req.userTeam }).populate('creator', 'name').sort({ createdAt: -1 });
   res.json(requests);
 }
 
@@ -19,6 +19,7 @@ async function create(req, res) {
     description,
     status: status || 'todo',
     creator: req.userId,
+    team: req.userTeam,
   });
 
   const populated = await request.populate('creator', 'name');
@@ -40,7 +41,7 @@ async function update(req, res) {
   if (description !== undefined) changes.description = description;
   if (status !== undefined) changes.status = status;
 
-  const request = await UpdateRequest.findByIdAndUpdate(req.params.id, changes, {
+  const request = await UpdateRequest.findOneAndUpdate({ _id: req.params.id, team: req.userTeam }, changes, {
     new: true,
     runValidators: true,
   }).populate('creator', 'name');
@@ -61,7 +62,7 @@ async function update(req, res) {
 }
 
 async function remove(req, res) {
-  const request = await UpdateRequest.findByIdAndDelete(req.params.id);
+  const request = await UpdateRequest.findOneAndDelete({ _id: req.params.id, team: req.userTeam });
 
   if (!request) {
     return res.status(404).json({ message: 'Pedido não encontrado' });
