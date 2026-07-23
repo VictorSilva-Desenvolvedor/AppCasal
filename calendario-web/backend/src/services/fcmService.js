@@ -1,12 +1,15 @@
-const admin = require('firebase-admin');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 const DeviceToken = require('../models/DeviceToken');
 
 let fcmReady = false;
 
+// firebase-admin v14 não expõe mais a API antiga (admin.credential.cert,
+// admin.messaging()) no objeto principal — só os submódulos modulares.
 if (process.env.FCM_SERVICE_ACCOUNT_JSON) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.cert(JSON.parse(process.env.FCM_SERVICE_ACCOUNT_JSON)),
+    initializeApp({
+      credential: cert(JSON.parse(process.env.FCM_SERVICE_ACCOUNT_JSON)),
     });
     fcmReady = true;
   } catch (err) {
@@ -28,7 +31,7 @@ async function sendFcmPush(userId, payload) {
 
   for (const deviceToken of tokens) {
     try {
-      await admin.messaging().send({
+      await getMessaging().send({
         token: deviceToken.token,
         notification: { title: payload.title, body: payload.body },
         data: { link: payload.link || '' },
