@@ -20,10 +20,12 @@ export function HabitosPage() {
   const users = allUsers.filter((u) => u.includeInHabits !== false);
   const { user } = useAuth();
   const { showToast } = useToast();
+  const otherUser = users.find((u) => u._id !== user?._id);
 
   const [habits, setHabits] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
+  const [viewScope, setViewScope] = useState('ambos'); // 'ambos' | 'meu' | 'parceiro'
   const [formOpen, setFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
   const [checkinHabit, setCheckinHabit] = useState(null);
@@ -32,7 +34,7 @@ export function HabitosPage() {
 
   const reload = useCallback(async () => {
     const [habitsData, checkinsData] = await Promise.all([
-      api.getHabits({ active: showArchived ? 'all' : 'true' }),
+      api.getHabits({ active: showArchived ? 'false' : 'true' }),
       api.getHabitCheckins(),
     ]);
     setHabits(habitsData);
@@ -44,6 +46,12 @@ export function HabitosPage() {
   }, [reload]);
 
   const checkinsByHabit = groupCheckinsByHabit(checkins);
+
+  const scopedHabits = habits.filter((habit) => {
+    if (viewScope === 'ambos') return habit.type !== 'individual';
+    const ownerId = habit.owner?._id ?? habit.owner;
+    return viewScope === 'meu' ? ownerId === user?._id : ownerId === otherUser?._id;
+  });
 
   function handleOpenCreate() {
     setEditingHabit(null);
@@ -65,6 +73,27 @@ export function HabitosPage() {
     try {
       await api.archiveHabit(habit._id);
       showToast('Hábito arquivado', 'info');
+      reload();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
+  async function handleUnarchive(habit) {
+    try {
+      await api.updateHabit(habit._id, { active: true });
+      showToast('Hábito reativado', 'success');
+      reload();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
+  async function handleDelete(habit) {
+    if (!window.confirm(`Excluir "${habit.name}" permanentemente? Essa ação não pode ser desfeita.`)) return;
+    try {
+      await api.deleteHabit(habit._id);
+      showToast('Hábito excluído', 'info');
       reload();
     } catch (err) {
       showToast(err.message, 'error');
@@ -113,19 +142,74 @@ export function HabitosPage() {
           <h2 className="habit-page-title">Hábitos</h2>
         </div>
         <div className="habit-header-actions">
-          <button
-            type="button"
-            className={`habit-type-toggle-btn${showArchived ? ' is-active' : ''}`}
-            onClick={() => setShowArchived((prev) => !prev)}
-          >
-            {showArchived ? 'Ver ativos' : 'Ver arquivados'}
-          </button>
+          <div className="habit-tabs" role="tablist" aria-label="Filtrar hábitos">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!showArchived}
+              className={`habit-type-toggle-btn${!showArchived ? ' is-active' : ''}`}
+              onClick={() => setShowArchived(false)}
+            >
+              Ativos
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={showArchived}
+              className={`habit-type-toggle-btn${showArchived ? ' is-active' : ''}`}
+              onClick={() => setShowArchived(true)}
+            >
+              Arquivados
+            </button>
+          </div>
         </div>
       </div>
 
+      <div className="habit-scope-tabs" role="tablist" aria-label="De quem é o hábito">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewScope === 'ambos'}
+          className={`habit-type-toggle-btn${viewScope === 'ambos' ? ' is-active' : ''}`}
+          onClick={() => setViewScope('ambos')}
+        >
+          Ambos
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewScope === 'meu'}
+          className={`habit-type-toggle-btn${viewScope === 'meu' ? ' is-active' : ''}`}
+          onClick={() => setViewScope('meu')}
+        >
+          Meu
+        </button>
+        {otherUser && (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewScope === 'parceiro'}
+            className={`habit-type-toggle-btn${viewScope === 'parceiro' ? ' is-active' : ''}`}
+            onClick={() => setViewScope('parceiro')}
+          >
+            {otherUser.name}
+          </button>
+        )}
+      </div>
+
       <div className="habit-list">
-        {habits.length === 0 && <p className="habit-empty">Nenhum hábito ainda. Crie o primeiro!</p>}
-        {habits.map((habit) => (
+        {scopedHabits.length === 0 && (
+          <p className="habit-empty">
+            {showArchived
+              ? 'Nenhum hábito arquivado.'
+              : viewScope === 'meu'
+                ? 'Nenhum hábito individual seu ainda.'
+                : viewScope === 'parceiro'
+                  ? `Nenhum hábito individual de ${otherUser?.name ?? 'parceiro(a)'} ainda.`
+                  : 'Nenhum hábito ainda. Crie o primeiro!'}
+          </p>
+        )}
+        {scopedHabits.map((habit) => (
           <HabitCard
             key={habit._id}
             habit={habit}
@@ -135,6 +219,8 @@ export function HabitosPage() {
             onCheckin={setCheckinHabit}
             onEdit={handleOpenEdit}
             onArchive={handleArchive}
+            onUnarchive={handleUnarchive}
+            onDelete={handleDelete}
             onViewHistory={setHistoryHabit}
             onFrozen={reload}
             onReacted={reload}

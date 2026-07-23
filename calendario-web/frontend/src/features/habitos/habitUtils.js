@@ -6,6 +6,14 @@ export const HABIT_TYPE_LABELS = {
   colaborativo: 'Colaborativo',
 };
 
+export const HABIT_TYPE_DESCRIPTIONS = {
+  casal: 'Cada um faz o hábito no seu próprio ritmo, todo dia — os dois são acompanhados lado a lado.',
+  individual: 'Só uma pessoa faz esse hábito; o check-in é sempre dela.',
+  espelhado: 'Como o Sincronizado: cada um faz e marca o próprio check-in todo dia.',
+  alternado: 'Só uma pessoa por vez faz o hábito, revezando entre os dois a cada check-in.',
+  colaborativo: 'Uma lista de subtarefas que vocês dividem e completam juntos.',
+};
+
 export function toDayKey(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');

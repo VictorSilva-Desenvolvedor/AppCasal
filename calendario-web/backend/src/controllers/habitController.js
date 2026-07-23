@@ -1,4 +1,6 @@
 const Habit = require('../models/Habit');
+const HabitCheckin = require('../models/HabitCheckin');
+const HabitReminderLog = require('../models/HabitReminderLog');
 const { todayKeyInTimezone } = require('../utils/dayKey');
 const { notifyPartner } = require('../services/notificationService');
 
@@ -298,6 +300,33 @@ async function archive(req, res) {
   }).catch((err) => console.error('Falha ao notificar arquivamento de hábito:', err.message));
 }
 
+async function remove(req, res) {
+  const habit = await Habit.findById(req.params.id);
+  if (!habit) return res.status(404).json({ message: 'Hábito não encontrado' });
+  if (String(habit.createdBy) !== req.userId) {
+    const err = new Error('Você só pode excluir hábitos que você criou');
+    err.status = 403;
+    throw err;
+  }
+  if (habit.active) {
+    return res.status(400).json({ message: 'Arquive o hábito antes de excluí-lo permanentemente' });
+  }
+
+  await Habit.findByIdAndDelete(habit._id);
+  await HabitCheckin.deleteMany({ habit: habit._id });
+  await HabitReminderLog.deleteMany({ habit: habit._id });
+
+  res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Hábito excluído',
+    body: `🗑️ O hábito "${habit.name}" foi excluído permanentemente.`,
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar exclusão de hábito:', err.message));
+}
+
 async function freeze(req, res) {
   const habit = await Habit.findById(req.params.id);
   if (!habit || !habit.active) return res.status(404).json({ message: 'Hábito não encontrado' });
@@ -340,4 +369,4 @@ async function freeze(req, res) {
   }).catch((err) => console.error('Falha ao notificar congelador de hábito:', err.message));
 }
 
-module.exports = { list, create, update, archive, freeze };
+module.exports = { list, create, update, archive, remove, freeze };

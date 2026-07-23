@@ -1,5 +1,12 @@
-import { Icon } from '../../components/ui/index.js';
-import { displayStreak, computeWeekProgress, getPartnerColor, toDayKey, HABIT_TYPE_LABELS } from './habitUtils.js';
+import { Icon, InfoTooltip } from '../../components/ui/index.js';
+import {
+  displayStreak,
+  computeWeekProgress,
+  getPartnerColor,
+  toDayKey,
+  HABIT_TYPE_LABELS,
+  HABIT_TYPE_DESCRIPTIONS,
+} from './habitUtils.js';
 import { HabitReactionPicker } from './HabitReactionPicker.jsx';
 import { HabitFreezeButton } from './HabitFreezeButton.jsx';
 import { HabitRecoveryBanner } from './HabitRecoveryBanner.jsx';
@@ -12,10 +19,13 @@ export function HabitCard({
   onCheckin,
   onEdit,
   onArchive,
+  onUnarchive,
+  onDelete,
   onViewHistory,
   onFrozen,
   onReacted,
 }) {
+  const isArchived = !habit.active;
   const todayKey = toDayKey(new Date());
   const streak = displayStreak(habit, checkins, users);
   const weekProgress = computeWeekProgress(habit, checkins, users);
@@ -56,16 +66,20 @@ export function HabitCard({
 
   return (
     <div
-      className={`card habit-card${completedTogetherToday ? ' is-united' : ''}`}
+      className={`card habit-card${completedTogetherToday ? ' is-united' : ''}${isArchived ? ' is-archived' : ''}`}
       style={{ '--habit-color': habit.color }}
     >
       <div className="habit-card-main">
         <span className="habit-card-emoji">{habit.emoji}</span>
         <div className="habit-card-info">
-          <h3 className="habit-card-name">{habit.name}</h3>
+          <h3 className="habit-card-name">
+            {habit.name}
+            {isArchived && <span className="habit-archived-badge">Arquivado</span>}
+          </h3>
           <span className="habit-card-type">
             {HABIT_TYPE_LABELS[habit.type]}
             {isIndividual ? ` · ${habit.owner?.name ?? ''}` : ''}
+            <InfoTooltip text={HABIT_TYPE_DESCRIPTIONS[habit.type]} />
           </span>
         </div>
         {completedTogetherToday && (
@@ -76,6 +90,7 @@ export function HabitCard({
         <span className="habit-card-streak">
           <Icon name="habit-flame" />
           {streak}
+          <InfoTooltip text="Dias seguidos que vocês completaram esse hábito, sem quebrar." />
         </span>
       </div>
 
@@ -118,7 +133,7 @@ export function HabitCard({
       <HabitRecoveryBanner habit={habit} />
 
       <div className="habit-card-actions">
-        {canCheckin && (
+        {!isArchived && canCheckin && (
           <button
             type="button"
             className="btn btn-primary habit-checkin-btn"
@@ -134,16 +149,32 @@ export function HabitCard({
             )}
           </button>
         )}
-        <HabitFreezeButton habit={habit} onFrozen={onFrozen} />
+        {!isArchived && <HabitFreezeButton habit={habit} onFrozen={onFrozen} />}
         <button type="button" className="icon-btn" aria-label="Ver histórico" onClick={() => onViewHistory(habit)}>
           <Icon name="calendar" />
         </button>
         <button type="button" className="icon-btn" aria-label="Editar hábito" onClick={() => onEdit(habit)}>
           <Icon name="settings" />
         </button>
-        <button type="button" className="icon-btn" aria-label="Arquivar hábito" onClick={() => onArchive(habit)}>
-          <Icon name="trash" />
-        </button>
+        {isArchived ? (
+          <>
+            <button type="button" className="icon-btn" aria-label="Restaurar hábito" onClick={() => onUnarchive(habit)}>
+              <Icon name="rotate-ccw" />
+            </button>
+            <button
+              type="button"
+              className="icon-btn icon-btn-danger"
+              aria-label="Excluir hábito permanentemente"
+              onClick={() => onDelete(habit)}
+            >
+              <Icon name="trash" />
+            </button>
+          </>
+        ) : (
+          <button type="button" className="icon-btn" aria-label="Arquivar hábito" onClick={() => onArchive(habit)}>
+            <Icon name="archive" />
+          </button>
+        )}
       </div>
     </div>
   );

@@ -72,6 +72,32 @@
     hover:bg-bg hover:text-primary hover:scale-[1.15];
 }
 
+/* ---------- Ícone de ajuda com popover (clique, não hover — funciona em toque) ---------- */
+
+.info-tooltip {
+  @apply relative inline-flex items-center;
+}
+
+.info-tooltip-trigger {
+  @apply inline-flex items-center justify-center rounded-full border-none bg-transparent cursor-pointer p-0
+    text-text-muted transition-colors duration-150 hover:text-primary;
+  width: 16px;
+  height: 16px;
+}
+
+.info-tooltip-trigger .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.info-tooltip-bubble {
+  @apply absolute z-10 top-full left-0 mt-1.5 rounded-sm border border-border bg-surface text-text
+    text-xs leading-snug shadow-md;
+  width: max-content;
+  max-width: 220px;
+  padding: 0.5rem 0.65rem;
+}
+
 /* ---------- Campos de formulário ---------- */
 
 .field {

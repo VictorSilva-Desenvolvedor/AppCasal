@@ -49,6 +49,14 @@
   @apply cursor-not-allowed opacity-60;
 }
 
+.habit-tabs {
+  @apply flex items-center gap-2;
+}
+
+.habit-scope-tabs {
+  @apply flex items-center gap-2 mb-3;
+}
+
 .habit-empty {
   @apply text-center py-10;
   color: var(--habit-text-muted);
@@ -69,6 +77,20 @@
 /* Barra de gradiente no topo do card quando os dois completam o hábito de
    casal no mesmo dia — a "mistura visual" da união, sem repintar o card
    inteiro (mantém legibilidade do texto). */
+/* Hábito arquivado: opacidade reduzida diferencia a lista de "Ativos" sem
+   prejudicar a legibilidade do texto (não usa grayscale pra preservar
+   --habit-color na borda esquerda). */
+.habit-card.is-archived {
+  opacity: 0.65;
+}
+
+.habit-archived-badge {
+  @apply text-[0.65rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ml-2 align-middle;
+  background: var(--color-bg);
+  color: var(--habit-text-muted);
+  border: 1px solid var(--color-border);
+}
+
 .habit-card.is-united::before {
   content: '';
   position: absolute;
@@ -94,7 +116,7 @@
 }
 
 .habit-card-type {
-  @apply text-xs;
+  @apply text-xs inline-flex items-center gap-1;
   color: var(--habit-text-muted);
 }
 
@@ -169,6 +191,10 @@
 
 .habit-card-actions .icon-btn {
   @apply w-9 h-9;
+}
+
+.habit-card-actions .icon-btn-danger {
+  @apply hover:bg-danger-bg hover:text-danger;
 }
 
 /* ---------- Botão flutuante de criar hábito ---------- */

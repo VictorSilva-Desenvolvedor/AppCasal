@@ -4,7 +4,11 @@ import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { HABIT_EMOJIS } from '../../constants/habitEmojis.js';
 import { EVENT_COLORS } from '../calendar/calendarUtils.js';
-import { HABIT_TYPE_LABELS } from './habitUtils.js';
+import { HABIT_TYPE_LABELS, HABIT_TYPE_DESCRIPTIONS } from './habitUtils.js';
+
+const HABIT_TYPE_HINT = Object.entries(HABIT_TYPE_LABELS)
+  .map(([value, label]) => `${label}: ${HABIT_TYPE_DESCRIPTIONS[value]}`)
+  .join(' ');
 
 const SECTIONS = ['basico', 'meta', 'frequencia', 'duracao', 'avancado'];
 const SECTION_LABELS = {
@@ -173,7 +177,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
             />
           </Field>
 
-          <Field label="Tipo">
+          <Field label="Tipo" hint={HABIT_TYPE_HINT}>
             <div className="habit-type-toggle">
               {Object.entries(HABIT_TYPE_LABELS).map(([value, label]) => (
                 <button
@@ -315,7 +319,10 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
       {section === 'meta' &&
         (canHaveQuantitative ? (
           <>
-            <Field label="Tipo de meta">
+            <Field
+              label="Tipo de meta"
+              hint='"Sim/não" conta como feito ou não. "Quantidade" acumula um valor (ex: copos de água) até bater a meta diária.'
+            >
               <div className="habit-type-toggle">
                 <button
                   type="button"
@@ -465,7 +472,11 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
               onChange={(event) => setMaxMissesPerWeek(event.target.value)}
             />
           </Field>
-          <Field label="Congeladores de streak por mês" htmlFor="habit-freezes">
+          <Field
+            label="Congeladores de streak por mês"
+            htmlFor="habit-freezes"
+            hint="Permite pular um dia sem quebrar a sequência (streak), até esse limite por mês."
+          >
             <input
               id="habit-freezes"
               type="number"

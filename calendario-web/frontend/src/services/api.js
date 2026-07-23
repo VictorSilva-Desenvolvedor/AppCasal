@@ -319,6 +319,10 @@ function archiveHabit(id) {
   return request(`/habits/${id}`, { method: 'DELETE' });
 }
 
+function deleteHabit(id) {
+  return request(`/habits/${id}/permanent`, { method: 'DELETE' });
+}
+
 function getHabitCheckins(filters = {}) {
   const query = new URLSearchParams(
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
@@ -482,6 +486,7 @@ export const api = {
   createHabit,
   updateHabit,
   archiveHabit,
+  deleteHabit,
   getHabitCheckins,
   createHabitCheckin,
   deleteHabitCheckin,
