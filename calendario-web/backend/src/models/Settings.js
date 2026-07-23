@@ -16,6 +16,7 @@ const settingsSchema = new mongoose.Schema(
     notifyOnInvite: { type: Boolean, default: true },
     habitRemindersMuted: { type: Boolean, default: false },
     notifyOnHabitNudge: { type: Boolean, default: true },
+    notifyOnPartnerActivity: { type: Boolean, default: true },
     hidePastEventsByDefault: { type: Boolean, default: false },
     financeDefaultScope: { type: String, enum: ['self', 'partner'], default: 'self' },
     activityLogLimit: { type: Number, enum: [50, 100, 200, 500], default: 200 },

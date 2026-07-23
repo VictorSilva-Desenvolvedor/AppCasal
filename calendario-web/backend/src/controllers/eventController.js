@@ -2,6 +2,7 @@ const Event = require('../models/Event');
 const Invitation = require('../models/Invitation');
 const { logActivity, buildUpdateDetails, formatDate } = require('../services/activityLogger');
 const { normalizeRule, getOccurrencesInRange, toUTCDateOnly } = require('../utils/recurrence');
+const { notifyPartner } = require('../services/notificationService');
 
 const DEFAULT_REMINDER_OFFSETS = [5, 3, 1];
 
@@ -76,6 +77,14 @@ async function create(req, res) {
 
   const populated = await event.populate('creator', 'name');
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo evento',
+    body: `📅 Novo evento criado: "${event.title}" (${formatDate(event.date)}).`,
+    link: '/app/calendario',
+    category: 'event',
+  }).catch((err) => console.error('Falha ao notificar novo evento:', err.message));
 }
 
 async function update(req, res) {
@@ -114,6 +123,14 @@ async function update(req, res) {
   });
 
   res.json(event);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Evento atualizado',
+    body: `📅 O evento "${event.title}" foi atualizado.`,
+    link: '/app/calendario',
+    category: 'event',
+  }).catch((err) => console.error('Falha ao notificar atualização de evento:', err.message));
 }
 
 async function remove(req, res) {
@@ -134,6 +151,14 @@ async function remove(req, res) {
   });
 
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Evento excluído',
+    body: `📅 O evento "${event.title}" foi excluído.`,
+    link: '/app/calendario',
+    category: 'event',
+  }).catch((err) => console.error('Falha ao notificar exclusão de evento:', err.message));
 }
 
 module.exports = { list, create, update, remove, upcomingReminders };

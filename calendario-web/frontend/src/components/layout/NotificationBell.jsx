@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../ui/index.js';
-import { useAuth } from '../../hooks/useAuth.js';
-import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { api } from '../../services/api.js';
 
 function reminderLabel(diffDays) {
@@ -11,19 +9,24 @@ function reminderLabel(diffDays) {
 }
 
 export function NotificationBell() {
-  const { user } = useAuth();
-  const { invitations } = useCalendarData();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [reminders, setReminders] = useState([]);
   const containerRef = useRef(null);
 
-  const pendingInvitations = invitations.filter(
-    (inv) => inv.status === 'pending' && inv.invitee?._id === user?._id,
-  );
-
   useEffect(() => {
     let cancelled = false;
+
+    async function loadUnreadCount() {
+      try {
+        const data = await api.getUnreadNotificationCount();
+        if (!cancelled) setUnreadCount(data.count);
+      } catch {
+        if (!cancelled) setUnreadCount(0);
+      }
+    }
 
     async function loadReminders() {
       try {
@@ -34,11 +37,14 @@ export function NotificationBell() {
       }
     }
 
+    loadUnreadCount();
     loadReminders();
-    const intervalId = setInterval(loadReminders, 5 * 60 * 1000);
+    const unreadIntervalId = setInterval(loadUnreadCount, 60 * 1000);
+    const remindersIntervalId = setInterval(loadReminders, 5 * 60 * 1000);
     return () => {
       cancelled = true;
-      clearInterval(intervalId);
+      clearInterval(unreadIntervalId);
+      clearInterval(remindersIntervalId);
     };
   }, []);
 
@@ -52,12 +58,39 @@ export function NotificationBell() {
     return () => document.removeEventListener('click', handleDocumentClick);
   }, []);
 
-  const totalCount = pendingInvitations.length + reminders.length;
-
-  function handleInvitationClick() {
-    setOpen(false);
-    navigate('/app/convites');
+  async function handleToggleOpen() {
+    const next = !open;
+    setOpen(next);
+    if (next) {
+      try {
+        const data = await api.getNotifications(20);
+        setNotifications(data);
+      } catch {
+        setNotifications([]);
+      }
+    }
   }
+
+  async function handleNotificationClick(notification) {
+    setOpen(false);
+    if (!notification.read) {
+      setUnreadCount((count) => Math.max(0, count - 1));
+      api.markNotificationRead(notification._id).catch(() => {});
+    }
+    if (notification.link) navigate(notification.link);
+  }
+
+  async function handleMarkAllRead() {
+    setUnreadCount(0);
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await api.markAllNotificationsRead();
+    } catch {
+      /* badge já foi zerado otimisticamente; próxima carga corrige se falhar */
+    }
+  }
+
+  const totalBadgeCount = unreadCount + reminders.length;
 
   return (
     <div className="notification-bell-wrapper" ref={containerRef}>
@@ -66,19 +99,32 @@ export function NotificationBell() {
         className="notification-bell"
         title="Notificações"
         aria-label="Notificações"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={handleToggleOpen}
       >
         <Icon name="bell" />
-        {totalCount > 0 && <span className="notification-bell-badge">{totalCount}</span>}
+        {totalBadgeCount > 0 && <span className="notification-bell-badge">{totalBadgeCount}</span>}
       </button>
 
       {open && (
         <div className="global-search-results notification-bell-panel">
-          {totalCount === 0 && <p className="global-search-empty">Nenhuma notificação</p>}
+          {notifications.length === 0 && reminders.length === 0 && (
+            <p className="global-search-empty">Nenhuma notificação</p>
+          )}
 
-          {pendingInvitations.map((inv) => (
-            <button key={inv._id} type="button" className="global-search-result" onClick={handleInvitationClick}>
-              <span>Convite pendente: {inv.event?.title}</span>
+          {unreadCount > 0 && (
+            <button type="button" className="global-search-result notification-bell-mark-all" onClick={handleMarkAllRead}>
+              <span>Marcar todas como lidas</span>
+            </button>
+          )}
+
+          {notifications.map((notification) => (
+            <button
+              key={notification._id}
+              type="button"
+              className={`global-search-result${notification.read ? '' : ' is-unread'}`}
+              onClick={() => handleNotificationClick(notification)}
+            >
+              <span>{notification.body}</span>
             </button>
           ))}
 

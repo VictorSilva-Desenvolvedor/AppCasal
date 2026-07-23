@@ -1,5 +1,6 @@
 const UpdateRequest = require('../models/UpdateRequest');
 const { generateTaskDraft } = require('../services/aiService');
+const { notifyPartner } = require('../services/notificationService');
 
 async function list(req, res) {
   const requests = await UpdateRequest.find().populate('creator', 'name').sort({ createdAt: -1 });
@@ -22,6 +23,14 @@ async function create(req, res) {
 
   const populated = await request.populate('creator', 'name');
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo pedido de atualização',
+    body: `🛠️ Novo pedido criado: "${request.title}".`,
+    link: '/app/atualizacoes',
+    category: 'update-request',
+  }).catch((err) => console.error('Falha ao notificar pedido de atualização:', err.message));
 }
 
 async function update(req, res) {
@@ -41,6 +50,14 @@ async function update(req, res) {
   }
 
   res.json(request);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Pedido de atualização atualizado',
+    body: `🛠️ O pedido "${request.title}" foi atualizado.`,
+    link: '/app/atualizacoes',
+    category: 'update-request',
+  }).catch((err) => console.error('Falha ao notificar atualização de pedido:', err.message));
 }
 
 async function remove(req, res) {
@@ -51,6 +68,14 @@ async function remove(req, res) {
   }
 
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Pedido de atualização removido',
+    body: `🛠️ O pedido "${request.title}" foi removido.`,
+    link: '/app/atualizacoes',
+    category: 'update-request',
+  }).catch((err) => console.error('Falha ao notificar remoção de pedido:', err.message));
 }
 
 async function generateDraft(req, res) {

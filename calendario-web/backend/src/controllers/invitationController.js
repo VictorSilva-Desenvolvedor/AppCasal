@@ -1,9 +1,6 @@
 const Invitation = require('../models/Invitation');
 const Event = require('../models/Event');
-const User = require('../models/User');
-const Settings = require('../models/Settings');
-const { sendWhatsappMessage } = require('../services/whatsappService');
-const { sendPushNotification } = require('../services/pushService');
+const { notifyPartner } = require('../services/notificationService');
 
 const POPULATE = [
   { path: 'event', select: 'title date' },
@@ -12,22 +9,28 @@ const POPULATE = [
 ];
 
 async function notifyInvitee(invitation) {
-  const [invitee, settings] = await Promise.all([
-    User.findById(invitation.invitee._id, 'name whatsappNumber'),
-    Settings.findOne({ user: invitation.invitee._id }),
-  ]);
-  if (!invitee || settings?.notifyOnInvite === false) return;
+  await notifyPartner({
+    actorId: invitation.inviter._id,
+    recipientId: invitation.invitee._id,
+    title: 'Novo convite',
+    body: `📅 ${invitation.inviter.name} te convidou para o evento "${invitation.event.title}".`,
+    link: '/app/convites',
+    category: 'invitation',
+    settingsFlag: 'notifyOnInvite',
+  });
+}
 
-  const text = `📅 ${invitation.inviter.name} te convidou para o evento "${invitation.event.title}".`;
-  const channel = settings?.notificationChannel || 'both';
-
-  let delivered = false;
-  if (channel !== 'push' && invitee.whatsappNumber) {
-    delivered = await sendWhatsappMessage(invitee.whatsappNumber, text);
-  }
-  if (!delivered && channel !== 'whatsapp') {
-    await sendPushNotification(invitee._id, { title: 'Novo convite', body: text });
-  }
+async function notifyInviter(invitation) {
+  const statusLabel = invitation.status === 'accepted' ? 'aceitou' : 'recusou';
+  await notifyPartner({
+    actorId: invitation.invitee._id,
+    recipientId: invitation.inviter._id,
+    title: invitation.status === 'accepted' ? 'Convite aceito' : 'Convite recusado',
+    body: `📅 ${invitation.invitee.name} ${statusLabel} o convite para "${invitation.event.title}".`,
+    link: '/app/convites',
+    category: 'invitation',
+    settingsFlag: 'notifyOnInvite',
+  });
 }
 
 async function list(req, res) {
@@ -94,6 +97,8 @@ async function respond(req, res) {
   await invitation.save();
   await invitation.populate(POPULATE);
   res.json(invitation);
+
+  notifyInviter(invitation).catch((err) => console.error('Falha ao notificar resposta de convite:', err.message));
 }
 
 async function remove(req, res) {

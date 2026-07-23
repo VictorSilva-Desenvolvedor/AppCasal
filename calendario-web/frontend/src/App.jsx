@@ -21,7 +21,8 @@ import { WatchlistPage } from './features/watchlist/WatchlistPage.jsx';
 import { useAuth } from './hooks/useAuth.js';
 
 function RootRedirect() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return null;
   return <Navigate to={isAuthenticated ? '/app' : '/login'} replace />;
 }
 

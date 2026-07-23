@@ -1,4 +1,5 @@
 const Reimbursement = require('../models/Reimbursement');
+const { notifyPartner } = require('../services/notificationService');
 
 const REIMBURSEMENT_POPULATE = [
   { path: 'owedBy', select: 'name' },
@@ -20,6 +21,14 @@ async function create(req, res) {
   const reimbursement = await Reimbursement.create({ owedBy, owedTo, amount, description, creator: req.userId });
   const populated = await reimbursement.populate(REIMBURSEMENT_POPULATE);
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo reembolso',
+    body: `💰 Novo reembolso registrado: "${description}" (R$ ${Number(amount).toFixed(2)}).`,
+    link: '/app/financeiro',
+    category: 'reimbursement',
+  }).catch((err) => console.error('Falha ao notificar reembolso:', err.message));
 }
 
 async function settle(req, res) {
@@ -34,6 +43,14 @@ async function settle(req, res) {
   }
 
   res.json(reimbursement);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Reembolso quitado',
+    body: `💰 O reembolso "${reimbursement.description}" foi marcado como quitado.`,
+    link: '/app/financeiro',
+    category: 'reimbursement',
+  }).catch((err) => console.error('Falha ao notificar quitação de reembolso:', err.message));
 }
 
 async function remove(req, res) {
@@ -44,6 +61,14 @@ async function remove(req, res) {
   }
 
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Reembolso removido',
+    body: `💰 O reembolso "${reimbursement.description}" foi removido.`,
+    link: '/app/financeiro',
+    category: 'reimbursement',
+  }).catch((err) => console.error('Falha ao notificar remoção de reembolso:', err.message));
 }
 
 module.exports = { list, create, settle, remove };

@@ -90,7 +90,7 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
         </div>
       )}
 
-      {isCalendarSection && <NotificationBell />}
+      <NotificationBell />
 
       {showFilterBar && (
         <div className="filter-bar card">

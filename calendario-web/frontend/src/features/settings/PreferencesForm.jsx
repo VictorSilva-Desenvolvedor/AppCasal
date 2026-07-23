@@ -21,6 +21,7 @@ export function PreferencesForm() {
     notifyOnInvite,
     habitRemindersMuted,
     notifyOnHabitNudge,
+    notifyOnPartnerActivity,
     hidePastEventsByDefault,
     financeDefaultScope,
     activityLogLimit,
@@ -33,6 +34,7 @@ export function PreferencesForm() {
   const [notifyInvite, setNotifyInvite] = useState(notifyOnInvite);
   const [habitMuted, setHabitMuted] = useState(habitRemindersMuted);
   const [notifyHabitNudge, setNotifyHabitNudge] = useState(notifyOnHabitNudge);
+  const [notifyPartnerActivity, setNotifyPartnerActivity] = useState(notifyOnPartnerActivity);
   const [hidePast, setHidePast] = useState(hidePastEventsByDefault);
   const [financeScope, setFinanceScope] = useState(financeDefaultScope);
   const [logLimit, setLogLimit] = useState(activityLogLimit);
@@ -44,6 +46,7 @@ export function PreferencesForm() {
   useEffect(() => setNotifyInvite(notifyOnInvite), [notifyOnInvite]);
   useEffect(() => setHabitMuted(habitRemindersMuted), [habitRemindersMuted]);
   useEffect(() => setNotifyHabitNudge(notifyOnHabitNudge), [notifyOnHabitNudge]);
+  useEffect(() => setNotifyPartnerActivity(notifyOnPartnerActivity), [notifyOnPartnerActivity]);
   useEffect(() => setHidePast(hidePastEventsByDefault), [hidePastEventsByDefault]);
   useEffect(() => setFinanceScope(financeDefaultScope), [financeDefaultScope]);
   useEffect(() => setLogLimit(activityLogLimit), [activityLogLimit]);
@@ -59,6 +62,7 @@ export function PreferencesForm() {
         notifyOnInvite: notifyInvite,
         habitRemindersMuted: habitMuted,
         notifyOnHabitNudge: notifyHabitNudge,
+        notifyOnPartnerActivity: notifyPartnerActivity,
         hidePastEventsByDefault: hidePast,
         financeDefaultScope: financeScope,
         activityLogLimit: Number(logLimit),
@@ -114,6 +118,13 @@ export function PreferencesForm() {
           label="Notificar quando meu parceiro já fizer o hábito dele"
           checked={notifyHabitNudge}
           onChange={(event) => setNotifyHabitNudge(event.target.checked)}
+        />
+
+        <CheckboxField
+          id="pref-notify-partner-activity"
+          label="Notificar quando meu parceiro fizer algo no app (hábitos, watchlist, financeiro, etc.)"
+          checked={notifyPartnerActivity}
+          onChange={(event) => setNotifyPartnerActivity(event.target.checked)}
         />
 
         <CheckboxField

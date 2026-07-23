@@ -1,5 +1,6 @@
 const Habit = require('../models/Habit');
 const { todayKeyInTimezone } = require('../utils/dayKey');
+const { notifyPartner } = require('../services/notificationService');
 
 const POPULATE = [
   { path: 'createdBy', select: 'name' },
@@ -122,6 +123,14 @@ async function create(req, res) {
   });
   const populated = await habit.populate(POPULATE);
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo hábito',
+    body: `🎯 Novo hábito criado: "${habit.name}".`,
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar novo hábito:', err.message));
 }
 
 async function update(req, res) {
@@ -178,6 +187,14 @@ async function update(req, res) {
   }).populate(POPULATE);
 
   res.json(updated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Hábito atualizado',
+    body: `🎯 O hábito "${updated.name}" foi atualizado.`,
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar atualização de hábito:', err.message));
 }
 
 async function archive(req, res) {
@@ -193,6 +210,14 @@ async function archive(req, res) {
   await habit.save();
   await habit.populate(POPULATE);
   res.json(habit);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Hábito arquivado',
+    body: `🎯 O hábito "${habit.name}" foi arquivado.`,
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar arquivamento de hábito:', err.message));
 }
 
 async function freeze(req, res) {
@@ -227,6 +252,14 @@ async function freeze(req, res) {
   await habit.save();
   await habit.populate(POPULATE);
   res.status(201).json(habit);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Congelador usado',
+    body: `🧊 Um congelador foi usado no hábito "${habit.name}" (${day}).`,
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar congelador de hábito:', err.message));
 }
 
 module.exports = { list, create, update, archive, freeze };

@@ -120,12 +120,18 @@ const BUDGET_GOALS = [
   },
 ];
 
-async function upsertUser(name, password = COUPLE_PASSWORD) {
+async function upsertUser(name, password = COUPLE_PASSWORD, includeInHabits = true) {
   let user = await User.findOne({ name });
   if (!user) {
-    user = await User.create({ name, password });
+    user = await User.create({ name, password, includeInHabits });
     console.log('Usuário criado:', name, '/', password);
   } else {
+    // Comparar com o documento hidratado não basta: o Mongoose aplica o
+    // default do schema em memória mesmo quando o campo nunca foi gravado no
+    // banco, então `user.includeInHabits !== includeInHabits` pode dar falso
+    // negativo e o campo nunca é persistido de fato. updateOne grava direto.
+    await User.updateOne({ _id: user._id }, { $set: { includeInHabits } });
+    user.includeInHabits = includeInHabits;
     console.log('Usuário já existia:', name);
   }
   return user;
@@ -135,7 +141,7 @@ async function seed() {
   await connectDB();
 
   const [victor, maria] = await Promise.all(COUPLE_NAMES.map((name) => upsertUser(name)));
-  await upsertUser(TEST_USER_NAME, TEST_USER_PASSWORD);
+  await upsertUser(TEST_USER_NAME, TEST_USER_PASSWORD, false);
 
   const existingEvents = await Event.countDocuments();
   if (existingEvents === 0) {

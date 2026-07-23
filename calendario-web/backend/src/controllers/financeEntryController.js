@@ -1,6 +1,7 @@
 const FinanceEntry = require('../models/FinanceEntry');
 const FinanceMonth = require('../models/FinanceMonth');
 const Reimbursement = require('../models/Reimbursement');
+const { notifyPartner } = require('../services/notificationService');
 
 const ENTRY_POPULATE = [
   { path: 'category' },
@@ -89,6 +90,14 @@ async function create(req, res) {
 
   const populated = await entry.populate(ENTRY_POPULATE);
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: type === 'receita' ? 'Nova receita' : 'Nova despesa',
+    body: `💰 ${type === 'receita' ? 'Receita' : 'Despesa'} lançada: "${description}" (R$ ${Number(amount).toFixed(2)}).`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar lançamento financeiro:', err.message));
 }
 
 async function update(req, res) {
@@ -131,6 +140,14 @@ async function update(req, res) {
   await syncReimbursement(entry, req);
 
   res.json(entry);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Lançamento financeiro atualizado',
+    body: `💰 O lançamento "${entry.description}" foi atualizado.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar atualização de lançamento:', err.message));
 }
 
 async function remove(req, res) {
@@ -150,6 +167,14 @@ async function remove(req, res) {
   await Reimbursement.deleteMany({ relatedEntry: entry._id });
 
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Lançamento financeiro removido',
+    body: `💰 O lançamento "${entry.description}" foi removido.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar remoção de lançamento:', err.message));
 }
 
 async function report(req, res) {

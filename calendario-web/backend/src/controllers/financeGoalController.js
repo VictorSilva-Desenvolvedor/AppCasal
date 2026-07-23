@@ -1,4 +1,5 @@
 const FinanceGoal = require('../models/FinanceGoal');
+const { notifyPartner } = require('../services/notificationService');
 
 async function list(req, res) {
   const { creator } = req.query;
@@ -30,6 +31,14 @@ async function create(req, res) {
   await goal.populate('creator', 'name');
 
   res.status(201).json(goal);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo objetivo financeiro',
+    body: `🎯 Novo objetivo criado: "${goal.name}".`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar objetivo financeiro:', err.message));
 }
 
 async function update(req, res) {
@@ -62,6 +71,14 @@ async function update(req, res) {
   ).populate('creator', 'name');
 
   res.json(goal);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Objetivo financeiro atualizado',
+    body: `🎯 O objetivo "${goal.name}" foi atualizado.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar atualização de objetivo:', err.message));
 }
 
 async function remove(req, res) {
@@ -79,6 +96,14 @@ async function remove(req, res) {
   await FinanceGoal.findByIdAndDelete(req.params.id);
 
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Objetivo financeiro removido',
+    body: `🎯 O objetivo "${goal.name}" foi removido.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar remoção de objetivo:', err.message));
 }
 
 module.exports = { list, create, update, remove };

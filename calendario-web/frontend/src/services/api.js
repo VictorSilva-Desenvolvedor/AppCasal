@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
+
 const API_BASE_URL = `${import.meta.env.VITE_API_URL || window.location.origin}/api`;
 
 const TOKEN_KEY = 'calendario_token';
@@ -15,11 +18,41 @@ function getCurrentUser() {
 function saveSession(token, user) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+  if (Capacitor.isNativePlatform()) {
+    Preferences.set({ key: TOKEN_KEY, value: token });
+    Preferences.set({ key: USER_KEY, value: JSON.stringify(user) });
+  }
 }
 
 function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+
+  if (Capacitor.isNativePlatform()) {
+    Preferences.remove({ key: TOKEN_KEY });
+    Preferences.remove({ key: USER_KEY });
+  }
+}
+
+// No Android empacotado (Capacitor), o WebView carrega a URL remota do
+// servidor de produção — o localStorage dele fica sujeito a ser despejado
+// pelo sistema/WebView entre aberturas do app (pouco espaço, otimização de
+// bateria, atualização do WebView etc.). @capacitor/preferences grava em
+// armazenamento nativo (SharedPreferences), que não sofre esse despejo, e
+// serve de backup: se o localStorage vier vazio no boot, restauramos dele.
+async function bootstrapSession() {
+  if (!Capacitor.isNativePlatform() || getToken()) return;
+
+  const [{ value: token }, { value: userRaw }] = await Promise.all([
+    Preferences.get({ key: TOKEN_KEY }),
+    Preferences.get({ key: USER_KEY }),
+  ]);
+
+  if (token && userRaw) {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, userRaw);
+  }
 }
 
 async function request(path, { method = 'GET', body, isForm = false } = {}) {
@@ -325,6 +358,31 @@ function unsubscribePush(endpoint) {
   return request('/push/unsubscribe', { method: 'POST', body: { endpoint } });
 }
 
+function registerDeviceToken(token) {
+  return request('/push/device-token', { method: 'POST', body: { token } });
+}
+
+function unregisterDeviceToken(token) {
+  return request('/push/device-token', { method: 'DELETE', body: { token } });
+}
+
+function getNotifications(limit) {
+  const query = limit ? `?${new URLSearchParams({ limit }).toString()}` : '';
+  return request(`/notifications${query}`);
+}
+
+function getUnreadNotificationCount() {
+  return request('/notifications/unread-count');
+}
+
+function markNotificationRead(id) {
+  return request(`/notifications/${id}/read`, { method: 'PATCH' });
+}
+
+function markAllNotificationsRead() {
+  return request('/notifications/read-all', { method: 'PATCH' });
+}
+
 function getWatchlistItems(filters = {}) {
   const query = new URLSearchParams(
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
@@ -347,6 +405,11 @@ function deleteWatchlistItem(id) {
 function searchWatchlistPoster(type, query) {
   const params = new URLSearchParams({ type, query });
   return request(`/watchlist-items/poster-search?${params.toString()}`);
+}
+
+function getWatchlistPosterDetails(type, id) {
+  const params = new URLSearchParams({ type, id });
+  return request(`/watchlist-items/poster-details?${params.toString()}`);
 }
 
 function getWatchlistRatings(filters = {}) {
@@ -374,6 +437,7 @@ export const api = {
   logout,
   getCurrentUser,
   getToken,
+  bootstrapSession,
   getEvents,
   createEvent,
   updateEvent,
@@ -399,6 +463,12 @@ export const api = {
   getVapidPublicKey,
   subscribePush,
   unsubscribePush,
+  registerDeviceToken,
+  unregisterDeviceToken,
+  getNotifications,
+  getUnreadNotificationCount,
+  markNotificationRead,
+  markAllNotificationsRead,
   getEmotionEntries,
   createEmotionEntry,
   updateEmotionEntry,
@@ -441,6 +511,7 @@ export const api = {
   updateWatchlistItem,
   deleteWatchlistItem,
   searchWatchlistPoster,
+  getWatchlistPosterDetails,
   getWatchlistRatings,
   createWatchlistRating,
   updateWatchlistRating,

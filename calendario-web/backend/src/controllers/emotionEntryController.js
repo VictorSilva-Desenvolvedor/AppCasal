@@ -1,4 +1,5 @@
 const EmotionEntry = require('../models/EmotionEntry');
+const { notifyPartner } = require('../services/notificationService');
 
 const ENTRY_POPULATE = { path: 'user', select: 'name' };
 
@@ -32,6 +33,14 @@ async function create(req, res) {
   });
   const populated = await entry.populate(ENTRY_POPULATE);
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Nova emoção registrada',
+    body: `💗 Seu parceiro registrou como está se sentindo hoje.`,
+    link: '/app/emocoes',
+    category: 'emotion',
+  }).catch((err) => console.error('Falha ao notificar emoção:', err.message));
 }
 
 async function update(req, res) {
@@ -71,6 +80,17 @@ async function update(req, res) {
   }).populate(ENTRY_POPULATE);
 
   res.json(updated);
+
+  const isHelpTextOnly = req.body.helpText !== undefined && !isOwner;
+  notifyPartner({
+    actorId: req.userId,
+    title: isHelpTextOnly ? 'Sugestão de apoio' : 'Registro de emoção atualizado',
+    body: isHelpTextOnly
+      ? '💗 Seu parceiro deixou uma sugestão do que pode ajudar.'
+      : '💗 Um registro de emoção foi atualizado.',
+    link: '/app/emocoes',
+    category: 'emotion',
+  }).catch((err) => console.error('Falha ao notificar atualização de emoção:', err.message));
 }
 
 async function remove(req, res) {
@@ -84,6 +104,14 @@ async function remove(req, res) {
 
   await EmotionEntry.findByIdAndDelete(entry._id);
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Registro de emoção removido',
+    body: '💗 Um registro de emoção foi removido.',
+    link: '/app/emocoes',
+    category: 'emotion',
+  }).catch((err) => console.error('Falha ao notificar remoção de emoção:', err.message));
 }
 
 module.exports = { list, create, update, remove };

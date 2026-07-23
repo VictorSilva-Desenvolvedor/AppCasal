@@ -1,4 +1,5 @@
 const PushSubscription = require('../models/PushSubscription');
+const DeviceToken = require('../models/DeviceToken');
 
 function getVapidPublicKey(req, res) {
   res.json({ publicKey: process.env.VAPID_PUBLIC_KEY || null });
@@ -30,4 +31,29 @@ async function unsubscribe(req, res) {
   res.status(204).send();
 }
 
-module.exports = { getVapidPublicKey, subscribe, unsubscribe };
+async function registerDeviceToken(req, res) {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ message: 'token é obrigatório' });
+  }
+
+  await DeviceToken.findOneAndUpdate(
+    { token },
+    { token, user: req.userId, platform: 'android' },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  res.status(201).json({ message: 'Dispositivo registrado para notificações push' });
+}
+
+async function unregisterDeviceToken(req, res) {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ message: 'token é obrigatório' });
+  }
+
+  await DeviceToken.deleteOne({ token, user: req.userId });
+  res.status(204).send();
+}
+
+module.exports = { getVapidPublicKey, subscribe, unsubscribe, registerDeviceToken, unregisterDeviceToken };

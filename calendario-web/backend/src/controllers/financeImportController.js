@@ -3,6 +3,7 @@ const FinanceEntry = require('../models/FinanceEntry');
 const FinanceGoal = require('../models/FinanceGoal');
 const { assertMonthOpen } = require('./financeEntryController');
 const { parseBudgetWorkbook, suggestCategory } = require('../services/financeImportParser');
+const { notifyPartner } = require('../services/notificationService');
 
 function withSuggestion(items, categories, type) {
   return items.map((item) => ({ ...item, suggestedCategory: suggestCategory(item.description, categories, type) }));
@@ -108,6 +109,16 @@ async function commit(req, res) {
   ]);
 
   res.json({ entriesCreated: createdEntries.length, goalsCreated: createdGoals.length });
+
+  if (createdEntries.length > 0 || createdGoals.length > 0) {
+    notifyPartner({
+      actorId: req.userId,
+      title: 'Importação financeira',
+      body: `💰 Importou ${createdEntries.length} lançamento(s) e ${createdGoals.length} objetivo(s) no financeiro.`,
+      link: '/app/financeiro',
+      category: 'finance',
+    }).catch((err) => console.error('Falha ao notificar importação financeira:', err.message));
+  }
 }
 
 module.exports = { preview, commit };

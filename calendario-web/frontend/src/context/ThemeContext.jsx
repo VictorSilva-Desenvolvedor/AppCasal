@@ -15,6 +15,7 @@ export function ThemeProvider({ children }) {
   const [notifyOnInvite, setNotifyOnInviteState] = useState(true);
   const [habitRemindersMuted, setHabitRemindersMutedState] = useState(false);
   const [notifyOnHabitNudge, setNotifyOnHabitNudgeState] = useState(true);
+  const [notifyOnPartnerActivity, setNotifyOnPartnerActivityState] = useState(true);
   const [hidePastEventsByDefault, setHidePastEventsByDefaultState] = useState(false);
   const [financeDefaultScope, setFinanceDefaultScopeState] = useState('self');
   const [activityLogLimit, setActivityLogLimitState] = useState(200);
@@ -43,6 +44,7 @@ export function ThemeProvider({ children }) {
         setNotifyOnInviteState(settings.notifyOnInvite !== false);
         setHabitRemindersMutedState(settings.habitRemindersMuted || false);
         setNotifyOnHabitNudgeState(settings.notifyOnHabitNudge !== false);
+        setNotifyOnPartnerActivityState(settings.notifyOnPartnerActivity !== false);
         setHidePastEventsByDefaultState(settings.hidePastEventsByDefault || false);
         setFinanceDefaultScopeState(settings.financeDefaultScope || 'self');
         setActivityLogLimitState(settings.activityLogLimit || 200);
@@ -96,6 +98,7 @@ export function ThemeProvider({ children }) {
     if (partial.notifyOnInvite !== undefined) setNotifyOnInviteState(settings.notifyOnInvite);
     if (partial.habitRemindersMuted !== undefined) setHabitRemindersMutedState(settings.habitRemindersMuted);
     if (partial.notifyOnHabitNudge !== undefined) setNotifyOnHabitNudgeState(settings.notifyOnHabitNudge);
+    if (partial.notifyOnPartnerActivity !== undefined) setNotifyOnPartnerActivityState(settings.notifyOnPartnerActivity);
     if (partial.hidePastEventsByDefault !== undefined) setHidePastEventsByDefaultState(settings.hidePastEventsByDefault);
     if (partial.financeDefaultScope !== undefined) setFinanceDefaultScopeState(settings.financeDefaultScope);
     if (partial.activityLogLimit !== undefined) setActivityLogLimitState(settings.activityLogLimit);
@@ -117,6 +120,7 @@ export function ThemeProvider({ children }) {
     notifyOnInvite,
     habitRemindersMuted,
     notifyOnHabitNudge,
+    notifyOnPartnerActivity,
     hidePastEventsByDefault,
     financeDefaultScope,
     activityLogLimit,

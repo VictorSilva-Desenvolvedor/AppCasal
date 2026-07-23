@@ -2,6 +2,7 @@ const HabitCheckin = require('../models/HabitCheckin');
 const Habit = require('../models/Habit');
 const User = require('../models/User');
 const { notifyPartnerNudge, notifyCollaborativeNudge } = require('../services/habitNudgeService');
+const { notifyPartner } = require('../services/notificationService');
 const { todayKeyInTimezone, addDaysToKey } = require('../utils/dayKey');
 
 const POPULATE = [
@@ -90,7 +91,7 @@ async function create(req, res) {
   });
 
   if (habit.type === 'alternado') {
-    const otherUser = await User.findOne({ _id: { $ne: req.userId } });
+    const otherUser = await User.findOne({ _id: { $ne: req.userId }, includeInHabits: true });
     if (otherUser) {
       await Habit.updateOne({ _id: habit._id }, { currentTurnUserId: otherUser._id });
     }
@@ -117,6 +118,18 @@ async function remove(req, res) {
 
   await HabitCheckin.findByIdAndDelete(checkin._id);
   res.status(204).send();
+
+  Habit.findById(checkin.habit, 'name')
+    .then((habit) =>
+      notifyPartner({
+        actorId: req.userId,
+        title: 'Check-in removido',
+        body: `🎯 Um check-in do hábito "${habit?.name || ''}" foi removido.`,
+        link: '/app/habitos',
+        category: 'habit',
+      })
+    )
+    .catch((err) => console.error('Falha ao notificar remoção de check-in:', err.message));
 }
 
 async function setReaction(req, res) {
@@ -131,21 +144,41 @@ async function setReaction(req, res) {
     throw err;
   }
 
+  const checkinUserId = checkin.user;
   checkin.reactions = checkin.reactions.filter((r) => String(r.user) !== req.userId);
   checkin.reactions.push({ user: req.userId, emoji });
   await checkin.save();
   const populated = await checkin.populate(POPULATE);
   res.json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    recipientId: checkinUserId,
+    title: 'Nova reação',
+    body: `${emoji} Seu parceiro reagiu ao seu check-in.`,
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar reação:', err.message));
 }
 
 async function removeReaction(req, res) {
   const checkin = await HabitCheckin.findById(req.params.id);
   if (!checkin) return res.status(404).json({ message: 'Check-in não encontrado' });
 
+  const checkinUserId = checkin.user;
   checkin.reactions = checkin.reactions.filter((r) => String(r.user) !== req.userId);
   await checkin.save();
   const populated = await checkin.populate(POPULATE);
   res.json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    recipientId: checkinUserId,
+    title: 'Reação removida',
+    body: 'Seu parceiro removeu a reação de um check-in.',
+    link: '/app/habitos',
+    category: 'habit',
+  }).catch((err) => console.error('Falha ao notificar remoção de reação:', err.message));
 }
 
 module.exports = { list, create, remove, setReaction, removeReaction };

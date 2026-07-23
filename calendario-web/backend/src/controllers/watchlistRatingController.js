@@ -1,5 +1,6 @@
 const WatchlistRating = require('../models/WatchlistRating');
 const WatchlistItem = require('../models/WatchlistItem');
+const { notifyPartner } = require('../services/notificationService');
 
 const POPULATE = { path: 'user', select: 'name' };
 
@@ -39,6 +40,14 @@ async function create(req, res) {
 
   const populated = await rating.populate(POPULATE);
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Nova avaliação',
+    body: `⭐ "${item.title}" recebeu uma avaliação de ${hearts} coração(ões).`,
+    link: '/app/watchlist',
+    category: 'watchlist',
+  }).catch((err) => console.error('Falha ao notificar avaliação:', err.message));
 }
 
 async function update(req, res) {
@@ -57,6 +66,18 @@ async function update(req, res) {
   await rating.populate(POPULATE);
 
   res.json(rating);
+
+  WatchlistItem.findById(rating.item, 'title')
+    .then((item) =>
+      notifyPartner({
+        actorId: req.userId,
+        title: 'Avaliação atualizada',
+        body: `⭐ A avaliação de "${item?.title || ''}" foi atualizada.`,
+        link: '/app/watchlist',
+        category: 'watchlist',
+      })
+    )
+    .catch((err) => console.error('Falha ao notificar atualização de avaliação:', err.message));
 }
 
 async function remove(req, res) {
@@ -70,6 +91,18 @@ async function remove(req, res) {
 
   await WatchlistRating.findByIdAndDelete(rating._id);
   res.status(204).send();
+
+  WatchlistItem.findById(rating.item, 'title')
+    .then((item) =>
+      notifyPartner({
+        actorId: req.userId,
+        title: 'Avaliação removida',
+        body: `⭐ A avaliação de "${item?.title || ''}" foi removida.`,
+        link: '/app/watchlist',
+        category: 'watchlist',
+      })
+    )
+    .catch((err) => console.error('Falha ao notificar remoção de avaliação:', err.message));
 }
 
 module.exports = { list, create, update, remove };

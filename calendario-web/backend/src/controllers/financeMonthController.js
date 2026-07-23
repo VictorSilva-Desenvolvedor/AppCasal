@@ -1,4 +1,5 @@
 const FinanceMonth = require('../models/FinanceMonth');
+const { notifyPartner } = require('../services/notificationService');
 
 async function ensureCurrentMonth() {
   const now = new Date();
@@ -27,6 +28,14 @@ async function create(req, res) {
 
   const record = await FinanceMonth.create({ month, year });
   res.status(201).json(record);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo mês financeiro',
+    body: `💰 O mês ${record.month}/${record.year} foi criado.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar criação de mês:', err.message));
 }
 
 async function close(req, res) {
@@ -41,6 +50,14 @@ async function close(req, res) {
   }
 
   res.json(record);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Mês financeiro fechado',
+    body: `💰 O mês ${record.month}/${record.year} foi fechado.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar fechamento de mês:', err.message));
 }
 
 async function reopen(req, res) {
@@ -55,6 +72,14 @@ async function reopen(req, res) {
   }
 
   res.json(record);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Mês financeiro reaberto',
+    body: `💰 O mês ${record.month}/${record.year} foi reaberto.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar reabertura de mês:', err.message));
 }
 
 module.exports = { list, create, close, reopen };
