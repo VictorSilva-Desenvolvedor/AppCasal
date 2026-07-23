@@ -1,0 +1,9 @@
+{
+  "appId": "com.appcasal.mobile",
+  "appName": "AppCasal",
+  "webDir": "dist",
+  "server": {
+    "url": "https://calendariopessoalmariaxvictor.onrender.com",
+    "cleartext": false
+  }
+}
