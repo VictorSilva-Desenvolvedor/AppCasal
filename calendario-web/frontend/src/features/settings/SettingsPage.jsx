@@ -6,6 +6,7 @@ import { ColorThemeSwatches } from './ColorThemeSwatches.jsx';
 import { ProfileForm } from './ProfileForm.jsx';
 import { PushNotificationToggle } from './PushNotificationToggle.jsx';
 import { FcmTestButton } from './FcmTestButton.jsx';
+import { WhatsappConnectionCard } from './WhatsappConnectionCard.jsx';
 import { PreferencesForm } from './PreferencesForm.jsx';
 
 export function SettingsPage() {
@@ -76,6 +77,7 @@ export function SettingsPage() {
       <ProfileForm />
       <PushNotificationToggle />
       <FcmTestButton />
+      <WhatsappConnectionCard />
       <PreferencesForm />
     </section>
   );

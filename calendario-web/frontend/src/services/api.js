@@ -374,6 +374,10 @@ function testPush() {
   return request('/push/test', { method: 'POST' });
 }
 
+function getWhatsappStatus() {
+  return request('/whatsapp/status');
+}
+
 function getNotifications(limit) {
   const query = limit ? `?${new URLSearchParams({ limit }).toString()}` : '';
   return request(`/notifications${query}`);
@@ -474,6 +478,7 @@ export const api = {
   registerDeviceToken,
   unregisterDeviceToken,
   testPush,
+  getWhatsappStatus,
   getNotifications,
   getUnreadNotificationCount,
   markNotificationRead,
