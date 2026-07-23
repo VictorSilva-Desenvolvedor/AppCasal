@@ -267,6 +267,40 @@ function deleteEmotionEntry(id) {
   return request(`/emotion-entries/${id}`, { method: 'DELETE' });
 }
 
+function getHabits(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/habits${query ? `?${query}` : ''}`);
+}
+
+function createHabit(payload) {
+  return request('/habits', { method: 'POST', body: payload });
+}
+
+function updateHabit(id, payload) {
+  return request(`/habits/${id}`, { method: 'PUT', body: payload });
+}
+
+function archiveHabit(id) {
+  return request(`/habits/${id}`, { method: 'DELETE' });
+}
+
+function getHabitCheckins(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/habit-checkins${query ? `?${query}` : ''}`);
+}
+
+function createHabitCheckin(payload) {
+  return request('/habit-checkins', { method: 'POST', body: payload });
+}
+
+function deleteHabitCheckin(id) {
+  return request(`/habit-checkins/${id}`, { method: 'DELETE' });
+}
+
 function getVapidPublicKey() {
   return request('/push/vapid-public-key');
 }
@@ -314,6 +348,13 @@ export const api = {
   createEmotionEntry,
   updateEmotionEntry,
   deleteEmotionEntry,
+  getHabits,
+  createHabit,
+  updateHabit,
+  archiveHabit,
+  getHabitCheckins,
+  createHabitCheckin,
+  deleteHabitCheckin,
   getFinanceCategories,
   createFinanceCategory,
   updateFinanceCategory,

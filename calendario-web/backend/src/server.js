@@ -23,8 +23,11 @@ const financeGoalRoutes = require('./routes/financeGoalRoutes');
 const financeMonthRoutes = require('./routes/financeMonthRoutes');
 const financeImportRoutes = require('./routes/financeImportRoutes');
 const emotionEntryRoutes = require('./routes/emotionEntryRoutes');
+const habitRoutes = require('./routes/habitRoutes');
+const habitCheckinRoutes = require('./routes/habitCheckinRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
 const { checkAndSendReminders } = require('./services/reminderService');
+const { checkAndSendHabitReminders } = require('./services/habitReminderService');
 
 const app = express();
 
@@ -48,6 +51,8 @@ app.use('/api/finance-goals', financeGoalRoutes);
 app.use('/api/finance-months', financeMonthRoutes);
 app.use('/api/finance-import', financeImportRoutes);
 app.use('/api/emotion-entries', emotionEntryRoutes);
+app.use('/api/habits', habitRoutes);
+app.use('/api/habit-checkins', habitCheckinRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
 
@@ -87,6 +92,14 @@ connectDB()
       '0 8 * * *',
       () => {
         checkAndSendReminders().catch((err) => console.error('Falha ao verificar lembretes:', err.message));
+      },
+      { timezone: 'America/Sao_Paulo' }
+    );
+
+    cron.schedule(
+      '* * * * *',
+      () => {
+        checkAndSendHabitReminders().catch((err) => console.error('Falha ao verificar lembretes de hábito:', err.message));
       },
       { timezone: 'America/Sao_Paulo' }
     );

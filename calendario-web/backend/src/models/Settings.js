@@ -14,6 +14,8 @@ const settingsSchema = new mongoose.Schema(
     notificationChannel: { type: String, enum: ['whatsapp', 'push', 'both'], default: 'both' },
     remindersMuted: { type: Boolean, default: false },
     notifyOnInvite: { type: Boolean, default: true },
+    habitRemindersMuted: { type: Boolean, default: false },
+    notifyOnHabitNudge: { type: Boolean, default: true },
     hidePastEventsByDefault: { type: Boolean, default: false },
     financeDefaultScope: { type: String, enum: ['self', 'partner'], default: 'self' },
     activityLogLimit: { type: Number, enum: [50, 100, 200, 500], default: 200 },

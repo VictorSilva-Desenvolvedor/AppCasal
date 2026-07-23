@@ -13,6 +13,8 @@ export function ThemeProvider({ children }) {
   const [notificationChannel, setNotificationChannelState] = useState('both');
   const [remindersMuted, setRemindersMutedState] = useState(false);
   const [notifyOnInvite, setNotifyOnInviteState] = useState(true);
+  const [habitRemindersMuted, setHabitRemindersMutedState] = useState(false);
+  const [notifyOnHabitNudge, setNotifyOnHabitNudgeState] = useState(true);
   const [hidePastEventsByDefault, setHidePastEventsByDefaultState] = useState(false);
   const [financeDefaultScope, setFinanceDefaultScopeState] = useState('self');
   const [activityLogLimit, setActivityLogLimitState] = useState(200);
@@ -39,6 +41,8 @@ export function ThemeProvider({ children }) {
         setNotificationChannelState(settings.notificationChannel || 'both');
         setRemindersMutedState(settings.remindersMuted || false);
         setNotifyOnInviteState(settings.notifyOnInvite !== false);
+        setHabitRemindersMutedState(settings.habitRemindersMuted || false);
+        setNotifyOnHabitNudgeState(settings.notifyOnHabitNudge !== false);
         setHidePastEventsByDefaultState(settings.hidePastEventsByDefault || false);
         setFinanceDefaultScopeState(settings.financeDefaultScope || 'self');
         setActivityLogLimitState(settings.activityLogLimit || 200);
@@ -90,6 +94,8 @@ export function ThemeProvider({ children }) {
     if (partial.notificationChannel !== undefined) setNotificationChannelState(settings.notificationChannel);
     if (partial.remindersMuted !== undefined) setRemindersMutedState(settings.remindersMuted);
     if (partial.notifyOnInvite !== undefined) setNotifyOnInviteState(settings.notifyOnInvite);
+    if (partial.habitRemindersMuted !== undefined) setHabitRemindersMutedState(settings.habitRemindersMuted);
+    if (partial.notifyOnHabitNudge !== undefined) setNotifyOnHabitNudgeState(settings.notifyOnHabitNudge);
     if (partial.hidePastEventsByDefault !== undefined) setHidePastEventsByDefaultState(settings.hidePastEventsByDefault);
     if (partial.financeDefaultScope !== undefined) setFinanceDefaultScopeState(settings.financeDefaultScope);
     if (partial.activityLogLimit !== undefined) setActivityLogLimitState(settings.activityLogLimit);
@@ -109,6 +115,8 @@ export function ThemeProvider({ children }) {
     notificationChannel,
     remindersMuted,
     notifyOnInvite,
+    habitRemindersMuted,
+    notifyOnHabitNudge,
     hidePastEventsByDefault,
     financeDefaultScope,
     activityLogLimit,
