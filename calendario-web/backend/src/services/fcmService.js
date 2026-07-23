@@ -2,6 +2,11 @@ const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 const DeviceToken = require('../models/DeviceToken');
 
+// Precisa bater com o canal criado no app (useFcmRegistration.js) — sem
+// isso o Android usa o canal "Miscellaneous" padrão do FCM, com
+// importância baixa (sem heads-up/som).
+const ANDROID_CHANNEL_ID = 'appcasal_default';
+
 let fcmReady = false;
 
 // firebase-admin v14 não expõe mais a API antiga (admin.credential.cert,
@@ -38,6 +43,15 @@ async function sendFcmPush(userId, payload) {
         token: deviceToken.token,
         notification: { title: payload.title, body: payload.body },
         data: { link: payload.link || '' },
+        android: {
+          priority: 'high',
+          notification: {
+            channelId: ANDROID_CHANNEL_ID,
+            priority: 'high',
+            defaultSound: true,
+            visibility: 'public',
+          },
+        },
       });
       sentAny = true;
     } catch (err) {
