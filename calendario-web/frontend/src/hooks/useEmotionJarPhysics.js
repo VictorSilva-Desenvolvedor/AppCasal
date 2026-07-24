@@ -14,6 +14,8 @@ const STEP_DT = 1 / 60;
 const INSTANT_SETTLE_STEPS = 240; // ~4s simulados — avanço instantâneo no carregamento inicial
 const MAX_REALTIME_FRAMES = 600; // trava de segurança: força repouso após ~10s reais
 const SHAKE_KICK_FACTOR = 4.5; // converte px de arraste da jarra em impulso de velocidade nas bolhas
+const JUMP_VELOCITY = 520; // px/s — v0²/(2*GRAVITY) ≈ 75px de altura máxima do pulo
+const JUMP_VELOCITY_VARIANCE = 0.5; // fração aleatória subtraída por blob, pra dar sensação orgânica
 const POP_DURATION_MS = 320; // duração da animação CSS de "estourar" antes da remoção real do blob
 
 // Pequena variação de comportamento por categoria (seção 5 do documento:
@@ -332,5 +334,19 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
     runRealtimeLoop();
   }
 
-  return { blobs, shake, wakeForGravityChange };
+  // Chamado por um toque único (sem arrastar) no meio da jarra
+  // (EmotionJar.jsx). Só empurra pra cima — a gravidade já cuida da queda
+  // de volta sozinha no próximo frame, igual shake()/wakeForGravityChange().
+  function jump() {
+    blobsRef.current.forEach((b) => {
+      b.resting = false;
+      b.restFrames = 0;
+      b.vy = -JUMP_VELOCITY * (1 - Math.random() * JUMP_VELOCITY_VARIANCE);
+    });
+    frameCountRef.current = 0;
+    publish();
+    runRealtimeLoop();
+  }
+
+  return { blobs, shake, wakeForGravityChange, jump };
 }

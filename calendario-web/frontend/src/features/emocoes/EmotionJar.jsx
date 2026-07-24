@@ -1,8 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { EMOTIONS } from '../../constants/emotions.js';
+import { useDeviceTilt } from '../../hooks/useDeviceTilt.js';
 import { useEmotionJarPhysics } from '../../hooks/useEmotionJarPhysics.js';
 
 const MAX_DRAG_OFFSET = 70; // px — até onde a jarra pode "escorregar" ao ser sacudida
+const TAP_MOVE_THRESHOLD_PX = 6; // abaixo disso conta como toque parado, não arrasto
 
 export function EmotionJar({ entries, resetKey }) {
   const containerRef = useRef(null);
@@ -21,11 +23,26 @@ export function EmotionJar({ entries, resetKey }) {
     [entries]
   );
 
-  const { blobs, shake } = useEmotionJarPhysics(blobEntries, containerRef, resetKey);
+  const { gravityAngleRef, wakeSignal } = useDeviceTilt();
+  const { blobs, shake, jump, wakeForGravityChange } = useEmotionJarPhysics(
+    blobEntries,
+    containerRef,
+    resetKey,
+    gravityAngleRef
+  );
+
+  useEffect(() => {
+    if (wakeSignal) wakeForGravityChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wakeSignal]);
 
   function handlePointerDown(event) {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { lastX: event.clientX };
+    dragRef.current = {
+      lastX: event.clientX,
+      totalMove: 0,
+      startedOnGlass: Boolean(event.target.closest('.emotion-jar-glass')),
+    };
     setIsDragging(true);
   }
 
@@ -33,17 +50,25 @@ export function EmotionJar({ entries, resetKey }) {
     if (!dragRef.current) return;
     const deltaX = event.clientX - dragRef.current.lastX;
     dragRef.current.lastX = event.clientX;
+    dragRef.current.totalMove += Math.abs(deltaX);
     setOffsetX((prev) => Math.min(Math.max(prev + deltaX, -MAX_DRAG_OFFSET), MAX_DRAG_OFFSET));
     shake(deltaX);
   }
 
   function handlePointerEnd() {
     if (!dragRef.current) return;
+    const { totalMove, startedOnGlass } = dragRef.current;
     dragRef.current = null;
     setIsDragging(false);
-    // Solavanco de assentar de volta ao centro, proporcional ao quanto a
-    // jarra estava deslocada — a física reage de novo, mesmo depois de solto.
-    shake(-offsetX * 0.5);
+
+    if (totalMove < TAP_MOVE_THRESHOLD_PX && startedOnGlass) {
+      // Toque parado no meio da jarra, sem arrasto — faz as esferas pularem.
+      jump();
+    } else {
+      // Solavanco de assentar de volta ao centro, proporcional ao quanto a
+      // jarra estava deslocada — a física reage de novo, mesmo depois de solto.
+      shake(-offsetX * 0.5);
+    }
     setOffsetX(0);
   }
 
