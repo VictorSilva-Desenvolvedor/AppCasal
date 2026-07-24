@@ -1,6 +1,7 @@
 const FinanceGoal = require('../models/FinanceGoal');
 const { notifyPartner } = require('../services/notificationService');
 const { logActivity } = require('../services/activityLogger');
+const { deriveInstallmentAmount } = require('../services/financeGoalUtils');
 
 async function list(req, res) {
   const { creator } = req.query;
@@ -25,7 +26,7 @@ async function create(req, res) {
     currentAmount: currentAmount || 0,
     totalInstallments: totalInstallments || null,
     paidInstallments: paidInstallments || 0,
-    installmentAmount: installmentAmount || null,
+    installmentAmount: deriveInstallmentAmount(targetAmount, totalInstallments, installmentAmount),
     notes: notes || '',
     creator: req.userId,
     team: req.userTeam,
@@ -77,6 +78,10 @@ async function update(req, res) {
     throw err;
   }
 
+  const resolvedTargetAmount = targetAmount !== undefined ? targetAmount : before.targetAmount;
+  const resolvedTotalInstallments = totalInstallments !== undefined ? totalInstallments : before.totalInstallments;
+  const resolvedInstallmentAmount = installmentAmount !== undefined ? installmentAmount : before.installmentAmount;
+
   const goal = await FinanceGoal.findByIdAndUpdate(
     req.params.id,
     {
@@ -86,7 +91,7 @@ async function update(req, res) {
       currentAmount,
       totalInstallments,
       paidInstallments,
-      installmentAmount,
+      installmentAmount: deriveInstallmentAmount(resolvedTargetAmount, resolvedTotalInstallments, resolvedInstallmentAmount),
       notes,
       status,
       archivedUntil,

@@ -1,5 +1,5 @@
 import { Card } from '../../components/ui/index.js';
-import { formatCurrency, isGoalArchived, monthLabel } from './financeUtils.js';
+import { formatCurrency, goalCurrentAmount, goalInstallmentAmount, isGoalArchived, monthLabel } from './financeUtils.js';
 
 const NATURE_LABEL = { fixa: 'Fixas', com_prazo: 'Com prazo', unica: 'Únicas', a_decidir: 'A decidir' };
 
@@ -18,12 +18,12 @@ export function FinanceSummary({ report, goals = [], history = [] }) {
 
   const activeGoals = goals.filter((g) => g.status !== 'concluido' && !isGoalArchived(g));
   const goalsTargetTotal = activeGoals.reduce((sum, g) => sum + g.targetAmount, 0);
-  const goalsCurrentTotal = activeGoals.reduce((sum, g) => sum + g.currentAmount, 0);
+  const goalsCurrentTotal = activeGoals.reduce((sum, g) => sum + goalCurrentAmount(g), 0);
   const goalsProgressPct = goalsTargetTotal ? Math.min(100, (goalsCurrentTotal / goalsTargetTotal) * 100) : 0;
 
   const remainingInstallmentsTotal = goals
     .filter((g) => g.type === 'parcelamento' && g.totalInstallments && !isGoalArchived(g))
-    .reduce((sum, g) => sum + Math.max(0, g.totalInstallments - g.paidInstallments) * (g.installmentAmount || 0), 0);
+    .reduce((sum, g) => sum + Math.max(0, g.totalInstallments - g.paidInstallments) * goalInstallmentAmount(g), 0);
 
   const maxNatureza = (porNatureza || []).reduce((max, item) => Math.max(max, item.total), 0);
   const maxHistorySaldo = history.reduce((max, item) => Math.max(max, Math.abs(item.saldo)), 0);

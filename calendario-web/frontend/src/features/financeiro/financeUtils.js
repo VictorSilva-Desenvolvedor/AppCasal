@@ -42,6 +42,16 @@ export function isGoalArchived(goal) {
   return Boolean(goal.archivedUntil) && new Date(goal.archivedUntil) > new Date();
 }
 
+export function goalInstallmentAmount(goal) {
+  if (goal.installmentAmount) return goal.installmentAmount;
+  return goal.totalInstallments ? goal.targetAmount / goal.totalInstallments : 0;
+}
+
+export function goalCurrentAmount(goal) {
+  if (goal.totalInstallments) return goal.paidInstallments * goalInstallmentAmount(goal);
+  return goal.currentAmount;
+}
+
 export function computeSimulatedTotals(entries, excludedIds, hypotheticalEntries) {
   let totalReceitas = 0;
   let totalDespesas = 0;

@@ -4,6 +4,7 @@ const FinanceGoal = require('../models/FinanceGoal');
 const { assertMonthOpen } = require('./financeEntryController');
 const { parseBudgetWorkbook, suggestCategory } = require('../services/financeImportParser');
 const { notifyPartner } = require('../services/notificationService');
+const { deriveInstallmentAmount } = require('../services/financeGoalUtils');
 
 function withSuggestion(items, categories, type) {
   return items.map((item) => ({ ...item, suggestedCategory: suggestCategory(item.description, categories, type) }));
@@ -99,7 +100,7 @@ async function commit(req, res) {
     currentAmount: goal.currentAmount || 0,
     totalInstallments: goal.totalInstallments || null,
     paidInstallments: goal.paidInstallments || 0,
-    installmentAmount: goal.installmentAmount || null,
+    installmentAmount: deriveInstallmentAmount(goal.targetAmount, goal.totalInstallments, goal.installmentAmount),
     notes: goal.notes || '',
     creator: req.userId,
     team: req.userTeam,

@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { Button, Card, IconButton, Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
-import { formatCurrency, formatEntryDate, isGoalArchived } from './financeUtils.js';
+import {
+  formatCurrency,
+  formatEntryDate,
+  goalCurrentAmount,
+  goalInstallmentAmount,
+  isGoalArchived,
+} from './financeUtils.js';
 
 function InstallmentGrid({ total, paid, onSetPaid, readOnly }) {
   return (
@@ -29,12 +35,12 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
   const hasInstallments = Boolean(goal.totalInstallments);
   const archived = isGoalArchived(goal);
 
-  const progress = goal.targetAmount ? Math.min(100, (goal.currentAmount / goal.targetAmount) * 100) : 0;
+  const currentAmount = goalCurrentAmount(goal);
+  const progress = goal.targetAmount ? Math.min(100, (currentAmount / goal.targetAmount) * 100) : 0;
   const remainingInstallments = hasInstallments ? Math.max(0, goal.totalInstallments - goal.paidInstallments) : null;
-  const remainingAmount =
-    hasInstallments && goal.installmentAmount
-      ? remainingInstallments * goal.installmentAmount
-      : Math.max(0, goal.targetAmount - goal.currentAmount);
+  const remainingAmount = hasInstallments
+    ? remainingInstallments * goalInstallmentAmount(goal)
+    : Math.max(0, goal.targetAmount - currentAmount);
 
   async function handleAddContribution() {
     const value = Number(contribution);
@@ -54,7 +60,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
     try {
       await api.updateFinanceGoal(goal._id, {
         paidInstallments: clamped,
-        currentAmount: clamped * (goal.installmentAmount || 0),
+        currentAmount: clamped * goalInstallmentAmount(goal),
       });
       await onChanged();
     } catch (err) {
@@ -120,13 +126,13 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
       </div>
 
       <span className="finance-entry-item-meta">
-        {formatCurrency(goal.currentAmount)} de {formatCurrency(goal.targetAmount)}
+        {formatCurrency(currentAmount)} de {formatCurrency(goal.targetAmount)}
       </span>
       {hasInstallments && (
         <>
           <span className="finance-entry-item-meta">
-            {goal.paidInstallments} de {goal.totalInstallments} parcelas
-            {goal.installmentAmount ? ` (${formatCurrency(goal.installmentAmount)}/mês)` : ''}
+            {goal.paidInstallments} de {goal.totalInstallments} parcelas (
+            {formatCurrency(goalInstallmentAmount(goal))}/mês)
           </span>
           {!archived && (
             <InstallmentGrid
