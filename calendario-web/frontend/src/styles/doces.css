@@ -17,32 +17,129 @@
   background: var(--color-primary);
 }
 
-.candy-hold-wrap {
-  @apply flex flex-col items-center gap-4 py-10;
+/* ---------- Balança de dois pratos (sempre visível, acima das abas) ---------- */
+
+.candy-justice-scale {
+  @apply flex flex-col items-center gap-1 mb-6;
 }
 
-.candy-hold-btn {
-  @apply w-48 h-48 rounded-full border-4 border-border bg-surface text-text font-semibold text-lg
-    flex items-center justify-center text-center cursor-pointer select-none transition-colors duration-150;
+.candy-justice-beam-svg {
+  display: block;
+  width: 220px;
+  height: 54px;
+}
+
+.candy-justice-beam {
+  transition: transform 400ms var(--ease);
+}
+
+.candy-justice-pans {
+  @apply flex gap-10 justify-center flex-wrap;
+}
+
+.candy-justice-pan-wrap {
+  @apply flex flex-col items-center gap-2;
+  width: 130px;
+}
+
+.candy-justice-pan {
+  @apply relative overflow-hidden w-full;
+  height: 100px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px;
+  background: var(--color-surface-alt);
+}
+
+.candy-justice-avatar {
+  @apply flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-on-primary;
+}
+
+.candy-justice-name {
+  @apply text-sm;
+}
+
+.candy-justice-weight {
+  @apply text-sm text-text-muted;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bolinha de doce dentro do prato — visual próprio (glow radial + sombra
+   colorida), réplica pequena e independente do .emotion-blob da jarra de
+   emoções (não importa emocoes.css, cada feature mantém seu CSS autocontido). */
+.candy-ball {
+  @apply absolute rounded-full;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.candy-ball-inner {
+  @apply block w-full h-full rounded-full;
+  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.55), transparent 45%), var(--ball-color);
+  box-shadow: var(--shadow-sm);
+}
+
+@keyframes candyBallSquash {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(1.14, 0.86); }
+  60% { transform: scale(0.94, 1.06); }
+  100% { transform: scale(1, 1); }
+}
+
+.candy-ball.is-settled .candy-ball-inner {
+  animation: candyBallSquash 0.35s ease-out;
+}
+
+.candy-ball.is-popping {
+  animation: candyBallPop 0.32s ease-in forwards;
+}
+
+@keyframes candyBallPop {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ---------- Segurar pra registrar ---------- */
+
+.candy-hold-wrap {
+  @apply flex flex-col items-center gap-3 py-6;
+}
+
+.candy-hold-stage {
+  @apply relative flex items-center justify-center;
+  padding-top: 2.5rem;
+}
+
+.candy-hold-preview {
+  @apply absolute rounded-full;
+  width: 1.4rem;
+  height: 1.4rem;
+  top: 0;
+  transition: transform 80ms linear;
+}
+
+.candy-hold-trigger {
+  @apply relative rounded-full border-2 border-border bg-surface text-text-muted text-sm font-semibold
+    flex items-center justify-center select-none cursor-pointer transition-colors duration-150;
+  width: 96px;
+  height: 96px;
   touch-action: none;
 }
 
-.candy-hold-btn.is-holding {
+.candy-hold-trigger.is-holding {
   @apply border-transparent text-on-primary;
   background: var(--color-primary);
 }
 
-.candy-hold-btn.is-capped {
-  background: var(--color-danger);
-}
-
-.candy-hold-btn-label {
-  @apply px-4;
+.candy-hold-trigger:disabled {
+  @apply cursor-default opacity-70;
 }
 
 .candy-hold-hint {
   @apply text-sm text-text-muted text-center max-w-xs;
 }
+
+/* ---------- Ranking numérico (barras por período) ---------- */
 
 .candy-bars {
   @apply flex flex-col gap-3;
@@ -80,6 +177,8 @@
 .candy-bar-value {
   @apply text-sm text-text-muted text-right;
 }
+
+/* ---------- Histórico ---------- */
 
 .candy-history-list {
   @apply flex flex-col gap-2;

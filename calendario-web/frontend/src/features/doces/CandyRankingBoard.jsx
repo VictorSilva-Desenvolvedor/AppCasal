@@ -1,5 +1,5 @@
 import { Card, Pill } from '../../components/ui/index.js';
-import { formatDuration } from './candyUtils.js';
+import { formatScore } from './candyUtils.js';
 
 const PERIODS = [
   { value: 'day', label: 'Dia' },
@@ -42,9 +42,7 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking }) {
                   style={{ width: `${maxTotal ? (row.totalMs / maxTotal) * 100 : 0}%` }}
                 />
               </div>
-              <span className="candy-bar-value">
-                {formatDuration(row.totalMs)} · {row.count}x
-              </span>
+              <span className="candy-bar-value">{formatScore(row.totalMs)}</span>
             </div>
           ))}
         </div>

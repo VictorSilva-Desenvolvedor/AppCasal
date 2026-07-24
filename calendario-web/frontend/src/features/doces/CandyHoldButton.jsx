@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MAX_HOLD_MS } from './candyConfig.js';
-import { formatDuration } from './candyUtils.js';
+import { candyColorMix, formatDuration, scaleForElapsed } from './candyUtils.js';
 
-export function CandyHoldButton({ onLogged }) {
+export function CandyHoldButton({ onLogged, submitting }) {
   const [holding, setHolding] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [capped, setCapped] = useState(false);
+
   const startRef = useRef(0);
   const rafRef = useRef(null);
   const submittedRef = useRef(false);
@@ -20,7 +20,6 @@ export function CandyHoldButton({ onLogged }) {
       stopLoop();
       setHolding(false);
       setElapsedMs(0);
-      setCapped(false);
       onLogged(durationMs);
     },
     [onLogged, stopLoop]
@@ -29,8 +28,6 @@ export function CandyHoldButton({ onLogged }) {
   const tick = useCallback(() => {
     const delta = Date.now() - startRef.current;
     if (delta >= MAX_HOLD_MS) {
-      setElapsedMs(MAX_HOLD_MS);
-      setCapped(true);
       if (!submittedRef.current) {
         submittedRef.current = true;
         finish(MAX_HOLD_MS);
@@ -46,15 +43,13 @@ export function CandyHoldButton({ onLogged }) {
     submittedRef.current = false;
     startRef.current = Date.now();
     setHolding(true);
-    setCapped(false);
     rafRef.current = requestAnimationFrame(tick);
   }
 
   function handleRelease() {
     if (!holding || submittedRef.current) return;
     submittedRef.current = true;
-    const durationMs = Math.min(Date.now() - startRef.current, MAX_HOLD_MS);
-    finish(durationMs);
+    finish(Math.min(Date.now() - startRef.current, MAX_HOLD_MS));
   }
 
   function handleCancel() {
@@ -62,25 +57,32 @@ export function CandyHoldButton({ onLogged }) {
     stopLoop();
     setHolding(false);
     setElapsedMs(0);
-    setCapped(false);
   }
 
   useEffect(() => stopLoop, [stopLoop]);
 
+  const liveScale = holding ? scaleForElapsed(elapsedMs) : 1;
+  const liveColor = candyColorMix(liveScale);
+
   return (
     <div className="candy-hold-wrap">
-      <button
-        type="button"
-        className={`candy-hold-btn${holding ? ' is-holding' : ''}${capped ? ' is-capped' : ''}`}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handleRelease}
-        onPointerLeave={handleCancel}
-        onPointerCancel={handleCancel}
-      >
-        <span className="candy-hold-btn-label">
-          {holding ? formatDuration(elapsedMs) : 'Segure ao comer um doce'}
-        </span>
-      </button>
+      <div className="candy-hold-stage">
+        {holding && (
+          <div className="candy-hold-preview" style={{ transform: `scale(${liveScale})`, background: liveColor }} />
+        )}
+        <button
+          type="button"
+          className={`candy-hold-trigger${holding ? ' is-holding' : ''}`}
+          disabled={submitting}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handleRelease}
+          onPointerLeave={handleCancel}
+          onPointerCancel={handleCancel}
+        >
+          {holding ? formatDuration(elapsedMs) : 'Segurar'}
+        </button>
+      </div>
+
       <p className="candy-hold-hint">
         Segure enquanto come — quanto mais tempo, mais pesou o deslize (máx. {formatDuration(MAX_HOLD_MS)}).
       </p>
