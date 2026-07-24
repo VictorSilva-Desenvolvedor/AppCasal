@@ -1,0 +1,98 @@
+.candy-page-header {
+  @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+}
+
+.candy-tabs,
+.candy-period-tabs {
+  @apply flex gap-[0.35rem] mb-4 flex-wrap;
+}
+
+.candy-tab-btn {
+  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.candy-tab-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.candy-hold-wrap {
+  @apply flex flex-col items-center gap-4 py-10;
+}
+
+.candy-hold-btn {
+  @apply w-48 h-48 rounded-full border-4 border-border bg-surface text-text font-semibold text-lg
+    flex items-center justify-center text-center cursor-pointer select-none transition-colors duration-150;
+  touch-action: none;
+}
+
+.candy-hold-btn.is-holding {
+  @apply border-transparent text-on-primary;
+  background: var(--color-primary);
+}
+
+.candy-hold-btn.is-capped {
+  background: var(--color-danger);
+}
+
+.candy-hold-btn-label {
+  @apply px-4;
+}
+
+.candy-hold-hint {
+  @apply text-sm text-text-muted text-center max-w-xs;
+}
+
+.candy-bars {
+  @apply flex flex-col gap-3;
+}
+
+.candy-bar-row {
+  @apply grid items-center gap-2;
+  grid-template-columns: 8rem 1fr 6rem;
+}
+
+.candy-bar-label {
+  @apply text-sm flex items-center gap-2;
+}
+
+.candy-bar-row.is-winner .candy-bar-label {
+  @apply font-semibold;
+  color: var(--color-success);
+}
+
+.candy-winner-pill {
+  @apply text-xs;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.candy-bar-track {
+  @apply h-2 rounded-full bg-bg overflow-hidden;
+}
+
+.candy-bar-fill {
+  @apply h-full rounded-full;
+  background: var(--color-primary);
+}
+
+.candy-bar-value {
+  @apply text-sm text-text-muted text-right;
+}
+
+.candy-history-list {
+  @apply flex flex-col gap-2;
+}
+
+.candy-history-item {
+  @apply flex items-center justify-between gap-3;
+}
+
+.candy-history-item-info {
+  @apply flex flex-col;
+}
+
+.candy-history-item-meta {
+  @apply text-sm text-text-muted;
+}

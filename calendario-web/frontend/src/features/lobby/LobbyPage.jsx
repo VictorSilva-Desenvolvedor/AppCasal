@@ -9,6 +9,7 @@ const LOBBY_APPS = [
   { to: '/app/emocoes', icon: 'smile', label: 'Emoções do Dia' },
   { to: '/app/habitos', icon: 'repeat', label: 'Hábitos' },
   { to: '/app/watchlist', icon: 'film', label: 'Watchlist a Dois' },
+  { to: '/app/doces', icon: 'candy', label: 'Doces' },
   { to: '/app/galeria', icon: 'image', label: 'Galeria' },
   { to: '/app/atividades', icon: 'clock', label: 'Atividades' },
   { to: '/app/atualizacoes', icon: 'tool', label: 'Atualizações' },

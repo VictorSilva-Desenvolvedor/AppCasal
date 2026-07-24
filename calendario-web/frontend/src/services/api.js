@@ -469,6 +469,28 @@ function deleteWatchlistRating(id) {
   return request(`/watchlist-ratings/${id}`, { method: 'DELETE' });
 }
 
+function getCandyEntries(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/candy-entries${query ? `?${query}` : ''}`);
+}
+
+function createCandyEntry({ durationMs }) {
+  return request('/candy-entries', { method: 'POST', body: { durationMs } });
+}
+
+function deleteCandyEntry(id) {
+  return request(`/candy-entries/${id}`, { method: 'DELETE' });
+}
+
+function getCandyRanking({ period, date } = {}) {
+  const query = new URLSearchParams(
+    Object.entries({ period, date }).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/candy-entries/ranking${query ? `?${query}` : ''}`);
+}
+
 export const api = {
   register,
   login,
@@ -562,6 +584,10 @@ export const api = {
   createWatchlistRating,
   updateWatchlistRating,
   deleteWatchlistRating,
+  getCandyEntries,
+  createCandyEntry,
+  deleteCandyEntry,
+  getCandyRanking,
 };
 
 export { API_BASE_URL };

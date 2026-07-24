@@ -6,7 +6,7 @@ const activityLogSchema = new mongoose.Schema(
     action: { type: String, enum: ['created', 'updated', 'deleted', 'archived'], required: true },
     module: {
       type: String,
-      enum: ['evento', 'financeiro', 'habito', 'emocao', 'watchlist', 'convite'],
+      enum: ['evento', 'financeiro', 'habito', 'emocao', 'watchlist', 'convite', 'doce'],
       default: 'evento',
     },
     // Título do item (evento, lançamento, hábito, item da watchlist etc.), não só de eventos.

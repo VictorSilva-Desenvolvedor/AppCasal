@@ -18,6 +18,7 @@ import { FinanceiroPage } from './features/financeiro/FinanceiroPage.jsx';
 import { EmocoesPage } from './features/emocoes/EmocoesPage.jsx';
 import { HabitosPage } from './features/habitos/HabitosPage.jsx';
 import { WatchlistPage } from './features/watchlist/WatchlistPage.jsx';
+import { DocesPage } from './features/doces/DocesPage.jsx';
 import { useAuth } from './hooks/useAuth.js';
 
 function RootRedirect() {
@@ -47,6 +48,7 @@ export default function App() {
                 <Route path="/app/emocoes" element={<EmocoesPage />} />
                 <Route path="/app/habitos" element={<HabitosPage />} />
                 <Route path="/app/watchlist" element={<WatchlistPage />} />
+                <Route path="/app/doces" element={<DocesPage />} />
                 <Route path="/app/galeria" element={<GalleryPage />} />
                 <Route path="/app/atividades" element={<ActivityPage />} />
                 <Route path="/app/atualizacoes" element={<UpdatesPage />} />
