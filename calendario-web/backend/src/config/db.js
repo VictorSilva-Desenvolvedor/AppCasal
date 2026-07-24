@@ -19,6 +19,12 @@ async function connectDB() {
   // O schema de User trocou o índice único de "email" pra "name" — sincroniza
   // pra derrubar o índice antigo (senão a 2ª conta sem email colide nele).
   await require('../models/User').syncIndexes();
+
+  // HabitCheckin trocou o índice único de {habit,user,day} (1 check-in por
+  // dia) pra um índice parcial {habit,day,subtask} (só hábitos colaborativos)
+  // — sincroniza pra derrubar o índice antigo, senão hábitos quantitativos
+  // (múltiplos check-ins/dia) e colaborativos colidiriam nele.
+  await require('../models/HabitCheckin').syncIndexes();
 }
 
 module.exports = connectDB;

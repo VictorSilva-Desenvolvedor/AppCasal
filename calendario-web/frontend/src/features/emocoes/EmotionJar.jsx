@@ -61,7 +61,7 @@ export function EmotionJar({ entries, resetKey }) {
         {blobs.map((blob) => (
           <span
             key={blob.id}
-            className={`emotion-blob${blob.resting ? ' is-settled' : ''}`}
+            className={`emotion-blob${blob.resting ? ' is-settled' : ''}${blob.popping ? ' is-popping' : ''}`}
             data-category={blob.category}
             style={{
               width: blob.r * 2,

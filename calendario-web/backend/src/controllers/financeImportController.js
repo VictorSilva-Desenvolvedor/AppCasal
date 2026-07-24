@@ -3,6 +3,7 @@ const FinanceEntry = require('../models/FinanceEntry');
 const FinanceGoal = require('../models/FinanceGoal');
 const { assertMonthOpen } = require('./financeEntryController');
 const { parseBudgetWorkbook, suggestCategory } = require('../services/financeImportParser');
+const { notifyPartner } = require('../services/notificationService');
 
 function withSuggestion(items, categories, type) {
   return items.map((item) => ({ ...item, suggestedCategory: suggestCategory(item.description, categories, type) }));
@@ -16,7 +17,7 @@ async function preview(req, res) {
   }
 
   const parsed = await parseBudgetWorkbook(req.file.buffer);
-  const categories = await FinanceCategory.find();
+  const categories = await FinanceCategory.find({ team: req.userTeam });
 
   res.json({
     income: withSuggestion(parsed.income, categories, 'receita'),
@@ -76,7 +77,7 @@ async function commit(req, res) {
     }
   }
 
-  await assertMonthOpen(date);
+  await assertMonthOpen(date, req.userTeam);
 
   const entryDocs = entries.map((entry) => ({
     type: entry.type,
@@ -88,6 +89,7 @@ async function commit(req, res) {
     reason: entry.reason || '',
     paidBy: req.userId,
     creator: req.userId,
+    team: req.userTeam,
   }));
 
   const goalDocs = goals.map((goal) => ({
@@ -100,6 +102,7 @@ async function commit(req, res) {
     installmentAmount: goal.installmentAmount || null,
     notes: goal.notes || '',
     creator: req.userId,
+    team: req.userTeam,
   }));
 
   const [createdEntries, createdGoals] = await Promise.all([
@@ -108,6 +111,16 @@ async function commit(req, res) {
   ]);
 
   res.json({ entriesCreated: createdEntries.length, goalsCreated: createdGoals.length });
+
+  if (createdEntries.length > 0 || createdGoals.length > 0) {
+    notifyPartner({
+      actorId: req.userId,
+      title: 'Importação financeira',
+      body: `💰 Importou ${createdEntries.length} lançamento(s) e ${createdGoals.length} objetivo(s) no financeiro.`,
+      link: '/app/financeiro',
+      category: 'finance',
+    }).catch((err) => console.error('Falha ao notificar importação financeira:', err.message));
+  }
 }
 
 module.exports = { preview, commit };

@@ -1,19 +1,17 @@
 /*
-  Identidade visual — Emoções do Dia. Fonte própria (Nunito) e paleta neutra
-  (--emo-*) escopadas dentro de .emotion-page: não sobrescrevem os tokens
-  globais do app (tokens.css), usados pelo resto do AppCasal (Calendário,
-  Financeiro, Configurações etc. continuam em Inter + paleta de tema).
+  Emoções do Dia usa os mesmos tokens globais do resto do AppCasal
+  (tokens.css) — as variáveis --emo-* abaixo são só apelidos locais pros
+  papéis de cor da feature, sempre resolvendo pra var(--color-*) global,
+  então [data-color-theme]/[data-theme] seguem valendo aqui dentro.
 */
-@import '@fontsource/nunito/400.css';
-@import '@fontsource/nunito/600.css';
-@import '@fontsource/nunito/700.css';
 
 .emotion-page {
-  --emo-brand: #6c5ce7;
-  --emo-bg: #fbf7f0;
-  --emo-glass: rgba(255, 255, 255, 0.6);
-  --emo-text: #2b2a33;
-  --emo-text-muted: #8a8794;
+  --emo-brand: var(--color-primary);
+  --emo-bg: var(--color-bg);
+  --emo-glass: color-mix(in oklch, var(--color-surface) 70%, transparent);
+  --emo-text: var(--color-text);
+  --emo-text-muted: var(--color-text-muted);
+  --emo-danger: var(--color-danger);
 
   /* Sem padding próprio: .main-content (layout do app) já aplica 24px de
      respiro em todo lado — uma segunda camada de padding aqui desperdiçava
@@ -32,13 +30,6 @@
   .emotion-page {
     padding: 1.5rem;
   }
-}
-
-[data-theme='dark'] .emotion-page {
-  --emo-bg: #14161f;
-  --emo-glass: rgba(34, 38, 58, 0.55);
-  --emo-text: #f1effa;
-  --emo-text-muted: #9b98ae;
 }
 
 .emotion-page .icon-btn:hover {
@@ -83,7 +74,7 @@
 
 .emotion-type-toggle-btn.is-active {
   background: var(--emo-brand);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 /* ---------- Tela inicial (hero: chip + pergunta + jarra + FAB) ---------- */
@@ -125,7 +116,7 @@
   width: 64px;
   height: 64px;
   background: var(--emo-brand);
-  color: #fff;
+  color: var(--color-on-primary);
   box-shadow: 0 10px 24px color-mix(in oklch, var(--emo-brand) 45%, transparent);
   transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
@@ -276,6 +267,27 @@
   animation: emotionSquash 0.35s ease-out, emotionPulseRing 1.6s ease-in-out infinite;
 }
 
+@keyframes emotionPop {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.18);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+.emotion-blob.is-popping .emotion-blob-inner {
+  animation: emotionPop 0.32s ease-in forwards;
+  pointer-events: none;
+}
+
 .emotion-jar-empty-hint {
   @apply absolute inset-0 flex items-center justify-center text-center text-sm px-6;
   color: var(--emo-text-muted);
@@ -331,6 +343,67 @@
   color: var(--emo-text-muted);
 }
 
+/* ---------- Diálogo de confirmação de remoção ---------- */
+
+.emotion-confirm-overlay {
+  @apply fixed inset-0 flex items-center justify-center px-4;
+  z-index: 110;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s var(--ease), visibility 0.2s var(--ease);
+}
+
+.emotion-confirm-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.emotion-confirm-dialog {
+  @apply w-full max-w-[320px] flex flex-col gap-4 p-5;
+  background: color-mix(in oklch, var(--emo-bg) 92%, black 8%);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  transform: scale(0.96);
+  transition: transform 0.2s var(--ease);
+}
+
+.emotion-confirm-overlay.is-open .emotion-confirm-dialog {
+  transform: scale(1);
+}
+
+.emotion-confirm-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--emo-text);
+  margin: 0;
+  text-align: center;
+}
+
+.emotion-confirm-actions {
+  @apply flex gap-2;
+}
+
+.emotion-confirm-btn {
+  @apply flex-1 rounded-full text-sm font-semibold py-2.5 cursor-pointer border-none;
+  transition: transform 0.15s var(--ease), opacity 0.15s var(--ease);
+}
+
+.emotion-confirm-btn:hover {
+  transform: translateY(-1px);
+}
+
+.emotion-confirm-btn--cancel {
+  background: color-mix(in oklch, var(--emo-text-muted) 16%, transparent);
+  color: var(--emo-text);
+}
+
+.emotion-confirm-btn--danger {
+  background: color-mix(in oklch, var(--emo-danger) 85%, transparent);
+  color: #fff;
+}
+
 /* ---------- Formulário de registro (2 painéis com slide) ---------- */
 
 .emotion-entry-form {
@@ -339,7 +412,7 @@
 
 .emotion-slide-track {
   @apply flex;
-  width: 200%;
+  width: 300%;
   transition: transform 0.3s var(--ease);
 }
 
@@ -348,11 +421,15 @@
 }
 
 .emotion-slide-track--intensidade {
-  transform: translateX(-50%);
+  transform: translateX(-33.3333%);
+}
+
+.emotion-slide-track--motivo {
+  transform: translateX(-66.6667%);
 }
 
 .emotion-slide-panel {
-  width: 50%;
+  width: 33.3333%;
   flex-shrink: 0;
   padding: 0 0.15rem;
 }
@@ -475,6 +552,70 @@
   color: var(--emo-text-muted);
 }
 
+/* ---------- Painel de motivo (chips) ---------- */
+
+.emotion-reason-panel {
+  @apply relative flex flex-col gap-3 pt-8;
+}
+
+.emotion-reason-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--emo-text-muted);
+  margin: 0;
+}
+
+.emotion-reason-chips {
+  @apply flex gap-2 overflow-x-auto pb-1;
+  scrollbar-width: none;
+}
+
+.emotion-reason-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.emotion-reason-chip {
+  @apply inline-flex items-center gap-1.5 rounded-full text-xs font-semibold px-3 py-1.5 cursor-pointer whitespace-nowrap flex-shrink-0;
+  background: transparent;
+  border: 1.5px solid color-mix(in oklch, var(--emo-text-muted) 40%, transparent);
+  color: var(--emo-text-muted);
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.emotion-reason-chip .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.emotion-reason-chip.is-active {
+  background: var(--chip-active-color, var(--emo-brand));
+  border-color: var(--chip-active-color, var(--emo-brand));
+  color: #fff;
+}
+
+.emotion-reason-actions {
+  @apply flex gap-2 mt-1;
+}
+
+.emotion-reason-btn {
+  @apply flex-1 rounded-full text-sm font-semibold py-2.5 cursor-pointer border-none;
+  transition: transform 0.15s var(--ease);
+}
+
+.emotion-reason-btn:hover {
+  transform: translateY(-1px);
+}
+
+.emotion-reason-btn--ghost {
+  background: color-mix(in oklch, var(--emo-text-muted) 16%, transparent);
+  color: var(--emo-text);
+}
+
+.emotion-reason-btn--primary {
+  background: var(--emo-brand);
+  color: var(--color-on-primary);
+}
+
 /* ---------- Resumo do dia ---------- */
 
 .emotion-summary {
@@ -532,8 +673,52 @@
   color: var(--emo-text-muted);
 }
 
+.emotion-summary-entry-swipe-wrap {
+  @apply relative overflow-hidden rounded-lg;
+}
+
+.emotion-summary-entry-delete {
+  @apply absolute top-0 right-0 bottom-0 flex items-center justify-center border-none cursor-pointer;
+  width: 72px;
+  background: var(--emo-danger);
+  color: #fff;
+}
+
 .emotion-summary-period-entry {
+  @apply flex flex-col gap-1 rounded-lg px-2 py-1;
+  touch-action: pan-y;
+  transition: transform 0.2s var(--ease);
+  /* Opaco (não var(--emo-glass), que é semitransparente) — precisa cobrir o
+     botão de lixeira atrás enquanto a row está fechada. */
+  background: var(--emo-bg);
+}
+
+.emotion-summary-period-entry-main {
   @apply flex items-center justify-between gap-3;
+}
+
+.emotion-summary-entry-reasons {
+  @apply flex flex-wrap gap-1;
+}
+
+.emotion-summary-entry-reason-tag {
+  @apply inline-flex items-center gap-1 rounded-full text-xs px-2 py-0.5;
+  background: color-mix(in oklch, var(--emo-text-muted) 14%, transparent);
+  color: var(--emo-text-muted);
+}
+
+.emotion-summary-entry-reason-tag .icon {
+  width: 12px;
+  height: 12px;
+}
+
+.emotion-summary-period-entry.is-swipeable {
+  cursor: grab;
+}
+
+.emotion-summary-period-entry.is-dragging {
+  transition: none;
+  cursor: grabbing;
 }
 
 .emotion-summary-period-entry-label {
@@ -613,4 +798,137 @@
 
 .emotion-history-dot {
   @apply inline-block rounded-full;
+}
+
+/* ---------- Card expandido (por que / o que ajuda) ---------- */
+
+.emotion-detail-card {
+  @apply flex flex-col gap-4 pt-2;
+}
+
+.emotion-detail-header {
+  @apply flex items-center gap-3;
+}
+
+.emotion-detail-emoji {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.emotion-detail-emotion {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.emotion-detail-meta {
+  font-size: 13px;
+  color: var(--emo-text-muted);
+  margin: 0;
+}
+
+.emotion-detail-section {
+  @apply flex flex-col gap-2;
+}
+
+.emotion-detail-section-label {
+  @apply flex items-center gap-1.5;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--emo-text-muted);
+  margin: 0;
+}
+
+.emotion-detail-section-label .icon {
+  width: 15px;
+  height: 15px;
+}
+
+.emotion-chat-row {
+  @apply flex flex-col gap-1;
+  max-width: 88%;
+}
+
+.emotion-chat-row--right {
+  @apply self-end items-end;
+}
+
+.emotion-chat-meta {
+  @apply flex items-center gap-1.5;
+  font-size: 12px;
+  padding: 0 0.2rem;
+}
+
+.emotion-chat-author {
+  font-weight: 700;
+  color: var(--emo-text);
+}
+
+.emotion-chat-time {
+  color: var(--emo-text-muted);
+}
+
+.emotion-chat-bubble {
+  @apply rounded-2xl px-3.5 py-2.5;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.emotion-chat-bubble--left {
+  background: var(--emo-glass);
+  color: var(--emo-text);
+  border-bottom-left-radius: 4px;
+}
+
+.emotion-chat-bubble--right {
+  background: var(--emo-brand);
+  color: var(--color-on-primary);
+  border-bottom-right-radius: 4px;
+}
+
+.emotion-chat-bubble.is-empty {
+  background: transparent;
+  border: 1.5px dashed color-mix(in oklch, var(--emo-text-muted) 40%, transparent);
+  color: var(--emo-text-muted);
+  font-style: italic;
+}
+
+.emotion-chat-bubble.is-editable {
+  cursor: pointer;
+}
+
+.emotion-chat-bubble.is-editable:hover {
+  filter: brightness(1.05);
+}
+
+.emotion-chat-edit {
+  @apply flex flex-col gap-2 w-full;
+}
+
+.emotion-chat-textarea {
+  @apply w-full rounded-2xl px-3.5 py-2.5;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 64px;
+  background: var(--emo-glass);
+  color: var(--emo-text);
+  border: 1.5px solid color-mix(in oklch, var(--emo-text-muted) 30%, transparent);
+}
+
+.emotion-chat-edit-actions {
+  @apply flex justify-end gap-2;
+}
+
+.emotion-chat-edit-btn {
+  @apply rounded-full text-xs font-semibold px-3 py-1.5 cursor-pointer border-none;
+  background: color-mix(in oklch, var(--emo-text-muted) 16%, transparent);
+  color: var(--emo-text);
+}
+
+.emotion-chat-edit-btn--primary {
+  background: var(--emo-brand);
+  color: var(--color-on-primary);
 }

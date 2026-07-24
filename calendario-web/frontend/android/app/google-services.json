@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "44066021571",
+    "project_id": "appcasal-a273f",
+    "storage_bucket": "appcasal-a273f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44066021571:android:5a8275e74c5875a9280276",
+        "android_client_info": {
+          "package_name": "com.appcasal.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLJ7CFmGaFK1s5qwSX46X37VvpTZpfals"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

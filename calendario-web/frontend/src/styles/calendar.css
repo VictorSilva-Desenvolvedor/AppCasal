@@ -112,7 +112,7 @@
 }
 
 .sidebar-list {
-  @apply flex flex-col gap-[0.35rem] max-h-40 overflow-y-auto;
+  @apply flex flex-col gap-[0.35rem] max-h-80 overflow-y-auto;
 }
 
 .sidebar-list-item {
@@ -216,6 +216,16 @@
 
 .global-search-empty {
   @apply text-sm text-text-muted px-3 py-2;
+}
+
+.global-search-result.is-unread {
+  @apply font-semibold;
+  background: var(--color-primary-light);
+}
+
+.notification-bell-mark-all {
+  @apply justify-center text-xs text-primary font-semibold border-b;
+  border-color: var(--color-border);
 }
 
 /* ---------- Calendário ---------- */

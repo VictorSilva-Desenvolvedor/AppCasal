@@ -10,6 +10,7 @@ const QR_IMAGE_PATH = path.join(__dirname, '..', '..', 'whatsapp-qr.png');
 let sock = null;
 let ready = false;
 let startingPromise = null;
+let lastQrDataUrl = null;
 
 async function startWhatsapp() {
   if (startingPromise) return startingPromise;
@@ -29,10 +30,14 @@ async function startWhatsapp() {
         QRCode.toFile(QR_IMAGE_PATH, qr, { width: 400 })
           .then(() => console.log(`QR code também salvo como imagem em: ${QR_IMAGE_PATH}`))
           .catch((err) => console.error('Falha ao salvar QR code como imagem:', err.message));
+        QRCode.toDataURL(qr)
+          .then((dataUrl) => { lastQrDataUrl = dataUrl; })
+          .catch((err) => console.error('Falha ao gerar QR code em data URL:', err.message));
       }
 
       if (connection === 'open') {
         ready = true;
+        lastQrDataUrl = null;
         console.log('WhatsApp conectado.');
       }
 
@@ -61,6 +66,10 @@ function isWhatsappReady() {
   return ready;
 }
 
+function getWhatsappQr() {
+  return lastQrDataUrl;
+}
+
 function normalizeToJid(rawNumber) {
   let digits = String(rawNumber || '').replace(/\D/g, '');
   if (!digits) return null;
@@ -87,4 +96,4 @@ async function sendWhatsappMessage(rawNumber, text) {
   }
 }
 
-module.exports = { startWhatsapp, isWhatsappReady, sendWhatsappMessage };
+module.exports = { startWhatsapp, isWhatsappReady, getWhatsappQr, sendWhatsappMessage };

@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { useTheme } from '../../hooks/useTheme.js';
+import { useFcmRegistration } from '../../hooks/useFcmRegistration.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
 import { getAppSection } from './appSections.js';
 
@@ -15,6 +16,8 @@ export function AppShell() {
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const { sidebarCollapsed: collapsed, setSidebarCollapsed: setCollapsed } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useFcmRegistration();
 
   useEffect(() => {
     setMobileOpen(false);
@@ -30,7 +33,9 @@ export function AppShell() {
   }
 
   const showFilterBar = location.pathname.startsWith('/app/calendario');
-  const showSidebar = !['financeiro', 'atualizacoes', 'emocoes'].includes(getAppSection(location.pathname));
+  const showSidebar =
+    !['financeiro', 'atualizacoes'].includes(getAppSection(location.pathname)) &&
+    !location.pathname.startsWith('/app/atividades');
 
   function handleQuickNewEvent() {
     navigate('/app/calendario', { state: { quickNewEvent: true } });

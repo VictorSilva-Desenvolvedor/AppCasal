@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
@@ -10,6 +10,8 @@ import { EmotionBottomSheet } from './EmotionBottomSheet.jsx';
 import { EmotionEntryForm } from './EmotionEntryForm.jsx';
 import { EmotionDaySummary } from './EmotionDaySummary.jsx';
 import { EmotionHistoryList } from './EmotionHistoryList.jsx';
+import { EmotionDeleteConfirmDialog } from './EmotionDeleteConfirmDialog.jsx';
+import { EmotionDetailCard } from './EmotionDetailCard.jsx';
 import { PERIOD_ICONS, PERIOD_LABELS, PERIOD_QUESTIONS, currentPeriod, groupEntriesByDay, toDayKey } from './emocoesUtils.js';
 
 export function EmocoesPage() {
@@ -22,6 +24,12 @@ export function EmocoesPage() {
   const [entries, setEntries] = useState([]);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activePeriod, setActivePeriod] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  // id -> timeoutId do DELETE real, agendado pra depois da janela de "Desfazer".
+  const pendingDeleteRef = useRef(new Map());
+  // Só o id — deriva o doc atual de `entries` a cada render, então o card
+  // sempre reflete o estado mais recente sem precisar de um segundo canal.
+  const [detailEntryId, setDetailEntryId] = useState(null);
 
   const isMyView = viewScope === user?._id;
   const otherUser = users.find((u) => u._id !== user?._id);
@@ -38,6 +46,7 @@ export function EmocoesPage() {
 
   const todayEntries = entries.filter((entry) => entry.day === todayKey);
   const historyDays = groupEntriesByDay(entries);
+  const detailEntry = entries.find((entry) => entry._id === detailEntryId) ?? null;
 
   function handleOpenSheet() {
     setActivePeriod(currentPeriod());
@@ -53,6 +62,62 @@ export function EmocoesPage() {
     await reloadEntries();
     showToast('Emoção registrada', 'success');
     handleCloseSheet();
+  }
+
+  function handleRequestDelete(entry) {
+    setDeleteTarget(entry);
+  }
+
+  function handleCancelDelete() {
+    setDeleteTarget(null);
+  }
+
+  async function finalizeDelete(id) {
+    pendingDeleteRef.current.delete(id);
+    try {
+      await api.deleteEmotionEntry(id);
+    } catch (err) {
+      console.error('Falha ao remover registro de emoção', err);
+    }
+  }
+
+  function handleUndoDelete(id) {
+    const timeoutId = pendingDeleteRef.current.get(id);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      pendingDeleteRef.current.delete(id);
+    }
+    // Refetch em vez de reinserir o objeto manualmente — o DELETE real só
+    // dispara depois da janela de 4s, então o servidor ainda tem o registro
+    // intacto (evita reinserir um doc "stale" se ele foi editado em paralelo).
+    reloadEntries();
+  }
+
+  function handleConfirmDelete() {
+    const entry = deleteTarget;
+    if (!entry) return;
+    setDeleteTarget(null);
+    // Otimista: some da UI (e a bolha correspondente "estoura" na jarra) na
+    // hora; o DELETE real só é chamado se "Desfazer" não for clicado a tempo.
+    setEntries((prev) => prev.filter((e) => e._id !== entry._id));
+    showToast('Registro removido', 'info', {
+      duration: 4000,
+      action: { label: 'Desfazer', onClick: () => handleUndoDelete(entry._id) },
+    });
+    const timeoutId = setTimeout(() => finalizeDelete(entry._id), 4000);
+    pendingDeleteRef.current.set(entry._id, timeoutId);
+  }
+
+  function handleOpenDetail(entry) {
+    setDetailEntryId(entry._id);
+  }
+
+  function handleCloseDetail() {
+    setDetailEntryId(null);
+  }
+
+  function handleEntryUpdated(updatedEntry) {
+    setEntries((prev) => prev.map((e) => (e._id === updatedEntry._id ? updatedEntry : e)));
   }
 
   return (
@@ -122,7 +187,12 @@ export function EmocoesPage() {
             <p className="emotion-summary-empty">Você está vendo a jarra de {otherUser?.name}.</p>
           )}
 
-          <EmotionDaySummary entries={todayEntries} />
+          <EmotionDaySummary
+            entries={todayEntries}
+            canDelete={isMyView}
+            onRequestDelete={handleRequestDelete}
+            onOpenDetail={handleOpenDetail}
+          />
         </div>
       )}
 
@@ -130,6 +200,17 @@ export function EmocoesPage() {
 
       <EmotionBottomSheet open={sheetOpen} onClose={handleCloseSheet}>
         {activePeriod && <EmotionEntryForm day={todayKey} period={activePeriod} onSaved={handleSaved} />}
+      </EmotionBottomSheet>
+
+      <EmotionDeleteConfirmDialog
+        open={!!deleteTarget}
+        entry={deleteTarget}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <EmotionBottomSheet open={!!detailEntry} onClose={handleCloseDetail}>
+        {detailEntry && <EmotionDetailCard entry={detailEntry} onEntryUpdated={handleEntryUpdated} />}
       </EmotionBottomSheet>
     </section>
   );

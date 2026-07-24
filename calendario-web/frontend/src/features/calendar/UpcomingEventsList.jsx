@@ -11,7 +11,7 @@ import {
   toDateKey,
 } from './calendarUtils.js';
 
-const UPCOMING_LIMIT = 5;
+const UPCOMING_LIMIT = 8;
 
 export function UpcomingEventsList() {
   const { events, users, invitations, filters } = useCalendarData();

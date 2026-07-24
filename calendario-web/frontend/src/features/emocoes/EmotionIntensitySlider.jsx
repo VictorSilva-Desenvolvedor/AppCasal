@@ -5,7 +5,7 @@ import { radiusForIntensity } from '../../hooks/useEmotionJarPhysics.js';
 
 const DEFAULT_INTENSITY = 3;
 
-export function EmotionIntensitySlider({ emotion, note, onNoteChange, onBack, onCommit, saving, error }) {
+export function EmotionIntensitySlider({ emotion, note, onNoteChange, onBack, onIntensityChosen, saving, error }) {
   const [previewIntensity, setPreviewIntensity] = useState(DEFAULT_INTENSITY);
   const meta = EMOTIONS[emotion];
   const diameter = radiusForIntensity(previewIntensity) * 2;
@@ -32,7 +32,7 @@ export function EmotionIntensitySlider({ emotion, note, onNoteChange, onBack, on
         <textarea
           id="emotion-note"
           maxLength={280}
-          placeholder="Quer contar o motivo? (opcional)"
+          placeholder="Quer escrever mais sobre isso? (opcional)"
           value={note}
           disabled={saving}
           onChange={(event) => onNoteChange(event.target.value)}
@@ -50,7 +50,7 @@ export function EmotionIntensitySlider({ emotion, note, onNoteChange, onBack, on
           className="emotion-intensity-range"
           style={{ '--fill-color': meta?.color, '--fill-percent': `${fillPercent}%` }}
           onInput={(event) => setPreviewIntensity(Number(event.target.value))}
-          onChange={(event) => onCommit(Number(event.target.value))}
+          onChange={(event) => onIntensityChosen(Number(event.target.value))}
         />
         <div className="emotion-intensity-slider-labels">
           <span>Leve</span>

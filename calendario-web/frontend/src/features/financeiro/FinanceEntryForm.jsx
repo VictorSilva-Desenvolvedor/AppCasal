@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Field } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -15,20 +15,35 @@ const EMPTY_FORM = {
   category: '',
   date: toDateInputValue(new Date()),
   paidAmount: '',
+  nature: 'unica',
   wishType: '',
   reason: '',
+  linkedGoal: '',
   sharedWith: '',
   splitAmount: '',
 };
 
-export function FinanceEntryForm({ categories, users, monthLocked, editingEntry, onSaved, onCancelEdit }) {
+export function FinanceEntryForm({ categories, users, goals = [], monthLocked, editingEntry, forcedType, onSaved, onCancelEdit }) {
   const { user } = useAuth();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [removeImage, setRemoveImage] = useState(false);
   const { showToast } = useToast();
 
+  const existingImage = editingEntry?.image || null;
+  const imagePreviewUrl = useMemo(() => (imageFile ? URL.createObjectURL(imageFile) : null), [imageFile]);
+
   useEffect(() => {
+    return () => {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    };
+  }, [imagePreviewUrl]);
+
+  useEffect(() => {
+    setImageFile(null);
+    setRemoveImage(false);
     if (editingEntry) {
       setForm({
         type: editingEntry.type,
@@ -37,15 +52,17 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         category: editingEntry.category?._id || '',
         date: toDateInputValue(editingEntry.date),
         paidAmount: editingEntry.paidAmount ? String(editingEntry.paidAmount) : '',
+        nature: editingEntry.nature || 'unica',
         wishType: editingEntry.wishType || '',
         reason: editingEntry.reason || '',
+        linkedGoal: editingEntry.linkedGoal?._id || '',
         sharedWith: editingEntry.sharedWith?._id || '',
         splitAmount: editingEntry.splitAmount ? String(editingEntry.splitAmount) : '',
       });
     } else {
-      setForm(EMPTY_FORM);
+      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
     }
-  }, [editingEntry, user]);
+  }, [editingEntry, forcedType, user]);
 
   const filteredCategories = categories.filter((category) => category.type === form.type);
   const otherUsers = users.filter((u) => u._id !== user?._id);
@@ -67,21 +84,29 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
       return;
     }
 
-    const payload = {
-      type: form.type,
-      description: form.description.trim(),
-      amount: Number(form.amount),
-      category: form.category,
-      date: form.date,
-      paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
-      wishType: form.wishType || null,
-      reason: form.reason,
-      sharedWith: form.sharedWith || null,
-      splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
-    };
-
     setSaving(true);
     try {
+      let image = removeImage ? null : existingImage;
+      if (imageFile) {
+        image = await api.uploadFile(imageFile);
+      }
+
+      const payload = {
+        type: form.type,
+        description: form.description.trim(),
+        amount: Number(form.amount),
+        category: form.category,
+        date: form.date,
+        paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
+        nature: form.type === 'despesa' ? form.nature : 'unica',
+        wishType: form.wishType || null,
+        reason: form.reason,
+        image,
+        linkedGoal: form.linkedGoal || null,
+        sharedWith: form.sharedWith || null,
+        splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
+      };
+
       if (editingEntry) {
         await api.updateFinanceEntry(editingEntry._id, payload);
         showToast('Lançamento atualizado', 'success');
@@ -90,7 +115,9 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
         await api.createFinanceEntry(payload);
         showToast('Lançamento criado', 'success');
       }
-      setForm(EMPTY_FORM);
+      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
+      setImageFile(null);
+      setRemoveImage(false);
       await onSaved();
     } catch (err) {
       setError(err.message);
@@ -102,22 +129,24 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
 
   return (
     <form className="card finance-entry-form" onSubmit={handleSubmit}>
-      <div className="finance-type-toggle">
-        <button
-          type="button"
-          className={`finance-type-toggle-btn${form.type === 'despesa' ? ' is-active' : ''}`}
-          onClick={() => update('type', 'despesa')}
-        >
-          Despesa
-        </button>
-        <button
-          type="button"
-          className={`finance-type-toggle-btn${form.type === 'receita' ? ' is-active' : ''}`}
-          onClick={() => update('type', 'receita')}
-        >
-          Receita
-        </button>
-      </div>
+      {!forcedType && (
+        <div className="finance-type-toggle">
+          <button
+            type="button"
+            className={`finance-type-toggle-btn${form.type === 'despesa' ? ' is-active' : ''}`}
+            onClick={() => update('type', 'despesa')}
+          >
+            Despesa
+          </button>
+          <button
+            type="button"
+            className={`finance-type-toggle-btn${form.type === 'receita' ? ' is-active' : ''}`}
+            onClick={() => update('type', 'receita')}
+          >
+            Receita
+          </button>
+        </div>
+      )}
 
       <Field label="Descrição" htmlFor="finance-description">
         <input
@@ -176,6 +205,38 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
 
       {form.type === 'despesa' && (
         <div className="finance-form-row">
+          <Field label="Natureza da despesa" htmlFor="finance-nature">
+            <select id="finance-nature" value={form.nature} onChange={(event) => update('nature', event.target.value)}>
+              <option value="unica">Única</option>
+              <option value="fixa">Fixa (repete todo mês)</option>
+              <option value="com_prazo">Com prazo</option>
+              <option value="a_decidir">A decidir</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {form.type === 'despesa' && goals.length > 0 && (
+        <div className="finance-form-row">
+          <Field label="Vincular a objetivo (opcional)" htmlFor="finance-linked-goal">
+            <select
+              id="finance-linked-goal"
+              value={form.linkedGoal}
+              onChange={(event) => update('linkedGoal', event.target.value)}
+            >
+              <option value="">Nenhum</option>
+              {goals.map((goal) => (
+                <option key={goal._id} value={goal._id}>
+                  {goal.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {form.type === 'despesa' && (
+        <div className="finance-form-row">
           <Field label="Tipo (planejamento futuro)" htmlFor="finance-wish">
             <select id="finance-wish" value={form.wishType} onChange={(event) => update('wishType', event.target.value)}>
               <option value="">Conta do mês</option>
@@ -194,6 +255,39 @@ export function FinanceEntryForm({ categories, users, monthLocked, editingEntry,
             </Field>
           )}
         </div>
+      )}
+
+      {form.type === 'despesa' && form.wishType && (
+        <Field label="Imagem (opcional)" htmlFor="finance-image">
+          <input
+            id="finance-image"
+            type="file"
+            accept="image/*"
+            onChange={(event) => {
+              setImageFile(event.target.files[0] || null);
+              setRemoveImage(false);
+            }}
+          />
+          {(imagePreviewUrl || (existingImage && !removeImage)) && (
+            <div className="finance-image-field-preview">
+              <img
+                className="finance-entry-thumb"
+                src={imagePreviewUrl || existingImage.url}
+                alt={existingImage?.name || 'Imagem'}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setImageFile(null);
+                  setRemoveImage(true);
+                }}
+              >
+                Remover imagem
+              </Button>
+            </div>
+          )}
+        </Field>
       )}
 
       <div className="finance-form-row">

@@ -1,4 +1,5 @@
 export { Icon } from './Icon.jsx';
+export { InfoTooltip } from './InfoTooltip.jsx';
 export { Button } from './Button.jsx';
 export { IconButton } from './IconButton.jsx';
 export { Card } from './Card.jsx';

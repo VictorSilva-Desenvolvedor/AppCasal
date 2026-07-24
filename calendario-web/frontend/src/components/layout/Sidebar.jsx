@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Icon, Button } from '../ui/index.js';
 import { SidebarNavItem } from './SidebarNavItem.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
-import { useTheme } from '../../hooks/useTheme.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { UpcomingEventsList } from '../../features/calendar/UpcomingEventsList.jsx';
 import { personColorFor } from '../../features/calendar/calendarUtils.js';
@@ -25,7 +24,6 @@ function initialsOf(name) {
 
 export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent }) {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { users } = useCalendarData();
   const location = useLocation();
   const section = getAppSection(location.pathname);
@@ -67,19 +65,15 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent 
         </nav>
       )}
 
-      <div className="sidebar-section">
-        <h3>Atalhos</h3>
-        {isCalendarSection && (
+      {isCalendarSection && (
+        <div className="sidebar-section">
+          <h3>Atalhos</h3>
           <Button block onClick={onQuickNewEvent}>
             <Icon name="plus" />
             Novo evento
           </Button>
-        )}
-        <Button variant="secondary" block onClick={toggleTheme}>
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
-          Alternar tema
-        </Button>
-      </div>
+        </div>
+      )}
 
       {isCalendarSection && (
         <div className="sidebar-section">

@@ -177,6 +177,10 @@
   @apply text-sm text-text-muted -mt-2;
 }
 
+.finance-add-entry-actions {
+  @apply flex gap-2 mb-4;
+}
+
 .finance-type-toggle {
   @apply flex gap-2 mb-4;
 }
@@ -204,6 +208,30 @@
 
 .finance-entry-list {
   @apply flex flex-col gap-2;
+}
+
+.finance-entry-section-header {
+  @apply flex items-center gap-2 text-sm font-semibold text-text-muted mt-4 mb-2;
+}
+
+.finance-entry-section-header:first-child {
+  @apply mt-0;
+}
+
+.finance-entry-subsection-header {
+  @apply text-xs font-medium text-text-muted mt-2 mb-1 pl-1;
+}
+
+.finance-entry-thumb {
+  @apply w-10 h-10 rounded-sm object-cover cursor-pointer border border-border flex-shrink-0;
+}
+
+.finance-entry-image-large {
+  @apply w-full h-auto rounded-sm;
+}
+
+.finance-image-field-preview {
+  @apply flex items-center gap-2 mt-2;
 }
 
 .finance-entry-item {
@@ -279,6 +307,19 @@
   @apply p-4 flex flex-col gap-2;
 }
 
+.finance-goal-card.is-archived {
+  opacity: 0.65;
+}
+
+.finance-goal-archived-badge {
+  @apply text-[0.65rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ml-2 align-middle
+    bg-bg text-text-muted border border-border;
+}
+
+.finance-archived-goals-body {
+  @apply mt-3;
+}
+
 .finance-goal-card-header {
   @apply flex items-center justify-between;
 }
@@ -291,12 +332,35 @@
   @apply h-full rounded-full bg-primary transition-[width] duration-300;
 }
 
+.finance-goal-remaining {
+  @apply font-medium;
+}
+
 .finance-goal-actions {
   @apply flex items-center gap-2 mt-1;
 }
 
 .finance-goal-actions input {
   @apply w-24 rounded-sm border border-border bg-bg px-2 py-1.5;
+}
+
+.finance-installment-grid {
+  @apply grid gap-1 mt-1 overflow-y-auto;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  max-height: 6.5rem;
+}
+
+.finance-installment-cell {
+  @apply text-xs font-semibold rounded-sm border border-border bg-bg text-text-muted py-1 cursor-pointer
+    transition-colors duration-150;
+}
+
+.finance-installment-cell.is-paid {
+  @apply bg-success-bg text-success border-transparent;
+}
+
+.finance-installment-cell:disabled {
+  @apply cursor-default opacity-70;
 }
 
 /* ---------- Importar planilha ---------- */

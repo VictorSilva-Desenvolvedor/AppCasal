@@ -1,10 +1,23 @@
-import { createContext, useCallback, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { api } from '../services/api.js';
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => api.getCurrentUser());
+  // No mobile empacotado, o localStorage pode ter sido despejado pelo
+  // WebView desde a última abertura — enquanto isso, não deixamos as rotas
+  // decidirem "não autenticado" ainda (ver ProtectedRoute/PublicOnlyRoute).
+  const [loading, setLoading] = useState(() => Capacitor.isNativePlatform());
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    api
+      .bootstrapSession()
+      .then(() => setUser(api.getCurrentUser()))
+      .finally(() => setLoading(false));
+  }, []);
 
   const login = useCallback(async ({ name, password }) => {
     const data = await api.login({ name, password });
@@ -32,6 +45,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     isAuthenticated: Boolean(user && api.getToken()),
+    loading,
     login,
     register,
     logout,

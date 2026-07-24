@@ -22,6 +22,9 @@ async function update(req, res) {
     notificationChannel,
     remindersMuted,
     notifyOnInvite,
+    habitRemindersMuted,
+    notifyOnHabitNudge,
+    notifyOnPartnerActivity,
     hidePastEventsByDefault,
     financeDefaultScope,
     activityLogLimit,
@@ -35,6 +38,9 @@ async function update(req, res) {
   if (notificationChannel !== undefined) settings.notificationChannel = notificationChannel;
   if (remindersMuted !== undefined) settings.remindersMuted = remindersMuted;
   if (notifyOnInvite !== undefined) settings.notifyOnInvite = notifyOnInvite;
+  if (habitRemindersMuted !== undefined) settings.habitRemindersMuted = habitRemindersMuted;
+  if (notifyOnHabitNudge !== undefined) settings.notifyOnHabitNudge = notifyOnHabitNudge;
+  if (notifyOnPartnerActivity !== undefined) settings.notifyOnPartnerActivity = notifyOnPartnerActivity;
   if (hidePastEventsByDefault !== undefined) settings.hidePastEventsByDefault = hidePastEventsByDefault;
   if (financeDefaultScope !== undefined) settings.financeDefaultScope = financeDefaultScope;
   if (activityLogLimit !== undefined) settings.activityLogLimit = activityLogLimit;

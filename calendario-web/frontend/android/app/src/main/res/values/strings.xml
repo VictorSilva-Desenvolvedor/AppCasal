@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AppCasal</string>
+    <string name="title_activity_main">AppCasal</string>
+    <string name="package_name">com.appcasal.mobile</string>
+    <string name="custom_url_scheme">com.appcasal.mobile</string>
+</resources>

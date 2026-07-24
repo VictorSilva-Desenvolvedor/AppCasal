@@ -16,6 +16,8 @@ const updateRequestRoutes = require('./routes/updateRequestRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
 const reminderRoutes = require('./routes/reminderRoutes');
 const pushRoutes = require('./routes/pushRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const financeCategoryRoutes = require('./routes/financeCategoryRoutes');
 const financeEntryRoutes = require('./routes/financeEntryRoutes');
 const reimbursementRoutes = require('./routes/reimbursementRoutes');
@@ -23,8 +25,15 @@ const financeGoalRoutes = require('./routes/financeGoalRoutes');
 const financeMonthRoutes = require('./routes/financeMonthRoutes');
 const financeImportRoutes = require('./routes/financeImportRoutes');
 const emotionEntryRoutes = require('./routes/emotionEntryRoutes');
+const habitRoutes = require('./routes/habitRoutes');
+const habitCheckinRoutes = require('./routes/habitCheckinRoutes');
+const watchlistItemRoutes = require('./routes/watchlistItemRoutes');
+const watchlistRatingRoutes = require('./routes/watchlistRatingRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
+const { isFcmReady } = require('./services/fcmService');
 const { checkAndSendReminders } = require('./services/reminderService');
+const { checkAndSendHabitReminders } = require('./services/habitReminderService');
+const { evaluateHabitStreaks } = require('./services/habitStreakService');
 
 const app = express();
 
@@ -41,6 +50,8 @@ app.use('/api/update-requests', updateRequestRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/finance-categories', financeCategoryRoutes);
 app.use('/api/finance-entries', financeEntryRoutes);
 app.use('/api/reimbursements', reimbursementRoutes);
@@ -48,8 +59,12 @@ app.use('/api/finance-goals', financeGoalRoutes);
 app.use('/api/finance-months', financeMonthRoutes);
 app.use('/api/finance-import', financeImportRoutes);
 app.use('/api/emotion-entries', emotionEntryRoutes);
+app.use('/api/habits', habitRoutes);
+app.use('/api/habit-checkins', habitCheckinRoutes);
+app.use('/api/watchlist-items', watchlistItemRoutes);
+app.use('/api/watchlist-ratings', watchlistRatingRoutes);
 
-app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady() }));
+app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady(), fcm: isFcmReady() }));
 
 const frontendDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
 app.use(express.static(frontendDir));
@@ -87,6 +102,22 @@ connectDB()
       '0 8 * * *',
       () => {
         checkAndSendReminders().catch((err) => console.error('Falha ao verificar lembretes:', err.message));
+      },
+      { timezone: 'America/Sao_Paulo' }
+    );
+
+    cron.schedule(
+      '* * * * *',
+      () => {
+        checkAndSendHabitReminders().catch((err) => console.error('Falha ao verificar lembretes de hábito:', err.message));
+      },
+      { timezone: 'America/Sao_Paulo' }
+    );
+
+    cron.schedule(
+      '5 0 * * *',
+      () => {
+        evaluateHabitStreaks().catch((err) => console.error('Falha ao avaliar streaks de hábito:', err.message));
       },
       { timezone: 'America/Sao_Paulo' }
     );

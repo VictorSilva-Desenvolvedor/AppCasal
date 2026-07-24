@@ -2,17 +2,18 @@ const Event = require('../models/Event');
 const Invitation = require('../models/Invitation');
 const { logActivity, buildUpdateDetails, formatDate } = require('../services/activityLogger');
 const { normalizeRule, getOccurrencesInRange, toUTCDateOnly } = require('../utils/recurrence');
+const { notifyPartner } = require('../services/notificationService');
 
 const DEFAULT_REMINDER_OFFSETS = [5, 3, 1];
 
 async function list(req, res) {
-  const events = await Event.find().populate('creator', 'name').sort({ date: 1 });
+  const events = await Event.find({ team: req.userTeam }).populate('creator', 'name').sort({ date: 1 });
   res.json(events);
 }
 
 async function upcomingReminders(req, res) {
   const todayUTC = toUTCDateOnly(new Date());
-  const events = await Event.find();
+  const events = await Event.find({ team: req.userTeam });
 
   const maxOffset = events.reduce((max, event) => {
     const offsets = event.reminderOffsets?.length ? event.reminderOffsets : DEFAULT_REMINDER_OFFSETS;
@@ -65,17 +66,27 @@ async function create(req, res) {
     reminderOffsets: Array.isArray(reminderOffsets) && reminderOffsets.length ? reminderOffsets : [5, 3, 1],
     hideWhenPast: Boolean(hideWhenPast),
     creator: req.userId,
+    team: req.userTeam,
   });
 
   await logActivity({
     actor: req.userId,
     action: 'created',
-    event,
+    item: event,
     details: `Criou o evento para ${formatDate(event.date)}`,
+    team: req.userTeam,
   });
 
   const populated = await event.populate('creator', 'name');
   res.status(201).json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Novo evento',
+    body: `📅 Novo evento criado: "${event.title}" (${formatDate(event.date)}).`,
+    link: '/app/calendario',
+    category: 'event',
+  }).catch((err) => console.error('Falha ao notificar novo evento:', err.message));
 }
 
 async function update(req, res) {
@@ -83,7 +94,7 @@ async function update(req, res) {
     req.body;
 
   const before = await Event.findById(req.params.id);
-  if (!before) {
+  if (!before || String(before.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Evento não encontrado' });
   }
 
@@ -109,15 +120,24 @@ async function update(req, res) {
   await logActivity({
     actor: req.userId,
     action: 'updated',
-    event,
+    item: event,
     details: buildUpdateDetails(before, event),
+    team: req.userTeam,
   });
 
   res.json(event);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Evento atualizado',
+    body: `📅 O evento "${event.title}" foi atualizado.`,
+    link: '/app/calendario',
+    category: 'event',
+  }).catch((err) => console.error('Falha ao notificar atualização de evento:', err.message));
 }
 
 async function remove(req, res) {
-  const event = await Event.findByIdAndDelete(req.params.id);
+  const event = await Event.findOneAndDelete({ _id: req.params.id, team: req.userTeam });
 
   if (!event) {
     return res.status(404).json({ message: 'Evento não encontrado' });
@@ -128,12 +148,20 @@ async function remove(req, res) {
   await logActivity({
     actor: req.userId,
     action: 'deleted',
-    event,
-    eventTitle: event.title,
+    itemTitle: event.title,
     details: `Excluiu o evento de ${formatDate(event.date)}`,
+    team: req.userTeam,
   });
 
   res.status(204).send();
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Evento excluído',
+    body: `📅 O evento "${event.title}" foi excluído.`,
+    link: '/app/calendario',
+    category: 'event',
+  }).catch((err) => console.error('Falha ao notificar exclusão de evento:', err.message));
 }
 
 module.exports = { list, create, update, remove, upcomingReminders };

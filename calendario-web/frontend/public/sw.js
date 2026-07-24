@@ -15,8 +15,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title || 'AppCasal', {
       body: payload.body || '',
-      icon: '/icon-aniversario.png',
-      badge: '/icon-aniversario.png',
+      icon: '/icon-heart.png',
+      badge: '/icon-heart.png',
     }),
   );
 });

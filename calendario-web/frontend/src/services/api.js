@@ -1,4 +1,7 @@
-const API_BASE_URL = `${window.location.origin}/api`;
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
+
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || window.location.origin}/api`;
 
 const TOKEN_KEY = 'calendario_token';
 const USER_KEY = 'calendario_user';
@@ -15,11 +18,41 @@ function getCurrentUser() {
 function saveSession(token, user) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+  if (Capacitor.isNativePlatform()) {
+    Preferences.set({ key: TOKEN_KEY, value: token });
+    Preferences.set({ key: USER_KEY, value: JSON.stringify(user) });
+  }
 }
 
 function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+
+  if (Capacitor.isNativePlatform()) {
+    Preferences.remove({ key: TOKEN_KEY });
+    Preferences.remove({ key: USER_KEY });
+  }
+}
+
+// No Android empacotado (Capacitor), o WebView carrega a URL remota do
+// servidor de produção — o localStorage dele fica sujeito a ser despejado
+// pelo sistema/WebView entre aberturas do app (pouco espaço, otimização de
+// bateria, atualização do WebView etc.). @capacitor/preferences grava em
+// armazenamento nativo (SharedPreferences), que não sofre esse despejo, e
+// serve de backup: se o localStorage vier vazio no boot, restauramos dele.
+async function bootstrapSession() {
+  if (!Capacitor.isNativePlatform() || getToken()) return;
+
+  const [{ value: token }, { value: userRaw }] = await Promise.all([
+    Preferences.get({ key: TOKEN_KEY }),
+    Preferences.get({ key: USER_KEY }),
+  ]);
+
+  if (token && userRaw) {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, userRaw);
+  }
 }
 
 async function request(path, { method = 'GET', body, isForm = false } = {}) {
@@ -189,6 +222,16 @@ function getFinanceReport(month, year, paidBy) {
   return request(`/finance-entries/report?${query}`);
 }
 
+function getFinanceHistory(month, year, months, paidBy) {
+  const query = new URLSearchParams({
+    month,
+    year,
+    ...(months && { months }),
+    ...(paidBy && { paidBy }),
+  }).toString();
+  return request(`/finance-entries/report/history?${query}`);
+}
+
 function getReimbursements() {
   return request('/reimbursements');
 }
@@ -267,6 +310,56 @@ function deleteEmotionEntry(id) {
   return request(`/emotion-entries/${id}`, { method: 'DELETE' });
 }
 
+function getHabits(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/habits${query ? `?${query}` : ''}`);
+}
+
+function createHabit(payload) {
+  return request('/habits', { method: 'POST', body: payload });
+}
+
+function updateHabit(id, payload) {
+  return request(`/habits/${id}`, { method: 'PUT', body: payload });
+}
+
+function archiveHabit(id) {
+  return request(`/habits/${id}`, { method: 'DELETE' });
+}
+
+function deleteHabit(id) {
+  return request(`/habits/${id}/permanent`, { method: 'DELETE' });
+}
+
+function getHabitCheckins(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/habit-checkins${query ? `?${query}` : ''}`);
+}
+
+function createHabitCheckin(payload) {
+  return request('/habit-checkins', { method: 'POST', body: payload });
+}
+
+function deleteHabitCheckin(id) {
+  return request(`/habit-checkins/${id}`, { method: 'DELETE' });
+}
+
+function freezeHabit(id, day) {
+  return request(`/habits/${id}/freeze`, { method: 'POST', body: { day } });
+}
+
+function setHabitCheckinReaction(id, emoji) {
+  return request(`/habit-checkins/${id}/reactions`, { method: 'POST', body: { emoji } });
+}
+
+function removeHabitCheckinReaction(id) {
+  return request(`/habit-checkins/${id}/reactions`, { method: 'DELETE' });
+}
+
 function getVapidPublicKey() {
   return request('/push/vapid-public-key');
 }
@@ -279,12 +372,94 @@ function unsubscribePush(endpoint) {
   return request('/push/unsubscribe', { method: 'POST', body: { endpoint } });
 }
 
+function registerDeviceToken(token) {
+  return request('/push/device-token', { method: 'POST', body: { token } });
+}
+
+function unregisterDeviceToken(token) {
+  return request('/push/device-token', { method: 'DELETE', body: { token } });
+}
+
+function testPush() {
+  return request('/push/test', { method: 'POST' });
+}
+
+function getWhatsappStatus() {
+  return request('/whatsapp/status');
+}
+
+function getNotifications(limit) {
+  const query = limit ? `?${new URLSearchParams({ limit }).toString()}` : '';
+  return request(`/notifications${query}`);
+}
+
+function getUnreadNotificationCount() {
+  return request('/notifications/unread-count');
+}
+
+function markNotificationRead(id) {
+  return request(`/notifications/${id}/read`, { method: 'PATCH' });
+}
+
+function markAllNotificationsRead() {
+  return request('/notifications/read-all', { method: 'PATCH' });
+}
+
+function getWatchlistItems(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/watchlist-items${query ? `?${query}` : ''}`);
+}
+
+function createWatchlistItem(payload) {
+  return request('/watchlist-items', { method: 'POST', body: payload });
+}
+
+function updateWatchlistItem(id, payload) {
+  return request(`/watchlist-items/${id}`, { method: 'PUT', body: payload });
+}
+
+function deleteWatchlistItem(id) {
+  return request(`/watchlist-items/${id}`, { method: 'DELETE' });
+}
+
+function searchWatchlistPoster(type, query) {
+  const params = new URLSearchParams({ type, query });
+  return request(`/watchlist-items/poster-search?${params.toString()}`);
+}
+
+function getWatchlistPosterDetails(type, id) {
+  const params = new URLSearchParams({ type, id });
+  return request(`/watchlist-items/poster-details?${params.toString()}`);
+}
+
+function getWatchlistRatings(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/watchlist-ratings${query ? `?${query}` : ''}`);
+}
+
+function createWatchlistRating(payload) {
+  return request('/watchlist-ratings', { method: 'POST', body: payload });
+}
+
+function updateWatchlistRating(id, payload) {
+  return request(`/watchlist-ratings/${id}`, { method: 'PUT', body: payload });
+}
+
+function deleteWatchlistRating(id) {
+  return request(`/watchlist-ratings/${id}`, { method: 'DELETE' });
+}
+
 export const api = {
   register,
   login,
   logout,
   getCurrentUser,
   getToken,
+  bootstrapSession,
   getEvents,
   createEvent,
   updateEvent,
@@ -310,10 +485,29 @@ export const api = {
   getVapidPublicKey,
   subscribePush,
   unsubscribePush,
+  registerDeviceToken,
+  unregisterDeviceToken,
+  testPush,
+  getWhatsappStatus,
+  getNotifications,
+  getUnreadNotificationCount,
+  markNotificationRead,
+  markAllNotificationsRead,
   getEmotionEntries,
   createEmotionEntry,
   updateEmotionEntry,
   deleteEmotionEntry,
+  getHabits,
+  createHabit,
+  updateHabit,
+  archiveHabit,
+  deleteHabit,
+  getHabitCheckins,
+  createHabitCheckin,
+  deleteHabitCheckin,
+  freezeHabit,
+  setHabitCheckinReaction,
+  removeHabitCheckinReaction,
   getFinanceCategories,
   createFinanceCategory,
   updateFinanceCategory,
@@ -323,6 +517,7 @@ export const api = {
   updateFinanceEntry,
   deleteFinanceEntry,
   getFinanceReport,
+  getFinanceHistory,
   getReimbursements,
   createReimbursement,
   settleReimbursement,
@@ -337,6 +532,16 @@ export const api = {
   reopenFinanceMonth,
   previewFinanceImport,
   commitFinanceImport,
+  getWatchlistItems,
+  createWatchlistItem,
+  updateWatchlistItem,
+  deleteWatchlistItem,
+  searchWatchlistPoster,
+  getWatchlistPosterDetails,
+  getWatchlistRatings,
+  createWatchlistRating,
+  updateWatchlistRating,
+  deleteWatchlistRating,
 };
 
 export { API_BASE_URL };
