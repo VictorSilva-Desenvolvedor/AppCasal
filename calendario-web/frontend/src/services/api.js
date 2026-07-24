@@ -142,8 +142,8 @@ function updateCurrentUser(patch) {
   return user;
 }
 
-function getActivityLog() {
-  return request('/activity-logs');
+function getActivityLog(actorId) {
+  return request(actorId ? `/activity-logs?actor=${actorId}` : '/activity-logs');
 }
 
 function getUpdateRequests() {
@@ -164,6 +164,10 @@ function updateUpdateRequest(id, payload) {
 
 function deleteUpdateRequest(id) {
   return request(`/update-requests/${id}`, { method: 'DELETE' });
+}
+
+function addUpdateRequestNote(id, text) {
+  return request(`/update-requests/${id}/notes`, { method: 'POST', body: { text } });
 }
 
 function getInvitations() {
@@ -516,6 +520,7 @@ export const api = {
   createUpdateRequest,
   updateUpdateRequest,
   deleteUpdateRequest,
+  addUpdateRequestNote,
   getInvitations,
   createInvitation,
   respondInvitation,

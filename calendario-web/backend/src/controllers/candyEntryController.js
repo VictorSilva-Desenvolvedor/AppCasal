@@ -2,7 +2,6 @@ const CandyEntry = require('../models/CandyEntry');
 const User = require('../models/User');
 const { todayKeyInTimezone, addDaysToKey, weekStartKey } = require('../utils/dayKey');
 const { MAX_HOLD_MS } = require('../utils/candyLimits');
-const { logActivity } = require('../services/activityLogger');
 
 const POPULATE = [{ path: 'user', select: 'name' }];
 
@@ -50,16 +49,6 @@ async function create(req, res) {
     team: req.userTeam,
   });
 
-  await logActivity({
-    actor: req.userId,
-    action: 'created',
-    module: 'doce',
-    itemTitle: `${(durationMs / 1000).toFixed(1)}s de doce`,
-    itemId: entry._id,
-    details: `Registrou ${(durationMs / 1000).toFixed(1)}s de doce/besteira`,
-    team: req.userTeam,
-  });
-
   const populated = await entry.populate(POPULATE);
   res.status(201).json(populated);
 }
@@ -76,14 +65,6 @@ async function remove(req, res) {
   }
 
   await CandyEntry.findByIdAndDelete(entry._id);
-
-  await logActivity({
-    actor: req.userId,
-    action: 'deleted',
-    module: 'doce',
-    itemTitle: `${(entry.durationMs / 1000).toFixed(1)}s de doce`,
-    team: req.userTeam,
-  });
 
   res.status(204).send();
 }

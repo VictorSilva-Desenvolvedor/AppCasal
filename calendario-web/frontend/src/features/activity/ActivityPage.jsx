@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
 
@@ -24,14 +25,17 @@ function formatLogTimestamp(date) {
 }
 
 export function ActivityPage() {
+  const { user: me } = useAuth();
   const { users } = useCalendarData();
+  const partner = users.find((u) => u._id !== me?._id);
+  const [actorFilter, setActorFilter] = useState('all');
   const [logs, setLogs] = useState(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     api
-      .getActivityLog()
+      .getActivityLog(actorFilter === 'all' ? undefined : actorFilter)
       .then((data) => {
         if (!cancelled) setLogs(data);
       })
@@ -41,12 +45,32 @@ export function ActivityPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [actorFilter]);
+
+  const filterTabs = [
+    { value: 'all', label: 'Todos' },
+    ...(me ? [{ value: me._id, label: 'Meu' }] : []),
+    ...(partner ? [{ value: partner._id, label: partner.name }] : []),
+  ];
 
   return (
     <section className="view">
       <h2>Atividades</h2>
       <p>Histórico de atividades no Calendário, Financeiro, Hábitos, Emoções, Watchlist e Convites.</p>
+      {filterTabs.length > 1 && (
+        <div className="activity-filter-tabs">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              className={`activity-filter-btn${actorFilter === tab.value ? ' is-active' : ''}`}
+              onClick={() => setActorFilter(tab.value)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="activity-feed">
         {error && <p className="sidebar-empty">Não foi possível carregar as atividades</p>}
         {!error && logs && logs.length === 0 && (
