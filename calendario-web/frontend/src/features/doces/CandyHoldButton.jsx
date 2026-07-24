@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MAX_HOLD_MS } from './candyConfig.js';
 import { candyColorMix, formatDuration, scaleForElapsed } from './candyUtils.js';
 
+const RING_SIZE = 76;
+const RING_STROKE = 4;
+const RING_R = (RING_SIZE - RING_STROKE) / 2;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R;
+
 export function CandyHoldButton({ onLogged, submitting }) {
   const [holding, setHolding] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -63,29 +68,36 @@ export function CandyHoldButton({ onLogged, submitting }) {
 
   const liveScale = holding ? scaleForElapsed(elapsedMs) : 1;
   const liveColor = candyColorMix(liveScale);
+  const progress = holding ? Math.min(elapsedMs / MAX_HOLD_MS, 1) : 0;
 
   return (
-    <div className="candy-hold-wrap">
-      <div className="candy-hold-stage">
-        {holding && (
-          <div className="candy-hold-preview" style={{ transform: `scale(${liveScale})`, background: liveColor }} />
-        )}
-        <button
-          type="button"
-          className={`candy-hold-trigger${holding ? ' is-holding' : ''}`}
-          disabled={submitting}
-          onPointerDown={handlePointerDown}
-          onPointerUp={handleRelease}
-          onPointerLeave={handleCancel}
-          onPointerCancel={handleCancel}
-        >
-          {holding ? formatDuration(elapsedMs) : 'Segurar'}
-        </button>
-      </div>
-
-      <p className="candy-hold-hint">
-        Segure enquanto come — quanto mais tempo, mais pesou o deslize (máx. {formatDuration(MAX_HOLD_MS)}).
-      </p>
+    <div className="candy-hold-stage">
+      {holding && (
+        <div className="candy-hold-preview" style={{ transform: `translateX(-50%) scale(${liveScale})`, background: liveColor }} />
+      )}
+      <svg className="candy-hold-ring" viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`} aria-hidden="true">
+        <circle className="candy-hold-ring-track" cx={RING_SIZE / 2} cy={RING_SIZE / 2} r={RING_R} />
+        <circle
+          className="candy-hold-ring-progress"
+          cx={RING_SIZE / 2}
+          cy={RING_SIZE / 2}
+          r={RING_R}
+          stroke={liveColor}
+          strokeDasharray={RING_CIRCUMFERENCE}
+          strokeDashoffset={RING_CIRCUMFERENCE * (1 - progress)}
+        />
+      </svg>
+      <button
+        type="button"
+        className={`candy-hold-trigger${holding ? ' is-holding' : ''}`}
+        disabled={submitting}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handleRelease}
+        onPointerLeave={handleCancel}
+        onPointerCancel={handleCancel}
+      >
+        {holding ? formatDuration(elapsedMs) : 'Segurar'}
+      </button>
     </div>
   );
 }

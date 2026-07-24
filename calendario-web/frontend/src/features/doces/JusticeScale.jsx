@@ -15,13 +15,25 @@ function toBlobEntry(entry) {
 
 // Um prato = seu próprio contêiner físico independente, reaproveitando
 // literalmente o hook da jarra de emoções (mesma gravidade/colisão/pop),
-// só alimentado com entradas no formato que ele já espera.
+// só alimentado com entradas no formato que ele já espera. O piso em arco e
+// a sombra são só decoração por baixo das bolinhas — a física continua
+// tratando o chão como reto (não depende de x), por isso o arco é raso.
 function CandyPan({ entries, resetKey }) {
   const containerRef = useRef(null);
   const { blobs } = useEmotionJarPhysics(entries, containerRef, resetKey);
 
   return (
     <div className="candy-justice-pan" ref={containerRef}>
+      <svg className="candy-pan-floor" viewBox="0 0 130 22" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          d="M6,3 Q6,19 65,19 Q124,19 124,3"
+          fill="none"
+          stroke="var(--color-border-strong)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="candy-pan-shadow" aria-hidden="true" />
       {blobs.map((blob) => (
         <span
           key={blob.id}
@@ -40,9 +52,10 @@ function CandyPan({ entries, resetKey }) {
   );
 }
 
-function ScaleSide({ name, color, entries, resetKey, total }) {
+function ScaleSide({ name, color, entries, resetKey, total, holdSlot }) {
   return (
     <div className="candy-justice-pan-wrap">
+      {holdSlot && <div className="candy-justice-hold-slot">{holdSlot}</div>}
       <CandyPan entries={entries} resetKey={resetKey} />
       <div className="candy-justice-avatar" style={{ background: color }}>
         {initialsOf(name)}
@@ -53,7 +66,7 @@ function ScaleSide({ name, color, entries, resetKey, total }) {
   );
 }
 
-export function JusticeScale({ users, weekEntries, resetKey }) {
+export function JusticeScale({ users, weekEntries, resetKey, holdSlot }) {
   const { user: me } = useAuth();
   const partner = users.find((u) => u._id !== me?._id);
 
@@ -72,16 +85,14 @@ export function JusticeScale({ users, weekEntries, resetKey }) {
 
   return (
     <div className="candy-justice-scale">
-      <svg viewBox="0 0 300 74" className="candy-justice-beam-svg" aria-hidden="true">
-        <rect x="145" y="34" width="10" height="34" rx="3" fill="var(--color-border-strong)" />
-        <circle cx="150" cy="30" r="8" fill="var(--color-border-strong)" />
+      <svg viewBox="0 0 300 40" className="candy-justice-beam-svg" aria-hidden="true">
+        <line x1="150" y1="10" x2="150" y2="24" stroke="var(--color-border-strong)" strokeWidth="2" strokeLinecap="round" />
         <g
           className="candy-justice-beam"
-          style={{ transform: `rotate(${beamTiltDeg}deg)`, transformOrigin: '150px 30px', transformBox: 'view-box' }}
+          style={{ transform: `rotate(${beamTiltDeg}deg)`, transformOrigin: '150px 14px', transformBox: 'view-box' }}
         >
-          <rect x="30" y="26" width="240" height="8" rx="4" fill="var(--color-border-strong)" />
-          <line x1="70" y1="30" x2="70" y2="60" stroke="var(--color-border-strong)" strokeWidth="3" />
-          <line x1="230" y1="30" x2="230" y2="60" stroke="var(--color-border-strong)" strokeWidth="3" />
+          <line x1="40" y1="14" x2="260" y2="14" stroke="var(--color-border-strong)" strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx="150" cy="14" r="4" fill="none" stroke="var(--color-border-strong)" strokeWidth="1.5" />
         </g>
       </svg>
 
@@ -93,6 +104,7 @@ export function JusticeScale({ users, weekEntries, resetKey }) {
             entries={leftEntries}
             resetKey={resetKey}
             total={leftTotal}
+            holdSlot={holdSlot}
           />
         )}
         {partner && (

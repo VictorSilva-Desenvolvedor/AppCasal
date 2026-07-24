@@ -1,5 +1,26 @@
+.candy-page {
+  /* Identidade visual própria da feature — fixa, não reage aos ~15 temas de
+     cor do app (nem ao escuro). Mantida em sincronia manual com os hex
+     literais em features/doces/candyConfig.js (mesmo mecanismo de scoping
+     que .habit-page já usa em habitos.css pra --habit-coral, só que aqui com
+     hex fixo em vez de alias de token de tema — decisão deliberada). */
+  --candy-brand: #d4537e;
+  --candy-on-brand: #ffffff;
+  --candy-color-light: #5dcaa5;
+  --candy-color-light-text: #085041;
+  --candy-color-medium: #ef9f27;
+  --candy-color-medium-text: #633806;
+  --candy-color-heavy-from: #f0997b;
+  --candy-color-heavy-to: #e24b4a;
+  --candy-color-heavy-text: #4a1b0c;
+}
+
 .candy-page-header {
   @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+}
+
+.candy-page-header h2 {
+  @apply text-xl font-medium;
 }
 
 .candy-tabs,
@@ -9,24 +30,29 @@
 
 .candy-tab-btn {
   @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
-    transition-colors duration-150 hover:border-primary;
+    transition-colors duration-150;
+}
+
+.candy-tab-btn:hover {
+  border-color: var(--candy-brand);
 }
 
 .candy-tab-btn.is-active {
-  @apply text-on-primary border-transparent;
-  background: var(--color-primary);
+  @apply border-transparent;
+  background: var(--candy-brand);
+  color: var(--candy-on-brand);
 }
 
-/* ---------- Balança de dois pratos (sempre visível, acima das abas) ---------- */
+/* ---------- Balança de dois pratos (sempre visível) ---------- */
 
 .candy-justice-scale {
-  @apply flex flex-col items-center gap-1 mb-6;
+  @apply flex flex-col items-center gap-1 mb-2;
 }
 
 .candy-justice-beam-svg {
   display: block;
   width: 220px;
-  height: 54px;
+  height: 29px;
 }
 
 .candy-justice-beam {
@@ -34,7 +60,7 @@
 }
 
 .candy-justice-pans {
-  @apply flex gap-10 justify-center flex-wrap;
+  @apply flex gap-10 justify-center flex-wrap mt-2;
 }
 
 .candy-justice-pan-wrap {
@@ -42,12 +68,31 @@
   width: 130px;
 }
 
+.candy-justice-hold-slot {
+  @apply flex justify-center;
+  margin-bottom: 0.25rem;
+}
+
 .candy-justice-pan {
   @apply relative overflow-hidden w-full;
   height: 100px;
-  border: 2px solid var(--color-border-strong);
-  border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px;
-  background: var(--color-surface-alt);
+  border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px; /* máscara de recorte invisível — só molda a silhueta da tigela, sem fundo/borda visíveis */
+}
+
+.candy-pan-floor {
+  @apply absolute inset-x-0 bottom-0 pointer-events-none;
+  width: 100%;
+  height: 22px;
+}
+
+.candy-pan-shadow {
+  @apply absolute pointer-events-none;
+  left: 16%;
+  right: 16%;
+  bottom: 4px;
+  height: 8px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, color-mix(in oklch, var(--color-border-strong) 55%, transparent), transparent 72%);
 }
 
 .candy-justice-avatar {
@@ -55,11 +100,11 @@
 }
 
 .candy-justice-name {
-  @apply text-sm;
+  @apply text-base font-medium;
 }
 
 .candy-justice-weight {
-  @apply text-sm text-text-muted;
+  @apply text-xl font-medium text-text;
   font-variant-numeric: tabular-nums;
 }
 
@@ -99,36 +144,60 @@
   100% { transform: scale(1.5); opacity: 0; }
 }
 
-/* ---------- Segurar pra registrar ---------- */
-
-.candy-hold-wrap {
-  @apply flex flex-col items-center gap-3 py-6;
-}
+/* ---------- Segurar pra registrar (encaixado acima do próprio prato) ---------- */
 
 .candy-hold-stage {
   @apply relative flex items-center justify-center;
-  padding-top: 2.5rem;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 1.5rem; /* espaço pro doce-prévia crescer sem colidir com o prato logo abaixo */
 }
 
 .candy-hold-preview {
-  @apply absolute rounded-full;
-  width: 1.4rem;
-  height: 1.4rem;
-  top: 0;
+  @apply absolute rounded-full pointer-events-none;
+  width: 1rem;
+  height: 1rem;
+  left: 50%;
+  top: 100%;
+  margin-top: 0.4rem;
   transition: transform 80ms linear;
 }
 
+.candy-hold-ring {
+  @apply absolute inset-0 pointer-events-none;
+  width: 76px;
+  height: 76px;
+  transform: rotate(-90deg);
+}
+
+.candy-hold-ring-track {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 4;
+}
+
+.candy-hold-ring-progress {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 80ms linear;
+}
+
 .candy-hold-trigger {
-  @apply relative rounded-full border-2 border-border bg-surface text-text-muted text-sm font-semibold
-    flex items-center justify-center select-none cursor-pointer transition-colors duration-150;
-  width: 96px;
-  height: 96px;
+  @apply relative rounded-full border-2 text-xs font-semibold flex items-center justify-center select-none
+    cursor-pointer transition-colors duration-150;
+  width: 64px;
+  height: 64px;
+  border-color: var(--candy-brand);
+  color: var(--candy-brand);
+  background: var(--color-surface);
   touch-action: none;
 }
 
 .candy-hold-trigger.is-holding {
-  @apply border-transparent text-on-primary;
-  background: var(--color-primary);
+  @apply border-transparent;
+  background: var(--candy-brand);
+  color: var(--candy-on-brand);
 }
 
 .candy-hold-trigger:disabled {
@@ -136,7 +205,7 @@
 }
 
 .candy-hold-hint {
-  @apply text-sm text-text-muted text-center max-w-xs;
+  @apply text-sm text-text-muted text-center max-w-xs mx-auto mb-4;
 }
 
 /* ---------- Ranking numérico (barras por período) ---------- */
@@ -147,7 +216,7 @@
 
 .candy-bar-row {
   @apply grid items-center gap-2;
-  grid-template-columns: 8rem 1fr 6rem;
+  grid-template-columns: 8rem 1fr minmax(6rem, auto);
 }
 
 .candy-bar-label {
@@ -156,13 +225,13 @@
 
 .candy-bar-row.is-winner .candy-bar-label {
   @apply font-semibold;
-  color: var(--color-success);
+  color: var(--candy-color-light-text);
 }
 
 .candy-winner-pill {
   @apply text-xs;
-  background: var(--color-success-bg);
-  color: var(--color-success);
+  background: var(--candy-color-light);
+  color: var(--candy-color-light-text);
 }
 
 .candy-bar-track {
@@ -171,11 +240,12 @@
 
 .candy-bar-fill {
   @apply h-full rounded-full;
-  background: var(--color-primary);
+  background: var(--candy-brand);
 }
 
 .candy-bar-value {
-  @apply text-sm text-text-muted text-right;
+  @apply text-xl font-medium text-text text-right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Histórico ---------- */

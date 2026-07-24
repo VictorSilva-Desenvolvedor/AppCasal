@@ -6,9 +6,10 @@ import { CandyHoldButton } from './CandyHoldButton.jsx';
 import { CandyRankingBoard } from './CandyRankingBoard.jsx';
 import { CandyHistoryList } from './CandyHistoryList.jsx';
 import { JusticeScale } from './JusticeScale.jsx';
+import { MAX_HOLD_MS } from './candyConfig.js';
+import { formatDuration } from './candyUtils.js';
 
 const TABS = [
-  { value: 'registrar', label: 'Registrar' },
   { value: 'ranking', label: 'Ranking' },
   { value: 'historico', label: 'Histórico' },
 ];
@@ -17,7 +18,7 @@ export function DocesPage() {
   const { users } = useCalendarData();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('registrar');
+  const [activeTab, setActiveTab] = useState('ranking');
   const [period, setPeriod] = useState('day');
   const [ranking, setRanking] = useState(null);
   const [weekRanking, setWeekRanking] = useState(null);
@@ -78,8 +79,17 @@ export function DocesPage() {
       </div>
 
       {users.length > 0 && (
-        <JusticeScale users={users} weekEntries={weekEntries} resetKey={weekRanking?.start} />
+        <JusticeScale
+          users={users}
+          weekEntries={weekEntries}
+          resetKey={weekRanking?.start}
+          holdSlot={<CandyHoldButton onLogged={handleLogged} submitting={submitting} />}
+        />
       )}
+
+      <p className="candy-hold-hint">
+        Segure o botão junto ao seu prato enquanto come — quanto mais tempo, mais pesou o deslize (máx. {formatDuration(MAX_HOLD_MS)}).
+      </p>
 
       <div className="candy-tabs">
         {TABS.map((tab) => (
@@ -93,8 +103,6 @@ export function DocesPage() {
           </button>
         ))}
       </div>
-
-      {activeTab === 'registrar' && <CandyHoldButton onLogged={handleLogged} submitting={submitting} />}
 
       {activeTab === 'ranking' && (
         <CandyRankingBoard period={period} onPeriodChange={setPeriod} ranking={ranking} />
