@@ -15,6 +15,10 @@ export const MAX_BEAM_TILT_DEG = 12;
 export const CANDY_BRAND = '#D4537E';
 export const CANDY_ON_BRAND = '#ffffff'; // não reaproveitar --color-on-primary: aquele é calibrado por tema pro primary daquele tema, sem relação com este rosa fixo
 
+// Escala universal de peso (verde/âmbar/vermelho) — usada no Ranking e no
+// Histórico (onde o nome da pessoa já aparece do lado, então a cor foca em
+// comunicar o peso do registro). Independente da cor tingida por pessoa usada
+// na balança/botão "Segurar" (ver candyColorMix em candyUtils.js).
 export const CANDY_COLOR_LIGHT = '#5DCAA5';
 export const CANDY_COLOR_LIGHT_TEXT = '#085041';
 export const CANDY_COLOR_MEDIUM = '#EF9F27';

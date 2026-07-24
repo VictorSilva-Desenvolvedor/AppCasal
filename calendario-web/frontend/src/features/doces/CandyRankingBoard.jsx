@@ -1,5 +1,5 @@
 import { Card, Pill } from '../../components/ui/index.js';
-import { formatScore } from './candyUtils.js';
+import { candyWeightColor, formatCandyCount, intensityForDuration, scaleForElapsed } from './candyUtils.js';
 
 const PERIODS = [
   { value: 'day', label: 'Dia' },
@@ -7,9 +7,20 @@ const PERIODS = [
   { value: 'month', label: 'Mês' },
 ];
 
-export function CandyRankingBoard({ period, onPeriodChange, ranking }) {
+function groupEntriesByUser(entries) {
+  const map = new Map();
+  entries.forEach((entry) => {
+    const userId = entry.user?._id;
+    if (!userId) return;
+    if (!map.has(userId)) map.set(userId, []);
+    map.get(userId).push(entry);
+  });
+  return map;
+}
+
+export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) {
   const rows = ranking?.ranking || [];
-  const maxTotal = rows.reduce((max, row) => Math.max(max, row.totalMs), 0);
+  const entriesByUser = groupEntriesByUser(entries || []);
 
   return (
     <Card className="candy-ranking-card">
@@ -36,13 +47,24 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking }) {
                 {row.user.name}
                 {row.isWinner && <Pill className="candy-winner-pill">Vencendo</Pill>}
               </span>
-              <div className="candy-bar-track">
-                <div
-                  className="candy-bar-fill"
-                  style={{ width: `${maxTotal ? (row.totalMs / maxTotal) * 100 : 0}%` }}
-                />
+              <div className="candy-rank-candies">
+                {(entriesByUser.get(row.user._id) || []).map((entry) => {
+                  const intensity = intensityForDuration(entry.durationMs);
+                  return (
+                    <span
+                      key={entry._id}
+                      className="candy-rank-candy"
+                      title={`${Math.round(entry.durationMs / 1000)}s`}
+                      style={{
+                        width: 10 + intensity * 2,
+                        height: 10 + intensity * 2,
+                        background: candyWeightColor(scaleForElapsed(entry.durationMs)),
+                      }}
+                    />
+                  );
+                })}
               </div>
-              <span className="candy-bar-value">{formatScore(row.totalMs)}</span>
+              <span className="candy-bar-value">{formatCandyCount(row.count)}</span>
             </div>
           ))}
         </div>
