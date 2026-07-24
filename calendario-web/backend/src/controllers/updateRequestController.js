@@ -3,7 +3,10 @@ const { generateTaskDraft } = require('../services/aiService');
 const { notifyPartner } = require('../services/notificationService');
 
 async function list(req, res) {
-  const requests = await UpdateRequest.find({ team: req.userTeam }).populate('creator', 'name').sort({ createdAt: -1 });
+  const requests = await UpdateRequest.find({ team: req.userTeam })
+    .populate('creator', 'name')
+    .populate('notes.author', 'name')
+    .sort({ createdAt: -1 });
   res.json(requests);
 }
 
@@ -44,7 +47,9 @@ async function update(req, res) {
   const request = await UpdateRequest.findOneAndUpdate({ _id: req.params.id, team: req.userTeam }, changes, {
     new: true,
     runValidators: true,
-  }).populate('creator', 'name');
+  })
+    .populate('creator', 'name')
+    .populate('notes.author', 'name');
 
   if (!request) {
     return res.status(404).json({ message: 'Pedido não encontrado' });
@@ -59,6 +64,36 @@ async function update(req, res) {
     link: '/app/atualizacoes',
     category: 'update-request',
   }).catch((err) => console.error('Falha ao notificar atualização de pedido:', err.message));
+}
+
+async function addNote(req, res) {
+  const { text } = req.body;
+
+  if (!text || !text.trim()) {
+    return res.status(400).json({ message: 'Observação não pode ficar vazia' });
+  }
+
+  const request = await UpdateRequest.findOneAndUpdate(
+    { _id: req.params.id, team: req.userTeam },
+    { $push: { notes: { text: text.trim(), author: req.userId } } },
+    { new: true, runValidators: true }
+  )
+    .populate('creator', 'name')
+    .populate('notes.author', 'name');
+
+  if (!request) {
+    return res.status(404).json({ message: 'Pedido não encontrado' });
+  }
+
+  res.json(request);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: 'Nova observação em pedido de atualização',
+    body: `🛠️ Nova observação em "${request.title}".`,
+    link: '/app/atualizacoes',
+    category: 'update-request',
+  }).catch((err) => console.error('Falha ao notificar observação de pedido:', err.message));
 }
 
 async function remove(req, res) {
@@ -98,4 +133,4 @@ async function generateDraft(req, res) {
   }
 }
 
-module.exports = { list, create, update, remove, generateDraft };
+module.exports = { list, create, update, remove, generateDraft, addNote };

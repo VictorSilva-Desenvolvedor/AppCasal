@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 
+const updateRequestNoteSchema = new mongoose.Schema(
+  {
+    text: { type: String, required: true, trim: true, maxlength: 500 },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  },
+  { timestamps: true }
+);
+
 const updateRequestSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
@@ -7,6 +15,7 @@ const updateRequestSchema = new mongoose.Schema(
     status: { type: String, enum: ['todo', 'in_progress', 'done'], default: 'todo' },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     team: { type: String, default: 'principal' },
+    notes: { type: [updateRequestNoteSchema], default: [] },
   },
   { timestamps: true }
 );

@@ -44,6 +44,16 @@ export function UpdateBoard({ items, onChanged }) {
     }
   }
 
+  async function handleAddNote(id, text) {
+    try {
+      await api.addUpdateRequestNote(id, text);
+      await onChanged();
+      showToast('Observação adicionada', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
   const dnd = useDragAndDrop({ onDrop: handleDrop });
 
   return (
@@ -69,6 +79,7 @@ export function UpdateBoard({ items, onChanged }) {
                     dragging={dnd.isDragging(item._id)}
                     dragProps={dnd.dragProps({ id: item._id })}
                     onDelete={handleDelete}
+                    onAddNote={handleAddNote}
                   />
                 ))
               )}
