@@ -265,6 +265,22 @@ function deleteFinanceGoal(id) {
   return request(`/finance-goals/${id}`, { method: 'DELETE' });
 }
 
+function getFinanceSimulations() {
+  return request('/finance-simulations');
+}
+
+function createFinanceSimulation(simulation) {
+  return request('/finance-simulations', { method: 'POST', body: simulation });
+}
+
+function updateFinanceSimulation(id, simulation) {
+  return request(`/finance-simulations/${id}`, { method: 'PUT', body: simulation });
+}
+
+function deleteFinanceSimulation(id) {
+  return request(`/finance-simulations/${id}`, { method: 'DELETE' });
+}
+
 function getFinanceMonths() {
   return request('/finance-months');
 }
@@ -526,6 +542,10 @@ export const api = {
   createFinanceGoal,
   updateFinanceGoal,
   deleteFinanceGoal,
+  getFinanceSimulations,
+  createFinanceSimulation,
+  updateFinanceSimulation,
+  deleteFinanceSimulation,
   getFinanceMonths,
   createFinanceMonth,
   closeFinanceMonth,

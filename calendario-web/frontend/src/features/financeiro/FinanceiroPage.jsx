@@ -13,6 +13,7 @@ import { ReimbursementWallet } from './ReimbursementWallet.jsx';
 import { FinanceGoalForm } from './FinanceGoalForm.jsx';
 import { FinanceGoals } from './FinanceGoals.jsx';
 import { ArchiveGoalForm } from './ArchiveGoalForm.jsx';
+import { FinanceSimulation } from './FinanceSimulation.jsx';
 import { FinanceImportModal } from './FinanceImportModal.jsx';
 import { currentMonthYear, isGoalArchived, monthLabel } from './financeUtils.js';
 
@@ -22,6 +23,7 @@ const TABS = [
   { value: 'reembolsos', label: 'Carteira' },
   { value: 'objetivos', label: 'Objetivos' },
   { value: 'comodidades', label: 'Comodidades' },
+  { value: 'simulacao', label: 'Simulação' },
 ];
 
 function shiftMonthYear({ month, year }, direction) {
@@ -287,6 +289,10 @@ export function FinanceiroPage() {
             />
           </Card>
         </div>
+      )}
+
+      {activeTab === 'simulacao' && (
+        <FinanceSimulation entries={regularEntries} report={report} monthYear={monthYear} />
       )}
 
       <Modal open={Boolean(editingEntry)} onClose={() => setEditingEntry(null)} title="Editar lançamento">

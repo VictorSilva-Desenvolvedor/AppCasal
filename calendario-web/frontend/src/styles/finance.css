@@ -300,11 +300,11 @@
 
 .finance-goal-list {
   @apply grid gap-3;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
 .finance-goal-card {
-  @apply p-4 flex flex-col gap-2;
+  @apply p-5 flex flex-col gap-3;
 }
 
 .finance-goal-card.is-archived {
@@ -345,13 +345,13 @@
 }
 
 .finance-installment-grid {
-  @apply grid gap-1 mt-1 overflow-y-auto;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  max-height: 6.5rem;
+  @apply grid gap-1.5 mt-1 overflow-y-auto;
+  grid-template-columns: repeat(auto-fill, minmax(2.4rem, 1fr));
+  max-height: 9rem;
 }
 
 .finance-installment-cell {
-  @apply text-xs font-semibold rounded-sm border border-border bg-bg text-text-muted py-1 cursor-pointer
+  @apply text-xs font-semibold rounded-sm border border-border bg-bg text-text-muted py-1.5 cursor-pointer
     transition-colors duration-150;
 }
 
@@ -361,6 +361,57 @@
 
 .finance-installment-cell:disabled {
   @apply cursor-default opacity-70;
+}
+
+/* ---------- Simulação ---------- */
+
+.finance-simulation-tab {
+  @apply flex flex-col gap-4;
+}
+
+.finance-simulation-scenario-bar {
+  @apply flex flex-wrap items-center gap-2 mb-2;
+}
+
+.finance-simulation-scenario-bar select,
+.finance-simulation-scenario-bar input[type='text'] {
+  @apply rounded-sm border border-border bg-bg px-2 py-1.5 text-sm;
+}
+
+.finance-simulation-scenario-bar input[type='text'] {
+  @apply flex-1 min-w-[160px];
+}
+
+.finance-simulation-entry-row {
+  @apply flex items-center gap-2.5 p-2 rounded-sm cursor-pointer hover:bg-bg;
+}
+
+.finance-simulation-entry-row span:nth-child(2) {
+  @apply flex-1;
+}
+
+.finance-simulation-hypo-row {
+  @apply flex items-center gap-2.5 p-2 rounded-sm bg-bg;
+}
+
+.finance-simulation-hypo-row span:first-child {
+  @apply flex-1;
+}
+
+.finance-simulation-hypo-row button {
+  @apply bg-transparent border-none cursor-pointer text-text-muted;
+}
+
+.finance-simulation-add-form {
+  @apply flex flex-wrap items-center gap-2 mt-2;
+}
+
+.finance-simulation-add-form input[type='text'] {
+  @apply flex-1 min-w-[180px] rounded-sm border border-border bg-bg px-3 py-[0.4rem];
+}
+
+.finance-simulation-add-form input[type='number'] {
+  @apply w-28 rounded-sm border border-border bg-bg px-3 py-[0.4rem];
 }
 
 /* ---------- Importar planilha ---------- */

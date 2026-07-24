@@ -41,3 +41,21 @@ export function formatEntryDate(date) {
 export function isGoalArchived(goal) {
   return Boolean(goal.archivedUntil) && new Date(goal.archivedUntil) > new Date();
 }
+
+export function computeSimulatedTotals(entries, excludedIds, hypotheticalEntries) {
+  let totalReceitas = 0;
+  let totalDespesas = 0;
+
+  entries.forEach((entry) => {
+    if (excludedIds.has(entry._id)) return;
+    if (entry.type === 'receita') totalReceitas += entry.amount;
+    else totalDespesas += entry.amount;
+  });
+
+  hypotheticalEntries.forEach((entry) => {
+    if (entry.type === 'receita') totalReceitas += entry.amount;
+    else totalDespesas += entry.amount;
+  });
+
+  return { totalReceitas, totalDespesas, saldo: totalReceitas - totalDespesas };
+}
