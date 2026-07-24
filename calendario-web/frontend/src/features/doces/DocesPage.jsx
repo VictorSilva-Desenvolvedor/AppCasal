@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
+import { personColorFor } from '../calendar/calendarUtils.js';
 import { CandyHoldButton } from './CandyHoldButton.jsx';
 import { CandyRankingBoard } from './CandyRankingBoard.jsx';
 import { CandyHistoryList } from './CandyHistoryList.jsx';
@@ -17,17 +19,25 @@ const TABS = [
 export function DocesPage() {
   const { users } = useCalendarData();
   const { showToast } = useToast();
+  const { user: me } = useAuth();
+  const myColor = personColorFor(users, me?._id);
 
   const [activeTab, setActiveTab] = useState('ranking');
   const [period, setPeriod] = useState('day');
   const [ranking, setRanking] = useState(null);
+  const [rankingEntries, setRankingEntries] = useState([]);
   const [weekRanking, setWeekRanking] = useState(null);
   const [weekEntries, setWeekEntries] = useState([]);
   const [entries, setEntries] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
   const reloadRanking = useCallback(async () => {
-    setRanking(await api.getCandyRanking({ period }));
+    const [rankingData, entriesList] = await Promise.all([
+      api.getCandyRanking({ period }),
+      api.getCandyEntries({ period }),
+    ]);
+    setRanking(rankingData);
+    setRankingEntries(entriesList);
   }, [period]);
 
   const reloadWeek = useCallback(async () => {
@@ -83,7 +93,7 @@ export function DocesPage() {
           users={users}
           weekEntries={weekEntries}
           resetKey={weekRanking?.start}
-          holdSlot={<CandyHoldButton onLogged={handleLogged} submitting={submitting} />}
+          holdSlot={<CandyHoldButton onLogged={handleLogged} submitting={submitting} color={myColor} />}
         />
       )}
 
@@ -105,7 +115,7 @@ export function DocesPage() {
       </div>
 
       {activeTab === 'ranking' && (
-        <CandyRankingBoard period={period} onPeriodChange={setPeriod} ranking={ranking} />
+        <CandyRankingBoard period={period} onPeriodChange={setPeriod} ranking={ranking} entries={rankingEntries} />
       )}
 
       {activeTab === 'historico' && <CandyHistoryList entries={entries} onDeleted={handleDeleted} />}

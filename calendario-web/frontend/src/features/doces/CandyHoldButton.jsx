@@ -7,7 +7,7 @@ const RING_STROKE = 4;
 const RING_R = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R;
 
-export function CandyHoldButton({ onLogged, submitting }) {
+export function CandyHoldButton({ onLogged, submitting, color }) {
   const [holding, setHolding] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
 
@@ -67,7 +67,7 @@ export function CandyHoldButton({ onLogged, submitting }) {
   useEffect(() => stopLoop, [stopLoop]);
 
   const liveScale = holding ? scaleForElapsed(elapsedMs) : 1;
-  const liveColor = candyColorMix(liveScale);
+  const liveColor = candyColorMix(liveScale, color);
   const progress = holding ? Math.min(elapsedMs / MAX_HOLD_MS, 1) : 0;
 
   return (

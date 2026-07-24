@@ -8,11 +8,6 @@
   --candy-on-brand: #ffffff;
   --candy-color-light: #5dcaa5;
   --candy-color-light-text: #085041;
-  --candy-color-medium: #ef9f27;
-  --candy-color-medium-text: #633806;
-  --candy-color-heavy-from: #f0997b;
-  --candy-color-heavy-to: #e24b4a;
-  --candy-color-heavy-text: #4a1b0c;
 }
 
 .candy-page-header {
@@ -46,37 +41,40 @@
 /* ---------- Balança de dois pratos (sempre visível) ---------- */
 
 .candy-justice-scale {
-  @apply flex flex-col items-center gap-1 mb-2;
+  @apply flex flex-col items-center gap-0 mb-2;
 }
 
 .candy-justice-beam-svg {
   display: block;
-  width: 220px;
-  height: 29px;
-}
-
-.candy-justice-beam {
-  transition: transform 400ms var(--ease);
+  width: 300px;
+  height: 60px;
 }
 
 .candy-justice-pans {
-  @apply flex gap-10 justify-center flex-wrap mt-2;
+  @apply flex gap-10 justify-center flex-wrap;
 }
 
 .candy-justice-pan-wrap {
   @apply flex flex-col items-center gap-2;
   width: 130px;
+  transition: transform 400ms var(--ease);
 }
 
-.candy-justice-hold-slot {
+.candy-justice-hold-center {
   @apply flex justify-center;
-  margin-bottom: 0.25rem;
+  margin-top: 0.75rem;
 }
 
 .candy-justice-pan {
   @apply relative overflow-hidden w-full;
-  height: 100px;
+  height: 72px;
   border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px; /* máscara de recorte invisível — só molda a silhueta da tigela, sem fundo/borda visíveis */
+}
+
+.candy-pan-rim {
+  @apply absolute inset-x-0 top-0 pointer-events-none;
+  width: 100%;
+  height: 10px;
 }
 
 .candy-pan-floor {
@@ -100,11 +98,11 @@
 }
 
 .candy-justice-name {
-  @apply text-base font-medium;
+  @apply text-lg font-semibold;
 }
 
 .candy-justice-weight {
-  @apply text-xl font-medium text-text;
+  @apply text-sm font-medium text-text-muted;
   font-variant-numeric: tabular-nums;
 }
 
@@ -144,13 +142,13 @@
   100% { transform: scale(1.5); opacity: 0; }
 }
 
-/* ---------- Segurar pra registrar (encaixado acima do próprio prato) ---------- */
+/* ---------- Segurar pra registrar (centralizado abaixo da balança) ---------- */
 
 .candy-hold-stage {
   @apply relative flex items-center justify-center;
   width: 76px;
   height: 76px;
-  margin-bottom: 1.5rem; /* espaço pro doce-prévia crescer sem colidir com o prato logo abaixo */
+  margin-bottom: 1rem; /* espaço pro doce-prévia crescer sem cortar */
 }
 
 .candy-hold-preview {
@@ -208,7 +206,7 @@
   @apply text-sm text-text-muted text-center max-w-xs mx-auto mb-4;
 }
 
-/* ---------- Ranking numérico (barras por período) ---------- */
+/* ---------- Ranking (docinhos empilhados por período) ---------- */
 
 .candy-bars {
   @apply flex flex-col gap-3;
@@ -234,13 +232,13 @@
   color: var(--candy-color-light-text);
 }
 
-.candy-bar-track {
-  @apply h-2 rounded-full bg-bg overflow-hidden;
+.candy-rank-candies {
+  @apply flex flex-wrap items-center gap-1;
 }
 
-.candy-bar-fill {
-  @apply h-full rounded-full;
-  background: var(--candy-brand);
+.candy-rank-candy {
+  @apply rounded-full flex-shrink-0;
+  box-shadow: var(--shadow-sm);
 }
 
 .candy-bar-value {
@@ -248,18 +246,33 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Histórico ---------- */
+/* ---------- Histórico (agrupado por dia) ---------- */
+
+.candy-history-days {
+  @apply flex flex-col gap-4;
+}
+
+.candy-history-day-header {
+  @apply block text-sm text-text-muted mb-2;
+}
 
 .candy-history-list {
   @apply flex flex-col gap-2;
 }
 
 .candy-history-item {
-  @apply flex items-center justify-between gap-3;
+  @apply flex items-center gap-3;
+}
+
+.candy-history-dot {
+  @apply flex-shrink-0 rounded-full;
+  width: 10px;
+  height: 10px;
+  box-shadow: var(--shadow-sm);
 }
 
 .candy-history-item-info {
-  @apply flex flex-col;
+  @apply flex flex-col flex-1;
 }
 
 .candy-history-item-meta {

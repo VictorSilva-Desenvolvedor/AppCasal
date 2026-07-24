@@ -114,13 +114,18 @@ function resolveBlobCollision(a, b) {
   }
 }
 
-function stepPhysics(blobs, dt, bounds) {
+function stepPhysics(blobs, dt, bounds, gravityAngleDeg = 0) {
+  const angleRad = (gravityAngleDeg * Math.PI) / 180;
+  const gx = GRAVITY * Math.sin(angleRad);
+  const gy = GRAVITY * Math.cos(angleRad);
+
   blobs.forEach((b) => {
     if (b.resting || b.popping) return;
 
     const tuning = CATEGORY_TUNING[b.category] || DEFAULT_TUNING;
 
-    b.vy += GRAVITY * dt;
+    b.vx += gx * dt;
+    b.vy += gy * dt;
     if (tuning.jitterAccel) {
       b.vx += (Math.random() - 0.5) * tuning.jitterAccel * dt;
     }
@@ -169,7 +174,7 @@ function stepPhysics(blobs, dt, bounds) {
 
 const UNSET_RESET_KEY = Symbol('unset');
 
-export function useEmotionJarPhysics(entries, containerRef, resetKey) {
+export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef) {
   const [blobs, setBlobs] = useState([]);
   const blobsRef = useRef([]);
   const rafRef = useRef(null);
@@ -219,7 +224,7 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey) {
       const { blobs: afterPop } = removeExpiredPops(blobsRef.current, time);
       blobsRef.current = afterPop;
 
-      stepPhysics(blobsRef.current, dt, bounds);
+      stepPhysics(blobsRef.current, dt, bounds, gravityAngleRef?.current ?? 0);
       publish();
 
       if (blobsRef.current.some((b) => !b.resting || b.popping)) {
@@ -245,7 +250,7 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey) {
       // instantaneamente, sem reproduzir a queda do dia inteiro na tela.
       blobsRef.current = entries.map((entry) => createBlob(entry, bounds));
       for (let i = 0; i < INSTANT_SETTLE_STEPS; i++) {
-        stepPhysics(blobsRef.current, STEP_DT, bounds);
+        stepPhysics(blobsRef.current, STEP_DT, bounds, gravityAngleRef?.current ?? 0);
       }
       publish();
       return;
@@ -311,5 +316,21 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey) {
     runRealtimeLoop();
   }
 
-  return { blobs, shake };
+  // Chamado quando a inclinação real do aparelho muda o bastante (ver
+  // useDeviceTilt) — sem isso, bolinhas já assentadas (resting=true)
+  // ficariam grudadas na posição antiga mesmo com o prato virado. Diferente
+  // de shake(), não injeta impulso de velocidade: a gravidade decomposta em
+  // stepPhysics já puxa na nova direção sozinha no próximo frame; um
+  // impulso aqui dobraria o efeito e pareceria chacoalhar a cada inclinação.
+  function wakeForGravityChange() {
+    blobsRef.current.forEach((b) => {
+      b.resting = false;
+      b.restFrames = 0;
+    });
+    frameCountRef.current = 0;
+    publish();
+    runRealtimeLoop();
+  }
+
+  return { blobs, shake, wakeForGravityChange };
 }
