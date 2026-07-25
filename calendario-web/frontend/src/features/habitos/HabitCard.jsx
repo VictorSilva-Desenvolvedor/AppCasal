@@ -43,14 +43,14 @@ export function HabitCard({
       ? String(habit.currentTurnUserId?._id ?? habit.currentTurnUserId) === currentUserId
       : !isColaborativo; // colaborativo usa o checklist, não o botão de check-in direto
 
-  const partnerStatuses = !isIndividual && !isAlternado && !isColaborativo
-    ? users
-        .filter((u) => u._id !== currentUserId)
-        .map((u) => {
-          const checkin = todayCheckins.find((c) => (c.user?._id ?? c.user) === u._id);
-          return { user: u, checkin, done: Boolean(checkin) };
-        })
+  const isShared = !isIndividual && !isAlternado && !isColaborativo;
+  const memberStatuses = isShared
+    ? users.map((u) => {
+        const checkin = todayCheckins.find((c) => (c.user?._id ?? c.user) === u._id);
+        return { user: u, checkin, done: Boolean(checkin) };
+      })
     : [];
+  const partnerStatuses = memberStatuses.filter((s) => s.user._id !== currentUserId);
 
   const completedTogetherToday = partnerStatuses.length > 0 && Boolean(myCheckinToday) && partnerStatuses.every((p) => p.done);
 
@@ -113,15 +113,15 @@ export function HabitCard({
         </button>
       )}
 
-      {partnerStatuses.length > 0 && (
+      {memberStatuses.length > 0 && (
         <div className="habit-card-partner-status">
-          {partnerStatuses.map(({ user, checkin, done }) => (
+          {memberStatuses.map(({ user, checkin, done }) => (
             <span
               key={user._id}
               className={`habit-partner-chip${done ? ' is-done' : ''}`}
               style={{ '--partner-color': getPartnerColor(user._id, users) }}
             >
-              {done ? '✓' : '·'} {user.name}
+              {done ? '✓' : '·'} {user._id === currentUserId ? 'Você' : user.name}
               {done && checkin && (
                 <HabitReactionPicker checkin={checkin} currentUserId={currentUserId} onReacted={onReacted} />
               )}
