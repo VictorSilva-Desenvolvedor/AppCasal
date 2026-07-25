@@ -31,11 +31,13 @@ const habitCheckinRoutes = require('./routes/habitCheckinRoutes');
 const watchlistItemRoutes = require('./routes/watchlistItemRoutes');
 const watchlistRatingRoutes = require('./routes/watchlistRatingRoutes');
 const candyEntryRoutes = require('./routes/candyEntryRoutes');
+const taskItemRoutes = require('./routes/taskItemRoutes');
 const { startWhatsapp, isWhatsappReady } = require('./services/whatsappService');
 const { isFcmReady } = require('./services/fcmService');
 const { checkAndSendReminders } = require('./services/reminderService');
 const { checkAndSendHabitReminders } = require('./services/habitReminderService');
 const { evaluateHabitStreaks } = require('./services/habitStreakService');
+const { resetTaskItems } = require('./services/taskItemResetService');
 
 const app = express();
 
@@ -67,6 +69,7 @@ app.use('/api/habit-checkins', habitCheckinRoutes);
 app.use('/api/watchlist-items', watchlistItemRoutes);
 app.use('/api/watchlist-ratings', watchlistRatingRoutes);
 app.use('/api/candy-entries', candyEntryRoutes);
+app.use('/api/task-items', taskItemRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady(), fcm: isFcmReady() }));
 
@@ -122,6 +125,14 @@ connectDB()
       '5 0 * * *',
       () => {
         evaluateHabitStreaks().catch((err) => console.error('Falha ao avaliar streaks de hábito:', err.message));
+      },
+      { timezone: 'America/Sao_Paulo' }
+    );
+
+    cron.schedule(
+      '5 0 * * *',
+      () => {
+        resetTaskItems().catch((err) => console.error('Falha ao resetar tarefas:', err.message));
       },
       { timezone: 'America/Sao_Paulo' }
     );
