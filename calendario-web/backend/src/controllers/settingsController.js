@@ -28,6 +28,7 @@ async function update(req, res) {
     hidePastEventsByDefault,
     financeDefaultScope,
     activityLogLimit,
+    hideFinanceValues,
   } = req.body;
   const settings = await getSettingsDoc(req.userId);
 
@@ -44,6 +45,7 @@ async function update(req, res) {
   if (hidePastEventsByDefault !== undefined) settings.hidePastEventsByDefault = hidePastEventsByDefault;
   if (financeDefaultScope !== undefined) settings.financeDefaultScope = financeDefaultScope;
   if (activityLogLimit !== undefined) settings.activityLogLimit = activityLogLimit;
+  if (hideFinanceValues !== undefined) settings.hideFinanceValues = hideFinanceValues;
 
   await settings.save();
   res.json(settings);

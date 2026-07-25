@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Icon, Modal, Pill, HeartLoader } from '../../components/ui/index.js';
+import { Button, Card, Icon, IconButton, Modal, Pill, HeartLoader } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -36,7 +36,7 @@ function shiftMonthYear({ month, year }, direction) {
 export function FinanceiroPage() {
   const { users } = useCalendarData();
   const { user } = useAuth();
-  const { financeDefaultScope } = useTheme();
+  const { financeDefaultScope, hideFinanceValues, updatePreferences } = useTheme();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('resumo');
@@ -172,6 +172,13 @@ export function FinanceiroPage() {
           <Button variant="secondary" onClick={() => setImportOpen(true)}>
             Importar planilha
           </Button>
+          <IconButton
+            onClick={() => updatePreferences({ hideFinanceValues: !hideFinanceValues })}
+            title={hideFinanceValues ? 'Mostrar valores financeiros' : 'Ocultar valores financeiros'}
+            aria-label={hideFinanceValues ? 'Mostrar valores financeiros' : 'Ocultar valores financeiros'}
+          >
+            <Icon name={hideFinanceValues ? 'eye-off' : 'eye'} />
+          </IconButton>
         </div>
       </div>
 
@@ -215,7 +222,9 @@ export function FinanceiroPage() {
         ))}
       </div>
 
-      {activeTab === 'resumo' && <FinanceSummary report={report} goals={goals} history={history} />}
+      {activeTab === 'resumo' && (
+        <FinanceSummary report={report} goals={goals} history={history} hideFinanceValues={hideFinanceValues} />
+      )}
 
       {activeTab === 'lancamentos' && (
         <div className="finance-entries-tab">
@@ -299,7 +308,12 @@ export function FinanceiroPage() {
       )}
 
       {activeTab === 'simulacao' && (
-        <FinanceSimulation entries={regularEntries} report={report} monthYear={monthYear} />
+        <FinanceSimulation
+          entries={regularEntries}
+          report={report}
+          monthYear={monthYear}
+          hideFinanceValues={hideFinanceValues}
+        />
       )}
 
       <Modal open={Boolean(editingEntry)} onClose={() => setEditingEntry(null)} title="Editar lançamento">

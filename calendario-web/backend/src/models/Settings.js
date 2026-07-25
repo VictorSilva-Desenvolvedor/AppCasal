@@ -20,6 +20,7 @@ const settingsSchema = new mongoose.Schema(
     hidePastEventsByDefault: { type: Boolean, default: false },
     financeDefaultScope: { type: String, enum: ['self', 'partner'], default: 'self' },
     activityLogLimit: { type: Number, enum: [50, 100, 200, 500], default: 200 },
+    hideFinanceValues: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
