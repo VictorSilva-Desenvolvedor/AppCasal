@@ -84,4 +84,4 @@ async function reopen(req, res) {
   }).catch((err) => console.error('Falha ao notificar reabertura de mês:', err.message));
 }
 
-module.exports = { list, create, close, reopen };
+module.exports = { list, create, close, reopen, ensureCurrentMonth };

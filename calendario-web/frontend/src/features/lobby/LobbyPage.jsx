@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth.js';
 import { useTheme } from '../../hooks/useTheme.js';
 
 const LOBBY_APPS = [
+  { to: '/app/resumo', icon: 'sunrise', label: 'Resumo da Semana' },
   { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
   { to: '/app/financeiro', icon: 'wallet', label: 'Financeiro' },
   { to: '/app/emocoes', icon: 'smile', label: 'Emoções do Dia' },

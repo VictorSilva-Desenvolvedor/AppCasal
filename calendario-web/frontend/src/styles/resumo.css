@@ -1,0 +1,57 @@
+.resumo-header {
+  @apply flex items-baseline justify-between mb-5;
+}
+
+.resumo-header h2 {
+  @apply text-2xl m-0;
+  letter-spacing: -0.01em;
+}
+
+.resumo-date-range {
+  @apply text-xs;
+  color: var(--color-text-muted);
+}
+
+.resumo-cards {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.resumo-card {
+  @apply p-4 flex flex-col gap-2;
+}
+
+.resumo-card h3 {
+  @apply text-sm font-medium text-text-muted m-0;
+}
+
+.resumo-card-detail {
+  @apply text-sm m-0;
+  color: var(--color-text-muted);
+}
+
+.resumo-finance-row {
+  @apply flex items-center gap-2 flex-wrap;
+}
+
+.resumo-finance-saldo {
+  @apply text-xl;
+}
+
+.resumo-list {
+  @apply flex flex-col gap-1.5 m-0 p-0;
+  list-style: none;
+}
+
+.resumo-list-row {
+  @apply flex items-center justify-between gap-2 text-sm;
+}
+
+.resumo-list-label {
+  @apply truncate;
+}
+
+.resumo-list-meta {
+  @apply text-xs shrink-0;
+  color: var(--color-text-muted);
+}

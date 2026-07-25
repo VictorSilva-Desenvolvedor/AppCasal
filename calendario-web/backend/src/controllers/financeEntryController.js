@@ -371,4 +371,4 @@ async function history(req, res) {
   res.json(points);
 }
 
-module.exports = { list, create, update, remove, report, history, assertMonthOpen };
+module.exports = { list, create, update, remove, report, history, assertMonthOpen, computeMonthTotals };
