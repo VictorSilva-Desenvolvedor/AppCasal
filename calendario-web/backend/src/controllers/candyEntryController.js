@@ -69,13 +69,12 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-async function ranking(req, res) {
-  const { period = 'day', date } = req.query;
+async function computeRanking(team, period, date) {
   const { start, end } = rangeForPeriod(period, date);
 
   const [roster, entries] = await Promise.all([
-    User.find({ team: req.userTeam }).select('name').sort('name'),
-    CandyEntry.find({ team: req.userTeam, day: { $gte: start, $lte: end } }),
+    User.find({ team }).select('name').sort('name'),
+    CandyEntry.find({ team, day: { $gte: start, $lte: end } }),
   ]);
 
   const totals = new Map();
@@ -100,7 +99,12 @@ async function ranking(req, res) {
     r.isWinner = canDeclareWinner && r.totalMs === minTotal;
   });
 
-  res.json({ period, start, end, ranking: rows });
+  return { period, start, end, ranking: rows };
 }
 
-module.exports = { list, create, remove, ranking };
+async function ranking(req, res) {
+  const { period = 'day', date } = req.query;
+  res.json(await computeRanking(req.userTeam, period, date));
+}
+
+module.exports = { list, create, remove, ranking, computeRanking };

@@ -514,6 +514,10 @@ function deleteTaskItem(id) {
   return request(`/task-items/${id}`, { method: 'DELETE' });
 }
 
+function getWeeklySummary() {
+  return request('/weekly-summary');
+}
+
 export const api = {
   register,
   login,
@@ -616,6 +620,7 @@ export const api = {
   createTaskItem,
   toggleTaskItem,
   deleteTaskItem,
+  getWeeklySummary,
 };
 
 export { API_BASE_URL };
