@@ -21,19 +21,19 @@ export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddN
   const notes = item.notes || [];
   const [showNotes, setShowNotes] = useState(false);
   const [noteText, setNoteText] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
 
   async function handleAddNote(event) {
     event.preventDefault();
     const trimmed = noteText.trim();
     if (!trimmed) return;
 
-    setSaving(true);
+    setSavingNote(true);
     try {
       await onAddNote(item._id, trimmed);
       setNoteText('');
     } finally {
-      setSaving(false);
+      setSavingNote(false);
     }
   }
 
@@ -90,7 +90,7 @@ export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddN
               value={noteText}
               onChange={(event) => setNoteText(event.target.value)}
             />
-            <button type="submit" className="btn btn-secondary" disabled={saving || !noteText.trim()}>
+            <button type="submit" className="btn btn-secondary" disabled={savingNote || !noteText.trim()}>
               Adicionar
             </button>
           </form>
