@@ -337,6 +337,11 @@
   opacity: 0.4;
 }
 
+.event-pill.is-saving {
+  @apply pointer-events-none;
+  opacity: 0.6;
+}
+
 .calendar-day-skeleton {
   @apply rounded-lg shadow-sm;
   min-height: 64px;

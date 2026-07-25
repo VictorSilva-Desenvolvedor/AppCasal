@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Icon } from '../../components/ui/index.js';
+import { Icon, IconButton } from '../../components/ui/index.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
 import { TYPE_META, RATING_SCALE, ratingByUser, isFullyRated, initialOf } from './watchlistUtils.js';
 
@@ -20,6 +20,7 @@ export function WatchlistCard({
   currentUserId,
   dragging,
   justDropped,
+  saving,
   dragProps,
   onDelete,
   onRate,
@@ -52,6 +53,7 @@ export function WatchlistCard({
     justDropped && 'just-dropped',
     fullyRated && 'is-fully-rated',
     celebrate && 'watchlist-celebrate',
+    saving && 'is-saving',
   ]
     .filter(Boolean)
     .join(' ');
@@ -64,14 +66,14 @@ export function WatchlistCard({
         {meta.emoji}
       </span>
 
-      <button
-        type="button"
-        className="icon-btn watchlist-card-delete"
+      <IconButton
+        className="watchlist-card-delete"
         aria-label="Remover item"
+        loading={saving}
         onClick={() => onDelete(item._id)}
       >
         <Icon name="trash" />
-      </button>
+      </IconButton>
 
       <h4 className="watchlist-card-title">{item.title}</h4>
 

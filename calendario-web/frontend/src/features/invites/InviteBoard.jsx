@@ -1,6 +1,6 @@
 import { InviteCard } from './InviteCard.jsx';
 
-export function InviteBoard({ received, sent, onAccept, onDecline, onCancel }) {
+export function InviteBoard({ received, sent, isPending, onAccept, onDecline, onCancel }) {
   return (
     <div className="update-board">
       <div className="update-column">
@@ -16,6 +16,7 @@ export function InviteBoard({ received, sent, onAccept, onDecline, onCancel }) {
                 key={inv._id}
                 invitation={inv}
                 direction="received"
+                pending={isPending(inv._id)}
                 onAccept={onAccept}
                 onDecline={onDecline}
               />
@@ -31,7 +32,15 @@ export function InviteBoard({ received, sent, onAccept, onDecline, onCancel }) {
           {sent.length === 0 ? (
             <p className="update-empty">Nenhum convite enviado</p>
           ) : (
-            sent.map((inv) => <InviteCard key={inv._id} invitation={inv} direction="sent" onCancel={onCancel} />)
+            sent.map((inv) => (
+              <InviteCard
+                key={inv._id}
+                invitation={inv}
+                direction="sent"
+                pending={isPending(inv._id)}
+                onCancel={onCancel}
+              />
+            ))
           )}
         </div>
       </div>

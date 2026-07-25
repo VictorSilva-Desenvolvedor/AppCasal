@@ -1,6 +1,7 @@
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useToast } from '../../hooks/useToast.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { api } from '../../services/api.js';
 import { InviteBoard } from './InviteBoard.jsx';
 
@@ -8,13 +9,14 @@ export function InvitesPage() {
   const { user } = useAuth();
   const { invitations, refetchInvitations } = useCalendarData();
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
 
   const received = invitations.filter((inv) => inv.invitee?._id === user?._id);
   const sent = invitations.filter((inv) => inv.inviter?._id === user?._id);
 
   async function handleRespond(id, status) {
     try {
-      await api.respondInvitation(id, status);
+      await run(id, () => api.respondInvitation(id, status));
       await refetchInvitations();
       showToast(status === 'accepted' ? 'Convite aceito' : 'Convite recusado', 'success');
     } catch (err) {
@@ -25,7 +27,7 @@ export function InvitesPage() {
   async function handleCancel(id) {
     if (!window.confirm('Cancelar este convite?')) return;
     try {
-      await api.cancelInvitation(id);
+      await run(id, () => api.cancelInvitation(id));
       await refetchInvitations();
       showToast('Convite cancelado', 'success');
     } catch (err) {
@@ -40,6 +42,7 @@ export function InvitesPage() {
       <InviteBoard
         received={received}
         sent={sent}
+        isPending={isPending}
         onAccept={(id) => handleRespond(id, 'accepted')}
         onDecline={(id) => handleRespond(id, 'declined')}
         onCancel={handleCancel}

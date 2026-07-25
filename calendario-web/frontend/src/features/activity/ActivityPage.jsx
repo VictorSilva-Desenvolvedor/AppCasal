@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api.js';
+import { HeartLoader } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
@@ -47,6 +48,14 @@ export function ActivityPage() {
       cancelled = true;
     };
   }, [actorFilter]);
+
+  if (logs === null && !error) {
+    return (
+      <section className="view">
+        <HeartLoader />
+      </section>
+    );
+  }
 
   const filterTabs = [
     { value: 'all', label: 'Todos' },

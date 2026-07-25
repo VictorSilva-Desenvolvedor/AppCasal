@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button, Card, Field, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { formatCurrency } from './financeUtils.js';
 
 function computeNetBalances(reimbursements, users) {
@@ -36,6 +37,7 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
 
   const netBalances = useMemo(() => computeNetBalances(reimbursements, users), [reimbursements, users]);
 
@@ -65,7 +67,7 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
 
   async function handleSettle(id) {
     try {
-      await api.settleReimbursement(id);
+      await run(id, () => api.settleReimbursement(id));
       await onChanged();
       showToast('Reembolso quitado', 'success');
     } catch (err) {
@@ -76,7 +78,7 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
   async function handleDelete(id) {
     if (!window.confirm('Excluir este reembolso?')) return;
     try {
-      await api.deleteReimbursement(id);
+      await run(id, () => api.deleteReimbursement(id));
       await onChanged();
       showToast('Reembolso excluído', 'success');
     } catch (err) {
@@ -172,11 +174,11 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
               </Pill>
               <div className="finance-entry-item-actions">
                 {r.status === 'pendente' && (
-                  <Button variant="secondary" onClick={() => handleSettle(r._id)}>
+                  <Button variant="secondary" loading={isPending(r._id)} onClick={() => handleSettle(r._id)}>
                     Quitar
                   </Button>
                 )}
-                <Button variant="danger" onClick={() => handleDelete(r._id)}>
+                <Button variant="danger" loading={isPending(r._id)} onClick={() => handleDelete(r._id)}>
                   Excluir
                 </Button>
               </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Icon } from '../../components/ui/index.js';
+import { Icon, Spinner } from '../../components/ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
 
@@ -13,7 +13,7 @@ function formatLogTimestamp(date) {
   });
 }
 
-export function UpdateCard({ item, dragging, dragProps, onDelete, onAddNote }) {
+export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddNote }) {
   const { users } = useCalendarData();
   const dotColor = item.creator ? personColorFor(users, item.creator._id) : 'var(--color-text-muted)';
   const authorName = item.creator?.name || 'desconhecido';
@@ -38,7 +38,11 @@ export function UpdateCard({ item, dragging, dragProps, onDelete, onAddNote }) {
   }
 
   return (
-    <div className={`update-card${dragging ? ' dragging' : ''}`} data-status={item.status} {...dragProps}>
+    <div
+      className={`update-card${dragging ? ' dragging' : ''}${saving ? ' is-saving' : ''}`}
+      data-status={item.status}
+      {...dragProps}
+    >
       <div className="update-card-title">{item.title}</div>
       {item.description && <div className="update-card-description">{item.description}</div>}
       <div className="update-card-footer">
@@ -51,9 +55,10 @@ export function UpdateCard({ item, dragging, dragProps, onDelete, onAddNote }) {
           className="update-card-delete"
           title="Excluir"
           aria-label="Excluir pedido"
+          disabled={saving}
           onClick={() => onDelete(item._id)}
         >
-          <Icon name="trash" />
+          {saving ? <Spinner /> : <Icon name="trash" />}
         </button>
       </div>
 

@@ -3,6 +3,7 @@ import { Card, IconButton, Icon, Modal, Pill } from '../../components/ui/index.j
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { formatCurrency, formatEntryDate, paymentStatus } from './financeUtils.js';
 
 const STATUS_LABEL = { pendente: 'Pendente', parcial: 'Pago parcial', pago: 'Pago' };
@@ -32,12 +33,13 @@ function groupByCategory(list) {
 export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, groupByNature = false }) {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
   const [previewImage, setPreviewImage] = useState(null);
 
   async function handleDelete(id) {
     if (!window.confirm('Excluir este lançamento?')) return;
     try {
-      await api.deleteFinanceEntry(id);
+      await run(id, () => api.deleteFinanceEntry(id));
       await onDeleted();
       showToast('Lançamento excluído', 'success');
     } catch (err) {
@@ -99,10 +101,15 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, grou
           {entry.type === 'despesa' && <Pill className={`finance-status-pill finance-status--${status}`}>{STATUS_LABEL[status]}</Pill>}
           {isOwner && (
             <div className="finance-entry-item-actions">
-              <IconButton onClick={() => onEdit(entry)} title="Editar" disabled={monthLocked}>
+              <IconButton onClick={() => onEdit(entry)} title="Editar" disabled={monthLocked || isPending(entry._id)}>
                 <Icon name="tool" />
               </IconButton>
-              <IconButton onClick={() => handleDelete(entry._id)} title="Excluir" disabled={monthLocked}>
+              <IconButton
+                onClick={() => handleDelete(entry._id)}
+                title="Excluir"
+                disabled={monthLocked}
+                loading={isPending(entry._id)}
+              >
                 <Icon name="trash" />
               </IconButton>
             </div>

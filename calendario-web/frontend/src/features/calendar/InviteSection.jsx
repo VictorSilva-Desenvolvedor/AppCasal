@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Button, Icon } from '../../components/ui/index.js';
+import { Button, Icon, Spinner } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 
 const INVITE_STATUS_LABELS = { pending: 'Pendente', accepted: 'Aceito', declined: 'Recusado' };
 
@@ -10,6 +11,7 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
 
   const isCreator = Boolean(event) && event.creator?._id === currentUserId;
   if (!isCreator) return null;
@@ -44,7 +46,7 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
   async function handleCancel(id) {
     if (!window.confirm('Cancelar este convite?')) return;
     try {
-      await api.cancelInvitation(id);
+      await run(id, () => api.cancelInvitation(id));
       await onInvitationsChanged();
     } catch (err) {
       showToast(err.message, 'error');
@@ -94,9 +96,10 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
                 className="update-card-delete"
                 title="Cancelar"
                 aria-label="Cancelar convite"
+                disabled={isPending(inv._id)}
                 onClick={() => handleCancel(inv._id)}
               >
-                <Icon name="trash" />
+                {isPending(inv._id) ? <Spinner /> : <Icon name="trash" />}
               </button>
             )}
           </div>

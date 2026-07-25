@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { useToast } from '../../hooks/useToast.js';
 import { api } from '../../services/api.js';
 import { WatchlistCard } from './WatchlistCard.jsx';
@@ -7,6 +8,7 @@ import { STATUS_COLUMNS } from './watchlistUtils.js';
 
 export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onChanged, onRate }) {
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
   const [justDroppedId, setJustDroppedId] = useState(null);
 
   const groups = useMemo(() => {
@@ -20,7 +22,7 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
   async function handleDelete(id) {
     if (!window.confirm('Remover este item da watchlist?')) return;
     try {
-      await api.deleteWatchlistItem(id);
+      await run(id, () => api.deleteWatchlistItem(id));
       await onChanged();
       showToast('Item removido', 'success');
     } catch (err) {
@@ -32,7 +34,7 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
     const item = items.find((i) => i._id === id);
     if (!item || item.status === status) return;
     try {
-      await api.updateWatchlistItem(id, { status });
+      await run(id, () => api.updateWatchlistItem(id, { status }));
       await onChanged();
       setJustDroppedId(id);
       setTimeout(() => setJustDroppedId((current) => (current === id ? null : current)), 400);
@@ -70,6 +72,7 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
                     currentUserId={currentUserId}
                     dragging={dnd.isDragging(item._id)}
                     justDropped={item._id === justDroppedId}
+                    saving={isPending(item._id)}
                     dragProps={dnd.dragProps({ id: item._id })}
                     onDelete={handleDelete}
                     onRate={onRate}
