@@ -31,6 +31,7 @@ function InstallmentGrid({ total, paid, onSetPaid, readOnly }) {
 
 function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
   const [contribution, setContribution] = useState('');
+  const [pending, setPending] = useState(false);
   const { showToast } = useToast();
   const hasInstallments = Boolean(goal.totalInstallments);
   const archived = isGoalArchived(goal);
@@ -45,6 +46,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
   async function handleAddContribution() {
     const value = Number(contribution);
     if (!value) return;
+    setPending(true);
     try {
       await api.updateFinanceGoal(goal._id, { currentAmount: goal.currentAmount + value });
       setContribution('');
@@ -52,6 +54,8 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
       showToast('Progresso atualizado', 'success');
     } catch (err) {
       showToast(err.message, 'error');
+    } finally {
+      setPending(false);
     }
   }
 
@@ -70,22 +74,27 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
 
   async function handleDelete() {
     if (!window.confirm('Excluir este objetivo?')) return;
+    setPending(true);
     try {
       await api.deleteFinanceGoal(goal._id);
       await onChanged();
       showToast('Objetivo excluído', 'success');
     } catch (err) {
       showToast(err.message, 'error');
+      setPending(false);
     }
   }
 
   async function handleUnarchive() {
+    setPending(true);
     try {
       await api.updateFinanceGoal(goal._id, { archivedUntil: null });
       await onChanged();
       showToast('Objetivo desarquivado', 'success');
     } catch (err) {
       showToast(err.message, 'error');
+    } finally {
+      setPending(false);
     }
   }
 
@@ -101,20 +110,20 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
         {!readOnly && (
           <div className="finance-entry-item-actions">
             {archived ? (
-              <IconButton onClick={handleUnarchive} title="Desarquivar agora">
+              <IconButton onClick={handleUnarchive} title="Desarquivar agora" loading={pending}>
                 <Icon name="rotate-ccw" />
               </IconButton>
             ) : (
               <>
-                <IconButton onClick={() => onEdit(goal)} title="Editar objetivo">
+                <IconButton onClick={() => onEdit(goal)} title="Editar objetivo" disabled={pending}>
                   <Icon name="tool" />
                 </IconButton>
-                <IconButton onClick={() => onArchive(goal)} title="Arquivar objetivo">
+                <IconButton onClick={() => onArchive(goal)} title="Arquivar objetivo" disabled={pending}>
                   <Icon name="archive" />
                 </IconButton>
               </>
             )}
-            <IconButton onClick={handleDelete} title="Excluir objetivo">
+            <IconButton onClick={handleDelete} title="Excluir objetivo" loading={pending}>
               <Icon name="trash" />
             </IconButton>
           </div>

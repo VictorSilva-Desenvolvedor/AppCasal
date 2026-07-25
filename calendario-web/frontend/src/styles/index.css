@@ -9,6 +9,7 @@
 @import "./tokens.css";
 @import "./base.css" layer(base);
 @import "./components.css" layer(components);
+@import "./loading.css" layer(components);
 @import "./calendar.css" layer(components);
 @import "./auth.css" layer(components);
 @import "./lobby.css" layer(components);

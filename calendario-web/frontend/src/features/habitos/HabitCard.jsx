@@ -1,4 +1,4 @@
-import { Icon, InfoTooltip } from '../../components/ui/index.js';
+import { Icon, InfoTooltip, IconButton } from '../../components/ui/index.js';
 import {
   displayStreak,
   computeWeekProgress,
@@ -16,6 +16,7 @@ export function HabitCard({
   checkins,
   users,
   currentUserId,
+  pending,
   onCheckin,
   onEdit,
   onArchive,
@@ -158,22 +159,22 @@ export function HabitCard({
         </button>
         {isArchived ? (
           <>
-            <button type="button" className="icon-btn" aria-label="Restaurar hábito" onClick={() => onUnarchive(habit)}>
+            <IconButton aria-label="Restaurar hábito" loading={pending} onClick={() => onUnarchive(habit)}>
               <Icon name="rotate-ccw" />
-            </button>
-            <button
-              type="button"
-              className="icon-btn icon-btn-danger"
+            </IconButton>
+            <IconButton
+              className="icon-btn-danger"
               aria-label="Excluir hábito permanentemente"
+              loading={pending}
               onClick={() => onDelete(habit)}
             >
               <Icon name="trash" />
-            </button>
+            </IconButton>
           </>
         ) : (
-          <button type="button" className="icon-btn" aria-label="Arquivar hábito" onClick={() => onArchive(habit)}>
+          <IconButton aria-label="Arquivar hábito" loading={pending} onClick={() => onArchive(habit)}>
             <Icon name="archive" />
-          </button>
+          </IconButton>
         )}
       </div>
     </div>

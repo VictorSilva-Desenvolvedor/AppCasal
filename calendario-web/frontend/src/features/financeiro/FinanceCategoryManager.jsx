@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Card, IconButton, Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 
 export function FinanceCategoryManager({ categories, onChanged }) {
   const [expanded, setExpanded] = useState(false);
@@ -10,6 +11,7 @@ export function FinanceCategoryManager({ categories, onChanged }) {
   const [color, setColor] = useState('#64748b');
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -32,7 +34,7 @@ export function FinanceCategoryManager({ categories, onChanged }) {
   async function handleDelete(id) {
     if (!window.confirm('Excluir esta categoria?')) return;
     try {
-      await api.deleteFinanceCategory(id);
+      await run(id, () => api.deleteFinanceCategory(id));
       await onChanged();
       showToast('Categoria excluída', 'success');
     } catch (err) {
@@ -55,7 +57,11 @@ export function FinanceCategoryManager({ categories, onChanged }) {
                 <span className="finance-category-chip-dot" style={{ background: category.color }} />
                 {category.name}
                 <span className="finance-category-chip-type">{category.type === 'receita' ? 'receita' : 'despesa'}</span>
-                <IconButton onClick={() => handleDelete(category._id)} title="Excluir categoria">
+                <IconButton
+                  onClick={() => handleDelete(category._id)}
+                  title="Excluir categoria"
+                  loading={isPending(category._id)}
+                >
                   <Icon name="trash" />
                 </IconButton>
               </li>

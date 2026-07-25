@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Icon } from '../../components/ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { useToast } from '../../hooks/useToast.js';
 import { api } from '../../services/api.js';
 import {
@@ -23,6 +24,7 @@ import {
 export function MonthView({ viewDate, filters, onSelectDay }) {
   const { events, users, invitations, refetchEvents } = useCalendarData();
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
 
   const cells = useMemo(() => buildMonthCells(viewDate), [viewDate]);
   const monthDates = cells.filter(Boolean);
@@ -43,15 +45,17 @@ export function MonthView({ viewDate, filters, onSelectDay }) {
     if (!event || toDateKey(new Date(event.date)) === dateKey) return;
 
     try {
-      await api.updateEvent(eventId, {
-        title: event.title,
-        description: event.description || '',
-        date: dateKeyToNoonISO(dateKey),
-        attachments: event.attachments || [],
-        recurrenceRule: event.recurrenceRule,
-        category: event.category || null,
-        hideWhenPast: Boolean(event.hideWhenPast),
-      });
+      await run(eventId, () =>
+        api.updateEvent(eventId, {
+          title: event.title,
+          description: event.description || '',
+          date: dateKeyToNoonISO(dateKey),
+          attachments: event.attachments || [],
+          recurrenceRule: event.recurrenceRule,
+          category: event.category || null,
+          hideWhenPast: Boolean(event.hideWhenPast),
+        }),
+      );
       await refetchEvents();
       showToast('Evento reagendado', 'success');
     } catch (err) {
@@ -124,7 +128,7 @@ export function MonthView({ viewDate, filters, onSelectDay }) {
                 {dayEvents.slice(0, 3).map((event) => (
                   <span
                     key={event._id}
-                    className={`event-pill${dnd.isDragging(event._id) ? ' is-dragging' : ''}`}
+                    className={`event-pill${dnd.isDragging(event._id) ? ' is-dragging' : ''}${isPending(event._id) ? ' is-saving' : ''}`}
                     style={{ background: pillColorFor(event, users) }}
                     {...dnd.dragProps({ id: event._id, event })}
                   >

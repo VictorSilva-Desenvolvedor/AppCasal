@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Icon } from '../../components/ui/index.js';
+import { Icon, HeartLoader } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -22,6 +22,7 @@ export function EmocoesPage() {
   const [activeTab, setActiveTab] = useState('hoje');
   const [viewScope, setViewScope] = useState(() => user?._id ?? null);
   const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activePeriod, setActivePeriod] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -41,8 +42,16 @@ export function EmocoesPage() {
   }, [viewScope]);
 
   useEffect(() => {
-    reloadEntries();
+    reloadEntries().finally(() => setLoading(false));
   }, [reloadEntries]);
+
+  if (loading) {
+    return (
+      <section className="view emotion-page">
+        <HeartLoader />
+      </section>
+    );
+  }
 
   const todayEntries = entries.filter((entry) => entry.day === todayKey);
   const historyDays = groupEntriesByDay(entries);

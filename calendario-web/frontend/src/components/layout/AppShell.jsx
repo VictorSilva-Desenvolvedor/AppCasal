@@ -5,10 +5,17 @@ import { Topbar } from './Topbar.jsx';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { useFcmRegistration } from '../../hooks/useFcmRegistration.js';
+import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
+import { HeartLoader } from '../ui/HeartLoader.jsx';
 import { getAppSection } from './appSections.js';
 
 const MOBILE_QUERY = '(max-width: 768px)';
+
+function AppMainContent() {
+  const { loading } = useCalendarData();
+  return loading ? <HeartLoader label="Carregando seus dados..." /> : <Outlet />;
+}
 
 export function AppShell() {
   const location = useLocation();
@@ -65,7 +72,7 @@ export function AppShell() {
             showFilterBar={showFilterBar}
             showSidebarToggle={showSidebar}
           />
-          <Outlet />
+          <AppMainContent />
         </main>
       </div>
     </CalendarDataProvider>

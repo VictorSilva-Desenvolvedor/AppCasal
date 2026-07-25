@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Icon, Modal, Pill } from '../../components/ui/index.js';
+import { Button, Card, Icon, Modal, Pill, HeartLoader } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -66,6 +66,7 @@ export function FinanceiroPage() {
   const [archivingGoal, setArchivingGoal] = useState(null);
   const [togglingMonth, setTogglingMonth] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const reloadCategories = useCallback(async () => setCategories(await api.getFinanceCategories()), []);
   const reloadReimbursements = useCallback(async () => setReimbursements(await api.getReimbursements()), []);
@@ -95,11 +96,17 @@ export function FinanceiroPage() {
   }, [reloadGoals]);
 
   useEffect(() => {
-    reloadEntries();
-    reloadReport();
-    reloadHistory();
+    Promise.all([reloadEntries(), reloadReport(), reloadHistory()]).finally(() => setLoading(false));
     setEditingEntry(null);
   }, [reloadEntries, reloadReport, reloadHistory]);
+
+  if (loading) {
+    return (
+      <section className="view finance-page">
+        <HeartLoader />
+      </section>
+    );
+  }
 
   const currentMonthRecord = months.find((m) => m.month === monthYear.month && m.year === monthYear.year);
   const isClosed = currentMonthRecord?.status === 'fechado';

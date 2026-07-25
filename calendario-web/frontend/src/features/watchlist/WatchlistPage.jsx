@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Icon, Modal } from '../../components/ui/index.js';
+import { Icon, Modal, HeartLoader } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -16,6 +16,7 @@ export function WatchlistPage() {
 
   const [items, setItems] = useState([]);
   const [ratings, setRatings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('');
   const [onlyPending, setOnlyPending] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -31,8 +32,16 @@ export function WatchlistPage() {
   }, []);
 
   useEffect(() => {
-    reload();
+    reload().finally(() => setLoading(false));
   }, [reload]);
+
+  if (loading) {
+    return (
+      <section className="view watchlist-page">
+        <HeartLoader />
+      </section>
+    );
+  }
 
   const ratingsByItem = groupRatingsByItem(ratings);
 

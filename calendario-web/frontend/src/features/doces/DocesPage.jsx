@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../services/api.js';
+import { HeartLoader } from '../../components/ui/index.js';
 import { useToast } from '../../hooks/useToast.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
@@ -30,6 +31,7 @@ export function DocesPage() {
   const [weekEntries, setWeekEntries] = useState([]);
   const [entries, setEntries] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const reloadRanking = useCallback(async () => {
     const [rankingData, entriesList] = await Promise.all([
@@ -58,8 +60,7 @@ export function DocesPage() {
   }, [reloadRanking]);
 
   useEffect(() => {
-    reloadWeek();
-    reloadHistory();
+    Promise.all([reloadWeek(), reloadHistory()]).finally(() => setLoading(false));
   }, [reloadWeek, reloadHistory]);
 
   async function handleLogged(durationMs) {
@@ -77,6 +78,14 @@ export function DocesPage() {
 
   async function handleDeleted() {
     await Promise.all([reloadRanking(), reloadWeek(), reloadHistory()]);
+  }
+
+  if (loading) {
+    return (
+      <section className="view candy-page">
+        <HeartLoader />
+      </section>
+    );
   }
 
   return (

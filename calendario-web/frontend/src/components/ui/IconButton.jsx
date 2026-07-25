@@ -1,7 +1,11 @@
-export function IconButton({ className = '', children, ...props }) {
+import { Spinner } from './Spinner.jsx';
+
+export function IconButton({ className = '', loading = false, disabled, children, ...props }) {
+  const classes = ['icon-btn', loading && 'is-loading', className].filter(Boolean).join(' ');
+
   return (
-    <button type="button" className={`icon-btn ${className}`.trim()} {...props}>
-      {children}
+    <button type="button" className={classes} disabled={disabled || loading} {...props}>
+      {loading ? <Spinner /> : children}
     </button>
   );
 }

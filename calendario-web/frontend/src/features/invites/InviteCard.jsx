@@ -2,7 +2,7 @@ import { Button } from '../../components/ui/index.js';
 
 const INVITE_STATUS_LABELS = { pending: 'Pendente', accepted: 'Aceito', declined: 'Recusado' };
 
-export function InviteCard({ invitation, direction, onAccept, onDecline, onCancel }) {
+export function InviteCard({ invitation, direction, pending, onAccept, onDecline, onCancel }) {
   const otherUser = direction === 'received' ? invitation.inviter : invitation.invitee;
   const dateLabel = invitation.event ? new Date(invitation.event.date).toLocaleDateString('pt-BR') : '';
   const statusLabel = INVITE_STATUS_LABELS[invitation.status];
@@ -18,14 +18,16 @@ export function InviteCard({ invitation, direction, onAccept, onDecline, onCance
         <div className="update-card-actions">
           {invitation.status === 'pending' && direction === 'received' && (
             <>
-              <Button onClick={() => onAccept(invitation._id)}>Aceitar</Button>
-              <Button variant="danger" onClick={() => onDecline(invitation._id)}>
+              <Button loading={pending} onClick={() => onAccept(invitation._id)}>
+                Aceitar
+              </Button>
+              <Button variant="danger" loading={pending} onClick={() => onDecline(invitation._id)}>
                 Recusar
               </Button>
             </>
           )}
           {invitation.status === 'pending' && direction === 'sent' && (
-            <Button variant="secondary" onClick={() => onCancel(invitation._id)}>
+            <Button variant="secondary" loading={pending} onClick={() => onCancel(invitation._id)}>
               Cancelar
             </Button>
           )}

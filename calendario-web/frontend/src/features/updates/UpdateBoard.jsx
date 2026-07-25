@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { useToast } from '../../hooks/useToast.js';
 import { api } from '../../services/api.js';
 import { UpdateCard } from './UpdateCard.jsx';
@@ -12,6 +13,7 @@ const COLUMNS = [
 
 export function UpdateBoard({ items, onChanged }) {
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
 
   const groups = useMemo(() => {
     const map = { todo: [], in_progress: [], done: [] };
@@ -24,7 +26,7 @@ export function UpdateBoard({ items, onChanged }) {
   async function handleDelete(id) {
     if (!window.confirm('Excluir este pedido?')) return;
     try {
-      await api.deleteUpdateRequest(id);
+      await run(id, () => api.deleteUpdateRequest(id));
       await onChanged();
       showToast('Pedido excluído', 'success');
     } catch (err) {
@@ -36,7 +38,7 @@ export function UpdateBoard({ items, onChanged }) {
     const item = items.find((i) => i._id === id);
     if (!item || item.status === status) return;
     try {
-      await api.updateUpdateRequest(id, { status });
+      await run(id, () => api.updateUpdateRequest(id, { status }));
       await onChanged();
       showToast('Status atualizado', 'success');
     } catch (err) {
@@ -77,6 +79,7 @@ export function UpdateBoard({ items, onChanged }) {
                     key={item._id}
                     item={item}
                     dragging={dnd.isDragging(item._id)}
+                    saving={isPending(item._id)}
                     dragProps={dnd.dragProps({ id: item._id })}
                     onDelete={handleDelete}
                     onAddNote={handleAddNote}

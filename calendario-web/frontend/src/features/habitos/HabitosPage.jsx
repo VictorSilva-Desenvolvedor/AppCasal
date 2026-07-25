@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Icon, Modal } from '../../components/ui/index.js';
+import { Icon, Modal, HeartLoader } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
+import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { HabitCard } from './HabitCard.jsx';
 import { HabitForm } from './HabitForm.jsx';
 import { HabitCheckinForm } from './HabitCheckinForm.jsx';
@@ -19,10 +20,12 @@ export function HabitosPage() {
   const { users } = useCalendarData();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { isPending, run } = usePendingIds();
   const otherUser = users.find((u) => u._id !== user?._id);
 
   const [habits, setHabits] = useState([]);
   const [checkins, setCheckins] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
   const [viewScope, setViewScope] = useState('ambos'); // 'ambos' | 'meu' | 'parceiro'
   const [formOpen, setFormOpen] = useState(false);
@@ -41,8 +44,16 @@ export function HabitosPage() {
   }, [showArchived]);
 
   useEffect(() => {
-    reload();
+    reload().finally(() => setLoading(false));
   }, [reload]);
+
+  if (loading) {
+    return (
+      <section className="view habit-page">
+        <HeartLoader />
+      </section>
+    );
+  }
 
   const checkinsByHabit = groupCheckinsByHabit(checkins);
 
@@ -70,7 +81,7 @@ export function HabitosPage() {
 
   async function handleArchive(habit) {
     try {
-      await api.archiveHabit(habit._id);
+      await run(habit._id, () => api.archiveHabit(habit._id));
       showToast('Hábito arquivado', 'info');
       reload();
     } catch (err) {
@@ -80,7 +91,7 @@ export function HabitosPage() {
 
   async function handleUnarchive(habit) {
     try {
-      await api.updateHabit(habit._id, { active: true });
+      await run(habit._id, () => api.updateHabit(habit._id, { active: true }));
       showToast('Hábito reativado', 'success');
       reload();
     } catch (err) {
@@ -91,7 +102,7 @@ export function HabitosPage() {
   async function handleDelete(habit) {
     if (!window.confirm(`Excluir "${habit.name}" permanentemente? Essa ação não pode ser desfeita.`)) return;
     try {
-      await api.deleteHabit(habit._id);
+      await run(habit._id, () => api.deleteHabit(habit._id));
       showToast('Hábito excluído', 'info');
       reload();
     } catch (err) {

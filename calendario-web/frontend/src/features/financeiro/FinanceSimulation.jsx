@@ -15,6 +15,7 @@ export function FinanceSimulation({ entries, report, monthYear }) {
   const [hypoDescription, setHypoDescription] = useState('');
   const [hypoAmount, setHypoAmount] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function reloadSimulations() {
     setSimulations(await api.getFinanceSimulations());
@@ -100,6 +101,7 @@ export function FinanceSimulation({ entries, report, monthYear }) {
 
   async function handleDelete() {
     if (!activeId || !window.confirm('Excluir esta simulação?')) return;
+    setDeleting(true);
     try {
       await api.deleteFinanceSimulation(activeId);
       showToast('Simulação excluída', 'success');
@@ -107,6 +109,8 @@ export function FinanceSimulation({ entries, report, monthYear }) {
       await reloadSimulations();
     } catch (err) {
       showToast(err.message, 'error');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -137,10 +141,10 @@ export function FinanceSimulation({ entries, report, monthYear }) {
           </Button>
           {activeId && (
             <>
-              <Button variant="secondary" onClick={() => handleSave(true)}>
+              <Button variant="secondary" disabled={deleting} onClick={() => handleSave(true)}>
                 Salvar como novo
               </Button>
-              <Button variant="danger" onClick={handleDelete}>
+              <Button variant="danger" loading={deleting} onClick={handleDelete}>
                 Excluir
               </Button>
             </>

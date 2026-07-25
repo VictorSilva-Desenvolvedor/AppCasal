@@ -319,6 +319,10 @@
   @apply opacity-50 cursor-grabbing;
 }
 
+.update-card.is-saving {
+  @apply opacity-60 pointer-events-none;
+}
+
 .update-card-notes-toggle {
   @apply text-xs text-primary self-start hover:underline;
 }
