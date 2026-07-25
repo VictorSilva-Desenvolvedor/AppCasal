@@ -1,8 +1,11 @@
 import {
   CANDY_COLOR_HEAVY_FROM,
+  CANDY_COLOR_HEAVY_TEXT,
   CANDY_COLOR_HEAVY_TO,
   CANDY_COLOR_LIGHT,
+  CANDY_COLOR_LIGHT_TEXT,
   CANDY_COLOR_MEDIUM,
+  CANDY_COLOR_MEDIUM_TEXT,
   CANDY_MAX_SCALE,
   CANDY_MIN_SCALE,
   MAX_HOLD_MS,
@@ -61,6 +64,19 @@ export function candyWeightColor(scale) {
     }
   }
   return CANDY_WEIGHT_COLOR_STOPS[CANDY_WEIGHT_COLOR_STOPS.length - 1].color;
+}
+
+// Par bg/texto discreto (leve/médio/pesado, mesmos terços de candyWeightColor)
+// pro chip de duração do Histórico — precisa de um texto legível sobre fundo
+// sólido, então usa cores discretas em vez do gradiente contínuo acima.
+export function candyWeightTier(durationMs) {
+  const scale = scaleForElapsed(durationMs);
+  const range = CANDY_MAX_SCALE - CANDY_MIN_SCALE;
+  const t = range ? (scale - CANDY_MIN_SCALE) / range : 0;
+
+  if (t < 1 / 3) return { bg: CANDY_COLOR_LIGHT, text: CANDY_COLOR_LIGHT_TEXT };
+  if (t < 2 / 3) return { bg: CANDY_COLOR_MEDIUM, text: CANDY_COLOR_MEDIUM_TEXT };
+  return { bg: CANDY_COLOR_HEAVY_TO, text: CANDY_COLOR_HEAVY_TEXT };
 }
 
 // Balde 1-5 a partir da duração, pro formato que useEmotionJarPhysics já
