@@ -12,6 +12,7 @@ const MODULE_LABELS = {
   emocao: 'Emoções',
   watchlist: 'Watchlist',
   convite: 'Convites',
+  tarefa: 'Tarefas',
 };
 
 function formatLogTimestamp(date) {

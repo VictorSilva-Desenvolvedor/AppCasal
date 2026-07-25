@@ -495,6 +495,25 @@ function getCandyRanking({ period, date } = {}) {
   return request(`/candy-entries/ranking${query ? `?${query}` : ''}`);
 }
 
+function getTaskItems(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/task-items${query ? `?${query}` : ''}`);
+}
+
+function createTaskItem(payload) {
+  return request('/task-items', { method: 'POST', body: payload });
+}
+
+function toggleTaskItem(id) {
+  return request(`/task-items/${id}/toggle`, { method: 'PATCH' });
+}
+
+function deleteTaskItem(id) {
+  return request(`/task-items/${id}`, { method: 'DELETE' });
+}
+
 export const api = {
   register,
   login,
@@ -593,6 +612,10 @@ export const api = {
   createCandyEntry,
   deleteCandyEntry,
   getCandyRanking,
+  getTaskItems,
+  createTaskItem,
+  toggleTaskItem,
+  deleteTaskItem,
 };
 
 export { API_BASE_URL };
