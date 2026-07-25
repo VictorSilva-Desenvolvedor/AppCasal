@@ -20,24 +20,26 @@ export function TarefaAddForm({ onAdd }) {
   }
 
   return (
-    <form className="tarefa-add-form" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Nova tarefa..."
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        maxLength={120}
-      />
-      <select value={kind} onChange={(e) => setKind(e.target.value)}>
-        {KIND_ORDER.map((k) => (
-          <option key={k} value={k}>
-            {KIND_LABELS[k]}
-          </option>
-        ))}
-      </select>
-      <Button type="submit" loading={submitting}>
-        Adicionar
-      </Button>
-    </form>
+    <div className="tarefa-add-bar">
+      <form className="tarefa-add-form" onSubmit={handleSubmit}>
+        <select value={kind} onChange={(e) => setKind(e.target.value)}>
+          {KIND_ORDER.map((k) => (
+            <option key={k} value={k}>
+              {KIND_LABELS[k]}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Nova tarefa..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={120}
+        />
+        <Button type="submit" loading={submitting}>
+          Adicionar
+        </Button>
+      </form>
+    </div>
   );
 }

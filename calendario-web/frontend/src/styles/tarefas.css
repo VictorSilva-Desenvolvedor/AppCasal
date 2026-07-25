@@ -1,52 +1,164 @@
-.tarefas-page h2 {
-  @apply text-xl font-medium mb-4;
+/*
+  Identidade visual própria da feature (título serifado + acentos por tipo de
+  tarefa), no mesmo espírito de .candy-page em doces.css — mas diferente de lá,
+  aqui o fundo da página e os cards continuam nos tokens de tema
+  (--color-bg/--color-surface/--color-text/--color-border), então respeitam os
+  ~15 temas de cor e o claro/escuro normalmente. Só os acentos abaixo são fixos.
+*/
+.tarefas-page {
+  --tarefas-diaria: #d85a30;
+  --tarefas-semanal: #0f6e56;
+  --tarefas-mensal: #ef9f27;
+  --tarefas-unica: var(--color-text-muted);
 }
 
+.tarefas-page h2,
+.tarefas-page h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+}
+
+.tarefas-header {
+  @apply flex items-baseline justify-between mb-5;
+}
+
+.tarefas-header h2 {
+  @apply text-2xl m-0;
+  letter-spacing: -0.01em;
+}
+
+.tarefas-header .tarefas-date {
+  @apply text-xs capitalize;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Abas ---------- */
+
 .tarefas-tabs {
-  @apply flex gap-[0.35rem] mb-4 flex-wrap;
+  @apply flex gap-2 mb-4;
 }
 
 .tarefas-tab-btn {
-  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
-    transition-colors duration-150;
+  @apply flex-1 text-sm font-medium px-3 py-2 rounded-full border cursor-pointer text-center;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .tarefas-tab-btn.is-active {
-  @apply border-transparent bg-primary text-on-primary;
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-bg);
 }
 
-.tarefa-add-form {
-  @apply flex gap-2 mb-4 flex-wrap;
+/* ---------- Anel de progresso do dia ---------- */
+
+.tarefas-progress {
+  @apply flex items-center gap-3 mb-5 p-3 rounded-2xl border;
+  background: var(--color-surface);
+  border-color: var(--color-border);
 }
 
-.tarefa-add-form input[type='text'] {
-  @apply flex-1 min-w-[10rem];
+.tarefas-progress-text {
+  @apply flex-1;
 }
+
+.tarefas-progress-label {
+  @apply text-xs mb-0.5;
+  color: var(--color-text-muted);
+}
+
+.tarefas-progress-value {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  @apply text-lg;
+}
+
+/* ---------- Seções por tipo ---------- */
 
 .tarefas-group {
-  @apply mb-4;
+  @apply mb-5;
 }
 
-.tarefas-group h3 {
-  @apply text-sm font-medium text-text-muted mb-2;
+.tarefas-group-head {
+  @apply flex items-center gap-2 mb-2 pb-1.5 border-b;
+  border-color: var(--color-border);
 }
 
-.tarefas-progress-pill {
-  @apply text-xs text-text-muted;
+.tarefas-group-dot {
+  @apply w-2 h-2 rounded-full flex-shrink-0;
 }
+
+.tarefas-group-head h3 {
+  @apply flex-1 text-sm m-0;
+}
+
+.tarefas-group-count {
+  @apply text-xs;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Linha de item ---------- */
 
 .tarefa-item {
-  @apply flex items-center gap-3 mb-2;
+  @apply flex items-center gap-2.5 mb-2;
 }
 
-.tarefa-item-check {
-  @apply flex items-center gap-2 flex-1 cursor-pointer;
+.tarefa-item.is-completed {
+  opacity: 0.6;
+}
+
+.tarefa-check {
+  @apply w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center cursor-pointer;
+  border-color: var(--color-border-strong);
+  background: var(--color-bg);
+  color: #fff;
+  font-size: 0.8rem;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tarefa-check.is-checked {
+  background: var(--check-color, var(--color-primary));
+  border-color: var(--check-color, var(--color-primary));
+}
+
+.tarefa-item-body {
+  @apply flex-1 min-w-0 cursor-pointer;
+}
+
+.tarefa-item-title {
+  @apply text-sm;
 }
 
 .tarefa-item.is-completed .tarefa-item-title {
-  @apply line-through text-text-muted;
+  text-decoration: line-through;
+  color: var(--color-text-muted);
 }
 
 .tarefa-item-meta {
-  @apply text-xs text-text-muted;
+  @apply block text-xs mt-0.5;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Barra de adicionar (fixa no rodapé) ---------- */
+
+.tarefa-add-bar {
+  @apply sticky bottom-0 pt-3 mt-2;
+  background: var(--color-bg);
+}
+
+.tarefa-add-form {
+  @apply flex gap-2 p-2.5 rounded-2xl border flex-wrap;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.tarefa-add-form input[type='text'] {
+  @apply flex-1 min-w-[8rem];
+}
+
+.tarefas-empty {
+  @apply text-sm italic;
+  color: var(--color-text-muted);
 }

@@ -18,3 +18,12 @@ export function groupByKind(items) {
 export function countCompleted(items) {
   return { done: items.filter((item) => item.completed).length, total: items.length };
 }
+
+// Geometria do anel de progresso (SVG) — usado no cabeçalho para mostrar quanto
+// das tarefas diárias da própria lista já foi concluído hoje.
+export function ringGeometry(done, total, radius = 16) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (pct / 100) * circumference;
+  return { pct, circumference, offset };
+}
