@@ -19,6 +19,7 @@ export function ThemeProvider({ children }) {
   const [hidePastEventsByDefault, setHidePastEventsByDefaultState] = useState(false);
   const [financeDefaultScope, setFinanceDefaultScopeState] = useState('self');
   const [activityLogLimit, setActivityLogLimitState] = useState(200);
+  const [hideFinanceValues, setHideFinanceValuesState] = useState(false);
 
   // Fora da área autenticada (login/registro) o app legado nunca aplica tema
   // salvo — sempre indigo/claro. Só carregamos as configurações reais depois
@@ -48,6 +49,7 @@ export function ThemeProvider({ children }) {
         setHidePastEventsByDefaultState(settings.hidePastEventsByDefault || false);
         setFinanceDefaultScopeState(settings.financeDefaultScope || 'self');
         setActivityLogLimitState(settings.activityLogLimit || 200);
+        setHideFinanceValuesState(settings.hideFinanceValues || false);
       })
       .catch((err) => console.error('Não foi possível carregar as configurações:', err.message));
   }, [isAuthenticated]);
@@ -102,6 +104,7 @@ export function ThemeProvider({ children }) {
     if (partial.hidePastEventsByDefault !== undefined) setHidePastEventsByDefaultState(settings.hidePastEventsByDefault);
     if (partial.financeDefaultScope !== undefined) setFinanceDefaultScopeState(settings.financeDefaultScope);
     if (partial.activityLogLimit !== undefined) setActivityLogLimitState(settings.activityLogLimit);
+    if (partial.hideFinanceValues !== undefined) setHideFinanceValuesState(settings.hideFinanceValues);
     return settings;
   }
 
@@ -124,6 +127,7 @@ export function ThemeProvider({ children }) {
     hidePastEventsByDefault,
     financeDefaultScope,
     activityLogLimit,
+    hideFinanceValues,
     updatePreferences,
   };
 

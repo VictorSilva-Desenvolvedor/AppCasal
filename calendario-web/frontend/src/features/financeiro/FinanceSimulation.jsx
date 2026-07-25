@@ -4,7 +4,7 @@ import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { computeSimulatedTotals, formatCurrency, monthLabel } from './financeUtils.js';
 
-export function FinanceSimulation({ entries, report, monthYear }) {
+export function FinanceSimulation({ entries, report, monthYear, hideFinanceValues = false }) {
   const { showToast } = useToast();
   const [simulations, setSimulations] = useState([]);
   const [activeId, setActiveId] = useState(null);
@@ -233,13 +233,13 @@ export function FinanceSimulation({ entries, report, monthYear }) {
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Receita simulada</span>
           <strong className="finance-summary-card-value finance-value--positive">
-            {formatCurrency(totals.totalReceitas)}
+            {formatCurrency(totals.totalReceitas, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Despesa simulada</span>
           <strong className="finance-summary-card-value finance-value--negative">
-            {formatCurrency(totals.totalDespesas)}
+            {formatCurrency(totals.totalDespesas, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
@@ -247,7 +247,7 @@ export function FinanceSimulation({ entries, report, monthYear }) {
           <strong
             className={`finance-summary-card-value ${totals.saldo >= 0 ? 'finance-value--positive' : 'finance-value--negative'}`}
           >
-            {formatCurrency(totals.saldo)}
+            {formatCurrency(totals.saldo, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">

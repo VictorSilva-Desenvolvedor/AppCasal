@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../services/api.js';
 import { Card, Pill, HeartLoader } from '../../components/ui/index.js';
 import { useToast } from '../../hooks/useToast.js';
+import { useTheme } from '../../hooks/useTheme.js';
 import { formatCurrency } from '../financeiro/financeUtils.js';
 import { formatCandyCount, formatScore } from '../doces/candyUtils.js';
 
@@ -16,6 +17,7 @@ function formatWeekRange(weekStart, weekEnd) {
 
 export function ResumoPage() {
   const { showToast } = useToast();
+  const { hideFinanceValues } = useTheme();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -81,14 +83,15 @@ export function ResumoPage() {
             <strong
               className={`resumo-finance-saldo ${finance.saldo >= 0 ? 'finance-value--positive' : 'finance-value--negative'}`}
             >
-              {formatCurrency(finance.saldo)}
+              {formatCurrency(finance.saldo, hideFinanceValues)}
             </strong>
             {finance.status !== 'aberto' && (
               <Pill className="finance-status-pill finance-status--pago">Finalizado</Pill>
             )}
           </div>
           <p className="resumo-card-detail">
-            {formatCurrency(finance.totalReceitas)} de receita · {formatCurrency(finance.totalDespesas)} de despesa
+            {formatCurrency(finance.totalReceitas, hideFinanceValues)} de receita ·{' '}
+            {formatCurrency(finance.totalDespesas, hideFinanceValues)} de despesa
           </p>
         </Card>
 

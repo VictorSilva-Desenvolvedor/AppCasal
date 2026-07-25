@@ -15,7 +15,8 @@ const MONTH_LABELS = [
   'Dezembro',
 ];
 
-export function formatCurrency(value) {
+export function formatCurrency(value, hidden = false) {
+  if (hidden) return 'R$ ••••';
   return currencyFormatter.format(Number(value) || 0);
 }
 

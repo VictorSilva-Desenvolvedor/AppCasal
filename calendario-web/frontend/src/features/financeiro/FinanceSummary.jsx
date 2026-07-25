@@ -8,7 +8,7 @@ function formatPct(value) {
   return `${value >= 0 ? '+' : ''}${Math.round(value)}%`;
 }
 
-export function FinanceSummary({ report, goals = [], history = [] }) {
+export function FinanceSummary({ report, goals = [], history = [], hideFinanceValues = false }) {
   if (!report) {
     return <p className="sidebar-empty">Carregando resumo…</p>;
   }
@@ -34,19 +34,19 @@ export function FinanceSummary({ report, goals = [], history = [] }) {
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Receita total</span>
           <strong className="finance-summary-card-value finance-value--positive">
-            {formatCurrency(totalReceitas)}
+            {formatCurrency(totalReceitas, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Despesa total</span>
           <strong className="finance-summary-card-value finance-value--negative">
-            {formatCurrency(totalDespesas)}
+            {formatCurrency(totalDespesas, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Saldo</span>
           <strong className={`finance-summary-card-value ${saldo >= 0 ? 'finance-value--positive' : 'finance-value--negative'}`}>
-            {formatCurrency(saldo)}
+            {formatCurrency(saldo, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
@@ -72,7 +72,7 @@ export function FinanceSummary({ report, goals = [], history = [] }) {
                 style={{ width: `${Math.max(totalReceitas, totalDespesas) ? (totalReceitas / Math.max(totalReceitas, totalDespesas)) * 100 : 0}%` }}
               />
             </div>
-            <span className="finance-category-bar-value">{formatCurrency(totalReceitas)}</span>
+            <span className="finance-category-bar-value">{formatCurrency(totalReceitas, hideFinanceValues)}</span>
           </div>
           <div className="finance-category-bar-row">
             <span className="finance-category-bar-label">Despesa</span>
@@ -82,7 +82,7 @@ export function FinanceSummary({ report, goals = [], history = [] }) {
                 style={{ width: `${Math.max(totalReceitas, totalDespesas) ? (totalDespesas / Math.max(totalReceitas, totalDespesas)) * 100 : 0}%` }}
               />
             </div>
-            <span className="finance-category-bar-value">{formatCurrency(totalDespesas)}</span>
+            <span className="finance-category-bar-value">{formatCurrency(totalDespesas, hideFinanceValues)}</span>
           </div>
         </div>
       </Card>
