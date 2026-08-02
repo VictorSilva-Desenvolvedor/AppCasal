@@ -10,6 +10,20 @@ function withSuggestion(items, categories, type) {
   return items.map((item) => ({ ...item, suggestedCategory: suggestCategory(item.description, categories, type) }));
 }
 
+// `sheetRoles` chega como JSON dentro do multipart (ex. {"Aba 1":"despesas"}),
+// já que o arquivo é reenviado a cada releitura com a escolha do usuário.
+function parseSheetRoles(raw) {
+  if (!raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : undefined;
+  } catch {
+    const err = new Error('Seleção de abas inválida');
+    err.status = 400;
+    throw err;
+  }
+}
+
 async function preview(req, res) {
   if (!req.file) {
     const err = new Error('Nenhum arquivo enviado');
@@ -17,14 +31,16 @@ async function preview(req, res) {
     throw err;
   }
 
-  const parsed = await parseBudgetWorkbook(req.file.buffer);
+  const parsed = await parseBudgetWorkbook(req.file.buffer, parseSheetRoles(req.body?.sheetRoles));
   const categories = await FinanceCategory.find({ team: req.userTeam });
 
   res.json({
+    sheets: parsed.sheets,
     income: withSuggestion(parsed.income, categories, 'receita'),
     expenses: withSuggestion(parsed.expenses, categories, 'despesa'),
     necessities: withSuggestion(parsed.necessities, categories, 'despesa'),
     wishes: withSuggestion(parsed.wishes, categories, 'despesa'),
+    skipped: withSuggestion(parsed.skipped, categories, 'despesa'),
     goals: parsed.goals,
     warnings: parsed.warnings,
   });

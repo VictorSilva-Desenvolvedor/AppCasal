@@ -495,3 +495,88 @@
 .finance-import-goal-warning {
   @apply text-xs text-warning;
 }
+
+.finance-import-row-section {
+  @apply w-36;
+}
+
+.finance-import-sheets {
+  @apply flex flex-col gap-2 p-3 rounded-sm border border-border bg-bg;
+}
+
+.finance-import-sheet-row {
+  @apply flex items-center justify-between gap-2;
+}
+
+.finance-import-sheet-name {
+  @apply text-sm truncate;
+}
+
+.finance-import-sheet-row select {
+  @apply rounded-sm border border-border bg-surface px-2 py-1 text-sm;
+}
+
+.finance-import-sheets-actions {
+  @apply flex flex-wrap items-center justify-between gap-2 pt-1;
+}
+
+/* ---------- Arraste estilo kanban entre seções ---------- */
+
+.finance-entry-item.is-draggable {
+  @apply cursor-grab;
+}
+
+.finance-entry-item.is-dragging {
+  @apply opacity-50;
+}
+
+/* Mesmo destaque visual do .update-column-list.drag-over dos quadros kanban. */
+.finance-entry-section.drag-over,
+.finance-entry-subsection.drag-over,
+.finance-report-card.drag-over {
+  @apply rounded-sm transition-[background,outline-color] duration-200;
+  background: var(--color-primary-light);
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -2px;
+}
+
+.finance-move-bar {
+  @apply fixed inset-x-0 bottom-0 z-30 flex flex-col gap-2 p-3 border-t border-border bg-surface shadow-lg;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.finance-move-bar-head {
+  @apply flex items-center gap-2 text-sm font-semibold text-text-muted;
+}
+
+.finance-move-bar-group {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.finance-move-bar-title {
+  @apply text-xs font-semibold uppercase tracking-wide text-text-muted w-24 flex-shrink-0;
+}
+
+.finance-move-bar-chips {
+  @apply flex flex-wrap gap-1.5;
+}
+
+.finance-move-bar-chip {
+  @apply rounded-full border border-dashed border-border px-3 py-1 text-sm text-text-muted;
+}
+
+.finance-move-bar-chip.is-current {
+  @apply opacity-40;
+}
+
+.finance-move-bar-chip.drag-over {
+  @apply border-solid;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+}
+
+.finance-import-counter {
+  @apply text-sm font-semibold text-text-muted;
+}

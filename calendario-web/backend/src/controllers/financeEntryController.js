@@ -29,6 +29,21 @@ async function syncLinkedGoal(entry) {
   await FinanceEntry.findByIdAndUpdate(entry._id, { goalSynced: true });
 }
 
+async function unsyncLinkedGoal(entry) {
+  if (!entry.linkedGoal || !entry.goalSynced) return;
+
+  const goalId = entry.linkedGoal._id || entry.linkedGoal;
+  const goal = await FinanceGoal.findById(goalId);
+  if (!goal) return;
+
+  const goalUpdate = { currentAmount: Math.max(0, goal.currentAmount - entry.amount) };
+  if (goal.totalInstallments) {
+    goalUpdate.paidInstallments = Math.max(0, goal.paidInstallments - 1);
+  }
+  await FinanceGoal.findByIdAndUpdate(goal._id, goalUpdate);
+  await FinanceEntry.findByIdAndUpdate(entry._id, { goalSynced: false });
+}
+
 async function assertMonthOpen(date, team) {
   const d = new Date(date);
   const month = await FinanceMonth.findOne({ month: d.getMonth() + 1, year: d.getFullYear(), team });
@@ -169,11 +184,6 @@ async function update(req, res) {
   if (!before || String(before.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Lançamento não encontrado' });
   }
-  if (String(before.paidBy) !== req.userId) {
-    const err = new Error('Você só pode editar lançamentos que você mesmo pagou');
-    err.status = 403;
-    throw err;
-  }
   if (sharedWith && !splitAmount) {
     return res.status(400).json({ message: 'Informe o valor do reembolso ao compartilhar uma despesa' });
   }
@@ -225,17 +235,83 @@ async function update(req, res) {
   }).catch((err) => console.error('Falha ao notificar atualização de lançamento:', err.message));
 }
 
+// Atalho da lista de lançamentos: marca/desmarca "pago" sem abrir o formulário
+// completo, evitando que uma edição parcial zere os demais campos do lançamento.
+async function setPaid(req, res) {
+  const paid = req.body?.paid !== false;
+
+  const entry = await FinanceEntry.findById(req.params.id);
+  if (!entry || String(entry.team) !== req.userTeam) {
+    return res.status(404).json({ message: 'Lançamento não encontrado' });
+  }
+
+  await assertMonthOpen(entry.date, req.userTeam);
+
+  entry.paidAmount = paid ? entry.amount : 0;
+  await entry.save();
+
+  if (paid) await syncLinkedGoal(entry);
+  else await unsyncLinkedGoal(entry);
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'financeiro',
+    item: entry,
+    itemTitle: entry.description,
+    details: paid ? 'Marcou como pago' : 'Marcou como não pago',
+    team: req.userTeam,
+  });
+
+  const populated = await entry.populate(ENTRY_POPULATE);
+  res.json(populated);
+
+  notifyPartner({
+    actorId: req.userId,
+    title: paid ? 'Lançamento pago' : 'Pagamento desfeito',
+    body: `💰 "${entry.description}" foi marcado como ${paid ? 'pago' : 'não pago'}.`,
+    link: '/app/financeiro',
+    category: 'finance',
+  }).catch((err) => console.error('Falha ao notificar pagamento de lançamento:', err.message));
+}
+
+// Usado pelo arraste estilo kanban: altera só natureza/categoria/planejamento
+// futuro, mantendo o resto do lançamento intacto.
+async function move(req, res) {
+  const { nature, wishType, category } = req.body;
+
+  const entry = await FinanceEntry.findById(req.params.id);
+  if (!entry || String(entry.team) !== req.userTeam) {
+    return res.status(404).json({ message: 'Lançamento não encontrado' });
+  }
+
+  await assertMonthOpen(entry.date, req.userTeam);
+
+  if (nature !== undefined) entry.nature = nature || 'unica';
+  if (wishType !== undefined) entry.wishType = wishType || null;
+  if (category !== undefined) entry.category = category || null;
+
+  await entry.save();
+
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'financeiro',
+    item: entry,
+    itemTitle: entry.description,
+    details: 'Lançamento movido',
+    team: req.userTeam,
+  });
+
+  const populated = await entry.populate(ENTRY_POPULATE);
+  res.json(populated);
+}
+
 async function remove(req, res) {
   const entry = await FinanceEntry.findById(req.params.id);
   if (!entry || String(entry.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Lançamento não encontrado' });
   }
-  if (String(entry.paidBy) !== req.userId) {
-    const err = new Error('Você só pode excluir lançamentos que você mesmo pagou');
-    err.status = 403;
-    throw err;
-  }
-
   await assertMonthOpen(entry.date, req.userTeam);
 
   await FinanceEntry.findByIdAndDelete(entry._id);
@@ -371,4 +447,15 @@ async function history(req, res) {
   res.json(points);
 }
 
-module.exports = { list, create, update, remove, report, history, assertMonthOpen, computeMonthTotals };
+module.exports = {
+  list,
+  create,
+  update,
+  setPaid,
+  move,
+  remove,
+  report,
+  history,
+  assertMonthOpen,
+  computeMonthTotals,
+};

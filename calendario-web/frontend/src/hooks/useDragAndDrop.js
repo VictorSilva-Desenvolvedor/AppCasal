@@ -24,8 +24,11 @@ export function useDragAndDrop({ canDrag = () => true, onDrop } = {}) {
 
   const dropProps = useCallback(
     (targetId) => ({
+      // stopPropagation mantém a zona mais interna vencendo quando há alvos
+      // aninhados (ex. categoria dentro de natureza no financeiro).
       onDragOver: (event) => {
         event.preventDefault();
+        event.stopPropagation();
         setDropTargetId(targetId);
       },
       onDragLeave: (event) => {
@@ -34,6 +37,7 @@ export function useDragAndDrop({ canDrag = () => true, onDrop } = {}) {
       },
       onDrop: (event) => {
         event.preventDefault();
+        event.stopPropagation();
         setDropTargetId(null);
         const id = event.dataTransfer.getData('text/plain');
         onDrop?.(id, targetId);
@@ -43,6 +47,7 @@ export function useDragAndDrop({ canDrag = () => true, onDrop } = {}) {
   );
 
   return {
+    draggingId,
     isDragging: (id) => draggingId === id,
     isDropTarget: (id) => dropTargetId === id,
     dragProps,

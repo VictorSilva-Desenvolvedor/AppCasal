@@ -23,7 +23,17 @@ const EMPTY_FORM = {
   splitAmount: '',
 };
 
-export function FinanceEntryForm({ categories, users, goals = [], monthLocked, editingEntry, forcedType, onSaved, onCancelEdit }) {
+export function FinanceEntryForm({
+  categories,
+  users,
+  goals = [],
+  monthLocked,
+  editingEntry,
+  forcedType,
+  forcedWishType,
+  onSaved,
+  onCancelEdit,
+}) {
   const { user } = useAuth();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
@@ -60,9 +70,9 @@ export function FinanceEntryForm({ categories, users, goals = [], monthLocked, e
         splitAmount: editingEntry.splitAmount ? String(editingEntry.splitAmount) : '',
       });
     } else {
-      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
+      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa', wishType: forcedWishType || '' });
     }
-  }, [editingEntry, forcedType, user]);
+  }, [editingEntry, forcedType, forcedWishType, user]);
 
   const filteredCategories = categories.filter((category) => category.type === form.type);
   const otherUsers = users.filter((u) => u._id !== user?._id);
@@ -115,7 +125,7 @@ export function FinanceEntryForm({ categories, users, goals = [], monthLocked, e
         await api.createFinanceEntry(payload);
         showToast('Lançamento criado', 'success');
       }
-      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa' });
+      setForm({ ...EMPTY_FORM, type: forcedType || 'despesa', wishType: forcedWishType || '' });
       setImageFile(null);
       setRemoveImage(false);
       await onSaved();
@@ -237,13 +247,19 @@ export function FinanceEntryForm({ categories, users, goals = [], monthLocked, e
 
       {form.type === 'despesa' && (
         <div className="finance-form-row">
-          <Field label="Tipo (planejamento futuro)" htmlFor="finance-wish">
-            <select id="finance-wish" value={form.wishType} onChange={(event) => update('wishType', event.target.value)}>
-              <option value="">Conta do mês</option>
-              <option value="necessidade">Necessidade futura</option>
-              <option value="desejo">Desejo futuro</option>
-            </select>
-          </Field>
+          {!forcedWishType && (
+            <Field label="Tipo (planejamento futuro)" htmlFor="finance-wish">
+              <select
+                id="finance-wish"
+                value={form.wishType}
+                onChange={(event) => update('wishType', event.target.value)}
+              >
+                <option value="">Conta do mês</option>
+                <option value="necessidade">Necessidade futura</option>
+                <option value="desejo">Desejo futuro</option>
+              </select>
+            </Field>
+          )}
           {form.wishType && (
             <Field label="Por quê?" htmlFor="finance-reason">
               <input

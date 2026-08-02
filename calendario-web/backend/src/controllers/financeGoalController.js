@@ -72,12 +72,6 @@ async function update(req, res) {
   if (!before || String(before.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Objetivo não encontrado' });
   }
-  if (String(before.creator) !== req.userId) {
-    const err = new Error('Você só pode editar objetivos que você mesmo criou');
-    err.status = 403;
-    throw err;
-  }
-
   const resolvedTargetAmount = targetAmount !== undefined ? targetAmount : before.targetAmount;
   const resolvedTotalInstallments = totalInstallments !== undefined ? totalInstallments : before.totalInstallments;
   const resolvedInstallmentAmount = installmentAmount !== undefined ? installmentAmount : before.installmentAmount;
@@ -126,12 +120,6 @@ async function remove(req, res) {
   if (!goal || String(goal.team) !== req.userTeam) {
     return res.status(404).json({ message: 'Objetivo não encontrado' });
   }
-  if (String(goal.creator) !== req.userId) {
-    const err = new Error('Você só pode excluir objetivos que você mesmo criou');
-    err.status = 403;
-    throw err;
-  }
-
   await FinanceGoal.findByIdAndDelete(req.params.id);
 
   await logActivity({

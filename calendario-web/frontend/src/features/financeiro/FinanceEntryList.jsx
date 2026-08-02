@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card, IconButton, Icon, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
-import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { formatCurrency, formatEntryDate, paymentStatus } from './financeUtils.js';
@@ -19,8 +18,8 @@ const SECTION_META = {
 function groupByCategory(list) {
   const map = new Map();
   list.forEach((entry) => {
-    const key = entry.category?.name || 'Sem categoria';
-    if (!map.has(key)) map.set(key, { name: key, items: [] });
+    const key = entry.category?._id || 'sem-categoria';
+    if (!map.has(key)) map.set(key, { id: key, name: entry.category?.name || 'Sem categoria', items: [] });
     map.get(key).items.push(entry);
   });
   return Array.from(map.values()).sort((a, b) => {
@@ -30,11 +29,20 @@ function groupByCategory(list) {
   });
 }
 
-export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, groupByNature = false }) {
-  const { user } = useAuth();
+export function FinanceEntryList({
+  entries,
+  monthLocked,
+  onEdit,
+  onDeleted,
+  onChanged,
+  groupByNature = false,
+  dnd = null,
+}) {
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
   const [previewImage, setPreviewImage] = useState(null);
+
+  const canDrag = Boolean(dnd) && !monthLocked;
 
   async function handleDelete(id) {
     if (!window.confirm('Excluir este lançamento?')) return;
@@ -47,15 +55,29 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, grou
     }
   }
 
+  async function handleTogglePaid(entry) {
+    const nextPaid = paymentStatus(entry) !== 'pago';
+    try {
+      await run(entry._id, () => api.payFinanceEntry(entry._id, nextPaid));
+      await (onChanged || onDeleted)();
+      showToast(nextPaid ? 'Marcado como pago' : 'Pagamento desfeito', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
   if (entries.length === 0) {
     return <p className="sidebar-empty">Nenhum lançamento neste mês</p>;
   }
 
   function renderEntry(entry) {
     const status = paymentStatus(entry);
-    const isOwner = entry.paidBy?._id === user?._id;
     return (
-      <Card className="finance-entry-item" key={entry._id}>
+      <Card
+        className={`finance-entry-item${canDrag ? ' is-draggable' : ''}${dnd?.isDragging(entry._id) ? ' is-dragging' : ''}`}
+        key={entry._id}
+        {...(canDrag ? dnd.dragProps({ id: entry._id }) : {})}
+      >
         <div className="finance-entry-item-main">
           <span
             className="finance-category-chip-dot"
@@ -66,6 +88,8 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, grou
               className="finance-entry-thumb"
               src={entry.image.url}
               alt={entry.image.name || entry.description}
+              // sem isso o arraste do card pegaria a própria imagem como payload
+              draggable={false}
               onClick={() => setPreviewImage(entry.image)}
             />
           )}
@@ -99,35 +123,46 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, grou
             {formatCurrency(entry.amount)}
           </strong>
           {entry.type === 'despesa' && <Pill className={`finance-status-pill finance-status--${status}`}>{STATUS_LABEL[status]}</Pill>}
-          {isOwner && (
-            <div className="finance-entry-item-actions">
-              <IconButton onClick={() => onEdit(entry)} title="Editar" disabled={monthLocked || isPending(entry._id)}>
-                <Icon name="tool" />
-              </IconButton>
+          <div className="finance-entry-item-actions">
+            {entry.type === 'despesa' && (
               <IconButton
-                onClick={() => handleDelete(entry._id)}
-                title="Excluir"
+                onClick={() => handleTogglePaid(entry)}
+                title={status === 'pago' ? 'Desfazer pagamento' : 'Marcar como pago'}
+                aria-label={status === 'pago' ? 'Desfazer pagamento' : 'Marcar como pago'}
                 disabled={monthLocked}
                 loading={isPending(entry._id)}
               >
-                <Icon name="trash" />
+                <Icon name={status === 'pago' ? 'rotate-ccw' : 'check-circle'} />
               </IconButton>
-            </div>
-          )}
+            )}
+            <IconButton onClick={() => onEdit(entry)} title="Editar" disabled={monthLocked || isPending(entry._id)}>
+              <Icon name="tool" />
+            </IconButton>
+            <IconButton
+              onClick={() => handleDelete(entry._id)}
+              title="Excluir"
+              disabled={monthLocked}
+              loading={isPending(entry._id)}
+            >
+              <Icon name="trash" />
+            </IconButton>
+          </div>
         </div>
       </Card>
     );
   }
 
+  const imageModal = (
+    <Modal open={Boolean(previewImage)} onClose={() => setPreviewImage(null)} title={previewImage?.name || 'Imagem'}>
+      {previewImage && <img className="finance-entry-image-large" src={previewImage.url} alt={previewImage.name || ''} />}
+    </Modal>
+  );
+
   if (!groupByNature) {
     return (
       <div className="finance-entry-list">
         {entries.map(renderEntry)}
-        <Modal open={Boolean(previewImage)} onClose={() => setPreviewImage(null)} title={previewImage?.name || 'Imagem'}>
-          {previewImage && (
-            <img className="finance-entry-image-large" src={previewImage.url} alt={previewImage.name || ''} />
-          )}
-        </Modal>
+        {imageModal}
       </div>
     );
   }
@@ -142,27 +177,35 @@ export function FinanceEntryList({ entries, monthLocked, onEdit, onDeleted, grou
     <div className="finance-entry-list">
       {SECTION_ORDER.filter((key) => groups[key].length > 0).map((key) => {
         const subgroups = groupByCategory(groups[key]);
+        const natureTarget = `nature:${key}`;
         return (
-          <div key={key}>
+          <div
+            key={key}
+            className={`finance-entry-section${dnd?.isDropTarget(natureTarget) ? ' drag-over' : ''}`}
+            {...(canDrag ? dnd.dropProps(natureTarget) : {})}
+          >
             <div className="finance-entry-section-header">
               <Icon name={SECTION_META[key].icon} /> {SECTION_META[key].label}
             </div>
             {subgroups.length > 1
-              ? subgroups.map((sub) => (
-                  <div key={sub.name}>
-                    <div className="finance-entry-subsection-header">{sub.name}</div>
-                    {sub.items.map(renderEntry)}
-                  </div>
-                ))
+              ? subgroups.map((sub) => {
+                  const categoryTarget = `category:${sub.id}`;
+                  return (
+                    <div
+                      key={sub.id}
+                      className={`finance-entry-subsection${dnd?.isDropTarget(categoryTarget) ? ' drag-over' : ''}`}
+                      {...(canDrag ? dnd.dropProps(categoryTarget) : {})}
+                    >
+                      <div className="finance-entry-subsection-header">{sub.name}</div>
+                      {sub.items.map(renderEntry)}
+                    </div>
+                  );
+                })
               : subgroups[0]?.items.map(renderEntry)}
           </div>
         );
       })}
-      <Modal open={Boolean(previewImage)} onClose={() => setPreviewImage(null)} title={previewImage?.name || 'Imagem'}>
-        {previewImage && (
-          <img className="finance-entry-image-large" src={previewImage.url} alt={previewImage.name || ''} />
-        )}
-      </Modal>
+      {imageModal}
     </div>
   );
 }

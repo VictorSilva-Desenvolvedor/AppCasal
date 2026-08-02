@@ -217,6 +217,14 @@ function updateFinanceEntry(id, entry) {
   return request(`/finance-entries/${id}`, { method: 'PUT', body: entry });
 }
 
+function payFinanceEntry(id, paid = true) {
+  return request(`/finance-entries/${id}/pagar`, { method: 'PUT', body: { paid } });
+}
+
+function moveFinanceEntry(id, patch) {
+  return request(`/finance-entries/${id}/mover`, { method: 'PUT', body: patch });
+}
+
 function deleteFinanceEntry(id) {
   return request(`/finance-entries/${id}`, { method: 'DELETE' });
 }
@@ -301,9 +309,10 @@ function reopenFinanceMonth(id) {
   return request(`/finance-months/${id}/reabrir`, { method: 'PUT' });
 }
 
-function previewFinanceImport(file) {
+function previewFinanceImport(file, sheetRoles) {
   const form = new FormData();
   form.append('file', file);
+  if (sheetRoles) form.append('sheetRoles', JSON.stringify(sheetRoles));
   return request('/finance-import/preview', { method: 'POST', body: form, isForm: true });
 }
 
@@ -581,6 +590,8 @@ export const api = {
   getFinanceEntries,
   createFinanceEntry,
   updateFinanceEntry,
+  payFinanceEntry,
+  moveFinanceEntry,
   deleteFinanceEntry,
   getFinanceReport,
   getFinanceHistory,
