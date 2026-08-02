@@ -504,18 +504,6 @@
   @apply flex flex-col gap-2 p-3 rounded-sm border border-border bg-bg;
 }
 
-.finance-import-sheet-row {
-  @apply flex items-center justify-between gap-2;
-}
-
-.finance-import-sheet-name {
-  @apply text-sm truncate;
-}
-
-.finance-import-sheet-row select {
-  @apply rounded-sm border border-border bg-surface px-2 py-1 text-sm;
-}
-
 .finance-import-sheets-actions {
   @apply flex flex-wrap items-center justify-between gap-2 pt-1;
 }
@@ -579,4 +567,109 @@
 
 .finance-import-counter {
   @apply text-sm font-semibold text-text-muted;
+}
+
+/* ---------- Visualização da planilha na importação ---------- */
+
+.finance-sheet-preview {
+  @apply flex flex-col gap-2;
+}
+
+.finance-sheet-tabs {
+  @apply flex flex-wrap gap-1;
+}
+
+.finance-sheet-tab {
+  @apply flex items-center gap-1.5 rounded-sm border border-border bg-bg px-2.5 py-1 text-sm text-text-muted;
+}
+
+.finance-sheet-tab.is-active {
+  @apply border-primary text-text font-semibold;
+  background: var(--color-primary-light);
+}
+
+.finance-sheet-tab.is-ignored {
+  @apply opacity-60;
+}
+
+.finance-sheet-tab-role {
+  @apply rounded-full bg-surface px-1.5 py-0.5 text-[10px] uppercase tracking-wide;
+}
+
+.finance-sheet-toolbar {
+  @apply flex flex-wrap items-center justify-between gap-2;
+}
+
+.finance-sheet-toolbar label {
+  @apply flex items-center gap-2 text-sm text-text-muted;
+}
+
+.finance-sheet-toolbar select {
+  @apply rounded-sm border border-border bg-surface px-2 py-1 text-sm;
+}
+
+.finance-sheet-legend {
+  @apply flex flex-wrap items-center gap-2 text-xs text-text-muted;
+}
+
+.finance-sheet-legend-item {
+  @apply rounded-sm border border-border px-1.5 py-0.5;
+}
+
+/* A grade rola sozinha: planilha larga não pode empurrar a largura do modal. */
+.finance-sheet-scroll {
+  @apply overflow-auto rounded-sm border border-border bg-surface;
+  max-height: 55vh;
+}
+
+.finance-sheet-table {
+  @apply border-collapse text-xs;
+}
+
+.finance-sheet-table th,
+.finance-sheet-table td {
+  @apply border border-border px-1.5 py-1 whitespace-nowrap;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.finance-sheet-table thead th,
+.finance-sheet-table tbody th {
+  @apply bg-bg text-text-muted font-semibold text-center sticky;
+}
+
+.finance-sheet-table thead th {
+  @apply top-0 z-10;
+}
+
+.finance-sheet-table tbody th {
+  @apply left-0;
+}
+
+.finance-sheet-corner {
+  @apply left-0 z-20;
+}
+
+.finance-sheet-table td.is-number {
+  @apply text-right tabular-nums;
+}
+
+.finance-sheet-table tr.is-goal-row > th {
+  @apply text-primary;
+}
+
+.finance-sheet-table td.is-imported,
+.finance-sheet-legend-item.is-imported {
+  @apply bg-success-bg text-success;
+}
+
+.finance-sheet-table td.is-skipped,
+.finance-sheet-legend-item.is-skipped {
+  @apply bg-warning-bg text-warning;
+}
+
+.finance-sheet-table tr.is-goal-row > td:not(.is-imported):not(.is-skipped),
+.finance-sheet-legend-item.is-goal {
+  background: var(--color-primary-light);
 }

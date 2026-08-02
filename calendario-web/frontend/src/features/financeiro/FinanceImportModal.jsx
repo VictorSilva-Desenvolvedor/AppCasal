@@ -6,9 +6,11 @@ import {
   IMPORT_SECTIONS as SECTIONS,
   buildEntryRows,
   buildGoalRows,
+  buildSheetHighlights,
   findInvalidRow,
   moveRowToSection,
 } from './financeImportUtils.js';
+import { FinanceSheetPreview } from './FinanceSheetPreview.jsx';
 
 const SHEET_ROLES = [
   { value: 'renda', label: 'Renda (receitas)' },
@@ -34,6 +36,8 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
   const [entryRows, setEntryRows] = useState(null);
   const [goalRows, setGoalRows] = useState(null);
   const [showSkipped, setShowSkipped] = useState(false);
+  const [showSheets, setShowSheets] = useState(true);
+  const [highlights, setHighlights] = useState(() => new Map());
   const [error, setError] = useState('');
   const [committing, setCommitting] = useState(false);
 
@@ -49,6 +53,8 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
     setEntryRows(null);
     setGoalRows(null);
     setShowSkipped(false);
+    setShowSheets(true);
+    setHighlights(new Map());
     setError('');
   }
 
@@ -68,6 +74,7 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
       setSheetsDirty(false);
       setEntryRows(buildEntryRows(result));
       setGoalRows(buildGoalRows(result));
+      setHighlights(buildSheetHighlights(result));
       setWarnings(result.warnings || []);
     } catch (err) {
       setError(err.message);
@@ -267,23 +274,32 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
           <>
             {sheets.length > 0 && (
               <div className="finance-import-sheets">
-                <p className="finance-import-section-title">Abas da planilha</p>
-                {sheets.map((sheet) => (
-                  <div className="finance-import-sheet-row" key={sheet.name}>
-                    <span className="finance-import-sheet-name">{sheet.name}</span>
-                    <select
-                      value={sheet.role}
-                      onChange={(event) => updateSheetRole(sheet.name, event.target.value)}
+                <button
+                  type="button"
+                  className="finance-collapsible-toggle"
+                  onClick={() => setShowSheets((current) => !current)}
+                >
+                  <Icon name={showSheets ? 'chevron-left' : 'chevron-right'} />
+                  Planilha enviada ({sheets.length} aba{sheets.length === 1 ? '' : 's'})
+                </button>
+
+                {showSheets && (
+                  <>
+                    <p className="finance-goal-form-hint">
+                      Esta é a planilha como ela foi lida. Verde é o que entrou na importação, laranja é o que ficou de
+                      fora e as linhas marcadas viraram objetivos. Se alguma aba foi lida com o papel errado, troque
+                      aqui e reprocesse.
+                    </p>
+                    <FinanceSheetPreview
+                      sheets={sheets}
+                      roleOptions={SHEET_ROLES}
+                      onRoleChange={updateSheetRole}
+                      highlights={highlights}
                       disabled={loadingPreview}
-                    >
-                      {SHEET_ROLES.map((role) => (
-                        <option key={role.value} value={role.value}>
-                          {role.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
+                    />
+                  </>
+                )}
+
                 {sheetsDirty && (
                   <div className="finance-import-sheets-actions">
                     <span className="finance-goal-form-hint">
