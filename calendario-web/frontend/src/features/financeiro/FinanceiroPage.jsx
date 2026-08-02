@@ -15,6 +15,8 @@ import { FinanceGoals } from './FinanceGoals.jsx';
 import { ArchiveGoalForm } from './ArchiveGoalForm.jsx';
 import { FinanceSimulation } from './FinanceSimulation.jsx';
 import { FinanceImportModal } from './FinanceImportModal.jsx';
+import { FinanceMoveBar } from './FinanceMoveBar.jsx';
+import { useDragAndDrop } from '../../hooks/useDragAndDrop.js';
 import { currentMonthYear, isGoalArchived, monthLabel } from './financeUtils.js';
 
 const TABS = [
@@ -61,6 +63,7 @@ export function FinanceiroPage() {
   const [months, setMonths] = useState([]);
   const [editingEntry, setEditingEntry] = useState(null);
   const [addType, setAddType] = useState(null);
+  const [addWishType, setAddWishType] = useState(null);
   const [editingGoal, setEditingGoal] = useState(null);
   const [addGoalType, setAddGoalType] = useState(null);
   const [archivingGoal, setArchivingGoal] = useState(null);
@@ -99,6 +102,8 @@ export function FinanceiroPage() {
     Promise.all([reloadEntries(), reloadReport(), reloadHistory()]).finally(() => setLoading(false));
     setEditingEntry(null);
   }, [reloadEntries, reloadReport, reloadHistory]);
+
+  const dnd = useDragAndDrop({ onDrop: handleMoveDrop });
 
   if (loading) {
     return (
@@ -147,6 +152,43 @@ export function FinanceiroPage() {
 
   async function handleImported() {
     await Promise.all([reloadEntries(), reloadReport(), reloadReimbursements(), reloadGoals()]);
+  }
+
+  // Alvo de soltura codificado como "tipo:valor" (ex. "nature:fixa",
+  // "category:<id>", "wish:desejo") — cada tipo vira um patch parcial.
+  async function handleMoveDrop(entryId, targetKey) {
+    const entry = entries.find((item) => item._id === entryId);
+    if (!entry) return;
+
+    const separator = targetKey.indexOf(':');
+    const kind = targetKey.slice(0, separator);
+    const value = targetKey.slice(separator + 1);
+    let patch = null;
+
+    if (kind === 'nature') {
+      if (entry.type !== 'despesa') return;
+      // Cair numa seção de natureza também tira o item do planejamento futuro.
+      if ((entry.nature || 'unica') === value && !entry.wishType) return;
+      patch = { nature: value, wishType: null };
+    } else if (kind === 'category') {
+      const category = value === 'sem-categoria' ? null : value;
+      if ((entry.category?._id || null) === category) return;
+      patch = { category };
+    } else if (kind === 'wish') {
+      const wishType = value === 'none' ? null : value;
+      if ((entry.wishType || null) === wishType) return;
+      patch = { wishType };
+    }
+
+    if (!patch) return;
+
+    try {
+      await api.moveFinanceEntry(entryId, patch);
+      await handleEntrySaved();
+      showToast('Lançamento movido', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
   }
 
   return (
@@ -249,7 +291,9 @@ export function FinanceiroPage() {
             monthLocked={isClosed}
             onEdit={setEditingEntry}
             onDeleted={handleEntryDeleted}
+            onChanged={handleEntrySaved}
             groupByNature
+            dnd={dnd}
           />
         </div>
       )}
@@ -274,34 +318,52 @@ export function FinanceiroPage() {
               Você está vendo os objetivos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um objetivo.
             </p>
           )}
-          <FinanceGoals
-            goals={goals}
-            onChanged={reloadGoals}
-            onEdit={setEditingGoal}
-            onArchive={setArchivingGoal}
-            readOnly={!isMyView}
-          />
+          <FinanceGoals goals={goals} onChanged={reloadGoals} onEdit={setEditingGoal} onArchive={setArchivingGoal} />
         </div>
       )}
 
       {activeTab === 'comodidades' && (
         <div className="finance-wishlist-tab">
-          <Card className="finance-report-card">
+          {isMyView ? (
+            <div className="finance-add-entry-actions">
+              <Button variant="secondary" onClick={() => setAddWishType('necessidade')}>
+                <Icon name="plus" /> Necessidade futura
+              </Button>
+              <Button variant="secondary" onClick={() => setAddWishType('desejo')}>
+                <Icon name="plus" /> Desejo futuro
+              </Button>
+            </div>
+          ) : (
+            <p className="finance-goal-form-hint">
+              Você está vendo as comodidades de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um item.
+            </p>
+          )}
+          <Card
+            className={`finance-report-card${dnd.isDropTarget('wish:necessidade') ? ' drag-over' : ''}`}
+            {...(isClosed ? {} : dnd.dropProps('wish:necessidade'))}
+          >
             <h3>Necessidades futuras</h3>
             <FinanceEntryList
               entries={necessidadeEntries}
               monthLocked={isClosed}
               onEdit={setEditingEntry}
               onDeleted={handleEntryDeleted}
+              onChanged={handleEntrySaved}
+              dnd={dnd}
             />
           </Card>
-          <Card className="finance-report-card">
+          <Card
+            className={`finance-report-card${dnd.isDropTarget('wish:desejo') ? ' drag-over' : ''}`}
+            {...(isClosed ? {} : dnd.dropProps('wish:desejo'))}
+          >
             <h3>Comodidades e desejos futuros</h3>
             <FinanceEntryList
               entries={desejoEntries}
               monthLocked={isClosed}
               onEdit={setEditingEntry}
               onDeleted={handleEntryDeleted}
+              onChanged={handleEntrySaved}
+              dnd={dnd}
             />
           </Card>
         </div>
@@ -355,6 +417,29 @@ export function FinanceiroPage() {
         )}
       </Modal>
 
+      <Modal
+        open={Boolean(addWishType)}
+        onClose={() => setAddWishType(null)}
+        title={addWishType === 'desejo' ? 'Novo desejo futuro' : 'Nova necessidade futura'}
+      >
+        {addWishType && (
+          <FinanceEntryForm
+            categories={categories}
+            users={users}
+            goals={linkableGoals}
+            monthLocked={isClosed}
+            editingEntry={null}
+            forcedType="despesa"
+            forcedWishType={addWishType}
+            onSaved={async () => {
+              await handleEntrySaved();
+              setAddWishType(null);
+            }}
+            onCancelEdit={() => setAddWishType(null)}
+          />
+        )}
+      </Modal>
+
       <Modal open={Boolean(editingGoal)} onClose={() => setEditingGoal(null)} title="Editar objetivo">
         {editingGoal && (
           <FinanceGoalForm
@@ -397,6 +482,12 @@ export function FinanceiroPage() {
           />
         )}
       </Modal>
+
+      <FinanceMoveBar
+        entry={entries.find((entry) => entry._id === dnd.draggingId) || null}
+        categories={categories}
+        dnd={dnd}
+      />
     </section>
   );
 }

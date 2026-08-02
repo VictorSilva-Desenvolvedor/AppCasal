@@ -53,8 +53,32 @@ function cellNumber(cell) {
   return typeof v === 'number' && Number.isFinite(v) ? v : null;
 }
 
-function findWorksheet(workbook, pattern) {
-  return workbook.worksheets.find((ws) => pattern.test(ws.name));
+const SHEET_ROLES = ['renda', 'despesas', 'objetivos', 'ignorar'];
+
+function detectSheetRole(name) {
+  if (/renda/i.test(name)) return 'renda';
+  if (/despesa/i.test(name)) return 'despesas';
+  if (/objetivo/i.test(name)) return 'objetivos';
+  return 'ignorar';
+}
+
+/**
+ * O papel de cada aba é detectado pelo nome, mas o usuário pode sobrescrever
+ * essa escolha na tela de importação — daí a planilha não precisar seguir o
+ * template original pra ser importável.
+ */
+function resolveSheetRoles(workbook, requestedRoles) {
+  return workbook.worksheets.map((ws) => {
+    const requested = requestedRoles?.[ws.name];
+    return { name: ws.name, role: SHEET_ROLES.includes(requested) ? requested : detectSheetRole(ws.name) };
+  });
+}
+
+function sheetsWithRole(workbook, sheets, role) {
+  return sheets
+    .filter((sheet) => sheet.role === role)
+    .map((sheet) => workbook.getWorksheet(sheet.name))
+    .filter(Boolean);
 }
 
 /**
@@ -102,45 +126,101 @@ function findItemValueTables(worksheet) {
     const tableEndRow = nextHeaderRow ? nextHeaderRow - 1 : lastRow;
 
     const items = [];
+    const skipped = [];
     for (let r = header.row + 1; r <= tableEndRow; r++) {
       const row = worksheet.getRow(r);
       const description = cellText(row.getCell(header.itemCol)).trim();
       if (!description || normalize(description) === 'total') continue;
 
-      const amount = cellNumber(row.getCell(header.valorCol));
-      if (amount === null) continue;
-
       const reason = header.hasReason ? cellText(row.getCell(header.reasonCol)).trim() : '';
+      const amount = cellNumber(row.getCell(header.valorCol));
+
+      // Linha com nome mas sem valor numérico (ex. título de seção dentro da
+      // tabela, ou item ainda sem preço) — vai pra lista de não importados em
+      // vez de sumir, pra dar visibilidade de tudo que existe na planilha.
+      if (amount === null) {
+        skipped.push({ description, amount: null, wishType: header.wishType, reason, why: 'sem valor numérico' });
+        continue;
+      }
+
       items.push({ description, amount, wishType: header.wishType, reason });
     }
-    return { ...header, items };
+    return { ...header, endRow: tableEndRow, items, skipped };
   });
 }
 
-function parseIncomeAndExpenses(workbook, warnings) {
+/**
+ * Linhas que não caíram em nenhuma tabela "Item"/"Valor" da aba — acontece
+ * quando o usuário marca uma aba fora do template. Elas não são importadas
+ * automaticamente, mas aparecem na prévia pra ele decidir o que fazer.
+ */
+function findLooseRows(worksheet, tables) {
+  const covered = new Set();
+  tables.forEach((table) => {
+    for (let r = table.row; r <= table.endRow; r++) covered.add(r);
+  });
+
+  const lastRow = worksheet.rowCount;
+  const lastCol = worksheet.columnCount;
+  const loose = [];
+
+  for (let r = 1; r <= lastRow; r++) {
+    if (covered.has(r)) continue;
+
+    const row = worksheet.getRow(r);
+    let description = '';
+    let amount = null;
+
+    for (let c = 1; c <= lastCol; c++) {
+      const value = cellRawValue(row.getCell(c));
+      if (value === null) continue;
+      if (typeof value === 'number') {
+        if (amount === null) amount = value;
+      } else if (!description) {
+        description = String(value).trim();
+      }
+    }
+
+    if (!description || normalize(description) === 'total') continue;
+    loose.push({ description, amount, wishType: null, reason: '', why: 'fora de uma tabela "Item"/"Valor"' });
+  }
+
+  return loose;
+}
+
+function parseIncomeAndExpenses(workbook, sheets, warnings) {
   const income = [];
   const expenses = [];
   const necessities = [];
   const wishes = [];
+  const skipped = [];
 
-  const incomeSheet = findWorksheet(workbook, /renda/i);
-  if (!incomeSheet) {
-    warnings.push('Não encontrei nenhuma aba com "Renda" no nome — nenhuma receita foi importada.');
-  } else {
-    const tables = findItemValueTables(incomeSheet);
-    if (tables.length === 0 || tables.every((t) => t.items.length === 0)) {
-      warnings.push(`Não encontrei uma tabela "Item"/"Valor" com dados na aba "${incomeSheet.name}".`);
-    }
-    tables.forEach((table) => income.push(...table.items.map(({ description, amount }) => ({ description, amount }))));
+  function collectSkipped(sheet, tables) {
+    const rows = [...tables.flatMap((table) => table.skipped), ...findLooseRows(sheet, tables)];
+    skipped.push(...rows.map((row) => ({ ...row, sheet: sheet.name })));
   }
 
-  const expensesSheet = findWorksheet(workbook, /despesa/i);
-  if (!expensesSheet) {
-    warnings.push('Não encontrei nenhuma aba com "Despesas" no nome — nenhuma despesa foi importada.');
-  } else {
-    const tables = findItemValueTables(expensesSheet);
+  const incomeSheets = sheetsWithRole(workbook, sheets, 'renda');
+  if (incomeSheets.length === 0) {
+    warnings.push('Nenhuma aba marcada como "Renda" — nenhuma receita foi importada.');
+  }
+  for (const sheet of incomeSheets) {
+    const tables = findItemValueTables(sheet);
     if (tables.length === 0 || tables.every((t) => t.items.length === 0)) {
-      warnings.push(`Não encontrei nenhuma tabela "Item"/"Valor" com dados na aba "${expensesSheet.name}".`);
+      warnings.push(`Não encontrei uma tabela "Item"/"Valor" com dados na aba "${sheet.name}".`);
+    }
+    tables.forEach((table) => income.push(...table.items.map(({ description, amount }) => ({ description, amount }))));
+    collectSkipped(sheet, tables);
+  }
+
+  const expensesSheets = sheetsWithRole(workbook, sheets, 'despesas');
+  if (expensesSheets.length === 0) {
+    warnings.push('Nenhuma aba marcada como "Despesas" — nenhuma despesa foi importada.');
+  }
+  for (const sheet of expensesSheets) {
+    const tables = findItemValueTables(sheet);
+    if (tables.length === 0 || tables.every((t) => t.items.length === 0)) {
+      warnings.push(`Não encontrei nenhuma tabela "Item"/"Valor" com dados na aba "${sheet.name}".`);
     }
     for (const table of tables) {
       for (const item of table.items) {
@@ -149,9 +229,10 @@ function parseIncomeAndExpenses(workbook, warnings) {
         else expenses.push(item);
       }
     }
+    collectSkipped(sheet, tables);
   }
 
-  return { income, expenses, necessities, wishes };
+  return { income, expenses, necessities, wishes, skipped };
 }
 
 function buildMergeIndex(worksheet) {
@@ -214,13 +295,16 @@ function parseAmountFromText(text) {
  * blocos de "contador de parcela" (1,2,3...N) com despesas do tipo
  * "Item (n/N)" já lidas, em vez de tentar ler cor/estilo de célula.
  */
-function parseGoals(workbook, expenseItems, warnings) {
-  const sheet = findWorksheet(workbook, /objetivo/i);
-  if (!sheet) {
-    warnings.push('Não encontrei nenhuma aba com "Objetivos" no nome — nenhum objetivo foi importado.');
+function parseGoals(workbook, sheets, expenseItems, warnings) {
+  const goalSheets = sheetsWithRole(workbook, sheets, 'objetivos');
+  if (goalSheets.length === 0) {
+    warnings.push('Nenhuma aba marcada como "Objetivos" — nenhum objetivo foi importado.');
     return [];
   }
+  return goalSheets.flatMap((sheet) => parseGoalsSheet(sheet, expenseItems, warnings));
+}
 
+function parseGoalsSheet(sheet, expenseItems, warnings) {
   const mergeIndex = buildMergeIndex(sheet);
   const lastRow = sheet.rowCount;
 
@@ -335,7 +419,7 @@ function findBlockNotes(sheet, mergeIndex, block) {
   return '';
 }
 
-async function parseBudgetWorkbook(buffer) {
+async function parseBudgetWorkbook(buffer, requestedRoles) {
   const workbook = new ExcelJS.Workbook();
   const warnings = [];
 
@@ -347,11 +431,12 @@ async function parseBudgetWorkbook(buffer) {
     throw error;
   }
 
-  const { income, expenses, necessities, wishes } = parseIncomeAndExpenses(workbook, warnings);
+  const sheets = resolveSheetRoles(workbook, requestedRoles);
+  const { income, expenses, necessities, wishes, skipped } = parseIncomeAndExpenses(workbook, sheets, warnings);
   const allExpenseItems = [...expenses, ...necessities, ...wishes];
-  const goals = parseGoals(workbook, allExpenseItems, warnings);
+  const goals = parseGoals(workbook, sheets, allExpenseItems, warnings);
 
-  return { income, expenses, necessities, wishes, goals, warnings };
+  return { sheets, income, expenses, necessities, wishes, skipped, goals, warnings };
 }
 
 function suggestCategory(description, categories, type) {

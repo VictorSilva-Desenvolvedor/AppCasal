@@ -1,60 +1,24 @@
 import { useState } from 'react';
-import { Button, Field, Badge, Modal } from '../../components/ui/index.js';
+import { Button, Field, Badge, Icon, Modal } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
+import {
+  IMPORT_SECTIONS as SECTIONS,
+  buildEntryRows,
+  buildGoalRows,
+  findInvalidRow,
+  moveRowToSection,
+} from './financeImportUtils.js';
 
-const SECTIONS = [
-  { key: 'income', title: 'Renda mensal', type: 'receita', wishType: null },
-  { key: 'expenses', title: 'Despesas do mês', type: 'despesa', wishType: null },
-  { key: 'necessities', title: 'Necessidades futuras', type: 'despesa', wishType: 'necessidade' },
-  { key: 'wishes', title: 'Desejos futuros', type: 'despesa', wishType: 'desejo' },
+const SHEET_ROLES = [
+  { value: 'renda', label: 'Renda (receitas)' },
+  { value: 'despesas', label: 'Despesas' },
+  { value: 'objetivos', label: 'Objetivos' },
+  { value: 'ignorar', label: 'Ignorar' },
 ];
-
-let uidCounter = 0;
-function uid() {
-  uidCounter += 1;
-  return `row-${uidCounter}`;
-}
 
 function toDateInputValue(date) {
   return new Date(date).toISOString().slice(0, 10);
-}
-
-function buildEntryRows(preview) {
-  const rows = [];
-  for (const section of SECTIONS) {
-    for (const item of preview[section.key] || []) {
-      rows.push({
-        id: uid(),
-        section: section.title,
-        type: section.type,
-        wishType: section.wishType,
-        description: item.description,
-        amount: String(item.amount),
-        category: item.suggestedCategory || '',
-        reason: item.reason || '',
-        included: true,
-      });
-    }
-  }
-  return rows;
-}
-
-function buildGoalRows(preview) {
-  return (preview.goals || []).map((goal) => ({
-    id: uid(),
-    included: true,
-    name: goal.name,
-    type: goal.type,
-    targetAmount: String(goal.targetAmount ?? ''),
-    currentAmount: String(goal.currentAmount ?? 0),
-    totalInstallments: goal.totalInstallments ? String(goal.totalInstallments) : '',
-    installmentAmount: goal.installmentAmount ? String(goal.installmentAmount) : '',
-    paidInstallments: goal.paidInstallments ? String(goal.paidInstallments) : '',
-    notes: goal.notes || '',
-    confidence: goal.confidence,
-    warning: goal.warning,
-  }));
 }
 
 export function FinanceImportModal({ open, onClose, categories, monthYear, onImported }) {
@@ -65,16 +29,26 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
   );
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [warnings, setWarnings] = useState([]);
+  const [sheets, setSheets] = useState([]);
+  const [sheetsDirty, setSheetsDirty] = useState(false);
   const [entryRows, setEntryRows] = useState(null);
   const [goalRows, setGoalRows] = useState(null);
+  const [showSkipped, setShowSkipped] = useState(false);
   const [error, setError] = useState('');
   const [committing, setCommitting] = useState(false);
+
+  const skippedRows = entryRows?.filter((row) => row.skippedFrom) || [];
+  const includedCount =
+    (entryRows?.filter((row) => row.included).length || 0) + (goalRows?.filter((row) => row.included).length || 0);
 
   function reset() {
     setFile(null);
     setWarnings([]);
+    setSheets([]);
+    setSheetsDirty(false);
     setEntryRows(null);
     setGoalRows(null);
+    setShowSkipped(false);
     setError('');
   }
 
@@ -83,14 +57,15 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
     onClose();
   }
 
-  async function handleReadFile(event) {
-    event.preventDefault();
+  async function readFile(sheetRoles) {
     if (!file) return;
 
     setError('');
     setLoadingPreview(true);
     try {
-      const result = await api.previewFinanceImport(file);
+      const result = await api.previewFinanceImport(file, sheetRoles);
+      setSheets(result.sheets || []);
+      setSheetsDirty(false);
       setEntryRows(buildEntryRows(result));
       setGoalRows(buildGoalRows(result));
       setWarnings(result.warnings || []);
@@ -102,12 +77,94 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
     }
   }
 
+  function handleSubmitFile(event) {
+    event.preventDefault();
+    readFile();
+  }
+
+  function handleReprocess() {
+    readFile(Object.fromEntries(sheets.map((sheet) => [sheet.name, sheet.role])));
+  }
+
+  function updateSheetRole(name, role) {
+    setSheets((current) => current.map((sheet) => (sheet.name === name ? { ...sheet, role } : sheet)));
+    setSheetsDirty(true);
+  }
+
   function updateEntryRow(id, patch) {
     setEntryRows((rows) => rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
   }
 
+  function changeRowSection(row, sectionKey) {
+    setEntryRows((rows) => rows.map((item) => (item.id === row.id ? moveRowToSection(item, sectionKey) : item)));
+  }
+
   function updateGoalRow(id, patch) {
     setGoalRows((rows) => rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
+  }
+
+  function renderEntryRow(row) {
+    return (
+      <div key={row.id} className={`finance-import-row${row.included ? '' : ' is-excluded'}`}>
+        <input
+          type="checkbox"
+          checked={row.included}
+          onChange={(event) => updateEntryRow(row.id, { included: event.target.checked })}
+          title="Importar este item"
+        />
+        <input
+          type="text"
+          className="finance-import-row-desc"
+          value={row.description}
+          onChange={(event) => updateEntryRow(row.id, { description: event.target.value })}
+          disabled={!row.included}
+        />
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Valor"
+          className="finance-import-row-amount"
+          value={row.amount}
+          onChange={(event) => updateEntryRow(row.id, { amount: event.target.value })}
+          disabled={!row.included}
+        />
+        <select
+          className="finance-import-row-section"
+          value={row.sectionKey}
+          onChange={(event) => changeRowSection(row, event.target.value)}
+          disabled={!row.included}
+          title="Mover para outra seção"
+        >
+          {SECTIONS.map((option) => (
+            <option key={option.key} value={option.key}>
+              {option.title}
+            </option>
+          ))}
+        </select>
+        <select
+          className={`finance-import-row-category${row.category ? '' : ' is-undecided'}`}
+          value={row.category}
+          onChange={(event) => updateEntryRow(row.id, { category: event.target.value })}
+          disabled={!row.included}
+        >
+          <option value="">Falta decidir</option>
+          {categories
+            .filter((category) => category.type === row.type)
+            .map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+        </select>
+        {row.skippedFrom && (
+          <span className="finance-import-row-badge">
+            Aba &quot;{row.skippedFrom.sheet}&quot; — {row.skippedFrom.why}
+          </span>
+        )}
+        {row.reason && <span className="finance-import-row-badge">Motivo: {row.reason}</span>}
+      </div>
+    );
   }
 
   async function handleConfirm() {
@@ -118,6 +175,12 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
 
     if (includedEntries.length === 0 && includedGoals.length === 0) {
       setError('Selecione ao menos um item para importar');
+      return;
+    }
+
+    const invalid = findInvalidRow(includedEntries);
+    if (invalid) {
+      setError(`Preencha descrição e valor de "${invalid.description || 'item sem nome'}" antes de importar`);
       return;
     }
 
@@ -172,10 +235,10 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
     <Modal open={open} onClose={handleClose} title="Importar planilha de orçamento">
       <div className="finance-import-body">
         {!entryRows && (
-          <form onSubmit={handleReadFile} className="finance-import-body">
+          <form onSubmit={handleSubmitFile} className="finance-import-body">
             <p className="finance-goal-form-hint">
-              Envie o arquivo .xlsx do orçamento mensal (mesmo modelo da planilha "Renda mensal" / "Despesas
-              mensais" / "Objetivos"). Nada é gravado ainda — a próxima tela mostra uma prévia para conferir.
+              Envie o arquivo .xlsx do orçamento. As abas são reconhecidas pelo nome (Renda / Despesas / Objetivos),
+              mas na próxima tela você escolhe o papel de cada uma. Nada é gravado ainda — a prévia é só pra conferir.
             </p>
             <Field label="Arquivo (.xlsx)" htmlFor="finance-import-file">
               <input
@@ -202,6 +265,38 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
 
         {entryRows && (
           <>
+            {sheets.length > 0 && (
+              <div className="finance-import-sheets">
+                <p className="finance-import-section-title">Abas da planilha</p>
+                {sheets.map((sheet) => (
+                  <div className="finance-import-sheet-row" key={sheet.name}>
+                    <span className="finance-import-sheet-name">{sheet.name}</span>
+                    <select
+                      value={sheet.role}
+                      onChange={(event) => updateSheetRole(sheet.name, event.target.value)}
+                      disabled={loadingPreview}
+                    >
+                      {SHEET_ROLES.map((role) => (
+                        <option key={role.value} value={role.value}>
+                          {role.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+                {sheetsDirty && (
+                  <div className="finance-import-sheets-actions">
+                    <span className="finance-goal-form-hint">
+                      Reler a planilha descarta os ajustes feitos na lista abaixo.
+                    </span>
+                    <Button type="button" variant="secondary" loading={loadingPreview} onClick={handleReprocess}>
+                      Reprocessar com estas abas
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {warnings.length > 0 && (
               <div className="finance-import-warnings">
                 {warnings.map((warning) => (
@@ -219,59 +314,45 @@ export function FinanceImportModal({ open, onClose, categories, monthYear, onImp
               />
             </Field>
 
+            <p className="finance-import-counter">
+              {includedCount} de {entryRows.length + goalRows.length} itens lidos da planilha serão importados
+            </p>
+
             {SECTIONS.map((section) => {
-              const rows = entryRows.filter((row) => row.section === section.title);
+              const rows = entryRows.filter((row) => !row.skippedFrom && row.sectionKey === section.key);
               if (rows.length === 0) return null;
-              const sectionCategories = categories.filter((c) => c.type === section.type);
 
               return (
                 <div key={section.key}>
                   <p className="finance-import-section-title">
                     {section.title} ({rows.length})
                   </p>
-                  {rows.map((row) => (
-                    <div key={row.id} className={`finance-import-row${row.included ? '' : ' is-excluded'}`}>
-                      <input
-                        type="checkbox"
-                        checked={row.included}
-                        onChange={(event) => updateEntryRow(row.id, { included: event.target.checked })}
-                        title="Importar este item"
-                      />
-                      <input
-                        type="text"
-                        className="finance-import-row-desc"
-                        value={row.description}
-                        onChange={(event) => updateEntryRow(row.id, { description: event.target.value })}
-                        disabled={!row.included}
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        className="finance-import-row-amount"
-                        value={row.amount}
-                        onChange={(event) => updateEntryRow(row.id, { amount: event.target.value })}
-                        disabled={!row.included}
-                      />
-                      <select
-                        className={`finance-import-row-category${row.category ? '' : ' is-undecided'}`}
-                        value={row.category}
-                        onChange={(event) => updateEntryRow(row.id, { category: event.target.value })}
-                        disabled={!row.included}
-                      >
-                        <option value="">Falta decidir</option>
-                        {sectionCategories.map((category) => (
-                          <option key={category._id} value={category._id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                      {row.reason && <span className="finance-import-row-badge">Motivo: {row.reason}</span>}
-                    </div>
-                  ))}
+                  {rows.map(renderEntryRow)}
                 </div>
               );
             })}
+
+            {skippedRows.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  className="finance-collapsible-toggle"
+                  onClick={() => setShowSkipped((current) => !current)}
+                >
+                  <Icon name={showSkipped ? 'chevron-left' : 'chevron-right'} />
+                  Lidos mas não importados automaticamente ({skippedRows.length})
+                </button>
+                {showSkipped && (
+                  <div>
+                    <p className="finance-goal-form-hint">
+                      Estas linhas existem na planilha mas o leitor não soube onde encaixá-las. Marque, complete o
+                      valor e escolha a seção pra trazer qualquer uma delas.
+                    </p>
+                    {skippedRows.map(renderEntryRow)}
+                  </div>
+                )}
+              </div>
+            )}
 
             {goalRows.length > 0 && (
               <div>

@@ -10,7 +10,7 @@ import {
   isGoalArchived,
 } from './financeUtils.js';
 
-function InstallmentGrid({ total, paid, onSetPaid, readOnly }) {
+function InstallmentGrid({ total, paid, onSetPaid }) {
   return (
     <div className="finance-installment-grid">
       {Array.from({ length: total }, (_, i) => i + 1).map((n) => (
@@ -18,7 +18,6 @@ function InstallmentGrid({ total, paid, onSetPaid, readOnly }) {
           key={n}
           type="button"
           className={`finance-installment-cell${n <= paid ? ' is-paid' : ''}`}
-          disabled={readOnly}
           title={`Parcela ${n}`}
           onClick={() => onSetPaid(n === paid ? n - 1 : n)}
         >
@@ -29,7 +28,7 @@ function InstallmentGrid({ total, paid, onSetPaid, readOnly }) {
   );
 }
 
-function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
+function GoalCard({ goal, onChanged, onEdit, onArchive }) {
   const [contribution, setContribution] = useState('');
   const [pending, setPending] = useState(false);
   const { showToast } = useToast();
@@ -107,27 +106,25 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
             <span className="finance-goal-archived-badge">Arquivado até {formatEntryDate(goal.archivedUntil)}</span>
           )}
         </strong>
-        {!readOnly && (
-          <div className="finance-entry-item-actions">
-            {archived ? (
-              <IconButton onClick={handleUnarchive} title="Desarquivar agora" loading={pending}>
-                <Icon name="rotate-ccw" />
-              </IconButton>
-            ) : (
-              <>
-                <IconButton onClick={() => onEdit(goal)} title="Editar objetivo" disabled={pending}>
-                  <Icon name="tool" />
-                </IconButton>
-                <IconButton onClick={() => onArchive(goal)} title="Arquivar objetivo" disabled={pending}>
-                  <Icon name="archive" />
-                </IconButton>
-              </>
-            )}
-            <IconButton onClick={handleDelete} title="Excluir objetivo" loading={pending}>
-              <Icon name="trash" />
+        <div className="finance-entry-item-actions">
+          {archived ? (
+            <IconButton onClick={handleUnarchive} title="Desarquivar agora" loading={pending}>
+              <Icon name="rotate-ccw" />
             </IconButton>
-          </div>
-        )}
+          ) : (
+            <>
+              <IconButton onClick={() => onEdit(goal)} title="Editar objetivo" disabled={pending}>
+                <Icon name="tool" />
+              </IconButton>
+              <IconButton onClick={() => onArchive(goal)} title="Arquivar objetivo" disabled={pending}>
+                <Icon name="archive" />
+              </IconButton>
+            </>
+          )}
+          <IconButton onClick={handleDelete} title="Excluir objetivo" loading={pending}>
+            <Icon name="trash" />
+          </IconButton>
+        </div>
       </div>
 
       <div className="finance-goal-progress-track">
@@ -148,7 +145,6 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
               total={goal.totalInstallments}
               paid={goal.paidInstallments}
               onSetPaid={handleSetPaidInstallments}
-              readOnly={readOnly}
             />
           )}
         </>
@@ -163,7 +159,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
 
       {goal.notes && <span className="finance-entry-item-meta">{goal.notes}</span>}
 
-      {!readOnly && !archived && !hasInstallments && (
+      {!archived && !hasInstallments && (
         <div className="finance-goal-actions">
           <input
             type="number"
@@ -182,7 +178,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, readOnly }) {
   );
 }
 
-export function FinanceGoals({ goals, onChanged, onEdit, onArchive, readOnly }) {
+export function FinanceGoals({ goals, onChanged, onEdit, onArchive }) {
   const [showArchived, setShowArchived] = useState(false);
 
   if (goals.length === 0) {
@@ -199,14 +195,7 @@ export function FinanceGoals({ goals, onChanged, onEdit, onArchive, readOnly }) 
       ) : (
         <div className="finance-goal-list">
           {activeGoals.map((goal) => (
-            <GoalCard
-              key={goal._id}
-              goal={goal}
-              onChanged={onChanged}
-              onEdit={onEdit}
-              onArchive={onArchive}
-              readOnly={readOnly}
-            />
+            <GoalCard key={goal._id} goal={goal} onChanged={onChanged} onEdit={onEdit} onArchive={onArchive} />
           ))}
         </div>
       )}
@@ -224,14 +213,7 @@ export function FinanceGoals({ goals, onChanged, onEdit, onArchive, readOnly }) 
           {showArchived && (
             <div className="finance-archived-goals-body finance-goal-list">
               {archivedGoals.map((goal) => (
-                <GoalCard
-                  key={goal._id}
-                  goal={goal}
-                  onChanged={onChanged}
-                  onEdit={onEdit}
-                  onArchive={onArchive}
-                  readOnly={readOnly}
-                />
+                <GoalCard key={goal._id} goal={goal} onChanged={onChanged} onEdit={onEdit} onArchive={onArchive} />
               ))}
             </div>
           )}
