@@ -1,6 +1,6 @@
 const ExcelJS = require('exceljs');
 
-const OBJETIVOS_GRID_START_COL = 3; // C
+const OBJETIVOS_GRID_START_COL = 2; // B
 const OBJETIVOS_GRID_END_COL = 14; // N
 const OBJETIVOS_NOTES_START_COL = 15; // O
 
@@ -70,8 +70,61 @@ function detectSheetRole(name) {
 function resolveSheetRoles(workbook, requestedRoles) {
   return workbook.worksheets.map((ws) => {
     const requested = requestedRoles?.[ws.name];
-    return { name: ws.name, role: SHEET_ROLES.includes(requested) ? requested : detectSheetRole(ws.name) };
+    return {
+      name: ws.name,
+      role: SHEET_ROLES.includes(requested) ? requested : detectSheetRole(ws.name),
+      grid: buildSheetGrid(ws),
+    };
   });
+}
+
+const GRID_MAX_ROWS = 150;
+const GRID_MAX_COLS = 30;
+
+const MERGE_RANGE_RE = /^([A-Z]+)(\d+):([A-Z]+)(\d+)$/;
+
+function parseMergeRange(range) {
+  const match = MERGE_RANGE_RE.exec(range);
+  if (!match) return null;
+  const [, c1, r1, c2, r2] = match;
+  return {
+    r1: Number(r1),
+    c1: colLetterToNumber(c1),
+    r2: Number(r2),
+    c2: colLetterToNumber(c2),
+  };
+}
+
+/**
+ * Espelho da aba pra tela de importação: o usuário precisa ver a planilha do
+ * jeito que ela é (inclusive as tabelas laterais e os blocos mesclados de
+ * "Objetivos") pra decidir o papel de cada aba e conferir o que foi lido.
+ */
+function buildSheetGrid(worksheet) {
+  const rowCount = Math.min(worksheet.rowCount, GRID_MAX_ROWS);
+  const colCount = Math.min(Math.max(worksheet.columnCount, 1), GRID_MAX_COLS);
+
+  const cells = [];
+  for (let r = 1; r <= rowCount; r++) {
+    const row = worksheet.getRow(r);
+    const line = [];
+    for (let c = 1; c <= colCount; c++) {
+      line.push(cellRawValue(row.getCell(c)));
+    }
+    cells.push(line);
+  }
+
+  const merges = (worksheet.model.merges || [])
+    .map(parseMergeRange)
+    .filter((merge) => merge && merge.r1 <= rowCount && merge.c1 <= colCount);
+
+  return {
+    rowCount,
+    colCount,
+    truncated: worksheet.rowCount > rowCount || worksheet.columnCount > colCount,
+    cells,
+    merges,
+  };
 }
 
 function sheetsWithRole(workbook, sheets, role) {
@@ -138,12 +191,21 @@ function findItemValueTables(worksheet) {
       // Linha com nome mas sem valor numérico (ex. título de seção dentro da
       // tabela, ou item ainda sem preço) — vai pra lista de não importados em
       // vez de sumir, pra dar visibilidade de tudo que existe na planilha.
+      const origin = { row: r, itemCol: header.itemCol, valorCol: header.valorCol };
+
       if (amount === null) {
-        skipped.push({ description, amount: null, wishType: header.wishType, reason, why: 'sem valor numérico' });
+        skipped.push({
+          description,
+          amount: null,
+          wishType: header.wishType,
+          reason,
+          why: 'sem valor numérico',
+          origin,
+        });
         continue;
       }
 
-      items.push({ description, amount, wishType: header.wishType, reason });
+      items.push({ description, amount, wishType: header.wishType, reason, origin });
     }
     return { ...header, endRow: tableEndRow, items, skipped };
   });
@@ -170,19 +232,32 @@ function findLooseRows(worksheet, tables) {
     const row = worksheet.getRow(r);
     let description = '';
     let amount = null;
+    let itemCol = 1;
+    let valorCol = 1;
 
     for (let c = 1; c <= lastCol; c++) {
       const value = cellRawValue(row.getCell(c));
       if (value === null) continue;
       if (typeof value === 'number') {
-        if (amount === null) amount = value;
+        if (amount === null) {
+          amount = value;
+          valorCol = c;
+        }
       } else if (!description) {
         description = String(value).trim();
+        itemCol = c;
       }
     }
 
     if (!description || normalize(description) === 'total') continue;
-    loose.push({ description, amount, wishType: null, reason: '', why: 'fora de uma tabela "Item"/"Valor"' });
+    loose.push({
+      description,
+      amount,
+      wishType: null,
+      reason: '',
+      why: 'fora de uma tabela "Item"/"Valor"',
+      origin: { row: r, itemCol, valorCol },
+    });
   }
 
   return loose;
@@ -195,9 +270,13 @@ function parseIncomeAndExpenses(workbook, sheets, warnings) {
   const wishes = [];
   const skipped = [];
 
+  function withOrigin(items, sheet) {
+    return items.map((item) => ({ ...item, origin: { ...item.origin, sheet: sheet.name } }));
+  }
+
   function collectSkipped(sheet, tables) {
     const rows = [...tables.flatMap((table) => table.skipped), ...findLooseRows(sheet, tables)];
-    skipped.push(...rows.map((row) => ({ ...row, sheet: sheet.name })));
+    skipped.push(...withOrigin(rows, sheet).map((row) => ({ ...row, sheet: sheet.name })));
   }
 
   const incomeSheets = sheetsWithRole(workbook, sheets, 'renda');
@@ -209,7 +288,9 @@ function parseIncomeAndExpenses(workbook, sheets, warnings) {
     if (tables.length === 0 || tables.every((t) => t.items.length === 0)) {
       warnings.push(`Não encontrei uma tabela "Item"/"Valor" com dados na aba "${sheet.name}".`);
     }
-    tables.forEach((table) => income.push(...table.items.map(({ description, amount }) => ({ description, amount }))));
+    tables.forEach((table) =>
+      income.push(...withOrigin(table.items, sheet).map(({ description, amount, origin }) => ({ description, amount, origin })))
+    );
     collectSkipped(sheet, tables);
   }
 
@@ -223,7 +304,7 @@ function parseIncomeAndExpenses(workbook, sheets, warnings) {
       warnings.push(`Não encontrei nenhuma tabela "Item"/"Valor" com dados na aba "${sheet.name}".`);
     }
     for (const table of tables) {
-      for (const item of table.items) {
+      for (const item of withOrigin(table.items, sheet)) {
         if (item.wishType === 'necessidade') necessities.push(item);
         else if (item.wishType === 'desejo') wishes.push(item);
         else expenses.push(item);
@@ -301,7 +382,12 @@ function parseGoals(workbook, sheets, expenseItems, warnings) {
     warnings.push('Nenhuma aba marcada como "Objetivos" — nenhum objetivo foi importado.');
     return [];
   }
-  return goalSheets.flatMap((sheet) => parseGoalsSheet(sheet, expenseItems, warnings));
+  return goalSheets.flatMap((sheet) =>
+    parseGoalsSheet(sheet, expenseItems, warnings).map((goal) => ({
+      ...goal,
+      origin: { ...goal.origin, sheet: sheet.name },
+    }))
+  );
 }
 
 function parseGoalsSheet(sheet, expenseItems, warnings) {
@@ -326,7 +412,11 @@ function parseGoalsSheet(sheet, expenseItems, warnings) {
   }
   if (current) blocks.push(current);
 
-  if (blocks.length === 0) {
+  // Um objetivo de verdade sempre tem grade de progresso ou o valor no próprio
+  // título. Sem nenhum dos dois é cabeçalho da aba ou anotação solta ao lado.
+  const realBlocks = blocks.filter((block) => block.values.length > 0 || TITLE_AMOUNTS_RE.test(block.title));
+
+  if (realBlocks.length === 0) {
     warnings.push(`Não encontrei nenhum bloco de objetivo reconhecível na aba "${sheet.name}".`);
     return [];
   }
@@ -340,7 +430,8 @@ function parseGoalsSheet(sheet, expenseItems, warnings) {
     })
     .filter(Boolean);
 
-  return blocks.map((block) => {
+  return realBlocks.map((block) => {
+    const origin = { startRow: block.startRow, endRow: block.endRow };
     const notes = findBlockNotes(sheet, mergeIndex, block);
     const titleMatch = TITLE_AMOUNTS_RE.exec(block.title);
     const name = (titleMatch ? titleMatch[1] : block.title).trim();
@@ -365,6 +456,7 @@ function parseGoalsSheet(sheet, expenseItems, warnings) {
           installmentAmount: earliest.amount,
           paidInstallments: Math.max(earliest.current - 1, 0),
           notes,
+          origin,
           confidence: 'high',
         };
       }
@@ -378,6 +470,7 @@ function parseGoalsSheet(sheet, expenseItems, warnings) {
         installmentAmount: null,
         paidInstallments: 0,
         notes,
+        origin,
         confidence: 'estimated',
         warning: `Não consegui confirmar o valor da parcela de "${name}" — preencha manualmente.`,
       };
@@ -396,6 +489,7 @@ function parseGoalsSheet(sheet, expenseItems, warnings) {
       installmentAmount: null,
       paidInstallments: 0,
       notes,
+      origin,
       confidence: targetAmount !== null && hasCurrent ? 'high' : 'estimated',
       warning:
         targetAmount === null

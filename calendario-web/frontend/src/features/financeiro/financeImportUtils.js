@@ -88,6 +88,77 @@ export function moveRowToSection(row, sectionKey) {
   };
 }
 
+/**
+ * Cruza o que o leitor extraiu com as células de origem, pra pintar na grade
+ * da planilha o que entrou, o que ficou de fora e onde estão os objetivos.
+ */
+export function buildSheetHighlights(preview) {
+  const map = new Map();
+
+  function forSheet(name) {
+    if (!map.has(name)) {
+      map.set(name, { imported: new Set(), skipped: new Set(), goalRows: new Set() });
+    }
+    return map.get(name);
+  }
+
+  const imported = IMPORT_SECTIONS.flatMap((section) => preview[section.key] || []);
+  for (const item of imported) {
+    if (!item.origin?.sheet) continue;
+    const entry = forSheet(item.origin.sheet);
+    entry.imported.add(`${item.origin.row}:${item.origin.itemCol}`);
+    entry.imported.add(`${item.origin.row}:${item.origin.valorCol}`);
+  }
+
+  for (const item of preview.skipped || []) {
+    if (!item.origin?.sheet) continue;
+    const entry = forSheet(item.origin.sheet);
+    entry.skipped.add(`${item.origin.row}:${item.origin.itemCol}`);
+  }
+
+  for (const goal of preview.goals || []) {
+    if (!goal.origin?.sheet) continue;
+    const entry = forSheet(goal.origin.sheet);
+    for (let row = goal.origin.startRow; row <= goal.origin.endRow; row++) {
+      entry.goalRows.add(row);
+    }
+  }
+
+  return map;
+}
+
+export function colLabel(n) {
+  let label = '';
+  let value = n;
+  while (value > 0) {
+    const rest = (value - 1) % 26;
+    label = String.fromCharCode(65 + rest) + label;
+    value = Math.floor((value - 1) / 26);
+  }
+  return label;
+}
+
+// Uma célula mesclada é desenhada só na âncora (com colSpan/rowSpan); as demais
+// que ela cobre não viram <td>, senão a tabela sai torta.
+export function buildMergeMaps(merges = []) {
+  const anchors = new Map();
+  const covered = new Set();
+
+  for (const merge of merges) {
+    anchors.set(`${merge.r1}:${merge.c1}`, {
+      rowSpan: merge.r2 - merge.r1 + 1,
+      colSpan: merge.c2 - merge.c1 + 1,
+    });
+    for (let r = merge.r1; r <= merge.r2; r++) {
+      for (let c = merge.c1; c <= merge.c2; c++) {
+        if (r !== merge.r1 || c !== merge.c1) covered.add(`${r}:${c}`);
+      }
+    }
+  }
+
+  return { anchors, covered };
+}
+
 export function findInvalidRow(rows) {
   return rows.find(
     (row) => !row.description.trim() || row.amount === '' || !Number.isFinite(Number(row.amount))

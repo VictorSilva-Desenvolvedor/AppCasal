@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { buildEntryRows, findInvalidRow, moveRowToSection } from './financeImportUtils.js';
+import {
+  buildEntryRows,
+  buildMergeMaps,
+  buildSheetHighlights,
+  colLabel,
+  findInvalidRow,
+  moveRowToSection,
+} from './financeImportUtils.js';
 
 const preview = {
   income: [{ description: 'Salário', amount: 5000, suggestedCategory: 'cat-salario' }],
@@ -94,5 +101,77 @@ describe('findInvalidRow', () => {
     const rows = buildEntryRows(preview).filter((row) => !row.skippedFrom);
 
     expect(findInvalidRow(rows)).toBeUndefined();
+  });
+});
+
+describe('colLabel', () => {
+  test('converte número de coluna em letra do Excel', () => {
+    expect([1, 2, 11, 26, 27, 30].map(colLabel)).toEqual(['A', 'B', 'K', 'Z', 'AA', 'AD']);
+  });
+});
+
+describe('buildMergeMaps', () => {
+  test('marca a âncora com o span e cobre as demais células', () => {
+    const { anchors, covered } = buildMergeMaps([{ r1: 3, c1: 2, r2: 3, c2: 13 }]);
+
+    expect(anchors.get('3:2')).toEqual({ rowSpan: 1, colSpan: 12 });
+    expect(covered.has('3:3')).toBe(true);
+    expect(covered.has('3:13')).toBe(true);
+    expect(covered.has('3:2')).toBe(false); // a âncora continua sendo desenhada
+  });
+
+  test('suporta merge que ocupa várias linhas', () => {
+    const { anchors, covered } = buildMergeMaps([{ r1: 4, c1: 14, r2: 5, c2: 20 }]);
+
+    expect(anchors.get('4:14')).toEqual({ rowSpan: 2, colSpan: 7 });
+    expect(covered.has('5:14')).toBe(true);
+    expect(covered.has('5:20')).toBe(true);
+  });
+
+  test('sem merges devolve mapas vazios', () => {
+    const { anchors, covered } = buildMergeMaps();
+
+    expect(anchors.size).toBe(0);
+    expect(covered.size).toBe(0);
+  });
+});
+
+describe('buildSheetHighlights', () => {
+  const preview = {
+    expenses: [{ description: 'Internet', amount: 120, origin: { sheet: 'Despesas', row: 5, itemCol: 2, valorCol: 3 } }],
+    income: [{ description: 'Salário', amount: 5000, origin: { sheet: 'Renda', row: 4, itemCol: 2, valorCol: 3 } }],
+    skipped: [{ description: 'Sem valor', origin: { sheet: 'Despesas', row: 14, itemCol: 2, valorCol: 3 } }],
+    goals: [{ name: 'Casinha', origin: { sheet: 'Objetivos', startRow: 3, endRow: 7 } }],
+  };
+
+  test('marca a célula do item e a do valor de cada item importado', () => {
+    const despesas = buildSheetHighlights(preview).get('Despesas');
+
+    expect(despesas.imported.has('5:2')).toBe(true);
+    expect(despesas.imported.has('5:3')).toBe(true);
+  });
+
+  test('separa cada aba', () => {
+    const map = buildSheetHighlights(preview);
+
+    expect(map.get('Renda').imported.has('4:2')).toBe(true);
+    expect(map.get('Renda').imported.has('5:2')).toBe(false);
+  });
+
+  test('marca a célula do item que ficou de fora', () => {
+    const despesas = buildSheetHighlights(preview).get('Despesas');
+
+    expect(despesas.skipped.has('14:2')).toBe(true);
+    expect(despesas.imported.has('14:2')).toBe(false);
+  });
+
+  test('marca todas as linhas do bloco de um objetivo', () => {
+    const objetivos = buildSheetHighlights(preview).get('Objetivos');
+
+    expect([...objetivos.goalRows].sort((a, b) => a - b)).toEqual([3, 4, 5, 6, 7]);
+  });
+
+  test('ignora itens sem origem sem quebrar', () => {
+    expect(buildSheetHighlights({ expenses: [{ description: 'x', amount: 1 }] }).size).toBe(0);
   });
 });
