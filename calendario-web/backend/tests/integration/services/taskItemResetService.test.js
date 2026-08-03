@@ -1,6 +1,6 @@
 const TaskItem = require('../../../src/models/TaskItem');
 const User = require('../../../src/models/User');
-const { resetTaskItems } = require('../../../src/services/taskItemResetService');
+const { resetTaskItems, ensureTaskItemsReset } = require('../../../src/services/taskItemResetService');
 const db = require('../../helpers/db');
 
 beforeAll(async () => {
@@ -94,5 +94,42 @@ describe('resetTaskItems', () => {
 
     const diaria = await TaskItem.findOne({ kind: 'diaria' });
     expect(diaria.completed).toBe(true); // nao foi tocado de novo
+  });
+
+  test('faz catch-up do ciclo perdido: semanal atrasada reseta numa quarta-feira', async () => {
+    mockDate('2026-09-16T12:00:00.000Z'); // quarta-feira
+    await seedItems('2026-09-02'); // duas semanas atras — o cron da segunda nao rodou
+
+    const result = await resetTaskItems();
+    expect(result).toEqual({ diaria: 1, semanal: 1, mensal: 0 });
+
+    const semanal = await TaskItem.findOne({ kind: 'semanal' });
+    expect(semanal.completed).toBe(false);
+    expect(semanal.lastResetKey).toBe('2026-09-16');
+  });
+
+  test('item sem lastResetKey so e carimbado, nunca desmarcado', async () => {
+    mockDate('2026-09-15T12:00:00.000Z');
+    await seedItems(null); // criado e concluido hoje, antes do primeiro reset
+
+    const result = await resetTaskItems();
+    expect(result).toEqual({ diaria: 0, semanal: 0, mensal: 0 });
+
+    const diaria = await TaskItem.findOne({ kind: 'diaria' });
+    expect(diaria.completed).toBe(true); // conclusao legitima preservada
+    expect(diaria.lastResetKey).toBe('2026-09-15'); // baseline pro reset de amanha
+
+    const unica = await TaskItem.findOne({ kind: 'unica' });
+    expect(unica.lastResetKey).toBeNull(); // 'unica' fica de fora ate do carimbo
+  });
+});
+
+describe('ensureTaskItemsReset', () => {
+  test('roda uma vez por dia por processo: a segunda chamada nao toca no banco', async () => {
+    mockDate('2026-07-08T12:00:00.000Z');
+    await seedItems('2026-07-07');
+
+    expect(await ensureTaskItemsReset()).toEqual({ diaria: 1, semanal: 0, mensal: 0 });
+    expect(await ensureTaskItemsReset()).toBeNull();
   });
 });

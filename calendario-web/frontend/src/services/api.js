@@ -515,6 +515,10 @@ function createTaskItem(payload) {
   return request('/task-items', { method: 'POST', body: payload });
 }
 
+function updateTaskItem(id, payload) {
+  return request(`/task-items/${id}`, { method: 'PATCH', body: payload });
+}
+
 function toggleTaskItem(id) {
   return request(`/task-items/${id}/toggle`, { method: 'PATCH' });
 }
@@ -629,6 +633,7 @@ export const api = {
   getCandyRanking,
   getTaskItems,
   createTaskItem,
+  updateTaskItem,
   toggleTaskItem,
   deleteTaskItem,
   getWeeklySummary,
