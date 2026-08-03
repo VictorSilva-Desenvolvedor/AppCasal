@@ -77,6 +77,45 @@ describe('POST /api/task-items', () => {
     expect(semanal.body.period).toBe('dia-todo');
   });
 
+  test('novo item entra no fim da secao a que pertence', async () => {
+    await TaskItem.create({
+      title: 'Ja existia',
+      kind: 'diaria',
+      period: 'manha',
+      belongsTo: me._id,
+      createdBy: me._id,
+      order: 4,
+      team: 'principal',
+    });
+
+    const res = await request(app)
+      .post('/api/task-items')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({ title: 'Nova', kind: 'diaria', period: 'manha', belongsTo: me._id.toString() });
+
+    expect(res.status).toBe(201);
+    expect(res.body.order).toBe(5);
+  });
+
+  test('secoes diferentes numeram a ordem de forma independente', async () => {
+    await TaskItem.create({
+      title: 'Da manha',
+      kind: 'diaria',
+      period: 'manha',
+      belongsTo: me._id,
+      createdBy: me._id,
+      order: 9,
+      team: 'principal',
+    });
+
+    const res = await request(app)
+      .post('/api/task-items')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({ title: 'Da noite', kind: 'diaria', period: 'noite', belongsTo: me._id.toString() });
+
+    expect(res.body.order).toBe(0);
+  });
+
   test('retorna 400 quando o titulo nao e informado', async () => {
     const res = await request(app)
       .post('/api/task-items')
@@ -123,6 +162,103 @@ describe('GET /api/task-items', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(1);
     expect(res.body[0].title).toBe('Minha tarefa');
+  });
+});
+
+describe('PUT /api/task-items/reorder', () => {
+  async function seedDiarias(titles, period = 'manha') {
+    const created = [];
+    for (const title of titles) {
+      created.push(
+        await TaskItem.create({
+          title,
+          kind: 'diaria',
+          period,
+          belongsTo: me._id,
+          createdBy: me._id,
+          order: created.length,
+          team: 'principal',
+        })
+      );
+    }
+    return created;
+  }
+
+  test('grava a nova ordem e o GET seguinte respeita ela', async () => {
+    const [a, b, c] = await seedDiarias(['A', 'B', 'C']);
+
+    const res = await request(app)
+      .put('/api/task-items/reorder')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({
+        belongsTo: me._id.toString(),
+        kind: 'diaria',
+        period: 'manha',
+        ids: [c._id.toString(), a._id.toString(), b._id.toString()],
+      });
+
+    expect(res.status).toBe(200);
+
+    const lista = await request(app).get('/api/task-items').set('Authorization', `Bearer ${meToken}`);
+    expect(lista.body.map((item) => item.title)).toEqual(['C', 'A', 'B']);
+  });
+
+  test('reordenar movendo de periodo troca o period sem mexer no kind', async () => {
+    const [a] = await seedDiarias(['A', 'B']);
+
+    const res = await request(app)
+      .put('/api/task-items/reorder')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({
+        belongsTo: me._id.toString(),
+        kind: 'diaria',
+        period: 'tarde',
+        ids: [a._id.toString()],
+      });
+
+    expect(res.status).toBe(200);
+    const movida = await TaskItem.findById(a._id);
+    expect(movida.period).toBe('tarde');
+    expect(movida.kind).toBe('diaria');
+  });
+
+  test('id de fora da equipe invalida o request inteiro, sem gravar nada', async () => {
+    const [a, b] = await seedDiarias(['A', 'B']);
+    const deOutraEquipe = await TaskItem.create({
+      title: 'Intrusa',
+      kind: 'diaria',
+      belongsTo: partner._id,
+      createdBy: partner._id,
+      team: 'outra',
+    });
+
+    const res = await request(app)
+      .put('/api/task-items/reorder')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({
+        belongsTo: me._id.toString(),
+        kind: 'diaria',
+        period: 'manha',
+        ids: [b._id.toString(), deOutraEquipe._id.toString(), a._id.toString()],
+      });
+
+    expect(res.status).toBe(400);
+    expect((await TaskItem.findById(a._id)).order).toBe(0); // ordem original intacta
+    expect((await TaskItem.findById(b._id)).order).toBe(1);
+  });
+
+  test('retorna 400 com lista vazia', async () => {
+    const res = await request(app)
+      .put('/api/task-items/reorder')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({ belongsTo: me._id.toString(), kind: 'diaria', period: 'manha', ids: [] });
+
+    expect(res.status).toBe(400);
+  });
+
+  test('retorna 401 sem token', async () => {
+    const res = await request(app).put('/api/task-items/reorder').send({ ids: ['x'] });
+    expect(res.status).toBe(401);
   });
 });
 

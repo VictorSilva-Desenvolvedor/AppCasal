@@ -1,5 +1,13 @@
 import { describe, test, expect } from 'vitest';
-import { groupByKind, groupByPeriod, countCompleted, ringGeometry, canManageItem } from './tarefasUtils.js';
+import {
+  groupByKind,
+  groupByPeriod,
+  countCompleted,
+  ringGeometry,
+  canManageItem,
+  moveTaskItem,
+  sectionIdsInDisplayOrder,
+} from './tarefasUtils.js';
 
 describe('groupByKind', () => {
   test('agrupa itens pelo campo kind', () => {
@@ -72,6 +80,117 @@ describe('groupByPeriod', () => {
       { kind: 'diaria', period: 'manha', title: 'pendente', completed: false },
     ]).diaria;
     expect(groupByPeriod(diarias).manha.map((i) => i.title)).toEqual(['pendente', 'feita']);
+  });
+});
+
+describe('moveTaskItem', () => {
+  const dono = 'user-1';
+
+  // Ajuda a montar uma lista de diárias com period/order explícitos.
+  function diarias(specs) {
+    return specs.map(({ id, period, order, completed = false }) => ({
+      _id: id,
+      title: id,
+      kind: 'diaria',
+      period,
+      order,
+      completed,
+      belongsTo: { _id: dono },
+      createdBy: { _id: dono },
+    }));
+  }
+
+  const secao = (items, period) => sectionIdsInDisplayOrder(items, { belongsTo: dono, kind: 'diaria', period });
+
+  test('reordena dentro do mesmo periodo', () => {
+    const items = diarias([
+      { id: 'a', period: 'manha', order: 0 },
+      { id: 'b', period: 'manha', order: 1 },
+      { id: 'c', period: 'manha', order: 2 },
+    ]);
+
+    const next = moveTaskItem(items, { itemId: 'c', toPeriod: 'manha', toIndex: 0 });
+    expect(secao(next, 'manha')).toEqual(['c', 'a', 'b']);
+  });
+
+  test('move de manha para tarde na posicao pedida', () => {
+    const items = diarias([
+      { id: 'a', period: 'manha', order: 0 },
+      { id: 'x', period: 'tarde', order: 0 },
+      { id: 'y', period: 'tarde', order: 1 },
+    ]);
+
+    const next = moveTaskItem(items, { itemId: 'a', toPeriod: 'tarde', toIndex: 1 });
+    expect(secao(next, 'tarde')).toEqual(['x', 'a', 'y']);
+    expect(secao(next, 'manha')).toEqual([]);
+    expect(next.find((i) => i._id === 'a').period).toBe('tarde');
+  });
+
+  test('move para um periodo vazio', () => {
+    const items = diarias([{ id: 'a', period: 'manha', order: 0 }]);
+    const next = moveTaskItem(items, { itemId: 'a', toPeriod: 'noite', toIndex: 0 });
+    expect(secao(next, 'noite')).toEqual(['a']);
+    expect(next.find((i) => i._id === 'a').order).toBe(0);
+  });
+
+  test('indice fora do intervalo e limitado em vez de furar a lista', () => {
+    const items = diarias([
+      { id: 'a', period: 'manha', order: 0 },
+      { id: 'b', period: 'manha', order: 1 },
+    ]);
+
+    expect(secao(moveTaskItem(items, { itemId: 'a', toPeriod: 'manha', toIndex: 99 }), 'manha')).toEqual(['b', 'a']);
+    expect(secao(moveTaskItem(items, { itemId: 'b', toPeriod: 'manha', toIndex: -5 }), 'manha')).toEqual(['b', 'a']);
+  });
+
+  test('concluida continua no fim mesmo solta no meio das pendentes', () => {
+    const items = diarias([
+      { id: 'a', period: 'manha', order: 0 },
+      { id: 'b', period: 'manha', order: 1 },
+      { id: 'feita', period: 'manha', order: 2, completed: true },
+    ]);
+
+    const next = moveTaskItem(items, { itemId: 'feita', toPeriod: 'manha', toIndex: 0 });
+    expect(secao(next, 'manha')).toEqual(['a', 'b', 'feita']);
+  });
+
+  test('item inexistente devolve a lista intacta', () => {
+    const items = diarias([{ id: 'a', period: 'manha', order: 0 }]);
+    expect(moveTaskItem(items, { itemId: 'zzz', toPeriod: 'tarde', toIndex: 0 })).toBe(items);
+  });
+
+  test('a ordem gravada e a mesma que a tela mostra', () => {
+    const items = diarias([
+      { id: 'a', period: 'manha', order: 0 },
+      { id: 'b', period: 'manha', order: 1 },
+      { id: 'c', period: 'manha', order: 2 },
+    ]);
+
+    const next = moveTaskItem(items, { itemId: 'a', toPeriod: 'manha', toIndex: 2 });
+    const ids = secao(next, 'manha');
+    const orders = ids.map((id) => next.find((i) => i._id === id).order);
+    expect(ids).toEqual(['b', 'c', 'a']);
+    expect(orders).toEqual([0, 1, 2]);
+  });
+
+  test('nao mistura a lista do parceiro na mesma secao', () => {
+    const items = [
+      ...diarias([{ id: 'meu', period: 'manha', order: 0 }]),
+      {
+        _id: 'dele',
+        title: 'dele',
+        kind: 'diaria',
+        period: 'manha',
+        order: 0,
+        completed: false,
+        belongsTo: { _id: 'user-2' },
+        createdBy: { _id: 'user-2' },
+      },
+    ];
+
+    expect(secao(items, 'manha')).toEqual(['meu']);
+    const next = moveTaskItem(items, { itemId: 'meu', toPeriod: 'tarde', toIndex: 0 });
+    expect(next.find((i) => i._id === 'dele').period).toBe('manha');
   });
 });
 

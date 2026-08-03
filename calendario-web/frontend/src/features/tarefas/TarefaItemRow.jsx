@@ -2,7 +2,18 @@ import { useRef, useState } from 'react';
 import { IconButton, Icon, Spinner } from '../../components/ui/index.js';
 import { PERIOD_LABELS, PERIOD_ORDER, DEFAULT_PERIOD } from './tarefasUtils.js';
 
-export function TarefaItemRow({ item, canManage, pending, onToggle, onDelete, onEdit }) {
+export function TarefaItemRow({
+  item,
+  canManage,
+  pending,
+  onToggle,
+  onDelete,
+  onEdit,
+  dragHandleProps,
+  dragging = false,
+  dragOffset,
+  onKeyboardMove,
+}) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(item.title);
   const [draftPeriod, setDraftPeriod] = useState(item.period ?? DEFAULT_PERIOD);
@@ -50,7 +61,31 @@ export function TarefaItemRow({ item, canManage, pending, onToggle, onDelete, on
   }
 
   return (
-    <div className={`tarefa-item${item.completed ? ' is-completed' : ''}`}>
+    <div
+      className={`tarefa-item${item.completed ? ' is-completed' : ''}${dragging ? ' is-dragging' : ''}`}
+      data-sortable-id={item._id}
+      style={dragging ? { transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)` } : undefined}
+    >
+      {dragHandleProps && !editing && (
+        // Botão de verdade, não um span decorativo: com o foco nele as setas
+        // movem o item uma posição por vez, e nas pontas saltam para o período
+        // vizinho. É o mesmo caminho do arraste, só que acionável por teclado.
+        <button
+          type="button"
+          className="tarefa-grip"
+          aria-label={`Mover ${item.title}. Use as setas para cima e para baixo.`}
+          title="Arraste ou use as setas para mover"
+          onKeyDown={(e) => {
+            if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+            e.preventDefault();
+            onKeyboardMove?.(e.key === 'ArrowUp' ? -1 : 1);
+          }}
+          {...dragHandleProps}
+        >
+          <Icon name="grip" />
+        </button>
+      )}
+
       <div
         role="checkbox"
         aria-checked={item.completed}

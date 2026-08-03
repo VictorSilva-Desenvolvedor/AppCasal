@@ -25,6 +25,11 @@ const taskItemSchema = new mongoose.Schema(
     belongsTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
+    // Posição manual dentro da seção (mesmo belongsTo + kind + period), definida
+    // pelo arraste. Itens anteriores a este campo ficam todos em 0, e o
+    // desempate por createdAt no list() preserva a ordem em que já apareciam.
+    order: { type: Number, default: 0 },
+
     completed: { type: Boolean, default: false },
     completedAt: { type: Date, default: null },
 
@@ -39,6 +44,7 @@ const taskItemSchema = new mongoose.Schema(
 );
 
 taskItemSchema.index({ team: 1, belongsTo: 1 });
+taskItemSchema.index({ team: 1, belongsTo: 1, kind: 1, period: 1, order: 1 });
 taskItemSchema.index({ kind: 1, lastResetKey: 1 });
 
 module.exports = mongoose.model('TaskItem', taskItemSchema);
