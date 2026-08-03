@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Icon } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
@@ -7,12 +8,14 @@ import { EMOTIONS } from '../../constants/emotions.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
 import { EmotionIntensityBar } from './EmotionIntensityBar.jsx';
 import { EmotionChatBubble } from './EmotionChatBubble.jsx';
+import { EmotionReasonTags } from './EmotionReasonTags.jsx';
 import { PERIOD_LABELS, formatDayLabel, formatEntryTime, toDayKey } from './emocoesUtils.js';
 
 export function EmotionDetailCard({ entry, onEntryUpdated }) {
   const { user } = useAuth();
   const { users } = useCalendarData();
   const { showToast } = useToast();
+  const [savingIntensity, setSavingIntensity] = useState(false);
 
   const meta = EMOTIONS[entry.emotion];
   const isOwner = entry.user?._id === user?._id;
@@ -28,6 +31,20 @@ export function EmotionDetailCard({ entry, onEntryUpdated }) {
     } catch (err) {
       showToast(err.message, 'error');
       throw err;
+    }
+  }
+
+  // Só o dono pode corrigir a intensidade — o backend já recusa (403), mas
+  // deixar o controle inerte pro parceiro evita um erro previsível.
+  async function handleChangeIntensity(value) {
+    if (value === entry.intensity) return;
+    setSavingIntensity(true);
+    try {
+      onEntryUpdated(await api.updateEmotionEntry(entry._id, { intensity: value }));
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setSavingIntensity(false);
     }
   }
 
@@ -55,7 +72,14 @@ export function EmotionDetailCard({ entry, onEntryUpdated }) {
         </div>
       </div>
 
-      <EmotionIntensityBar intensity={entry.intensity} color={meta?.color} />
+      <EmotionIntensityBar
+        intensity={entry.intensity}
+        color={meta?.color}
+        onChange={isOwner ? handleChangeIntensity : undefined}
+        disabled={savingIntensity}
+      />
+
+      <EmotionReasonTags entry={entry} className="emotion-detail-reasons" />
 
       <div className="emotion-detail-section">
         <p className="emotion-detail-section-label">
