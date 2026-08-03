@@ -37,6 +37,40 @@
   color: var(--emo-brand);
 }
 
+/* A jarra é a parte mais animada do app. Quem liga "reduzir movimento" costuma
+   fazer isso por enjoo/vertigem, então aqui some tanto a simulação em tempo
+   real (ver usePrefersReducedMotion em EmotionJar) quanto o deslize dos
+   painéis e a entrada dos overlays — o conteúdo continua o mesmo. */
+@media (prefers-reduced-motion: reduce) {
+  .emotion-page *,
+  .emotion-sheet-overlay *,
+  .emotion-confirm-overlay * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .emotion-jar.is-static {
+    cursor: default;
+    touch-action: auto;
+  }
+}
+
+/* ---------- Erro de carregamento ---------- */
+
+.emotion-load-error {
+  @apply flex flex-col items-center text-center gap-2 my-6 p-5 mx-auto max-w-[420px];
+  background: var(--emo-glass);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(6px);
+}
+
+.emotion-load-error-detail {
+  font-size: 13px;
+  color: var(--emo-text-muted);
+  margin: 0;
+}
+
 /* ---------- Cabeçalho ---------- */
 
 .emotion-page-header {
@@ -552,6 +586,12 @@
   color: var(--emo-text-muted);
 }
 
+/* Mesma faixa de largura do rodapé do painel de motivo, pra os dois passos do
+   wizard terminarem com o botão no mesmo lugar. */
+.emotion-intensity-actions {
+  @apply flex w-full mt-1;
+}
+
 /* ---------- Painel de motivo (chips) ---------- */
 
 .emotion-reason-panel {
@@ -739,6 +779,34 @@
   height: 4px;
   border-radius: 999px;
   background: color-mix(in oklch, var(--emo-text-muted) 25%, transparent);
+  border: none;
+  padding: 0;
+}
+
+/* Versão interativa (card de detalhe): alvo de toque maior que o traço de 4px,
+   via padding vertical transparente, sem mudar o desenho da barra. */
+.emotion-intensity-bar.is-editable {
+  @apply gap-1.5;
+}
+
+.emotion-intensity-bar.is-editable .emotion-intensity-bar-segment {
+  width: 22px;
+  height: 6px;
+  cursor: pointer;
+  background-clip: content-box;
+  border-block: 9px solid transparent;
+  box-sizing: content-box;
+  transition: transform 0.15s var(--ease);
+}
+
+.emotion-intensity-bar.is-editable .emotion-intensity-bar-segment:hover:not(:disabled) {
+  transform: scaleY(1.6);
+}
+
+/* No card de detalhe os chips ficam soltos (não dentro da linha do resumo),
+   então precisam do próprio respiro. */
+.emotion-detail-reasons {
+  @apply justify-center;
 }
 
 .emotion-summary-highlights {

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const EMOTIONS = [
-  'feliz', 'animado', 'alegre', 'grato', 'motivado', 'calmo', 'confiante', 'esperancoso', 'amado', 'orgulhoso',
-  'pensativo', 'cansado', 'confuso', 'indiferente', 'surpreso', 'curioso', 'nostalgico',
+  'feliz', 'animado', 'alegre', 'grato', 'motivado', 'calmo', 'confiante', 'esperancoso', 'amado', 'eros', 'orgulhoso',
+  'pensativo', 'cansado', 'confuso', 'indiferente', 'surpreso', 'curioso', 'nostalgico', 'saudade',
   'triste', 'ansioso', 'estressado', 'irritado', 'frustrado', 'solitario', 'preocupado', 'desanimado', 'sobrecarregado',
 ];
 

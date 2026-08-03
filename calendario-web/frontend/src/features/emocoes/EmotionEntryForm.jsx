@@ -56,11 +56,14 @@ export function EmotionEntryForm({ day, period, onSaved }) {
 
   return (
     <div className="emotion-entry-form">
+      {/* Os 3 painéis ficam montados o tempo todo (o track só desliza por
+          transform), então sem `inert` o Tab entrava nos botões invisíveis dos
+          painéis vizinhos. */}
       <div className={`emotion-slide-track emotion-slide-track--${panel}`}>
-        <div className="emotion-slide-panel">
+        <div className="emotion-slide-panel" inert={panel !== 'categoria'}>
           <EmotionCategoryPicker selectedEmotion={emotion} onSelect={handleSelectEmotion} />
         </div>
-        <div className="emotion-slide-panel">
+        <div className="emotion-slide-panel" inert={panel !== 'intensidade'}>
           <EmotionIntensitySlider
             emotion={emotion}
             note={note}
@@ -71,7 +74,7 @@ export function EmotionEntryForm({ day, period, onSaved }) {
             error={error}
           />
         </div>
-        <div className="emotion-slide-panel">
+        <div className="emotion-slide-panel" inert={panel !== 'motivo'}>
           <EmotionReasonPicker
             selectedReasons={reasons}
             otherText={reasonOther}

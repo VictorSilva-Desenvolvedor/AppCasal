@@ -8,6 +8,7 @@ export const EMOTIONS = {
   confiante: { label: 'Confiante', emoji: '😎', color: '#4A90D9', category: 'positiva' },
   esperancoso: { label: 'Esperançoso', emoji: '🌱', color: '#8FD9C4', category: 'positiva' },
   amado: { label: 'Amado', emoji: '🥰', color: '#F576A8', category: 'positiva' },
+  eros: { label: 'Eros', emoji: '🔥', color: '#E0457B', category: 'positiva' },
   orgulhoso: { label: 'Orgulhoso', emoji: '🦁', color: '#C79BF2', category: 'positiva' },
 
   pensativo: { label: 'Pensativo', emoji: '🤔', color: '#9C9DB8', category: 'neutra' },
@@ -17,6 +18,7 @@ export const EMOTIONS = {
   surpreso: { label: 'Surpreso', emoji: '😲', color: '#F2C744', category: 'neutra' },
   curioso: { label: 'Curioso', emoji: '🧐', color: '#7FB8D9', category: 'neutra' },
   nostalgico: { label: 'Nostálgico', emoji: '🌇', color: '#C9A98F', category: 'neutra' },
+  saudade: { label: 'Saudade', emoji: '🫂', color: '#A48CB4', category: 'neutra' },
 
   triste: { label: 'Triste', emoji: '😢', color: '#3B6FA0', category: 'dificil' },
   ansioso: { label: 'Ansioso', emoji: '😰', color: '#8E5CC7', category: 'dificil' },

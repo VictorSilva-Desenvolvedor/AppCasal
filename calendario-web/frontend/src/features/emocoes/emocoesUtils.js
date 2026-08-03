@@ -1,3 +1,5 @@
+import { EMOTIONS } from '../../constants/emotions.js';
+
 export const PERIODS = ['manha', 'tarde', 'noite'];
 export const PERIOD_LABELS = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
 export const PERIOD_ICONS = { manha: 'sunrise', tarde: 'sun', noite: 'moon' };
@@ -39,11 +41,40 @@ export function groupEntriesByDay(entries) {
     .sort((a, b) => (a.day < b.day ? 1 : -1));
 }
 
+// Desempate explícito: contagem, depois soma de intensidade, depois ordem
+// alfabética. Antes o empate era resolvido pela ordem de inserção do Map, então
+// o mesmo dia podia mostrar "emoção predominante" diferente dependendo da ordem
+// em que os registros voltavam da API.
 export function predominantEmotion(entries) {
   if (!entries.length) return null;
+
+  const stats = new Map();
+  entries.forEach((entry) => {
+    const current = stats.get(entry.emotion) || { count: 0, intensity: 0 };
+    stats.set(entry.emotion, { count: current.count + 1, intensity: current.intensity + entry.intensity });
+  });
+
+  return [...stats.entries()].sort(
+    ([keyA, a], [keyB, b]) => b.count - a.count || b.intensity - a.intensity || keyA.localeCompare(keyB)
+  )[0][0];
+}
+
+// Alternativa textual da jarra: as bolhas são só <span> coloridos, então sem
+// isto um leitor de tela não tem nada pra anunciar no elemento mais importante
+// da tela. Ordena por contagem e depois por rótulo, pra leitura ser estável.
+export function describeJar(entries) {
+  if (!entries.length) return 'Jarra vazia, nenhum registro hoje';
+
   const counts = new Map();
   entries.forEach((entry) => counts.set(entry.emotion, (counts.get(entry.emotion) || 0) + 1));
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+
+  const parts = [...counts.entries()]
+    .map(([key, count]) => ({ count, label: EMOTIONS[key]?.label || key }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .map(({ count, label }) => `${count} de ${label}`);
+
+  const total = `${entries.length} ${entries.length === 1 ? 'registro' : 'registros'} de hoje`;
+  return `Jarra com ${total}: ${parts.join(', ')}`;
 }
 
 export function mostIntenseEntry(entries) {
