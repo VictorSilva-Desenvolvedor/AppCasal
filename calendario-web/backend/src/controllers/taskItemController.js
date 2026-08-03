@@ -49,7 +49,9 @@ async function list(req, res) {
   if (belongsTo) filter.belongsTo = belongsTo;
   if (kind) filter.kind = kind;
 
-  const items = await TaskItem.find(filter).populate(POPULATE).sort({ createdAt: 1 });
+  // createdAt desempata os itens que nunca foram arrastados (order 0), mantendo
+  // a ordem em que sempre apareceram.
+  const items = await TaskItem.find(filter).populate(POPULATE).sort({ order: 1, createdAt: 1 });
   res.json(items);
 }
 
@@ -71,10 +73,17 @@ async function create(req, res) {
     return res.status(400).json({ message: 'Usuário inválido para essa equipe' });
   }
 
+  // Entra no fim da seção a que pertence, não no topo.
+  const itemPeriod = normalizePeriod(period, kind);
+  const last = await TaskItem.findOne({ team: req.userTeam, belongsTo, kind, period: itemPeriod })
+    .sort({ order: -1 })
+    .select('order');
+
   const item = await TaskItem.create({
     title: title.trim(),
     kind,
-    period: normalizePeriod(period, kind),
+    period: itemPeriod,
+    order: (last?.order ?? -1) + 1,
     belongsTo,
     createdBy: req.userId,
     team: req.userTeam,
@@ -144,6 +153,62 @@ async function update(req, res) {
   });
 
   res.json(item);
+}
+
+// Recebe a composição inteira de uma seção (mesmo belongsTo + kind + period) na
+// ordem em que ela aparece na tela, e grava isso em `order`. Mover entre
+// períodos é o mesmo request: o item chega na lista de ids do período destino.
+// `kind` nunca muda aqui — trocar de tipo continua sendo pela edição.
+async function reorder(req, res) {
+  const { belongsTo, kind, period, ids } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ message: 'Nenhuma tarefa para reordenar' });
+  }
+  if (!KINDS.includes(kind)) {
+    return res.status(400).json({ message: 'Tipo de tarefa inválido' });
+  }
+  if (!belongsTo) {
+    return res.status(400).json({ message: 'Selecione de quem é a lista' });
+  }
+
+  const owner = await User.findById(belongsTo);
+  if (!owner || String(owner.team) !== req.userTeam) {
+    return res.status(400).json({ message: 'Usuário inválido para essa equipe' });
+  }
+
+  // Carrega antes de escrever: um id de outro time (ou inexistente) invalida o
+  // request inteiro, em vez de gravar metade da nova ordem.
+  const items = await TaskItem.find({ _id: { $in: ids }, team: req.userTeam });
+  if (items.length !== ids.length) {
+    return res.status(400).json({ message: 'Tarefa inválida para essa equipe' });
+  }
+
+  const nextPeriod = normalizePeriod(period, kind);
+  await TaskItem.bulkWrite(
+    ids.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id, team: req.userTeam },
+        update: { $set: { order: index, period: nextPeriod } },
+      },
+    }))
+  );
+
+  // Uma entrada por reordenação, não uma por item.
+  await logActivity({
+    actor: req.userId,
+    action: 'updated',
+    module: 'tarefa',
+    itemTitle: `${ids.length} tarefa(s)`,
+    details: 'Tarefas reordenadas',
+    team: req.userTeam,
+  });
+
+  const updated = await TaskItem.find({ _id: { $in: ids } })
+    .populate(POPULATE)
+    .sort({ order: 1, createdAt: 1 });
+
+  res.json(updated);
 }
 
 // Avisa uma única vez por dia que a pessoa fechou 100% das próprias diárias.
@@ -256,4 +321,4 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { list, create, update, toggle, remove };
+module.exports = { list, create, update, reorder, toggle, remove };

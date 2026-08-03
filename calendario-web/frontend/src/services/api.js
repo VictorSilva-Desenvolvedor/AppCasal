@@ -515,6 +515,10 @@ function createTaskItem(payload) {
   return request('/task-items', { method: 'POST', body: payload });
 }
 
+function reorderTaskItems(payload) {
+  return request('/task-items/reorder', { method: 'PUT', body: payload });
+}
+
 function updateTaskItem(id, payload) {
   return request(`/task-items/${id}`, { method: 'PATCH', body: payload });
 }
@@ -634,6 +638,7 @@ export const api = {
   getTaskItems,
   createTaskItem,
   updateTaskItem,
+  reorderTaskItems,
   toggleTaskItem,
   deleteTaskItem,
   getWeeklySummary,

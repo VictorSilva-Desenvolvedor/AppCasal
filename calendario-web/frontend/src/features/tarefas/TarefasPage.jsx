@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../../services/api.js';
-import { HeartLoader, Button, ConfirmDialog } from '../../components/ui/index.js';
+import { HeartLoader, Button, ConfirmDialog, Modal, Icon } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
-import { TarefaAddForm } from './TarefaAddForm.jsx';
+import { useSortableDrag } from '../../hooks/useSortableDrag.js';
+import { TarefaFormModal } from './TarefaFormModal.jsx';
 import { TarefaItemRow } from './TarefaItemRow.jsx';
 import { TarefaProgressRing } from './TarefaProgressRing.jsx';
 import {
@@ -13,11 +14,22 @@ import {
   KIND_ORDER,
   PERIOD_LABELS,
   PERIOD_ORDER,
+  DEFAULT_PERIOD,
   groupByKind,
   groupByPeriod,
   countCompleted,
   canManageItem,
+  moveTaskItem,
+  sectionIdsInDisplayOrder,
 } from './tarefasUtils.js';
+
+// A zona de soltura é identificada por "tipo:período" — chave composta no mesmo
+// espírito do "tipo:valor" que o arraste do financeiro usa.
+const sectionId = (kind, period) => `${kind}:${period}`;
+const parseSection = (id) => {
+  const [kind, period] = id.split(':');
+  return { kind, period };
+};
 
 export function TarefasPage() {
   const { user: me } = useAuth();
@@ -31,6 +43,13 @@ export function TarefasPage() {
   const [loadError, setLoadError] = useState(null);
   const [activeTab, setActiveTab] = useState('me');
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [formState, setFormState] = useState(null);
+  const [moveAnnouncement, setMoveAnnouncement] = useState('');
+
+  // O handler de arraste é recriado a cada render (fecha sobre `items`), mas o
+  // hook registra os listeners uma vez — este ref mantém a referência fresca.
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
 
   const reload = useCallback(async () => {
     try {
@@ -44,6 +63,60 @@ export function TarefasPage() {
   useEffect(() => {
     reload().finally(() => setLoading(false));
   }, [reload]);
+
+  const applyMove = useCallback(
+    async ({ itemId, toKind, toPeriod, toIndex }) => {
+      const current = itemsRef.current;
+      const item = current.find((i) => i._id === itemId);
+      if (!item) return;
+
+      const next = moveTaskItem(current, { itemId, toKind, toPeriod, toIndex });
+      if (next === current) return;
+
+      const belongsTo = item.belongsTo?._id ?? item.belongsTo;
+      const kind = toKind ?? item.kind;
+      const period = kind === 'diaria' ? (toPeriod ?? DEFAULT_PERIOD) : DEFAULT_PERIOD;
+      const section = { belongsTo, kind, period };
+      const ids = sectionIdsInDisplayOrder(next, section);
+
+      // Soltar no mesmo lugar de onde saiu não é um movimento — sem esta saída
+      // cada arraste abortado viraria um PUT.
+      const before = sectionIdsInDisplayOrder(current, section);
+      if (before.length === ids.length && before.every((id, i) => id === ids[i])) return;
+
+      // Otimista: a lista já se reorganiza no gesto. Um round-trip antes de
+      // mover deixaria cada micro-ajuste com cara de travado.
+      setItems(next);
+      const position = ids.indexOf(itemId) + 1;
+      setMoveAnnouncement(
+        kind === 'diaria'
+          ? `${item.title} movida para ${PERIOD_LABELS[period]}, posição ${position}`
+          : `${item.title} movida para a posição ${position}`
+      );
+
+      try {
+        await api.reorderTaskItems({ belongsTo, kind, period, ids });
+      } catch (err) {
+        showToast(err.message, 'error');
+        reload();
+      }
+    },
+    [reload, showToast]
+  );
+
+  const handleDragMove = useCallback(
+    ({ itemId, sectionId: targetSection, index }) => {
+      const { kind, period } = parseSection(targetSection);
+      const item = itemsRef.current.find((i) => i._id === itemId);
+      // Arrastar entre TIPOS está fora de escopo: só reordena dentro do grupo
+      // ou muda de período dentro das diárias.
+      if (!item || item.kind !== kind) return;
+      applyMove({ itemId, toKind: kind, toPeriod: period, toIndex: index });
+    },
+    [applyMove]
+  );
+
+  const drag = useSortableDrag({ onMove: handleDragMove });
 
   if (loading) {
     return (
@@ -67,13 +140,13 @@ export function TarefasPage() {
     month: 'long',
   });
 
-  async function handleAdd(title, kind, period) {
+  async function handleAdd({ title, kind, period, belongsTo }) {
     try {
-      const created = await api.createTaskItem({ title, kind, period, belongsTo: activeUserId });
+      const created = await api.createTaskItem({ title, kind, period, belongsTo });
       setItems((prev) => [...prev, created]);
     } catch (err) {
       showToast(err.message, 'error');
-      // Relança pro formulário saber que falhou e preservar o texto digitado.
+      // Relança pro modal continuar aberto com o texto digitado.
       throw err;
     }
   }
@@ -109,6 +182,29 @@ export function TarefasPage() {
     }
   }
 
+  // Setas no punho: uma posição por vez, saltando para o período vizinho
+  // quando o item já está na ponta do período atual.
+  function handleKeyboardMove(item, direction) {
+    const belongsTo = item.belongsTo._id;
+    const period = item.kind === 'diaria' ? (item.period ?? DEFAULT_PERIOD) : DEFAULT_PERIOD;
+    const ids = sectionIdsInDisplayOrder(items, { belongsTo, kind: item.kind, period });
+    const index = ids.indexOf(item._id);
+    const next = index + direction;
+
+    if (next >= 0 && next < ids.length) {
+      applyMove({ itemId: item._id, toPeriod: period, toIndex: next });
+      return;
+    }
+    if (item.kind !== 'diaria') return;
+
+    const periodIndex = PERIOD_ORDER.indexOf(period) + direction;
+    if (periodIndex < 0 || periodIndex >= PERIOD_ORDER.length) return;
+    const toPeriod = PERIOD_ORDER[periodIndex];
+    const targetIds = sectionIdsInDisplayOrder(items, { belongsTo, kind: 'diaria', period: toPeriod });
+    // Subindo entra no fim do período anterior; descendo, no começo do seguinte.
+    applyMove({ itemId: item._id, toPeriod, toIndex: direction < 0 ? targetIds.length : 0 });
+  }
+
   function renderItem(item) {
     return (
       <TarefaItemRow
@@ -119,7 +215,28 @@ export function TarefasPage() {
         onToggle={() => handleToggle(item._id)}
         onEdit={(payload) => handleEdit(item._id, payload)}
         onDelete={() => setDeleteTarget(item)}
+        dragHandleProps={drag.handleProps(item._id)}
+        dragging={drag.isDragging(item._id)}
+        dragOffset={drag.offset}
+        onKeyboardMove={(direction) => handleKeyboardMove(item, direction)}
       />
+    );
+  }
+
+  // Linha de inserção: mostra onde o item cai antes de soltar, sem empurrar o
+  // layout como faria um placeholder do tamanho do card.
+  function renderSection(id, sectionItems) {
+    const indicator = drag.dropTarget?.sectionId === id ? drag.dropTarget.index : null;
+    return (
+      <div className="tarefas-dropzone" {...drag.zoneProps(id)}>
+        {sectionItems.map((item, index) => (
+          <div key={item._id} className="tarefas-slot">
+            {indicator === index && <div className="tarefa-drop-line" />}
+            {renderItem(item)}
+          </div>
+        ))}
+        {indicator === sectionItems.length && <div className="tarefa-drop-line" />}
+      </div>
     );
   }
 
@@ -190,19 +307,30 @@ export function TarefasPage() {
 
             {/* Só as diárias se dividem em manhã/tarde/noite/o dia todo. Os
                 períodos vazios continuam aparecendo: mostram a estrutura do dia
-                e deixam claro onde a próxima tarefa pode entrar. */}
+                e servem de alvo pra soltar uma tarefa arrastada. */}
             {byPeriod
               ? PERIOD_ORDER.map((period) => (
                   <div key={period} className="tarefas-period">
-                    <h4 className="tarefas-period-head">{PERIOD_LABELS[period]}</h4>
-                    {byPeriod[period].length === 0 ? (
+                    <div className="tarefas-period-head">
+                      <h4>{PERIOD_LABELS[period]}</h4>
+                      <button
+                        type="button"
+                        className="tarefas-period-add"
+                        aria-label={`Nova tarefa em ${PERIOD_LABELS[period]}`}
+                        onClick={() =>
+                          setFormState({ kind: 'diaria', period, belongsTo: activeUserId })
+                        }
+                      >
+                        <Icon name="plus" />
+                      </button>
+                    </div>
+                    {byPeriod[period].length === 0 && drag.dropTarget?.sectionId !== sectionId(kind, period) && (
                       <p className="tarefas-period-empty">Nada por aqui</p>
-                    ) : (
-                      byPeriod[period].map(renderItem)
                     )}
+                    {renderSection(sectionId(kind, period), byPeriod[period])}
                   </div>
                 ))
-              : group.map(renderItem)}
+              : renderSection(sectionId(kind, DEFAULT_PERIOD), group)}
           </div>
         );
       })}
@@ -211,10 +339,32 @@ export function TarefasPage() {
         <p className="tarefas-empty">Nenhuma tarefa por aqui ainda.</p>
       )}
 
-      <TarefaAddForm
-        onAdd={handleAdd}
-        targetName={activeTab === 'partner' ? partner?.name : null}
-      />
+      <button
+        type="button"
+        className="tarefas-fab"
+        aria-label="Nova tarefa"
+        onClick={() => setFormState({ belongsTo: activeUserId })}
+      >
+        <Icon name="plus" />
+      </button>
+
+      <p className="sr-only" role="status" aria-live="polite">
+        {moveAnnouncement}
+      </p>
+
+      <Modal open={!!formState} onClose={() => setFormState(null)} title="Nova tarefa">
+        {formState && (
+          <TarefaFormModal
+            me={me}
+            partner={partner}
+            defaultBelongsTo={formState.belongsTo}
+            defaultKind={formState.kind}
+            defaultPeriod={formState.period}
+            onAdd={handleAdd}
+            onClose={() => setFormState(null)}
+          />
+        )}
+      </Modal>
 
       <ConfirmDialog
         open={!!deleteTarget}
