@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import { Icon } from '../../components/ui/index.js';
 import { EMOTIONS } from '../../constants/emotions.js';
-import { REASONS } from '../../constants/emotionReasons.js';
 import { EmotionIntensityBar } from './EmotionIntensityBar.jsx';
+import { EmotionReasonTags } from './EmotionReasonTags.jsx';
 
 const REVEAL_WIDTH = 72; // px — largura do botão de lixeira revelado atrás da row
 const AXIS_THRESHOLD = 8; // px — a partir daqui o gesto é "travado" como horizontal ou vertical
@@ -10,9 +10,6 @@ const TAP_THRESHOLD = 6; // px — deslocamento total abaixo disso conta como ta
 
 export function EmotionSummaryEntryRow({ entry, canDelete = false, isOpen = false, onOpenChange, onRequestDelete, onOpenDetail }) {
   const meta = EMOTIONS[entry.emotion];
-  const reasonTags = (entry.reasons || [])
-    .map((key) => [key, REASONS[key]])
-    .filter(([, reason]) => reason);
   const [dragX, setDragX] = useState(null); // null = não está arrastando agora (usa isOpen pra decidir a posição)
   const dragRef = useRef(null); // { startX, startY, axis: 'x' | 'y' | null, baseOffset }
 
@@ -83,7 +80,10 @@ export function EmotionSummaryEntryRow({ entry, canDelete = false, isOpen = fals
         <button
           type="button"
           className="emotion-summary-entry-delete"
-          aria-label="Remover registro"
+          aria-label={`Remover registro de ${meta?.label}`}
+          // Alcançado por Tab o botão fica escondido atrás da linha; revelar no
+          // foco é o equivalente de teclado ao swipe.
+          onFocus={() => onOpenChange?.(entry._id)}
           onClick={() => {
             onOpenChange?.(null);
             onRequestDelete?.(entry);
@@ -96,10 +96,19 @@ export function EmotionSummaryEntryRow({ entry, canDelete = false, isOpen = fals
       <div
         className={`emotion-summary-period-entry${canDelete ? ' is-swipeable' : ''}${dragX !== null ? ' is-dragging' : ''}`}
         style={{ transform: `translateX(${translateX}px)` }}
+        role="button"
+        tabIndex={0}
+        aria-label={`${meta?.label}, intensidade ${entry.intensity} de 5. Abrir detalhes`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onOpenDetail?.(entry);
+          }
+        }}
       >
         <div className="emotion-summary-period-entry-main">
           <span className="emotion-summary-period-entry-label">
@@ -108,16 +117,7 @@ export function EmotionSummaryEntryRow({ entry, canDelete = false, isOpen = fals
           <EmotionIntensityBar intensity={entry.intensity} color={meta?.color} />
         </div>
 
-        {reasonTags.length > 0 && (
-          <div className="emotion-summary-entry-reasons">
-            {reasonTags.map(([key, reason]) => (
-              <span key={key} className="emotion-summary-entry-reason-tag">
-                <Icon name={reason.icon} />
-                {key === 'outro' && entry.reasonOther ? entry.reasonOther : reason.label}
-              </span>
-            ))}
-          </div>
-        )}
+        <EmotionReasonTags entry={entry} />
       </div>
     </div>
   );

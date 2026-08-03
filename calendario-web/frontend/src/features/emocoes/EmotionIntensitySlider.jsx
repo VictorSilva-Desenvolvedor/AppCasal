@@ -48,9 +48,13 @@ export function EmotionIntensitySlider({ emotion, note, onNoteChange, onBack, on
           value={previewIntensity}
           disabled={saving}
           className="emotion-intensity-range"
+          aria-label="Intensidade da emoção, de 1 a 5"
           style={{ '--fill-color': meta?.color, '--fill-percent': `${fillPercent}%` }}
-          onInput={(event) => setPreviewIntensity(Number(event.target.value))}
-          onChange={(event) => onIntensityChosen(Number(event.target.value))}
+          // Só onChange: o React trata input[type=range] como campo de texto
+          // (supportedInputTypes do react-dom), então onChange e onInput são o
+          // MESMO evento nativo. Ter os dois fazia o avanço de painel disparar
+          // no primeiro pixel de arraste — a confirmação virou botão explícito.
+          onChange={(event) => setPreviewIntensity(Number(event.target.value))}
         />
         <div className="emotion-intensity-slider-labels">
           <span>Leve</span>
@@ -60,6 +64,17 @@ export function EmotionIntensitySlider({ emotion, note, onNoteChange, onBack, on
       </div>
 
       <p className="error-text">{error}</p>
+
+      <div className="emotion-intensity-actions">
+        <button
+          type="button"
+          className="emotion-reason-btn emotion-reason-btn--primary"
+          disabled={saving}
+          onClick={() => onIntensityChosen(previewIntensity)}
+        >
+          Continuar
+        </button>
+      </div>
     </div>
   );
 }

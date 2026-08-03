@@ -53,6 +53,16 @@ export function EmotionChatBubble({ align, authorName, authorColor, timestamp, t
           onClick={editable ? startEditing : undefined}
           role={editable ? 'button' : undefined}
           tabIndex={editable ? 0 : undefined}
+          onKeyDown={
+            editable
+              ? (event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    startEditing();
+                  }
+                }
+              : undefined
+          }
         >
           {text || emptyStateText}
         </div>
