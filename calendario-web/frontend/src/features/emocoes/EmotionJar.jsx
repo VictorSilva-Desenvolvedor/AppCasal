@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EMOTIONS } from '../../constants/emotions.js';
 import { useDeviceTilt } from '../../hooks/useDeviceTilt.js';
 import { useEmotionJarPhysics } from '../../hooks/useEmotionJarPhysics.js';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion.js';
+import { describeJar } from './emocoesUtils.js';
 
 const MAX_DRAG_OFFSET = 70; // px — até onde a jarra pode "escorregar" ao ser sacudida
 const TAP_MOVE_THRESHOLD_PX = 6; // abaixo disso conta como toque parado, não arrasto
@@ -23,12 +25,14 @@ export function EmotionJar({ entries, resetKey }) {
     [entries]
   );
 
+  const reducedMotion = usePrefersReducedMotion();
   const { gravityAngleRef, wakeSignal } = useDeviceTilt();
   const { blobs, shake, jump, wakeForGravityChange } = useEmotionJarPhysics(
     blobEntries,
     containerRef,
     resetKey,
-    gravityAngleRef
+    gravityAngleRef,
+    reducedMotion
   );
 
   useEffect(() => {
@@ -72,14 +76,24 @@ export function EmotionJar({ entries, resetKey }) {
     setOffsetX(0);
   }
 
+  // Com "reduzir movimento" ligado a jarra vira uma imagem estática: sem
+  // arrasto, sem sacudida e sem pulo — a física já publica tudo assentado.
+  const dragHandlers = reducedMotion
+    ? {}
+    : {
+        onPointerDown: handlePointerDown,
+        onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerEnd,
+        onPointerCancel: handlePointerEnd,
+      };
+
   return (
     <div
-      className={`emotion-jar${isDragging ? ' is-dragging' : ''}`}
+      className={`emotion-jar${isDragging ? ' is-dragging' : ''}${reducedMotion ? ' is-static' : ''}`}
       style={{ transform: `translateX(${offsetX}px)` }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
+      role="img"
+      aria-label={describeJar(entries)}
+      {...dragHandlers}
     >
       <div className="emotion-jar-lid" />
       <div className="emotion-jar-glass" ref={containerRef}>
@@ -88,6 +102,7 @@ export function EmotionJar({ entries, resetKey }) {
             key={blob.id}
             className={`emotion-blob${blob.resting ? ' is-settled' : ''}${blob.popping ? ' is-popping' : ''}`}
             data-category={blob.category}
+            aria-hidden="true"
             style={{
               width: blob.r * 2,
               height: blob.r * 2,

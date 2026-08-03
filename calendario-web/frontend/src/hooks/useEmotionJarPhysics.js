@@ -176,7 +176,7 @@ function stepPhysics(blobs, dt, bounds, gravityAngleDeg = 0) {
 
 const UNSET_RESET_KEY = Symbol('unset');
 
-export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef) {
+export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef, reducedMotion = false) {
   const [blobs, setBlobs] = useState([]);
   const blobsRef = useRef([]);
   const rafRef = useRef(null);
@@ -196,7 +196,24 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
     setBlobs(blobsRef.current.map((b) => ({ ...b })));
   }
 
+  // Avança a simulação até o repouso de uma vez só, sem rAF. É o caminho usado
+  // no carregamento inicial e, com "reduzir movimento" ligado, também no lugar
+  // da animação em tempo real: o resultado final é o mesmo, só não é assistido.
+  function settleInstantly() {
+    const bounds = getBounds();
+    if (!bounds) return;
+    blobsRef.current = blobsRef.current.filter((b) => !b.popping);
+    for (let i = 0; i < INSTANT_SETTLE_STEPS; i++) {
+      stepPhysics(blobsRef.current, STEP_DT, bounds, gravityAngleRef?.current ?? 0);
+    }
+    publish();
+  }
+
   function runRealtimeLoop() {
+    if (reducedMotion) {
+      settleInstantly();
+      return;
+    }
     if (rafRef.current != null) return;
     lastTimeRef.current = null;
     frameCountRef.current = 0;
@@ -251,10 +268,7 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
       // é novo pra esta jarra — recria tudo do zero e avança a física
       // instantaneamente, sem reproduzir a queda do dia inteiro na tela.
       blobsRef.current = entries.map((entry) => createBlob(entry, bounds));
-      for (let i = 0; i < INSTANT_SETTLE_STEPS; i++) {
-        stepPhysics(blobsRef.current, STEP_DT, bounds, gravityAngleRef?.current ?? 0);
-      }
-      publish();
+      settleInstantly();
       return;
     }
 
@@ -295,6 +309,16 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entries, resetKey]);
 
+  // Se a preferência de movimento reduzido for ligada com a jarra já animando,
+  // corta a animação em curso e assenta na hora.
+  useEffect(() => {
+    if (!reducedMotion || rafRef.current == null) return;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    settleInstantly();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reducedMotion]);
+
   useEffect(
     () => () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
@@ -307,7 +331,7 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
   // oposta ao movimento do recipiente, como conteúdo real reagindo a um
   // solavanco) e acorda o loop já existente pra animar a reação.
   function shake(deltaX) {
-    if (!deltaX) return;
+    if (!deltaX || reducedMotion) return;
     blobsRef.current.forEach((b) => {
       b.resting = false;
       b.restFrames = 0;
@@ -338,6 +362,7 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
   // (EmotionJar.jsx). Só empurra pra cima — a gravidade já cuida da queda
   // de volta sozinha no próximo frame, igual shake()/wakeForGravityChange().
   function jump() {
+    if (reducedMotion) return;
     blobsRef.current.forEach((b) => {
       b.resting = false;
       b.restFrames = 0;
