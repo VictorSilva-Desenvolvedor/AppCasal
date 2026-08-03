@@ -99,6 +99,24 @@
   color: var(--color-text-muted);
 }
 
+/* ---------- Sub-listas do dia (só dentro das diárias) ---------- */
+
+.tarefas-period {
+  @apply mb-3 pl-3;
+  border-left: 2px solid var(--color-border);
+}
+
+.tarefas-period-head {
+  @apply text-xs font-semibold uppercase tracking-wide m-0 mb-1.5;
+  color: var(--color-text-muted);
+}
+
+.tarefas-period-empty {
+  @apply text-xs italic m-0 mb-1;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
 /* ---------- Linha de item ---------- */
 
 .tarefa-item {
@@ -141,11 +159,51 @@
   color: var(--color-text-muted);
 }
 
+.tarefa-item-edit {
+  @apply flex-1 min-w-0 flex gap-2 items-center;
+}
+
+.tarefa-item-edit-input {
+  @apply flex-1 min-w-0 text-sm;
+}
+
+.tarefa-item-edit-period {
+  @apply text-xs flex-shrink-0;
+}
+
+/* ---------- Erro de carregamento ---------- */
+
+.tarefas-load-error {
+  @apply mb-5 p-3 rounded-2xl border text-sm;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.tarefas-load-error p {
+  @apply m-0 mb-1;
+}
+
+.tarefas-load-error-detail {
+  @apply text-xs;
+  color: var(--color-text-muted);
+}
+
+.tarefas-load-error .btn {
+  @apply mt-2;
+}
+
 /* ---------- Barra de adicionar (fixa no rodapé) ---------- */
 
 .tarefa-add-bar {
   @apply sticky bottom-0 pt-3 mt-2;
   background: var(--color-bg);
+}
+
+/* Aviso de que a próxima tarefa vai pra lista do outro — evita o engano que a
+   permissão de remoção do createdBy existe pra consertar. */
+.tarefa-add-target {
+  @apply text-xs m-0 mb-1.5 px-1;
+  color: var(--color-text-muted);
 }
 
 .tarefa-add-form {

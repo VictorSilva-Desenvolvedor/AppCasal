@@ -10,6 +10,16 @@ const taskItemSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Sub-lista dentro das diárias (manhã/tarde/noite/o dia todo). Só faz
+    // sentido para kind 'diaria'; nos outros tipos fica sempre em 'dia-todo'.
+    // Itens criados antes deste campo existir leem como undefined — o front
+    // trata isso como 'dia-todo' (ver PERIOD_ORDER em tarefasUtils).
+    period: {
+      type: String,
+      enum: ['manha', 'tarde', 'noite', 'dia-todo'],
+      default: 'dia-todo',
+    },
+
     // De quem é a lista — só ele pode remover o item, mesmo que quem tenha
     // adicionado (createdBy) tenha sido o parceiro.
     belongsTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

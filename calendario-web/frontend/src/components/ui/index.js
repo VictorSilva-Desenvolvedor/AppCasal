@@ -8,5 +8,6 @@ export { Pill } from './Pill.jsx';
 export { Badge } from './Badge.jsx';
 export { Toast } from './Toast.jsx';
 export { Modal } from './Modal.jsx';
+export { ConfirmDialog } from './ConfirmDialog.jsx';
 export { Spinner } from './Spinner.jsx';
 export { HeartLoader } from './HeartLoader.jsx';

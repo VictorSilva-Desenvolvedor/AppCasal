@@ -17,6 +17,10 @@ connectDB()
 
     startWhatsapp().catch((err) => console.error('Falha ao iniciar WhatsApp:', err.message));
 
+    // Recupera o ciclo perdido se o processo estava fora do ar na hora do cron
+    // (deploy, restart, queda) — o reset é idempotente por dayKey.
+    resetTaskItems().catch((err) => console.error('Falha ao resetar tarefas no boot:', err.message));
+
     cron.schedule(
       '0 8 * * *',
       () => {
