@@ -9,6 +9,7 @@ import { FinanceSummary } from './FinanceSummary.jsx';
 import { FinanceCategoryManager } from './FinanceCategoryManager.jsx';
 import { FinanceEntryForm } from './FinanceEntryForm.jsx';
 import { FinanceEntryList } from './FinanceEntryList.jsx';
+import { FinancePagarContas } from './FinancePagarContas.jsx';
 import { ReimbursementWallet } from './ReimbursementWallet.jsx';
 import { FinanceGoalForm } from './FinanceGoalForm.jsx';
 import { FinanceGoals } from './FinanceGoals.jsx';
@@ -21,6 +22,7 @@ import { currentMonthYear, isGoalArchived, monthLabel } from './financeUtils.js'
 
 const TABS = [
   { value: 'resumo', label: 'Resumo' },
+  { value: 'pagar-contas', label: 'Pagar Contas' },
   { value: 'lancamentos', label: 'Lançamentos' },
   { value: 'reembolsos', label: 'Carteira' },
   { value: 'objetivos', label: 'Objetivos' },
@@ -266,6 +268,15 @@ export function FinanceiroPage() {
 
       {activeTab === 'resumo' && (
         <FinanceSummary report={report} goals={goals} history={history} hideFinanceValues={hideFinanceValues} />
+      )}
+
+      {activeTab === 'pagar-contas' && (
+        <FinancePagarContas
+          entries={regularEntries}
+          monthLocked={isClosed}
+          onChanged={handleEntrySaved}
+          hideFinanceValues={hideFinanceValues}
+        />
       )}
 
       {activeTab === 'lancamentos' && (
