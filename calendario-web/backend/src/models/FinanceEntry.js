@@ -13,6 +13,7 @@ const financeEntrySchema = new mongoose.Schema(
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'FinanceCategory', default: null },
     date: { type: Date, required: true },
     paidAmount: { type: Number, default: 0, min: 0 },
+    paidAt: { type: Date, default: null },
     nature: { type: String, enum: ['fixa', 'com_prazo', 'unica', 'a_decidir'], default: 'unica' },
     recurringRootId: { type: mongoose.Schema.Types.ObjectId, ref: 'FinanceEntry', default: null },
     wishType: { type: String, enum: ['necessidade', 'desejo'], default: null },

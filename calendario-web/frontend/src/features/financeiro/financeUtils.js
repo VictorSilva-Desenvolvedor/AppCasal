@@ -39,6 +39,28 @@ export function formatEntryDate(date) {
   return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
+export function dueInfo(entry) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(entry.date);
+  due.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((due - today) / 86400000);
+
+  if (diffDays < 0) {
+    const days = Math.abs(diffDays);
+    return { label: `Atrasada há ${days} dia${days > 1 ? 's' : ''}`, urgent: true };
+  }
+  if (diffDays === 0) return { label: 'Vence hoje', urgent: true };
+  if (diffDays === 1) return { label: 'Vence amanhã', urgent: false };
+  return { label: `Vence em ${diffDays} dias`, urgent: false };
+}
+
+export function paidOnDate(entry) {
+  const date = entry.paidAt || entry.updatedAt;
+  if (!date) return null;
+  return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
 export function isGoalArchived(goal) {
   return Boolean(goal.archivedUntil) && new Date(goal.archivedUntil) > new Date();
 }

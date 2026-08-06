@@ -278,6 +278,73 @@
   @apply bg-success-bg text-success;
 }
 
+/* ---------- Pagar Contas ---------- */
+
+.finance-bills {
+  @apply flex flex-col gap-4;
+}
+
+.finance-bills-summary {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.finance-bills-summary-card {
+  @apply p-4 flex flex-col gap-1.5;
+}
+
+.finance-bills-summary-hint {
+  @apply text-sm text-text-muted -mt-1;
+}
+
+.finance-bills-summary-value {
+  @apply text-2xl flex items-center gap-1.5;
+}
+
+.finance-bills-summary-pct {
+  @apply text-sm text-text-muted self-end;
+}
+
+.finance-bills-section-title {
+  @apply mt-1;
+}
+
+.finance-bills-list {
+  @apply flex flex-col gap-2;
+}
+
+.finance-bill-item {
+  @apply flex items-center justify-between gap-3 flex-wrap p-3.5;
+}
+
+.finance-bill-item.is-paid {
+  @apply bg-bg opacity-80;
+}
+
+.finance-bill-item-main {
+  @apply flex items-start gap-2.5 min-w-0;
+}
+
+.finance-bill-item-side {
+  @apply flex items-center gap-2.5 flex-wrap sm:justify-end;
+}
+
+.finance-bill-due {
+  @apply text-sm text-text-muted flex items-center gap-1;
+}
+
+.finance-bill-due.is-urgent {
+  @apply text-danger font-semibold;
+}
+
+.finance-bill-paid-icon {
+  @apply text-success flex items-center;
+}
+
+.finance-bill-amount--paid {
+  @apply text-text-muted line-through;
+}
+
 /* ---------- Carteira de reembolsos ---------- */
 
 .finance-wallet {

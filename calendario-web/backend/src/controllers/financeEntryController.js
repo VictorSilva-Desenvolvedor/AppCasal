@@ -248,6 +248,7 @@ async function setPaid(req, res) {
   await assertMonthOpen(entry.date, req.userTeam);
 
   entry.paidAmount = paid ? entry.amount : 0;
+  entry.paidAt = paid ? new Date() : null;
   await entry.save();
 
   if (paid) await syncLinkedGoal(entry);
