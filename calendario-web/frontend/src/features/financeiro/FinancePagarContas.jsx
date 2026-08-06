@@ -24,6 +24,12 @@ export function FinancePagarContas({ entries, monthLocked, onChanged, hideFinanc
   const pctPago = totalMes ? Math.round((totalPago / totalMes) * 100) : 0;
   const pctPendente = totalMes ? 100 - pctPago : 0;
 
+  const totalGanhos = entries
+    .filter((entry) => entry.type === 'receita')
+    .reduce((sum, entry) => sum + entry.amount, 0);
+  const sobraAposPagar = totalGanhos - totalPendente;
+  const pctGanhosComprometidos = totalGanhos ? Math.min(100, (totalPendente / totalGanhos) * 100) : 0;
+
   async function handlePay(entry) {
     try {
       await run(entry._id, () => api.payFinanceEntry(entry._id, true));
@@ -37,6 +43,26 @@ export function FinancePagarContas({ entries, monthLocked, onChanged, hideFinanc
   return (
     <div className="finance-bills">
       <div className="finance-bills-summary">
+        <Card className="finance-bills-summary-card finance-bills-summary-card--income">
+          <span className="finance-summary-card-label">Ganhos do mês</span>
+          <span className="finance-bills-summary-hint">Total de receitas recebidas</span>
+          <strong className="finance-bills-summary-value finance-value--positive">
+            {formatCurrency(totalGanhos, hideFinanceValues)}
+          </strong>
+          <div className="finance-category-bar-track">
+            <div
+              className="finance-category-bar-fill finance-value--negative-bg"
+              style={{ width: `${pctGanhosComprometidos}%` }}
+            />
+          </div>
+          <span className="finance-bills-summary-pct">
+            {formatCurrency(totalPendente, hideFinanceValues)} será retirado pra pagar · sobra{' '}
+            <span className={sobraAposPagar >= 0 ? 'finance-value--positive' : 'finance-value--negative'}>
+              {formatCurrency(sobraAposPagar, hideFinanceValues)}
+            </span>
+          </span>
+        </Card>
+
         <Card className="finance-bills-summary-card finance-bills-summary-card--pending">
           <span className="finance-summary-card-label">Total a pagar</span>
           <span className="finance-bills-summary-hint">Vencimentos neste mês</span>
