@@ -78,7 +78,7 @@ export function VehicleDashboardTab({ vehicle, maintenances, payments, onGoToMai
             <p className="vehicle-health-hint">
               {pendingMaintenanceCount === 0
                 ? 'Tudo em dia, sem manutenções pendentes.'
-                : `${pendingMaintenanceCount} manutenção${pendingMaintenanceCount > 1 ? 'ões' : ''} pendente${pendingMaintenanceCount > 1 ? 's' : ''}.`}
+                : `${pendingMaintenanceCount} ${pendingMaintenanceCount > 1 ? 'manutenções pendentes' : 'manutenção pendente'}.`}
             </p>
             <Button variant="secondary" block onClick={onGoToMaintenance}>
               Ver manutenção

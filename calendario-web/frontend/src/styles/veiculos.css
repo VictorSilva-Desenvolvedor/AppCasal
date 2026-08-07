@@ -82,11 +82,11 @@
 }
 
 .vehicle-photo-preview {
-  @apply relative w-full max-w-xs mb-2 rounded-lg overflow-hidden border border-border;
+  @apply relative w-full max-w-xs h-40 mb-2 rounded-lg overflow-hidden border border-border bg-surface-alt flex items-center justify-center;
 }
 
 .vehicle-photo-preview img {
-  @apply w-full h-40 object-cover block;
+  @apply w-full h-full object-contain block;
 }
 
 .vehicle-photo-preview .icon-btn {
@@ -98,11 +98,11 @@
 }
 
 .vehicle-photo-hero {
-  @apply w-full rounded-xl overflow-hidden mb-2;
+  @apply w-full h-44 rounded-xl overflow-hidden mb-2 bg-surface-alt border border-border flex items-center justify-center;
 }
 
 .vehicle-photo-hero img {
-  @apply w-full max-h-64 object-cover block;
+  @apply w-full h-full object-contain block;
 }
 
 /* ---------- Dashboard ---------- */
