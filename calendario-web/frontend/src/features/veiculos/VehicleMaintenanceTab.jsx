@@ -94,7 +94,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
         showToast('Esse checklist já estava todo aplicado', 'success');
       } else {
         showToast(
-          `${created.length} manutenção${created.length > 1 ? 'ões' : ''} adicionada${created.length > 1 ? 's' : ''}` +
+          `${created.length} ${created.length > 1 ? 'manutenções adicionadas' : 'manutenção adicionada'}` +
             (skipped.length ? ` · ${skipped.length} já existiam` : ''),
           'success'
         );
