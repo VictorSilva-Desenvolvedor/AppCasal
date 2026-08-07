@@ -98,7 +98,7 @@
 }
 
 .vehicle-photo-hero {
-  @apply w-full h-44 rounded-xl overflow-hidden mb-2 bg-surface-alt border border-border flex items-center justify-center;
+  @apply w-full max-w-sm h-56 rounded-xl overflow-hidden mb-2 bg-surface-alt border border-border flex items-center justify-center;
 }
 
 .vehicle-photo-hero img {
