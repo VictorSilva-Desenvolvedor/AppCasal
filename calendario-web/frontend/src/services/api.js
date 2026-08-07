@@ -573,6 +573,10 @@ function completeVehicleMaintenance(id, completedOdometer) {
   return request(`/vehicle-maintenances/${id}/complete`, { method: 'POST', body: { completedOdometer } });
 }
 
+function applyVehicleMaintenancePreset(vehicleId, preset) {
+  return request('/vehicle-maintenances/apply-preset', { method: 'POST', body: { vehicle: vehicleId, preset } });
+}
+
 function deleteVehicleMaintenance(id) {
   return request(`/vehicle-maintenances/${id}`, { method: 'DELETE' });
 }
@@ -715,6 +719,7 @@ export const api = {
   createVehicleMaintenance,
   updateVehicleMaintenance,
   completeVehicleMaintenance,
+  applyVehicleMaintenancePreset,
   deleteVehicleMaintenance,
   getVehiclePayments,
   createVehiclePayment,

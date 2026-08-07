@@ -22,6 +22,12 @@ const vehicleMaintenanceSchema = new mongoose.Schema(
     cost: { type: Number, default: null, min: 0 },
     notes: { type: String, default: '', trim: true, maxlength: 500 },
 
+    // Recorrência opcional — ao concluir (ver controller#complete), se algum
+    // dos dois estiver setado, gera automaticamente a próxima ocorrência
+    // pendente clonando este item.
+    recurrenceDays: { type: Number, default: null, min: 1 },
+    recurrenceKm: { type: Number, default: null, min: 1 },
+
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     team: { type: String, default: 'principal' },
   },

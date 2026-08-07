@@ -4,12 +4,14 @@ import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { MAINTENANCE_CATEGORIES } from './vehicleUtils.js';
 
-export function VehicleMaintenanceForm({ vehicleId, editingItem, onSaved, onCancel }) {
+export function VehicleMaintenanceForm({ vehicle, editingItem, onSaved, onCancel }) {
   const { showToast } = useToast();
   const [title, setTitle] = useState(editingItem?.title || '');
   const [category, setCategory] = useState(editingItem?.category || 'revisao');
   const [dueDate, setDueDate] = useState(editingItem?.dueDate ? editingItem.dueDate.slice(0, 10) : '');
   const [dueOdometer, setDueOdometer] = useState(editingItem?.dueOdometer ?? '');
+  const [recurrenceDays, setRecurrenceDays] = useState(editingItem?.recurrenceDays ?? '');
+  const [recurrenceKm, setRecurrenceKm] = useState(editingItem?.recurrenceKm ?? '');
   const [cost, setCost] = useState(editingItem?.cost ?? '');
   const [notes, setNotes] = useState(editingItem?.notes || '');
   const [saving, setSaving] = useState(false);
@@ -21,17 +23,26 @@ export function VehicleMaintenanceForm({ vehicleId, editingItem, onSaved, onCanc
       showToast('Dê um título à manutenção', 'error');
       return;
     }
-    if (!dueDate && dueOdometer === '') {
-      showToast('Defina um prazo por data ou por km', 'error');
+    if (!dueDate && dueOdometer === '' && recurrenceDays === '' && recurrenceKm === '') {
+      showToast('Defina um prazo por data, por km, ou uma repetição', 'error');
       return;
     }
 
+    // Item puramente recorrente (ex: "calibrar pneu toda semana") sem
+    // vencimento explícito — usa a repetição pra calcular o primeiro prazo,
+    // igual ao que o checklist padrão faz.
+    const resolvedDueDate = dueDate || (recurrenceDays !== '' ? new Date(Date.now() + Number(recurrenceDays) * 86400000).toISOString().slice(0, 10) : null);
+    const resolvedDueOdometer =
+      dueOdometer !== '' ? Number(dueOdometer) : recurrenceKm !== '' ? vehicle.currentOdometer + Number(recurrenceKm) : null;
+
     const payload = {
-      vehicle: vehicleId,
+      vehicle: vehicle._id,
       title: trimmedTitle,
       category,
-      dueDate: dueDate || null,
-      dueOdometer: dueOdometer === '' ? null : Number(dueOdometer),
+      dueDate: resolvedDueDate,
+      dueOdometer: resolvedDueOdometer,
+      recurrenceDays: recurrenceDays === '' ? null : Number(recurrenceDays),
+      recurrenceKm: recurrenceKm === '' ? null : Number(recurrenceKm),
       cost: cost === '' ? null : Number(cost),
       notes: notes.trim(),
     };
@@ -96,6 +107,29 @@ export function VehicleMaintenanceForm({ vehicleId, editingItem, onSaved, onCanc
             value={dueOdometer}
             onChange={(event) => setDueOdometer(event.target.value)}
             placeholder="Ex: 15000"
+          />
+        </Field>
+      </div>
+
+      <div className="vehicle-form-row">
+        <Field label="Repetir a cada (dias)" htmlFor="maintenance-recurrence-days" hint="Ex: 7 para uma tarefa semanal, como calibrar o pneu">
+          <input
+            id="maintenance-recurrence-days"
+            type="number"
+            min={1}
+            value={recurrenceDays}
+            onChange={(event) => setRecurrenceDays(event.target.value)}
+            placeholder="Ex: 7"
+          />
+        </Field>
+        <Field label="Repetir a cada (km)" htmlFor="maintenance-recurrence-km" hint="Ex: 3000 para trocar óleo a cada 3.000 km rodados">
+          <input
+            id="maintenance-recurrence-km"
+            type="number"
+            min={1}
+            value={recurrenceKm}
+            onChange={(event) => setRecurrenceKm(event.target.value)}
+            placeholder="Ex: 3000"
           />
         </Field>
       </div>

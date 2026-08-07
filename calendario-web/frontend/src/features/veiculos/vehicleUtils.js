@@ -84,6 +84,14 @@ export function vehicleHealthPercent(maintenances, currentOdometer) {
   return Math.round((healthy / pending.length) * 100);
 }
 
+export function recurrenceLabel(item) {
+  if (item.recurrenceDays == null && item.recurrenceKm == null) return null;
+  const parts = [];
+  if (item.recurrenceKm != null) parts.push(formatKm(item.recurrenceKm));
+  if (item.recurrenceDays != null) parts.push(`${item.recurrenceDays} dia${item.recurrenceDays === 1 ? '' : 's'}`);
+  return `Repete a cada ${parts.join(' ou ')}`;
+}
+
 export function paymentDueInfo(payment) {
   if (payment.status === 'pago') return { label: 'Pago', urgent: false };
   const diffDays = daysUntil(payment.dueDate);
