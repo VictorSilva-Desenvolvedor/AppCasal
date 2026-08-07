@@ -2,7 +2,14 @@ import { Button, Card, Icon, IconButton, Pill } from '../../components/ui/index.
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
-import { formatCurrency, formatDate, paymentDueInfo, categoryLabel, PAYMENT_CATEGORIES } from './vehicleUtils.js';
+import {
+  formatCurrency,
+  formatDate,
+  paymentDueInfo,
+  categoryLabel,
+  categoryIcon,
+  PAYMENT_CATEGORIES,
+} from './vehicleUtils.js';
 
 export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
   const { showToast } = useToast();
@@ -68,7 +75,7 @@ export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
               <Card key={item._id} className={`vehicle-payment-item${due.urgent ? ' is-urgent' : ''}`}>
                 <div className="vehicle-payment-item-main">
                   <span className="vehicle-payment-icon">
-                    <Icon name="wallet" />
+                    <Icon name={categoryIcon(PAYMENT_CATEGORIES, item.category)} />
                   </span>
                   <div>
                     <strong>{item.description}</strong>

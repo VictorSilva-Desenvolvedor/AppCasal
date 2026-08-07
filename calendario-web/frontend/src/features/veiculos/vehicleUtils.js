@@ -2,17 +2,17 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', cu
 const kmFormatter = new Intl.NumberFormat('pt-BR');
 
 export const MAINTENANCE_CATEGORIES = [
-  { value: 'oleo', label: 'Troca de óleo', icon: 'tool' },
-  { value: 'revisao', label: 'Revisão geral', icon: 'tool' },
-  { value: 'pneus', label: 'Pneus', icon: 'tool' },
-  { value: 'freios', label: 'Freios', icon: 'tool' },
+  { value: 'oleo', label: 'Troca de óleo', icon: 'droplet' },
+  { value: 'revisao', label: 'Revisão geral', icon: 'settings' },
+  { value: 'pneus', label: 'Pneus', icon: 'tire' },
+  { value: 'freios', label: 'Freios', icon: 'disc' },
   { value: 'outros', label: 'Outros', icon: 'tool' },
 ];
 
 export const PAYMENT_CATEGORIES = [
   { value: 'financiamento', label: 'Financiamento', icon: 'wallet' },
   { value: 'ipva', label: 'IPVA', icon: 'file' },
-  { value: 'seguro', label: 'Seguro', icon: 'wallet' },
+  { value: 'seguro', label: 'Seguro', icon: 'shield' },
   { value: 'outros', label: 'Outros', icon: 'wallet' },
 ];
 
@@ -31,6 +31,10 @@ export function formatDate(date) {
 
 export function categoryLabel(categories, value) {
   return categories.find((c) => c.value === value)?.label || value;
+}
+
+export function categoryIcon(categories, value) {
+  return categories.find((c) => c.value === value)?.icon || 'tool';
 }
 
 function daysUntil(date) {
@@ -61,7 +65,14 @@ export function maintenanceUrgency(item, currentOdometer) {
 
   const parts = [];
   if (kmRemaining != null) {
-    parts.push(overdueKm ? `${formatKm(Math.abs(kmRemaining))} atrasada` : `Em ${formatKm(kmRemaining)}`);
+    // Mostra o km absoluto de vencimento (não só a distância que falta) pra
+    // ficar visível que o cálculo já partiu do odômetro atual do veículo.
+    const target = formatKm(item.dueOdometer);
+    parts.push(
+      overdueKm
+        ? `Venceu aos ${target} (${formatKm(Math.abs(kmRemaining))} atrasada)`
+        : `Vence aos ${target} (faltam ${formatKm(kmRemaining)})`
+    );
   }
   if (daysRemaining != null) {
     const days = Math.abs(daysRemaining);

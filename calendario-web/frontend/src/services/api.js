@@ -569,8 +569,8 @@ function updateVehicleMaintenance(id, payload) {
   return request(`/vehicle-maintenances/${id}`, { method: 'PUT', body: payload });
 }
 
-function completeVehicleMaintenance(id, completedOdometer) {
-  return request(`/vehicle-maintenances/${id}/complete`, { method: 'POST', body: { completedOdometer } });
+function completeVehicleMaintenance(id, completedOdometer, notes) {
+  return request(`/vehicle-maintenances/${id}/complete`, { method: 'POST', body: { completedOdometer, notes } });
 }
 
 function applyVehicleMaintenancePreset(vehicleId, preset) {

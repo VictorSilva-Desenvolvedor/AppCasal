@@ -77,6 +77,34 @@
   @apply text-xs font-semibold uppercase tracking-wide text-text-muted;
 }
 
+.vehicle-modal-subtitle {
+  @apply text-sm text-text-muted -mt-1;
+}
+
+.vehicle-photo-preview {
+  @apply relative w-full max-w-xs mb-2 rounded-lg overflow-hidden border border-border;
+}
+
+.vehicle-photo-preview img {
+  @apply w-full h-40 object-cover block;
+}
+
+.vehicle-photo-preview .icon-btn {
+  @apply absolute top-2 right-2 bg-surface/90;
+}
+
+.vehicle-photo-uploading {
+  @apply text-sm text-text-muted mt-1;
+}
+
+.vehicle-photo-hero {
+  @apply w-full rounded-xl overflow-hidden mb-2;
+}
+
+.vehicle-photo-hero img {
+  @apply w-full max-h-64 object-cover block;
+}
+
 /* ---------- Dashboard ---------- */
 
 .vehicle-dashboard-tab {
@@ -239,6 +267,10 @@
 
 .vehicle-cost-pill {
   @apply text-text-muted;
+}
+
+.vehicle-maintenance-notes {
+  @apply text-sm text-text-muted mt-1 italic;
 }
 
 /* ---------- Pagamentos ---------- */

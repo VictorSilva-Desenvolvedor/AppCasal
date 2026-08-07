@@ -97,14 +97,22 @@ async function update(req, res) {
 }
 
 async function complete(req, res) {
-  const { completedOdometer } = req.body;
+  const { completedOdometer, notes } = req.body;
 
   const item = await VehicleMaintenance.findOne({ _id: req.params.id, team: req.userTeam });
   if (!item) return res.status(404).json({ message: 'Manutenção não encontrada' });
 
+  // Guarda a nota "de tarefa" original (separado da observação de conclusão
+  // abaixo) pra usar no clone da próxima ocorrência recorrente — a observação
+  // é sobre o que aconteceu desta vez, não deve virar template pra sempre.
+  const taskNotes = item.notes;
+
   item.status = 'concluido';
   item.completedAt = new Date();
   item.completedOdometer = completedOdometer ?? null;
+  if (notes) {
+    item.notes = taskNotes ? `${taskNotes}\n\n${notes}` : notes;
+  }
   await item.save();
 
   // Concluir uma manutenção é a forma mais comum do usuário informar o km
@@ -125,7 +133,7 @@ async function complete(req, res) {
       vehicle: item.vehicle,
       title: item.title,
       category: item.category,
-      notes: item.notes,
+      notes: taskNotes,
       dueDate: item.recurrenceDays != null ? new Date(item.completedAt.getTime() + item.recurrenceDays * DAY_MS) : null,
       dueOdometer: item.recurrenceKm != null ? baseOdometer + item.recurrenceKm : null,
       recurrenceDays: item.recurrenceDays,
@@ -164,6 +172,14 @@ async function applyPreset(req, res) {
 
   const owningVehicle = await Vehicle.findOne({ _id: vehicle, team: req.userTeam });
   if (!owningVehicle) return res.status(404).json({ message: 'Veículo não encontrado' });
+
+  // O checklist pode vir com uma foto padrão do modelo — só aplica se o
+  // veículo ainda não tiver foto própria, pra não sobrescrever uma foto real
+  // que o usuário já tenha enviado.
+  if (presetDef.photoUrl && !owningVehicle.photoUrl) {
+    owningVehicle.photoUrl = presetDef.photoUrl;
+    await owningVehicle.save();
+  }
 
   const existingTitles = new Set(
     (await VehicleMaintenance.find({ vehicle, team: req.userTeam, status: 'pendente' }, 'title')).map((i) => i.title)

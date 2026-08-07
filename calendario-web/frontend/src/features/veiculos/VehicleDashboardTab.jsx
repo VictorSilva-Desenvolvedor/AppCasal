@@ -15,6 +15,12 @@ export function VehicleDashboardTab({ vehicle, maintenances, payments, onGoToMai
 
   return (
     <div className="vehicle-dashboard-tab">
+      {vehicle.photoUrl && (
+        <div className="vehicle-photo-hero">
+          <img src={vehicle.photoUrl} alt={vehicle.name} />
+        </div>
+      )}
+
       <Card className="vehicle-hero-card">
         <span className="vehicle-label-caps">Odômetro atual</span>
         <div className="vehicle-hero-odometer">
