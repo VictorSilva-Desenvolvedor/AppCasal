@@ -5,6 +5,7 @@ import { Topbar } from './Topbar.jsx';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { useFcmRegistration } from '../../hooks/useFcmRegistration.js';
+import { useHardwareBackButton } from '../../hooks/useHardwareBackButton.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
 import { HeartLoader } from '../ui/HeartLoader.jsx';
@@ -25,6 +26,7 @@ export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useFcmRegistration();
+  useHardwareBackButton();
 
   useEffect(() => {
     setMobileOpen(false);
