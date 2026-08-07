@@ -21,6 +21,7 @@ import { WatchlistPage } from './features/watchlist/WatchlistPage.jsx';
 import { DocesPage } from './features/doces/DocesPage.jsx';
 import { TarefasPage } from './features/tarefas/TarefasPage.jsx';
 import { ResumoPage } from './features/resumo/ResumoPage.jsx';
+import { VeiculosPage } from './features/veiculos/VeiculosPage.jsx';
 import { useAuth } from './hooks/useAuth.js';
 
 function RootRedirect() {
@@ -53,6 +54,7 @@ export default function App() {
                 <Route path="/app/doces" element={<DocesPage />} />
                 <Route path="/app/tarefas" element={<TarefasPage />} />
                 <Route path="/app/resumo" element={<ResumoPage />} />
+                <Route path="/app/veiculos" element={<VeiculosPage />} />
                 <Route path="/app/galeria" element={<GalleryPage />} />
                 <Route path="/app/atividades" element={<ActivityPage />} />
                 <Route path="/app/atualizacoes" element={<UpdatesPage />} />

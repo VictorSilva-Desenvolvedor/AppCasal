@@ -29,6 +29,9 @@ const watchlistRatingRoutes = require('./routes/watchlistRatingRoutes');
 const candyEntryRoutes = require('./routes/candyEntryRoutes');
 const taskItemRoutes = require('./routes/taskItemRoutes');
 const weeklySummaryRoutes = require('./routes/weeklySummaryRoutes');
+const vehicleRoutes = require('./routes/vehicleRoutes');
+const vehicleMaintenanceRoutes = require('./routes/vehicleMaintenanceRoutes');
+const vehiclePaymentRoutes = require('./routes/vehiclePaymentRoutes');
 const { isWhatsappReady } = require('./services/whatsappService');
 const { isFcmReady } = require('./services/fcmService');
 
@@ -64,6 +67,9 @@ app.use('/api/watchlist-ratings', watchlistRatingRoutes);
 app.use('/api/candy-entries', candyEntryRoutes);
 app.use('/api/task-items', taskItemRoutes);
 app.use('/api/weekly-summary', weeklySummaryRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/vehicle-maintenances', vehicleMaintenanceRoutes);
+app.use('/api/vehicle-payments', vehiclePaymentRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady(), fcm: isFcmReady() }));
 
