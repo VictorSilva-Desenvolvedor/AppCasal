@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Field, Button } from '../../components/ui/index.js';
+import { Field, Button, Icon, IconButton } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 
@@ -12,8 +12,26 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
   const [year, setYear] = useState(editingVehicle?.year ?? '');
   const [color, setColor] = useState(editingVehicle?.color || '');
   const [currentOdometer, setCurrentOdometer] = useState(editingVehicle?.currentOdometer ?? 0);
+  const [photoUrl, setPhotoUrl] = useState(editingVehicle?.photoUrl || '');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [notes, setNotes] = useState(editingVehicle?.notes || '');
   const [saving, setSaving] = useState(false);
+
+  async function handlePhotoChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    try {
+      const result = await api.uploadFile(file);
+      setPhotoUrl(result.url);
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -31,6 +49,7 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
       year: year === '' ? null : Number(year),
       color: color.trim(),
       currentOdometer: Number(currentOdometer) || 0,
+      photoUrl,
       notes: notes.trim(),
     };
 
@@ -60,6 +79,24 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
           placeholder="Ex: Ducati Panigale V4"
           autoFocus
         />
+      </Field>
+
+      <Field label="Foto (opcional)" htmlFor="vehicle-photo">
+        {photoUrl && (
+          <div className="vehicle-photo-preview">
+            <img src={photoUrl} alt={name || 'Foto do veículo'} />
+            <IconButton
+              type="button"
+              title="Remover foto"
+              aria-label="Remover foto"
+              onClick={() => setPhotoUrl('')}
+            >
+              <Icon name="trash" />
+            </IconButton>
+          </div>
+        )}
+        <input id="vehicle-photo" type="file" accept="image/*" onChange={handlePhotoChange} disabled={uploadingPhoto} />
+        {uploadingPhoto && <p className="vehicle-photo-uploading">Enviando foto…</p>}
       </Field>
 
       <div className="vehicle-form-row">

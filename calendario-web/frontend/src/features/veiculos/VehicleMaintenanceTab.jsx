@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card, Icon, IconButton, Pill } from '../../components/ui/index.js';
+import { Button, Card, Field, Icon, IconButton, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
@@ -7,6 +7,7 @@ import {
   formatDate,
   formatKm,
   categoryLabel,
+  categoryIcon,
   maintenanceUrgency,
   recurrenceLabel,
   MAINTENANCE_CATEGORIES,
@@ -18,6 +19,10 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
   const [odometerInput, setOdometerInput] = useState(vehicle.currentOdometer);
   const [savingOdometer, setSavingOdometer] = useState(false);
   const [applyingPreset, setApplyingPreset] = useState(false);
+  const [completingItem, setCompletingItem] = useState(null);
+  const [completingOdometer, setCompletingOdometer] = useState(vehicle.currentOdometer);
+  const [completingNotes, setCompletingNotes] = useState('');
+  const [completing, setCompleting] = useState(false);
 
   const pending = maintenances
     .filter((item) => item.status === 'pendente')
@@ -46,13 +51,24 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
     }
   }
 
-  async function handleComplete(item) {
+  function handleStartComplete(item) {
+    setCompletingItem(item);
+    setCompletingOdometer(vehicle.currentOdometer);
+    setCompletingNotes('');
+  }
+
+  async function handleConfirmComplete(event) {
+    event.preventDefault();
+    setCompleting(true);
     try {
-      await run(item._id, () => api.completeVehicleMaintenance(item._id, vehicle.currentOdometer));
+      await api.completeVehicleMaintenance(completingItem._id, Number(completingOdometer), completingNotes.trim());
       await onChanged();
       showToast('Manutenção concluída', 'success');
+      setCompletingItem(null);
     } catch (err) {
       showToast(err.message, 'error');
+    } finally {
+      setCompleting(false);
     }
   }
 
@@ -134,7 +150,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
             >
               <div className="vehicle-maintenance-item-main">
                 <span className="vehicle-maintenance-icon">
-                  <Icon name="tool" />
+                  <Icon name={categoryIcon(MAINTENANCE_CATEGORIES, item.category)} />
                 </span>
                 <div>
                   <strong>{item.title}</strong>
@@ -160,7 +176,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
                 >
                   <Icon name="trash" />
                 </IconButton>
-                <Button variant="primary" loading={isPending(item._id)} onClick={() => handleComplete(item)}>
+                <Button variant="primary" onClick={() => handleStartComplete(item)}>
                   Concluir
                 </Button>
               </div>
@@ -186,13 +202,58 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
                     Concluída em {formatDate(item.completedAt)}
                     {item.completedOdometer != null ? ` · ${formatKm(item.completedOdometer)}` : ''}
                   </span>
+                  {item.notes && <p className="vehicle-maintenance-notes">{item.notes}</p>}
                 </div>
               </div>
-              {item.cost != null && <Pill className="vehicle-cost-pill">R$ {item.cost.toFixed(2)}</Pill>}
+              <div className="vehicle-maintenance-item-actions">
+                {item.cost != null && <Pill className="vehicle-cost-pill">R$ {item.cost.toFixed(2)}</Pill>}
+                <IconButton title="Editar anotação" aria-label="Editar anotação" onClick={() => onEdit(item)}>
+                  <Icon name="edit" />
+                </IconButton>
+              </div>
             </Card>
           ))}
         </div>
       )}
+
+      <Modal open={Boolean(completingItem)} onClose={() => setCompletingItem(null)} title="Concluir manutenção">
+        {completingItem && (
+          <form className="vehicle-form" onSubmit={handleConfirmComplete}>
+            <p className="vehicle-modal-subtitle">{completingItem.title}</p>
+            <Field label="Odômetro na conclusão" htmlFor="complete-odometer">
+              <input
+                id="complete-odometer"
+                type="number"
+                min={0}
+                value={completingOdometer}
+                onChange={(event) => setCompletingOdometer(event.target.value)}
+              />
+            </Field>
+            <Field
+              label="Observação (opcional)"
+              htmlFor="complete-notes"
+              hint="Algo que percebeu e vale revisar depois — fica registrado no histórico"
+            >
+              <textarea
+                id="complete-notes"
+                maxLength={500}
+                rows={3}
+                value={completingNotes}
+                onChange={(event) => setCompletingNotes(event.target.value)}
+                placeholder="Ex: pastilha de freio já fina, olhar na próxima"
+              />
+            </Field>
+            <div className="vehicle-form-actions">
+              <Button type="button" variant="secondary" onClick={() => setCompletingItem(null)}>
+                Cancelar
+              </Button>
+              <Button type="submit" loading={completing}>
+                Concluir
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }

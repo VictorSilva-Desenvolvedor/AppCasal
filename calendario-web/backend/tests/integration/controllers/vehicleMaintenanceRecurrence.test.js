@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../../../src/app');
 const User = require('../../../src/models/User');
+const Vehicle = require('../../../src/models/Vehicle');
 const VehicleMaintenance = require('../../../src/models/VehicleMaintenance');
 const db = require('../../helpers/db');
 const { tokenFor } = require('../../helpers/authToken');
@@ -78,6 +79,36 @@ describe('Manutenção recorrente', () => {
     expect(new Date(items[0].dueDate).getTime()).toBe(expectedDue);
   });
 
+  test('observação na conclusão fica anexada ao histórico, sem virar template da próxima ocorrência', async () => {
+    const vehicle = await createVehicle({ currentOdometer: 10000 });
+
+    const createRes = await request(app)
+      .post('/api/vehicle-maintenances')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({
+        vehicle: vehicle._id,
+        title: 'Verificar pastilhas de freio',
+        category: 'freios',
+        recurrenceKm: 4000,
+        notes: 'Tarefa padrão do checklist',
+      });
+
+    const completeRes = await request(app)
+      .post(`/api/vehicle-maintenances/${createRes.body._id}/complete`)
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({ completedOdometer: 10100, notes: 'Pastilha dianteira já fina, olhar de novo em breve' });
+
+    expect(completeRes.body.notes).toBe(
+      'Tarefa padrão do checklist\n\nPastilha dianteira já fina, olhar de novo em breve'
+    );
+
+    const items = await VehicleMaintenance.find({ vehicle: vehicle._id }).sort({ createdAt: 1 });
+    expect(items[0].notes).toContain('Pastilha dianteira já fina');
+    // a próxima ocorrência recorrente não herda a observação da conclusão anterior
+    expect(items[1].status).toBe('pendente');
+    expect(items[1].notes).toBe('Tarefa padrão do checklist');
+  });
+
   test('item sem recorrência não gera nova ocorrência ao concluir', async () => {
     const vehicle = await createVehicle();
 
@@ -115,9 +146,34 @@ describe('POST /api/vehicle-maintenances/apply-preset', () => {
 
     const tirePressure = res.body.created.find((item) => item.title === 'Calibrar pneus');
     expect(tirePressure.dueDate).toBeTruthy();
+    expect(tirePressure.dueOdometer).toBe(10500);
 
     const total = await VehicleMaintenance.countDocuments({ vehicle: vehicle._id });
     expect(total).toBe(res.body.created.length);
+  });
+
+  test('preenche a foto padrão do veículo quando ele ainda não tem uma', async () => {
+    const vehicle = await createVehicle();
+
+    await request(app)
+      .post('/api/vehicle-maintenances/apply-preset')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({ vehicle: vehicle._id, preset: 'honda-cb-twister-250f-2019' });
+
+    const updated = await Vehicle.findById(vehicle._id);
+    expect(updated.photoUrl).toBe('/vehicle-photos/honda-cb-twister-2019.webp');
+  });
+
+  test('não sobrescreve a foto se o veículo já tiver uma', async () => {
+    const vehicle = await createVehicle({ photoUrl: 'https://exemplo.com/minha-foto.jpg' });
+
+    await request(app)
+      .post('/api/vehicle-maintenances/apply-preset')
+      .set('Authorization', `Bearer ${meToken}`)
+      .send({ vehicle: vehicle._id, preset: 'honda-cb-twister-250f-2019' });
+
+    const updated = await Vehicle.findById(vehicle._id);
+    expect(updated.photoUrl).toBe('https://exemplo.com/minha-foto.jpg');
   });
 
   test('não duplica itens já pendentes ao aplicar de novo', async () => {

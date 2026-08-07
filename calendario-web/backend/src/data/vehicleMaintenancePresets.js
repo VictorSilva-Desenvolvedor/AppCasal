@@ -6,6 +6,7 @@
 module.exports = {
   'honda-cb-twister-250f-2019': {
     label: 'Honda CB Twister 250F (2019)',
+    photoUrl: '/vehicle-photos/honda-cb-twister-2019.webp',
     items: [
       {
         title: 'Troca de óleo do motor',
