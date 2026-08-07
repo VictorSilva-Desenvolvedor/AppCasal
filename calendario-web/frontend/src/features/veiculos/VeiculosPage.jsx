@@ -211,7 +211,7 @@ export function VeiculosPage() {
       <Modal open={addingMaintenance} onClose={() => setAddingMaintenance(false)} title="Nova manutenção">
         {addingMaintenance && (
           <VehicleMaintenanceForm
-            vehicleId={selectedVehicleId}
+            vehicle={selectedVehicle}
             onSaved={handleMaintenanceSaved}
             onCancel={() => setAddingMaintenance(false)}
           />
@@ -221,7 +221,7 @@ export function VeiculosPage() {
       <Modal open={Boolean(editingMaintenance)} onClose={() => setEditingMaintenance(null)} title="Editar manutenção">
         {editingMaintenance && (
           <VehicleMaintenanceForm
-            vehicleId={selectedVehicleId}
+            vehicle={selectedVehicle}
             editingItem={editingMaintenance}
             onSaved={handleMaintenanceSaved}
             onCancel={() => setEditingMaintenance(null)}

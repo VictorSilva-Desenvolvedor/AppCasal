@@ -3,13 +3,21 @@ import { Button, Card, Icon, IconButton, Pill } from '../../components/ui/index.
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
-import { formatDate, formatKm, categoryLabel, maintenanceUrgency, MAINTENANCE_CATEGORIES } from './vehicleUtils.js';
+import {
+  formatDate,
+  formatKm,
+  categoryLabel,
+  maintenanceUrgency,
+  recurrenceLabel,
+  MAINTENANCE_CATEGORIES,
+} from './vehicleUtils.js';
 
 export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd, onEdit }) {
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
   const [odometerInput, setOdometerInput] = useState(vehicle.currentOdometer);
   const [savingOdometer, setSavingOdometer] = useState(false);
+  const [applyingPreset, setApplyingPreset] = useState(false);
 
   const pending = maintenances
     .filter((item) => item.status === 'pendente')
@@ -58,6 +66,30 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
     }
   }
 
+  async function handleApplyPreset() {
+    setApplyingPreset(true);
+    try {
+      const { created, skipped } = await api.applyVehicleMaintenancePreset(
+        vehicle._id,
+        'honda-cb-twister-250f-2019'
+      );
+      await onChanged();
+      if (created.length === 0) {
+        showToast('Esse checklist já estava todo aplicado', 'success');
+      } else {
+        showToast(
+          `${created.length} manutenção${created.length > 1 ? 'ões' : ''} adicionada${created.length > 1 ? 's' : ''}` +
+            (skipped.length ? ` · ${skipped.length} já existiam` : ''),
+          'success'
+        );
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setApplyingPreset(false);
+    }
+  }
+
   return (
     <div className="vehicle-maintenance-tab">
       <Card className="vehicle-odometer-card">
@@ -81,9 +113,14 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
 
       <div className="vehicle-section-header">
         <h3>Próximos serviços</h3>
-        <Button variant="primary" onClick={onAdd}>
-          <Icon name="plus" /> Adicionar
-        </Button>
+        <div className="vehicle-section-header-actions">
+          <Button variant="secondary" loading={applyingPreset} onClick={handleApplyPreset}>
+            <Icon name="repeat" /> Checklist Honda CB Twister 250F
+          </Button>
+          <Button variant="primary" onClick={onAdd}>
+            <Icon name="plus" /> Adicionar
+          </Button>
+        </div>
       </div>
 
       {pending.length === 0 ? (
@@ -104,6 +141,11 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
                   <span className="vehicle-maintenance-meta">
                     {categoryLabel(MAINTENANCE_CATEGORIES, item.category)} · {urgency.label}
                   </span>
+                  {recurrenceLabel(item) && (
+                    <Pill className="vehicle-recurrence-pill">
+                      <Icon name="repeat" /> {recurrenceLabel(item)}
+                    </Pill>
+                  )}
                 </div>
               </div>
               <div className="vehicle-maintenance-item-actions">
