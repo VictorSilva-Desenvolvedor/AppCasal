@@ -41,7 +41,7 @@ export function AppShell() {
 
   const showFilterBar = location.pathname.startsWith('/app/calendario');
   const showSidebar =
-    !['financeiro', 'atualizacoes', 'resumo'].includes(getAppSection(location.pathname)) &&
+    !['financeiro', 'atualizacoes', 'resumo', 'veiculos'].includes(getAppSection(location.pathname)) &&
     !location.pathname.startsWith('/app/atividades');
 
   function handleQuickNewEvent() {

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - Apex Velocity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "on-primary-fixed-variant": "#474746",
+                        "on-secondary": "#002c70",
+                        "surface-dim": "#121414",
+                        "surface-container-highest": "#343535",
+                        "surface-bright": "#383939",
+                        "on-tertiary-container": "#878482",
+                        "secondary-fixed-dim": "#b1c5ff",
+                        "on-primary-container": "#858484",
+                        "on-tertiary-fixed-variant": "#484645",
+                        "surface-container-lowest": "#0d0e0f",
+                        "secondary-container": "#0148ab",
+                        "surface-variant": "#343535",
+                        "surface-container-high": "#292a2a",
+                        "secondary-fixed": "#dae2ff",
+                        "on-background": "#e3e2e2",
+                        "tertiary-fixed": "#e6e2df",
+                        "on-secondary-container": "#a6beff",
+                        "on-error": "#690005",
+                        "surface": "#121414",
+                        "inverse-on-surface": "#2f3131",
+                        "on-secondary-fixed-variant": "#00419e",
+                        "on-secondary-fixed": "#001946",
+                        "primary": "#c8c6c5",
+                        "primary-fixed": "#e5e2e1",
+                        "tertiary": "#cac6c4",
+                        "on-surface-variant": "#c4c7c7",
+                        "on-primary": "#313030",
+                        "tertiary-fixed-dim": "#cac6c4",
+                        "surface-tint": "#c8c6c5",
+                        "outline-variant": "#444748",
+                        "background": "#121414",
+                        "primary-container": "#1c1c1c",
+                        "on-tertiary": "#31302f",
+                        "surface-container-low": "#1a1c1c",
+                        "on-tertiary-fixed": "#1c1b1a",
+                        "tertiary-container": "#1d1c1b",
+                        "inverse-surface": "#e3e2e2",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "inverse-primary": "#5f5e5e",
+                        "secondary": "#b1c5ff",
+                        "on-primary-fixed": "#1b1b1b",
+                        "outline": "#8e9192",
+                        "surface-container": "#1e2020",
+                        "on-surface": "#e3e2e2",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "margin-mobile": "20px",
+                        "stack-md": "12px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "stack-sm": "4px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "data-tabular": ["JetBrains Mono"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Inner glow/rim light for level 1 cards */
+        .card-level-1 {
+            background-color: #1C1C1C;
+            border: 1px solid #2C2C2C;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Machined button gradient */
+        .btn-machined {
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%), #b1c5ff; /* fallback to secondary color if not using actual blue */
+            /* Using a generic blue for primary action based on the styling guide "Racing Blue" proxy */
+            background-color: #0148ab; 
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24 md:pb-0 h-screen overflow-x-hidden flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant flex justify-between items-center w-full px-margin-mobile py-base sticky top-0 z-40">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface text-2xl">two_wheeler</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Ducati Panigale V4</h1>
+</div>
+<button class="hover:bg-surface-container-high transition-colors active:scale-95 p-2 rounded-full text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="flex-grow w-full max-w-5xl mx-auto md:px-margin-desktop md:py-8 md:grid md:grid-cols-12 md:gap-gutter">
+<!-- Hero Section -->
+<section class="w-full relative h-[40vh] md:h-auto md:col-span-12 md:mb-8 flex items-center justify-center bg-radial-gradient from-secondary-container/20 to-transparent">
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0148ab]/30 to-background z-0"></div>
+<img alt="Ducati Panigale V4 Side View" class="relative z-10 w-full max-w-[80%] h-auto object-contain drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnJIVE3lq0YPWfNi9yS10ePORljoUGCDJej_BQ2Q4gCWOdl992fK10oxq_EMnZ0TkYKrttfjHStr7RlFdAmOFasPZlXOJjO2ipLRY4uNDQgHSke-n6Ahfu0hvv664xRvE4lndvN9JwWg_mptrsgKlxHgmy9B8QdIPA5s267HK-mE0fMumtpPu8SgrkDW5uWQ7G3DPaAUpaXwxbaOgv6uQJRJELuD981zYdJ3_1AP_sXGAbQXgBMa2e"/>
+</section>
+<!-- Dashboard Content Grid -->
+<div class="px-margin-mobile py-stack-lg md:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Payment Card (High-end Bento Style) -->
+<div class="card-level-1 rounded-xl p-6 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Próximo Pagamento</h2>
+<div class="font-data-tabular text-data-tabular text-3xl font-bold text-on-surface">R$ 1.250,00</div>
+</div>
+<div class="bg-error-container/20 text-error px-3 py-1 rounded-full border border-error/30 text-xs font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                        Vence em 5 dias
+                    </div>
+</div>
+<button class="btn-machined w-full py-3 rounded-lg font-bold text-sm hover:brightness-110 active:scale-95 transition-all mt-4">
+                    Pagar Agora
+                </button>
+</div>
+<!-- Health Card -->
+<div class="card-level-1 rounded-xl p-6 flex items-center gap-6">
+<!-- Circular Progress (Simulated) -->
+<div class="relative w-24 h-24 flex-shrink-0 flex items-center justify-center rounded-full border-4 border-surface-container-high">
+<svg class="absolute inset-0 w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#0148ab" stroke-dasharray="282.7" stroke-dashoffset="42.4" stroke-width="8"></circle>
+</svg>
+<div class="font-data-tabular text-data-tabular text-xl font-bold">85%</div>
+</div>
+<div class="flex-grow">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">monitor_heart</span>
+                        Saúde da Moto
+                    </h2>
+<p class="text-sm text-on-surface-variant mb-4">Revisão programada próxima. Óleo e freios em bom estado.</p>
+<button class="w-full py-2 rounded-lg font-bold text-sm border border-outline text-on-surface hover:bg-surface-container-high active:scale-95 transition-all">
+                        Agendar Revisão
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container border-t border-outline-variant shadow-lg shadow-secondary/10 fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-stack-md md:hidden">
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:text-secondary active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined fill-icon">speed</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-caps text-label-caps mt-1">Payments</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined">moped</span>
+<span class="font-label-caps text-label-caps mt-1">Service</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

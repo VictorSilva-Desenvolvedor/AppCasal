@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pagamentos - Ducati Panigale V4</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ffb4ab",
+                      "on-primary-fixed-variant": "#474746",
+                      "on-secondary": "#002c70",
+                      "surface-dim": "#121414",
+                      "surface-container-highest": "#343535",
+                      "surface-bright": "#383939",
+                      "on-tertiary-container": "#878482",
+                      "secondary-fixed-dim": "#b1c5ff",
+                      "on-primary-container": "#858484",
+                      "on-tertiary-fixed-variant": "#484645",
+                      "surface-container-lowest": "#0d0e0f",
+                      "secondary-container": "#0148ab",
+                      "surface-variant": "#343535",
+                      "surface-container-high": "#292a2a",
+                      "secondary-fixed": "#dae2ff",
+                      "on-background": "#e3e2e2",
+                      "tertiary-fixed": "#e6e2df",
+                      "on-secondary-container": "#a6beff",
+                      "on-error": "#690005",
+                      "surface": "#121414",
+                      "inverse-on-surface": "#2f3131",
+                      "on-secondary-fixed-variant": "#00419e",
+                      "on-secondary-fixed": "#001946",
+                      "primary": "#c8c6c5",
+                      "primary-fixed": "#e5e2e1",
+                      "tertiary": "#cac6c4",
+                      "on-surface-variant": "#c4c7c7",
+                      "on-primary": "#313030",
+                      "tertiary-fixed-dim": "#cac6c4",
+                      "surface-tint": "#c8c6c5",
+                      "outline-variant": "#444748",
+                      "background": "#121414",
+                      "primary-container": "#1c1c1c",
+                      "on-tertiary": "#31302f",
+                      "surface-container-low": "#1a1c1c",
+                      "on-tertiary-fixed": "#1c1b1a",
+                      "tertiary-container": "#1d1c1b",
+                      "inverse-surface": "#e3e2e2",
+                      "primary-fixed-dim": "#c8c6c5",
+                      "inverse-primary": "#5f5e5e",
+                      "secondary": "#b1c5ff",
+                      "on-primary-fixed": "#1b1b1b",
+                      "outline": "#8e9192",
+                      "surface-container": "#1e2020",
+                      "on-surface": "#e3e2e2",
+                      "on-error-container": "#ffdad6",
+                      "error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-desktop": "40px",
+                      "margin-mobile": "20px",
+                      "stack-md": "12px",
+                      "gutter": "16px",
+                      "stack-lg": "24px",
+                      "stack-sm": "4px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-tabular": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "data-tabular": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .glow-active {
+            box-shadow: 0 0 15px rgba(177, 197, 255, 0.3);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary docked full-width top-0 border-b border-outline-variant flat no shadows flex justify-between items-center w-full px-margin-mobile py-base sticky z-40">
+<div class="flex items-center gap-gutter hover:bg-surface-container-high transition-colors active:scale-95 transition-transform p-2 rounded-full cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="motorcycle" style="font-variation-settings: 'FILL' 1;">motorcycle</span>
+</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">
+            Pagamentos
+        </div>
+<div class="flex items-center hover:bg-surface-container-high transition-colors active:scale-95 transition-transform p-2 rounded-full cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-margin-mobile py-stack-lg pb-32 flex flex-col gap-stack-lg max-w-4xl mx-auto w-full">
+<!-- Summary Card (Bento Style) -->
+<section class="bg-primary-container border border-outline-variant rounded-xl p-stack-lg flex flex-col gap-stack-md relative overflow-hidden">
+<!-- Subtle Inner Glow / Rim Light effect via CSS border on Level 1 card is handled by border-outline-variant -->
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-secondary opacity-10 rounded-full blur-2xl"></div>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Próximo Vencimento</h2>
+<div class="flex items-baseline gap-base">
+<span class="font-display-lg text-display-lg text-on-surface font-extrabold tracking-tighter">R$ 850,00</span>
+</div>
+<div class="flex items-center gap-base mt-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="calendar_today">calendar_today</span>
+<span class="font-data-tabular text-data-tabular text-secondary">15 Out 2024</span>
+</div>
+<button class="mt-4 bg-secondary text-on-secondary font-label-caps text-label-caps py-3 px-6 rounded-lg w-full flex items-center justify-center gap-2 hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="payment">payment</span>
+                PAGAR AGORA
+            </button>
+</section>
+<!-- Tabs -->
+<nav class="flex gap-gutter border-b border-outline-variant">
+<button class="pb-2 border-b-2 border-secondary font-label-caps text-label-caps text-secondary uppercase px-2 tracking-widest">
+                Pendentes
+            </button>
+<button class="pb-2 border-b-2 border-transparent font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface uppercase px-2 tracking-widest transition-colors">
+                Pagos
+            </button>
+</nav>
+<!-- List of Payments -->
+<section class="flex flex-col gap-stack-sm">
+<!-- Payment Item 1 (Pending/Warning) -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-4 flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_balance">account_balance</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Financiamento Parcela 12/24</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-1">Vence 15/10</span>
+</div>
+</div>
+<div class="font-data-tabular text-data-tabular text-on-surface font-bold">
+                    R$ 850,00
+                </div>
+</div>
+<!-- Payment Item 2 (Pending/Normal) -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-4 flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="description">description</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">IPVA 2024</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-1">Vence 20/10</span>
+</div>
+</div>
+<div class="font-data-tabular text-data-tabular text-on-surface font-bold">
+                    R$ 450,00
+                </div>
+</div>
+<!-- Payment Item 3 (Paid/Success) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex items-center justify-between opacity-70">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">Seguro Mensal</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-1">Pago</span>
+</div>
+</div>
+<div class="font-data-tabular text-data-tabular text-on-surface-variant">
+                    R$ 120,00
+                </div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container dark:bg-surface-container text-secondary dark:text-secondary fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-stack-md shadow-lg shadow-secondary/10">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="speed">speed</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200 glow-active" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-label-caps text-label-caps">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="moped">moped</span>
+<span class="font-label-caps text-label-caps">Service</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+<!-- SideNav placeholder for desktop (Hidden on mobile) to respect layout rules -->
+<aside class="hidden md:flex flex-col w-64 fixed left-0 top-0 h-full bg-surface-container border-r border-outline-variant pt-24 px-4 z-30">
+<nav class="flex flex-col gap-4">
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 rounded-lg hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex items-center gap-4 bg-secondary-container text-on-secondary-container p-3 rounded-lg glow-active transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-label-caps text-label-caps">Payments</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 rounded-lg hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="moped">moped</span>
+<span class="font-label-caps text-label-caps">Service</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 rounded-lg hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+</aside>
+</body></html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manutenção - Ducati Panigale V4</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "on-primary-fixed-variant": "#474746",
+                        "on-secondary": "#002c70",
+                        "surface-dim": "#121414",
+                        "surface-container-highest": "#343535",
+                        "surface-bright": "#383939",
+                        "on-tertiary-container": "#878482",
+                        "secondary-fixed-dim": "#b1c5ff",
+                        "on-primary-container": "#858484",
+                        "on-tertiary-fixed-variant": "#484645",
+                        "surface-container-lowest": "#0d0e0f",
+                        "secondary-container": "#0148ab",
+                        "surface-variant": "#343535",
+                        "surface-container-high": "#292a2a",
+                        "secondary-fixed": "#dae2ff",
+                        "on-background": "#e3e2e2",
+                        "tertiary-fixed": "#e6e2df",
+                        "on-secondary-container": "#a6beff",
+                        "on-error": "#690005",
+                        "surface": "#121414",
+                        "inverse-on-surface": "#2f3131",
+                        "on-secondary-fixed-variant": "#00419e",
+                        "on-secondary-fixed": "#001946",
+                        "primary": "#c8c6c5",
+                        "primary-fixed": "#e5e2e1",
+                        "tertiary": "#cac6c4",
+                        "on-surface-variant": "#c4c7c7",
+                        "on-primary": "#313030",
+                        "tertiary-fixed-dim": "#cac6c4",
+                        "surface-tint": "#c8c6c5",
+                        "outline-variant": "#444748",
+                        "background": "#121414",
+                        "primary-container": "#1c1c1c",
+                        "on-tertiary": "#31302f",
+                        "surface-container-low": "#1a1c1c",
+                        "on-tertiary-fixed": "#1c1b1a",
+                        "tertiary-container": "#1d1c1b",
+                        "inverse-surface": "#e3e2e2",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "inverse-primary": "#5f5e5e",
+                        "secondary": "#b1c5ff",
+                        "on-primary-fixed": "#1b1b1b",
+                        "outline": "#8e9192",
+                        "surface-container": "#1e2020",
+                        "on-surface": "#e3e2e2",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "margin-mobile": "20px",
+                        "stack-md": "12px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "stack-sm": "4px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "data-tabular": ["JetBrains Mono"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "data-tabular": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .machined-gradient {
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        }
+        .glow-active {
+            box-shadow: 0 0 15px theme('colors.secondary/30');
+        }
+        .rim-light {
+            border-top: 1px solid #3A3A3A;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased pb-24">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant full-width top-0 z-40 sticky">
+<div class="flex justify-between items-center w-full px-margin-mobile py-base">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-surface" data-icon="motorcycle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">motorcycle</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Manutenção</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-primary dark:text-primary hover:bg-surface-container-high transition-colors active:scale-95 transition-transform rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="px-margin-mobile pt-stack-lg max-w-7xl mx-auto grid grid-cols-4 md:grid-cols-12 gap-gutter">
+<!-- Mileage Tracking Card (Hero) -->
+<section class="col-span-4 md:col-span-12 mb-stack-lg">
+<div class="bg-primary-container rounded-xl p-6 border border-[#2C2C2C] relative overflow-hidden rim-light">
+<div class="absolute inset-0 z-0 opacity-20 pointer-events-none" style="background: radial-gradient(circle at top right, theme('colors.secondary'), transparent 60%);"></div>
+<div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<div>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Odômetro Atual</h2>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-on-surface">12.500</span>
+<span class="font-data-tabular text-data-tabular text-on-surface-variant">km</span>
+</div>
+</div>
+<div class="w-16 h-16 rounded-full border-4 border-secondary flex items-center justify-center glow-active">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="speed" data-weight="fill" style="font-variation-settings: 'FILL' 1;">speed</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Upcoming Services List -->
+<section class="col-span-4 md:col-span-8 mb-stack-lg">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Próximos Serviços</h3>
+<button class="font-label-caps text-label-caps text-secondary uppercase hover:text-secondary-fixed transition-colors">Ver Histórico</button>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<!-- Warning Item -->
+<div class="bg-primary-container rounded-lg p-4 border border-error/50 flex items-center justify-between relative overflow-hidden rim-light">
+<div class="absolute inset-0 bg-error/5 pointer-events-none"></div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-10 h-10 rounded-full bg-error-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-error" data-icon="oil_barrel" data-weight="fill" style="font-variation-settings: 'FILL' 1;">oil_barrel</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold text-on-surface">Troca de Óleo</p>
+<p class="font-label-caps text-label-caps text-error uppercase">Em 500 km ou 15 dias</p>
+</div>
+</div>
+<button class="bg-error text-on-error px-4 py-2 rounded font-label-caps text-label-caps uppercase hover:bg-error/90 transition-colors">Agendar</button>
+</div>
+<!-- Normal Item -->
+<div class="bg-primary-container rounded-lg p-4 border border-[#2C2C2C] flex items-center justify-between rim-light">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="handyman" data-weight="fill" style="font-variation-settings: 'FILL' 1;">handyman</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold text-on-surface">Revisão Geral</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Em 2.500 km</p>
+</div>
+</div>
+</div>
+<!-- Normal Item -->
+<div class="bg-primary-container rounded-lg p-4 border border-[#2C2C2C] flex items-center justify-between rim-light">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="tire_repair" data-weight="fill" style="font-variation-settings: 'FILL' 1;">tire_repair</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold text-on-surface">Pneus</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Em 5.000 km</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Decorative / Secondary Info -->
+<section class="col-span-4 md:col-span-4 hidden md:block">
+<div class="bg-primary-container rounded-xl p-6 border border-[#2C2C2C] h-full flex flex-col justify-center items-center text-center rim-light">
+<span class="material-symbols-outlined text-6xl text-surface-variant mb-4" data-icon="settings_suggest" data-weight="fill" style="font-variation-settings: 'FILL' 1;">settings_suggest</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Mantenha sua moto em dia para garantir performance e segurança máximas.</p>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-margin-mobile md:bottom-8 md:right-margin-desktop bg-secondary text-on-secondary rounded-xl w-14 h-14 flex items-center justify-center shadow-lg machined-gradient hover:bg-secondary-fixed transition-colors active:scale-95 z-40">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-stack-md border-t border-outline-variant shadow-lg shadow-secondary/10 md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-secondary" data-icon="speed">speed</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-secondary" data-icon="payments">payments</span>
+<span class="font-label-caps text-label-caps">Payments</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="moped" data-weight="fill" style="font-variation-settings: 'FILL' 1;">moped</span>
+<span class="font-label-caps text-label-caps">Service</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-secondary" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+</body></html>

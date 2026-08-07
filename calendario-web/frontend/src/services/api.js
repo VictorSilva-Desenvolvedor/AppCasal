@@ -535,6 +535,71 @@ function getWeeklySummary() {
   return request('/weekly-summary');
 }
 
+function getVehicles(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/vehicles${query ? `?${query}` : ''}`);
+}
+
+function createVehicle(payload) {
+  return request('/vehicles', { method: 'POST', body: payload });
+}
+
+function updateVehicle(id, payload) {
+  return request(`/vehicles/${id}`, { method: 'PUT', body: payload });
+}
+
+function deleteVehicle(id) {
+  return request(`/vehicles/${id}`, { method: 'DELETE' });
+}
+
+function getVehicleMaintenances(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/vehicle-maintenances${query ? `?${query}` : ''}`);
+}
+
+function createVehicleMaintenance(payload) {
+  return request('/vehicle-maintenances', { method: 'POST', body: payload });
+}
+
+function updateVehicleMaintenance(id, payload) {
+  return request(`/vehicle-maintenances/${id}`, { method: 'PUT', body: payload });
+}
+
+function completeVehicleMaintenance(id, completedOdometer) {
+  return request(`/vehicle-maintenances/${id}/complete`, { method: 'POST', body: { completedOdometer } });
+}
+
+function deleteVehicleMaintenance(id) {
+  return request(`/vehicle-maintenances/${id}`, { method: 'DELETE' });
+}
+
+function getVehiclePayments(filters = {}) {
+  const query = new URLSearchParams(
+    Object.entries(filters).filter(([, value]) => value !== undefined && value !== '')
+  ).toString();
+  return request(`/vehicle-payments${query ? `?${query}` : ''}`);
+}
+
+function createVehiclePayment(payload) {
+  return request('/vehicle-payments', { method: 'POST', body: payload });
+}
+
+function updateVehiclePayment(id, payload) {
+  return request(`/vehicle-payments/${id}`, { method: 'PUT', body: payload });
+}
+
+function payVehiclePayment(id) {
+  return request(`/vehicle-payments/${id}/pay`, { method: 'POST' });
+}
+
+function deleteVehiclePayment(id) {
+  return request(`/vehicle-payments/${id}`, { method: 'DELETE' });
+}
+
 export const api = {
   register,
   login,
@@ -642,6 +707,20 @@ export const api = {
   toggleTaskItem,
   deleteTaskItem,
   getWeeklySummary,
+  getVehicles,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle,
+  getVehicleMaintenances,
+  createVehicleMaintenance,
+  updateVehicleMaintenance,
+  completeVehicleMaintenance,
+  deleteVehicleMaintenance,
+  getVehiclePayments,
+  createVehiclePayment,
+  updateVehiclePayment,
+  payVehiclePayment,
+  deleteVehiclePayment,
 };
 
 export { API_BASE_URL };

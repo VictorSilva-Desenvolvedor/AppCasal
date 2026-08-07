@@ -1,0 +1,301 @@
+/* ---------- Página Veículos ---------- */
+
+.vehicle-page-header {
+  @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+}
+
+.vehicle-empty-state {
+  @apply flex flex-col items-center gap-3 p-10 text-center text-text-muted;
+}
+
+.vehicle-empty-state svg {
+  @apply w-10 h-10 text-text-muted;
+}
+
+.vehicle-selector {
+  @apply flex gap-2 flex-wrap mb-4;
+}
+
+.vehicle-selector-pill {
+  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.vehicle-selector-pill.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.vehicle-tabs {
+  @apply flex items-center gap-[0.35rem] mb-5 flex-wrap;
+}
+
+.vehicle-tab-btn {
+  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.vehicle-tab-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.vehicle-tab-edit-btn {
+  @apply ml-auto w-8 h-8 flex items-center justify-center rounded-full border border-border bg-surface
+    text-text-muted cursor-pointer transition-colors duration-150 hover:border-primary hover:text-text;
+}
+
+/* ---------- Formulários ---------- */
+
+.vehicle-form {
+  @apply flex flex-col gap-3;
+}
+
+.vehicle-form-row {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-3;
+}
+
+.vehicle-form-actions {
+  @apply flex justify-end gap-2 mt-2;
+}
+
+.vehicle-category-toggle {
+  @apply flex gap-2 flex-wrap;
+}
+
+.vehicle-category-toggle-btn {
+  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary;
+}
+
+.vehicle-category-toggle-btn.is-active {
+  @apply text-on-primary border-transparent;
+  background: var(--color-primary);
+}
+
+.vehicle-label-caps {
+  @apply text-xs font-semibold uppercase tracking-wide text-text-muted;
+}
+
+/* ---------- Dashboard ---------- */
+
+.vehicle-dashboard-tab {
+  @apply flex flex-col gap-4;
+}
+
+.vehicle-hero-card {
+  @apply p-6 flex flex-col gap-2;
+}
+
+.vehicle-hero-odometer {
+  @apply flex items-center gap-2 text-2xl font-bold text-text;
+}
+
+.vehicle-hero-subtitle {
+  @apply text-sm text-text-muted;
+}
+
+.vehicle-dashboard-grid {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.vehicle-dashboard-card {
+  @apply p-4 flex flex-col gap-2;
+}
+
+.vehicle-dashboard-card-value {
+  @apply text-2xl;
+}
+
+.vehicle-due-pill {
+  @apply inline-flex items-center gap-1 self-start text-xs font-semibold px-2.5 py-1 rounded-full
+    bg-warning-bg text-warning;
+}
+
+.vehicle-due-pill.is-urgent {
+  @apply bg-danger-bg text-danger;
+}
+
+.vehicle-health-card {
+  @apply flex-row items-center gap-5;
+}
+
+.vehicle-health-ring {
+  @apply relative w-20 h-20 flex-shrink-0;
+}
+
+.vehicle-health-ring svg {
+  @apply w-full h-full -rotate-90;
+}
+
+.vehicle-health-ring-track {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 8;
+}
+
+.vehicle-health-ring-fill {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s var(--ease);
+}
+
+.vehicle-health-ring-fill.is-low {
+  stroke: var(--color-danger);
+}
+
+.vehicle-health-ring-value {
+  @apply absolute inset-0 flex items-center justify-center text-lg font-bold text-text;
+}
+
+.vehicle-health-hint {
+  @apply text-sm text-text-muted my-2;
+}
+
+/* ---------- Manutenção ---------- */
+
+.vehicle-maintenance-tab {
+  @apply flex flex-col gap-4;
+}
+
+.vehicle-odometer-card {
+  @apply p-5 flex flex-col gap-2;
+}
+
+.vehicle-odometer-value {
+  @apply flex items-center gap-2 text-2xl font-bold text-text;
+}
+
+.vehicle-odometer-form {
+  @apply flex gap-2 mt-1 flex-wrap;
+}
+
+.vehicle-odometer-form input {
+  @apply max-w-[10rem];
+}
+
+.vehicle-section-header {
+  @apply flex items-center justify-between gap-2 mt-1 mb-1;
+}
+
+.vehicle-maintenance-list {
+  @apply flex flex-col gap-2;
+}
+
+.vehicle-maintenance-item {
+  @apply flex items-center justify-between gap-3 flex-wrap p-3.5;
+}
+
+.vehicle-maintenance-item.is-urgent {
+  @apply border-warning;
+}
+
+.vehicle-maintenance-item.is-overdue {
+  @apply border-danger;
+}
+
+.vehicle-maintenance-item.is-done {
+  @apply bg-bg opacity-80;
+}
+
+.vehicle-maintenance-item-main {
+  @apply flex items-start gap-2.5 min-w-0;
+}
+
+.vehicle-maintenance-icon {
+  @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-bg text-text-muted;
+}
+
+.vehicle-maintenance-icon--done {
+  @apply text-success;
+}
+
+.vehicle-maintenance-meta {
+  @apply block text-sm text-text-muted;
+}
+
+.vehicle-maintenance-item.is-overdue .vehicle-maintenance-meta {
+  @apply text-danger font-semibold;
+}
+
+.vehicle-maintenance-item.is-urgent .vehicle-maintenance-meta {
+  @apply text-warning font-semibold;
+}
+
+.vehicle-maintenance-item-actions {
+  @apply flex items-center gap-1.5 flex-wrap sm:justify-end;
+}
+
+.vehicle-cost-pill {
+  @apply text-text-muted;
+}
+
+/* ---------- Pagamentos ---------- */
+
+.vehicle-payments-tab {
+  @apply flex flex-col gap-4;
+}
+
+.vehicle-payments-summary {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.vehicle-payments-summary-card {
+  @apply p-4 flex flex-col gap-1;
+}
+
+.vehicle-payments-summary-card strong {
+  @apply text-2xl;
+}
+
+.vehicle-payments-summary-card--pending strong {
+  @apply text-danger;
+}
+
+.vehicle-payments-summary-card--paid strong {
+  @apply text-success;
+}
+
+.vehicle-payments-list {
+  @apply flex flex-col gap-2;
+}
+
+.vehicle-payment-item {
+  @apply flex items-center justify-between gap-3 flex-wrap p-3.5;
+}
+
+.vehicle-payment-item.is-paid {
+  @apply bg-bg opacity-80;
+}
+
+.vehicle-payment-item-main {
+  @apply flex items-start gap-2.5 min-w-0;
+}
+
+.vehicle-payment-icon {
+  @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-bg text-text-muted;
+}
+
+.vehicle-payment-icon--done {
+  @apply text-success;
+}
+
+.vehicle-payment-meta {
+  @apply block text-sm text-text-muted;
+}
+
+.vehicle-payment-item.is-urgent .vehicle-payment-meta {
+  @apply text-danger font-semibold;
+}
+
+.vehicle-payment-item-side {
+  @apply flex items-center gap-2.5 flex-wrap sm:justify-end;
+}
+
+.vehicle-value--negative {
+  @apply text-danger;
+}
