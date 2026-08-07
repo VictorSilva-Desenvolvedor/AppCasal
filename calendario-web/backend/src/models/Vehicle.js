@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 
+const odometerHistoryEntrySchema = new mongoose.Schema(
+  {
+    value: { type: Number, required: true, min: 0 },
+    changedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const vehicleSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 60 },
@@ -11,6 +19,12 @@ const vehicleSchema = new mongoose.Schema(
     photoUrl: { type: String, default: '', trim: true },
 
     currentOdometer: { type: Number, default: 0, min: 0 },
+
+    // Guarda os valores anteriores do odômetro (mais recente primeiro) toda
+    // vez que ele muda — permite reverter uma correção errada (ex: digitou
+    // um zero a mais) sem precisar lembrar o número certo de cabeça.
+    odometerHistory: { type: [odometerHistoryEntrySchema], default: [] },
+
     purchaseDate: { type: Date, default: null },
     notes: { type: String, default: '', trim: true, maxlength: 500 },
 

@@ -116,12 +116,17 @@ async function complete(req, res) {
   await item.save();
 
   // Concluir uma manutenção é a forma mais comum do usuário informar o km
-  // atual — atualiza o odômetro do veículo se o valor informado for maior.
+  // atual — atualiza o odômetro do veículo se o valor informado for maior,
+  // guardando o valor anterior no histórico (mesmo mecanismo de reverter do
+  // vehicleController#update).
   if (completedOdometer != null) {
-    await Vehicle.updateOne(
-      { _id: item.vehicle, team: req.userTeam, currentOdometer: { $lt: completedOdometer } },
-      { $set: { currentOdometer: completedOdometer } }
-    );
+    const owningVehicle = await Vehicle.findOne({ _id: item.vehicle, team: req.userTeam });
+    if (owningVehicle && completedOdometer > owningVehicle.currentOdometer) {
+      owningVehicle.odometerHistory.unshift({ value: owningVehicle.currentOdometer, changedAt: new Date() });
+      owningVehicle.odometerHistory = owningVehicle.odometerHistory.slice(0, 15);
+      owningVehicle.currentOdometer = completedOdometer;
+      await owningVehicle.save();
+    }
   }
 
   // Item recorrente (ex.: "calibrar pneu toda semana", "trocar óleo a cada

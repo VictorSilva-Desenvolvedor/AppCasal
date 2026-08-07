@@ -55,29 +55,36 @@ async function create(req, res) {
   }).catch((err) => console.error('Falha ao notificar novo veículo:', err.message));
 }
 
+const ODOMETER_HISTORY_LIMIT = 15;
+
 async function update(req, res) {
   const { name, brand, model, plate, year, color, photoUrl, currentOdometer, purchaseDate, notes, archived } =
     req.body;
-  const changes = {};
-  if (name !== undefined) changes.name = name;
-  if (brand !== undefined) changes.brand = brand;
-  if (model !== undefined) changes.model = model;
-  if (plate !== undefined) changes.plate = plate;
-  if (year !== undefined) changes.year = year;
-  if (color !== undefined) changes.color = color;
-  if (photoUrl !== undefined) changes.photoUrl = photoUrl;
-  if (currentOdometer !== undefined) changes.currentOdometer = currentOdometer;
-  if (purchaseDate !== undefined) changes.purchaseDate = purchaseDate;
-  if (notes !== undefined) changes.notes = notes;
-  if (archived !== undefined) changes.archived = archived;
 
-  const existing = await Vehicle.findOne({ _id: req.params.id, team: req.userTeam });
-  if (!existing) return res.status(404).json({ message: 'Veículo não encontrado' });
+  const vehicle = await Vehicle.findOne({ _id: req.params.id, team: req.userTeam });
+  if (!vehicle) return res.status(404).json({ message: 'Veículo não encontrado' });
 
-  const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, changes, {
-    new: true,
-    runValidators: true,
-  });
+  if (name !== undefined) vehicle.name = name;
+  if (brand !== undefined) vehicle.brand = brand;
+  if (model !== undefined) vehicle.model = model;
+  if (plate !== undefined) vehicle.plate = plate;
+  if (year !== undefined) vehicle.year = year;
+  if (color !== undefined) vehicle.color = color;
+  if (photoUrl !== undefined) vehicle.photoUrl = photoUrl;
+  if (purchaseDate !== undefined) vehicle.purchaseDate = purchaseDate;
+  if (notes !== undefined) vehicle.notes = notes;
+  if (archived !== undefined) vehicle.archived = archived;
+
+  // Qualquer mudança de odômetro (subindo ou descendo — corrigir um erro de
+  // digitação é um caso legítimo) guarda o valor anterior no histórico antes
+  // de trocar, pra dar pra reverter depois.
+  if (currentOdometer !== undefined && currentOdometer !== vehicle.currentOdometer) {
+    vehicle.odometerHistory.unshift({ value: vehicle.currentOdometer, changedAt: new Date() });
+    vehicle.odometerHistory = vehicle.odometerHistory.slice(0, ODOMETER_HISTORY_LIMIT);
+    vehicle.currentOdometer = currentOdometer;
+  }
+
+  await vehicle.save();
 
   await logActivity({
     actor: req.userId,
