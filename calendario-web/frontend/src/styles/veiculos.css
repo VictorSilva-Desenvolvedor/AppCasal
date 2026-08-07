@@ -205,6 +205,26 @@
   @apply max-w-[10rem];
 }
 
+.vehicle-odometer-history {
+  @apply mt-1;
+}
+
+.vehicle-odometer-history-toggle {
+  @apply inline-flex items-center gap-1 text-sm text-text-muted hover:text-text transition-colors cursor-pointer bg-transparent border-0 p-0;
+}
+
+.vehicle-odometer-history-list {
+  @apply flex flex-col gap-1.5 mt-2 list-none p-0 m-0;
+}
+
+.vehicle-odometer-history-list li {
+  @apply flex items-center justify-between gap-2 text-sm;
+}
+
+.vehicle-odometer-history-date {
+  @apply text-text-muted;
+}
+
 .vehicle-section-header {
   @apply flex items-center justify-between gap-2 mt-1 mb-1 flex-wrap;
 }

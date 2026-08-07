@@ -18,6 +18,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
   const { isPending, run } = usePendingIds();
   const [odometerInput, setOdometerInput] = useState(vehicle.currentOdometer);
   const [savingOdometer, setSavingOdometer] = useState(false);
+  const [showOdometerHistory, setShowOdometerHistory] = useState(false);
   const [applyingPreset, setApplyingPreset] = useState(false);
   const [completingItem, setCompletingItem] = useState(null);
   const [completingOdometer, setCompletingOdometer] = useState(vehicle.currentOdometer);
@@ -35,7 +36,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
   async function handleUpdateOdometer(event) {
     event.preventDefault();
     const value = Number(odometerInput);
-    if (Number.isNaN(value) || value < vehicle.currentOdometer) {
+    if (Number.isNaN(value) || value < 0) {
       showToast('Informe um valor de odômetro válido', 'error');
       return;
     }
@@ -48,6 +49,17 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
       showToast(err.message, 'error');
     } finally {
       setSavingOdometer(false);
+    }
+  }
+
+  async function handleRevertOdometer(value) {
+    try {
+      await run(`odometer-${value}`, () => api.updateVehicle(vehicle._id, { currentOdometer: value }));
+      setOdometerInput(value);
+      await onChanged();
+      showToast(`Odômetro revertido para ${formatKm(value)}`, 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
     }
   }
 
@@ -117,7 +129,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
         <form className="vehicle-odometer-form" onSubmit={handleUpdateOdometer}>
           <input
             type="number"
-            min={vehicle.currentOdometer}
+            min={0}
             value={odometerInput}
             onChange={(event) => setOdometerInput(event.target.value)}
           />
@@ -125,6 +137,37 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
             Atualizar km
           </Button>
         </form>
+
+        {vehicle.odometerHistory?.length > 0 && (
+          <div className="vehicle-odometer-history">
+            <button
+              type="button"
+              className="vehicle-odometer-history-toggle"
+              onClick={() => setShowOdometerHistory((open) => !open)}
+            >
+              <Icon name={showOdometerHistory ? 'chevron-left' : 'chevron-right'} />
+              {showOdometerHistory ? 'Esconder' : 'Ver'} valores anteriores
+            </button>
+            {showOdometerHistory && (
+              <ul className="vehicle-odometer-history-list">
+                {vehicle.odometerHistory.map((entry) => (
+                  <li key={entry.changedAt}>
+                    <span>
+                      {formatKm(entry.value)} <span className="vehicle-odometer-history-date">até {formatDate(entry.changedAt)}</span>
+                    </span>
+                    <Button
+                      variant="secondary"
+                      loading={isPending(`odometer-${entry.value}`)}
+                      onClick={() => handleRevertOdometer(entry.value)}
+                    >
+                      Reverter
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </Card>
 
       <div className="vehicle-section-header">
