@@ -2,7 +2,6 @@ const Event = require('../models/Event');
 const Invitation = require('../models/Invitation');
 const ReminderLog = require('../models/ReminderLog');
 const Settings = require('../models/Settings');
-const { sendWhatsappMessage } = require('./whatsappService');
 const { sendPushNotification } = require('./pushService');
 const { normalizeRule, getOccurrencesInRange, toUTCDateOnly } = require('../utils/recurrence');
 
@@ -23,10 +22,7 @@ async function resolveRecipients(event) {
     candidates.set(String(event.creator._id), event.creator);
   }
 
-  const invitations = await Invitation.find({ event: event._id, status: 'accepted' }).populate(
-    'invitee',
-    'name whatsappNumber'
-  );
+  const invitations = await Invitation.find({ event: event._id, status: 'accepted' }).populate('invitee', 'name');
 
   for (const inv of invitations) {
     const user = inv.invitee;
@@ -43,13 +39,7 @@ async function resolveRecipients(event) {
     const settings = settingsByUser.get(id);
     if (settings?.remindersMuted) continue;
 
-    const channel = settings?.notificationChannel || 'both';
-    if (channel === 'whatsapp' && !user.whatsappNumber) {
-      console.error(`${user.name} sem WhatsApp cadastrado; ignorando para o evento "${event.title}".`);
-      continue;
-    }
-
-    recipients.push({ user, channel });
+    recipients.push({ user });
   }
 
   return recipients;
@@ -57,7 +47,7 @@ async function resolveRecipients(event) {
 
 async function checkAndSendReminders() {
   const todayUTC = toUTCDateOnly(new Date());
-  const events = await Event.find().populate('creator', 'name whatsappNumber');
+  const events = await Event.find().populate('creator', 'name');
 
   let sent = 0;
   let skipped = 0;
@@ -84,7 +74,7 @@ async function checkAndSendReminders() {
       for (const { occurrence, diff } of qualifying) {
         const text = `🔔 Lembrete: "${event.title}" é em ${diff} dia${diff > 1 ? 's' : ''} (${formatBR(occurrence)}).`;
 
-        for (const { user: recipient, channel } of recipients) {
+        for (const { user: recipient } of recipients) {
           const filter = { event: event._id, recipient: recipient._id, offsetDays: diff, occurrenceDate: occurrence };
           const already = await ReminderLog.findOneAndUpdate(
             filter,
@@ -97,18 +87,10 @@ async function checkAndSendReminders() {
             continue;
           }
 
-          let delivered = false;
-
-          if (channel !== 'push' && recipient.whatsappNumber) {
-            delivered = await sendWhatsappMessage(recipient.whatsappNumber, text);
-          }
-
-          if (!delivered && channel !== 'whatsapp') {
-            delivered = await sendPushNotification(recipient._id, {
-              title: 'Lembrete de evento',
-              body: text,
-            });
-          }
+          const delivered = await sendPushNotification(recipient._id, {
+            title: 'Lembrete de evento',
+            body: text,
+          });
 
           if (delivered) {
             sent++;

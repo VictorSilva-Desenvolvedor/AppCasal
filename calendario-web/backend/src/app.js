@@ -1,7 +1,7 @@
-const path = require('path');
 const express = require('express');
 const cors = require('cors');
 
+const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
@@ -12,7 +12,6 @@ const updateRequestRoutes = require('./routes/updateRequestRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
 const reminderRoutes = require('./routes/reminderRoutes');
 const pushRoutes = require('./routes/pushRoutes');
-const whatsappRoutes = require('./routes/whatsappRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const financeCategoryRoutes = require('./routes/financeCategoryRoutes');
 const financeEntryRoutes = require('./routes/financeEntryRoutes');
@@ -32,13 +31,24 @@ const weeklySummaryRoutes = require('./routes/weeklySummaryRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const vehicleMaintenanceRoutes = require('./routes/vehicleMaintenanceRoutes');
 const vehiclePaymentRoutes = require('./routes/vehiclePaymentRoutes');
-const { isWhatsappReady } = require('./services/whatsappService');
 const { isFcmReady } = require('./services/fcmService');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Conecta (ou reaproveita a conexão já aberta) antes de cada requisição —
+// necessário em ambiente serverless, onde não há um bootstrap único que
+// roda antes do processo aceitar requisições.
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
@@ -50,7 +60,6 @@ app.use('/api/update-requests', updateRequestRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/push', pushRoutes);
-app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/finance-categories', financeCategoryRoutes);
 app.use('/api/finance-entries', financeEntryRoutes);
@@ -71,18 +80,7 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/vehicle-maintenances', vehicleMaintenanceRoutes);
 app.use('/api/vehicle-payments', vehiclePaymentRoutes);
 
-app.get('/api/health', (req, res) => res.json({ ok: true, whatsapp: isWhatsappReady(), fcm: isFcmReady() }));
-
-const frontendDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
-app.use(express.static(frontendDir));
-
-// Fallback de SPA: qualquer rota GET que não seja /api/* e não bata em um
-// arquivo estático cai no index.html, para o React Router assumir o
-// client-side routing (inclusive em refresh direto de /app/calendario etc.).
-app.use((req, res, next) => {
-  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
-  res.sendFile(path.join(frontendDir, 'index.html'));
-});
+app.get('/api/health', (req, res) => res.json({ ok: true, fcm: isFcmReady() }));
 
 app.use((err, req, res, next) => {
   console.error(err);

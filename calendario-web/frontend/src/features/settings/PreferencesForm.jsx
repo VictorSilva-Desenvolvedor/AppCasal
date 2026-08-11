@@ -16,7 +16,6 @@ function CheckboxField({ id, label, checked, onChange }) {
 
 export function PreferencesForm() {
   const {
-    notificationChannel,
     remindersMuted,
     notifyOnInvite,
     habitRemindersMuted,
@@ -29,7 +28,6 @@ export function PreferencesForm() {
   } = useTheme();
   const { showToast } = useToast();
 
-  const [channel, setChannel] = useState(notificationChannel);
   const [muted, setMuted] = useState(remindersMuted);
   const [notifyInvite, setNotifyInvite] = useState(notifyOnInvite);
   const [habitMuted, setHabitMuted] = useState(habitRemindersMuted);
@@ -41,7 +39,6 @@ export function PreferencesForm() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => setChannel(notificationChannel), [notificationChannel]);
   useEffect(() => setMuted(remindersMuted), [remindersMuted]);
   useEffect(() => setNotifyInvite(notifyOnInvite), [notifyOnInvite]);
   useEffect(() => setHabitMuted(habitRemindersMuted), [habitRemindersMuted]);
@@ -57,7 +54,6 @@ export function PreferencesForm() {
     setSaving(true);
     try {
       await updatePreferences({
-        notificationChannel: channel,
         remindersMuted: muted,
         notifyOnInvite: notifyInvite,
         habitRemindersMuted: habitMuted,
@@ -80,18 +76,6 @@ export function PreferencesForm() {
     <div className="card settings-form" style={{ marginTop: '1.5rem' }}>
       <h3 style={{ marginTop: 0 }}>Preferências do sistema</h3>
       <form onSubmit={handleSubmit}>
-        <Field label="Canal de notificação preferido" htmlFor="pref-notification-channel">
-          <select
-            id="pref-notification-channel"
-            value={channel}
-            onChange={(event) => setChannel(event.target.value)}
-          >
-            <option value="both">WhatsApp e Push</option>
-            <option value="whatsapp">Somente WhatsApp</option>
-            <option value="push">Somente Push</option>
-          </select>
-        </Field>
-
         <CheckboxField
           id="pref-reminders-muted"
           label="Silenciar lembretes de evento"

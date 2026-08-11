@@ -25,9 +25,7 @@ export function PushNotificationToggle() {
   return (
     <div className="card settings-form" style={{ marginTop: '1.5rem' }}>
       <h3 style={{ marginTop: 0 }}>Notificações push</h3>
-      <p>
-        Recebe os lembretes de evento neste dispositivo quando o WhatsApp estiver desconectado.
-      </p>
+      <p>Recebe os lembretes de evento e de hábito neste dispositivo.</p>
       <Button type="button" variant={subscribed ? 'secondary' : 'primary'} loading={loading} onClick={handleToggle}>
         {subscribed ? 'Desativar notificações push' : 'Ativar notificações push'}
       </Button>

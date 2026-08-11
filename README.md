@@ -4,9 +4,7 @@ Aplicação web (e app Android) de calendário pessoal para casais: eventos comp
 
 ## 🔗 Acesse o app
 
-**[https://calendariopessoalmariaxvictor.onrender.com/login](https://calendariopessoalmariaxvictor.onrender.com/login)**
-
-> O deploy é feito no plano gratuito do Render, então se o app ficar inativo por um tempo ele "hiberna" — o primeiro acesso pode levar de 30s a 1 minuto para carregar. É só aguardar e recarregar a página.
+**[https://app-casal-puce.vercel.app/login](https://app-casal-puce.vercel.app/login)**
 
 ## 🧪 Conta de teste
 
@@ -53,7 +51,6 @@ Quer só dar uma olhada sem mexer nos dados reais? Use a conta de teste, que fic
 - **Convites** — convite de parceiro(a) para o mesmo espaço (team)
 - **Log de atividades** — histórico do que foi feito no app
 - **Solicitações de atualização** — pedidos de mudança com geração de título/descrição via IA (Gemini)
-- **Lembretes via WhatsApp** — integração com Baileys
 - **Notificações push** — Web Push e Firebase Cloud Messaging (app Android)
 - **App Android** — empacotado com Capacitor
 
@@ -63,6 +60,7 @@ Quer só dar uma olhada sem mexer nos dados reais? Use a conta de teste, que fic
 - **Frontend:** React 19 + Vite + Tailwind CSS v4
 - **Mobile:** Capacitor (Android)
 - **Testes:** Jest (backend) + Vitest (frontend)
+- **Deploy:** Vercel (frontend estático + backend como Serverless Functions)
 
 ## 🚀 Como rodar localmente
 
@@ -91,7 +89,7 @@ npm run dev
 
 Sobe em `http://localhost:5500`, com as chamadas `/api` redirecionadas automaticamente para `http://localhost:3000`.
 
-Em produção, o próprio backend serve o build do frontend como arquivos estáticos (não é necessário rodar os dois separadamente).
+Em produção (Vercel), o frontend é servido como site estático e o backend roda como Serverless Functions sob `/api/*` — não é necessário rodar os dois separadamente nem o backend servir o build do frontend.
 
 ### Popular o banco com dados de exemplo
 
@@ -108,15 +106,31 @@ Copie `calendario-web/backend/.env.example` para `.env` e preencha:
 
 | Variável | Para quê serve |
 |---|---|
-| `PORT` | Porta do servidor Express (padrão 3000) |
+| `PORT` | Porta do servidor Express em dev local (padrão 3000; não usada na Vercel) |
 | `MONGO_URI` | String de conexão do MongoDB |
 | `JWT_SECRET` | Chave secreta para assinar os tokens JWT |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Armazenamento de fotos/anexos dos eventos |
-| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_CONTACT_EMAIL` | Web Push (fallback de lembrete quando o WhatsApp está desconectado) |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_CONTACT_EMAIL` | Web Push (lembretes de evento/hábito no navegador) |
 | `GEMINI_API_KEY` | Geração de título/descrição em "Pedir atualização" |
 | `TMDB_API_KEY` | Busca de capas de filmes/séries na Watchlist |
 | `RAWG_API_KEY` | Busca de capas de jogos na Watchlist |
 | `FCM_SERVICE_ACCOUNT_JSON` | Push notifications nativas no app Android (Capacitor) |
+| `CRON_SECRET` | Autentica as chamadas aos endpoints `/api/cron/*` (ver [Deploy e cron jobs](#-deploy-e-cron-jobs)) |
+
+## ☁️ Deploy e cron jobs
+
+O app roda inteiro na Vercel: o frontend (build do Vite) é servido como site estático e o backend vira Serverless Functions sob `/api/*` (ver `vercel.json` e `api/index.js` na raiz do repo). O projeto está conectado ao GitHub — todo push na branch `main` dispara um novo deploy.
+
+Como o plano Hobby da Vercel só permite Cron Jobs 1x por dia, as tarefas agendadas do app foram divididas em duas categorias:
+
+- **Diárias** (`vercel.json` → `crons`): lembrete de evento (08:00) e avaliação de streak de hábito + reset de tarefas (00:05), ambas em `America/Sao_Paulo`. A Vercel chama esses endpoints sozinha e se autentica automaticamente via `CRON_SECRET`.
+- **A cada minuto** (`/api/cron/habit-reminders`): o lembrete de hábito depende do horário exato configurado em cada hábito, então precisa rodar minuto a minuto — frequência que o Hobby não permite via Vercel Cron. É necessário configurar um serviço externo gratuito, como o [cron-job.org](https://cron-job.org), pra chamar:
+
+  ```
+  https://<seu-domínio>.vercel.app/api/cron/habit-reminders?secret=<CRON_SECRET>
+  ```
+
+  a cada 1 minuto.
 
 ## ✅ Testes
 
@@ -133,6 +147,9 @@ npm test
 ## 📁 Estrutura do projeto
 
 ```
+api/                  # entrypoint serverless (Vercel) — reexporta o app Express e os cron jobs
+├── index.js
+└── cron/
 calendario-web/
 ├── backend/
 │   └── src/
