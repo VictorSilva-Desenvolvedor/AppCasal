@@ -2,7 +2,6 @@ const Habit = require('../models/Habit');
 const HabitReminderLog = require('../models/HabitReminderLog');
 const Settings = require('../models/Settings');
 const User = require('../models/User');
-const { sendWhatsappMessage } = require('./whatsappService');
 const { sendPushNotification } = require('./pushService');
 const { todayKeyInTimezone } = require('../utils/dayKey');
 const { resolveTargetUsersAndCompletion, groupUsersByTeam } = require('./habitStreakService');
@@ -56,16 +55,8 @@ async function checkAndSendHabitReminders() {
           continue;
         }
 
-        const channel = settings?.notificationChannel || 'both';
         const text = `⏰ Hora de "${habit.name}"!`;
-
-        let delivered = false;
-        if (channel !== 'push' && targetUser.whatsappNumber) {
-          delivered = await sendWhatsappMessage(targetUser.whatsappNumber, text);
-        }
-        if (!delivered && channel !== 'whatsapp') {
-          delivered = await sendPushNotification(targetUser._id, { title: 'Lembrete de hábito', body: text });
-        }
+        const delivered = await sendPushNotification(targetUser._id, { title: 'Lembrete de hábito', body: text });
 
         if (delivered) {
           sent++;

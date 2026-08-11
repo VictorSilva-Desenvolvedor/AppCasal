@@ -3,7 +3,6 @@ require('dotenv').config();
 const cron = require('node-cron');
 const connectDB = require('./config/db');
 const app = require('./app');
-const { startWhatsapp } = require('./services/whatsappService');
 const { checkAndSendReminders } = require('./services/reminderService');
 const { checkAndSendHabitReminders } = require('./services/habitReminderService');
 const { evaluateHabitStreaks } = require('./services/habitStreakService');
@@ -14,8 +13,6 @@ const PORT = process.env.PORT || 3000;
 connectDB()
   .then(() => {
     app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
-
-    startWhatsapp().catch((err) => console.error('Falha ao iniciar WhatsApp:', err.message));
 
     // Recupera o ciclo perdido se o processo estava fora do ar na hora do cron
     // (deploy, restart, queda) — o reset é idempotente por dayKey.
