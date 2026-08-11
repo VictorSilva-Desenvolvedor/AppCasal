@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Render health endpoint
-        run: curl -fsS --max-time 20 https://calendariopessoalmariaxvictor.onrender.com/api/health
+        run: curl -fsS --max-time 60 https://calendariopessoalmariaxvictor.onrender.com/api/health
