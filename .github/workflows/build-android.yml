@@ -33,7 +33,9 @@ jobs:
 
       - name: Gera o APK de debug
         working-directory: calendario-web/frontend/android
-        run: ./gradlew assembleDebug
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
       - uses: actions/upload-artifact@v4
         with:
