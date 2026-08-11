@@ -1,0 +1,41 @@
+name: build-android
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: calendario-web/frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: calendario-web/frontend/package-lock.json
+
+      - name: Instala dependências e builda o frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Sincroniza o projeto Android com o build do Capacitor
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Gera o APK de debug
+        working-directory: calendario-web/frontend/android
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-casal-debug-apk
+          path: calendario-web/frontend/android/app/build/outputs/apk/debug/app-debug.apk

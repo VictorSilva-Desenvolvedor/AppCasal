@@ -132,6 +132,26 @@ Como o plano Hobby da Vercel só permite Cron Jobs 1x por dia, as tarefas agenda
 
   a cada 1 minuto.
 
+## 📱 Gerando o APK do app Android
+
+O app mobile é um WebView do Capacitor que carrega a URL de produção (`calendario-web/frontend/capacitor.config.json` → `server.url`), então ele já aponta pro app na Vercel — só precisa empacotar.
+
+Não é preciso ter Android Studio/SDK instalado: o workflow `.github/workflows/build-android.yml` builda o frontend, sincroniza o Capacitor e gera o APK de debug direto no GitHub Actions. Pra gerar um novo:
+
+1. Vá em **Actions → build-android** no GitHub.
+2. Clique em **Run workflow** (branch `main`).
+3. Quando terminar, baixe o artefato `app-casal-debug-apk` — é o `.apk` pronto pra instalar no celular.
+
+Se preferir buildar localmente (precisa de JDK 17+ e Android SDK instalados):
+
+```bash
+cd calendario-web/frontend
+npm run build
+npx cap sync android
+cd android
+./gradlew assembleDebug   # gera app/build/outputs/apk/debug/app-debug.apk
+```
+
 ## ✅ Testes
 
 ```bash
