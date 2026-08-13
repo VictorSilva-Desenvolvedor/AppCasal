@@ -92,6 +92,18 @@ app.use((err, req, res, next) => {
     return res.status(409).json({ message: 'Registro duplicado' });
   }
 
+  // Erros de conexão/autenticação com o MongoDB (ex.: credencial do Atlas
+  // rotacionada, IP não liberado no Network Access) vazam a mensagem crua do
+  // driver (ex.: "bad auth : Authentication failed.") — isso não deve chegar
+  // ao usuário disfarçado de erro de login.
+  if (
+    err.name === 'MongoServerError' ||
+    err.name === 'MongooseServerSelectionError' ||
+    err.message?.includes('MONGO_URI')
+  ) {
+    return res.status(503).json({ message: 'Não foi possível conectar ao servidor. Tente novamente em instantes.' });
+  }
+
   res.status(err.status || 500).json({ message: err.message || 'Erro interno do servidor' });
 });
 
