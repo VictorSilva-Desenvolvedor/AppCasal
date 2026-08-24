@@ -13,6 +13,14 @@ export function HabitFreezeButton({ habit, onFrozen }) {
   const remaining = habit.freezesPerMonth - usedThisMonth;
   const alreadyFrozenToday = habit.freezeDays.some((f) => f.day === todayKey);
 
+  // O botão fica desabilitado em dois casos bem diferentes — o texto precisa
+  // dizer qual deles, senão o usuário só vê um ícone apagado sem explicação.
+  const freezeLabel = alreadyFrozenToday
+    ? 'Hoje já está congelado'
+    : remaining <= 0
+      ? `Você já usou os ${habit.freezesPerMonth} congelamentos deste mês`
+      : `Congelar hoje (${remaining} de ${habit.freezesPerMonth} congelamentos restantes este mês)`;
+
   async function handleFreeze() {
     setSaving(true);
     try {
@@ -32,8 +40,8 @@ export function HabitFreezeButton({ habit, onFrozen }) {
       className="icon-btn habit-freeze-btn"
       onClick={handleFreeze}
       disabled={saving || remaining <= 0 || alreadyFrozenToday}
-      aria-label={`Congelar hoje (${remaining} de ${habit.freezesPerMonth} disponíveis este mês)`}
-      title={`${remaining} de ${habit.freezesPerMonth} congeladores disponíveis este mês`}
+      aria-label={freezeLabel}
+      title={freezeLabel}
     >
       <Icon name="habit-snowflake" />
     </button>

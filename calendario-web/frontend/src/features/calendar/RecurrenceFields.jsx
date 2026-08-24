@@ -81,6 +81,7 @@ export function RecurrenceFields({ value, onChange }) {
           {endType === 'date' && (
             <input
               type="date"
+              aria-label="Data em que a repetição termina"
               style={{ marginTop: 6 }}
               value={endDate}
               onChange={(event) => update({ endDate: event.target.value })}
@@ -90,6 +91,7 @@ export function RecurrenceFields({ value, onChange }) {
             <input
               type="number"
               min="1"
+              aria-label="Número de ocorrências até a repetição terminar"
               style={{ marginTop: 6 }}
               value={endCount}
               onChange={(event) => update({ endCount: Math.max(1, Number(event.target.value) || 1) })}

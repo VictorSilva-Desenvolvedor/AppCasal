@@ -527,6 +527,12 @@
   @apply relative flex flex-col items-center gap-3 pt-8;
 }
 
+/* items-center encolhia o campo de observação até a largura do conteúdo
+   (190px de 345px), desalinhado do slider e do botão logo abaixo. */
+.emotion-intensity-panel .field {
+  @apply w-full;
+}
+
 .emotion-intensity-preview {
   @apply flex items-center justify-center;
   height: 90px;
@@ -594,8 +600,10 @@
 
 /* ---------- Painel de motivo (chips) ---------- */
 
+/* pt-12: o botão "Voltar" é absoluto em top-3 com 32px de altura, então
+   pt-8 (32px) deixava ele em cima do rótulo "Motivo (opcional)". */
 .emotion-reason-panel {
-  @apply relative flex flex-col gap-3 pt-8;
+  @apply relative flex flex-col gap-3 pt-12;
 }
 
 .emotion-reason-label {
@@ -605,13 +613,11 @@
   margin: 0;
 }
 
+/* Quebra em linhas em vez de rolar na horizontal: com scroll (e barra
+   escondida) 5 dos 8 motivos ficavam fora da tela sem nenhuma pista, incluindo
+   "Outro" — o único que abre o campo de texto livre. */
 .emotion-reason-chips {
-  @apply flex gap-2 overflow-x-auto pb-1;
-  scrollbar-width: none;
-}
-
-.emotion-reason-chips::-webkit-scrollbar {
-  display: none;
+  @apply flex flex-wrap gap-2 pb-1;
 }
 
 .emotion-reason-chip {
@@ -630,7 +636,9 @@
 .emotion-reason-chip.is-active {
   background: var(--chip-active-color, var(--emo-brand));
   border-color: var(--chip-active-color, var(--emo-brand));
-  color: #fff;
+  /* Calculado por readableTextOn() a partir da cor da emoção: as emoções
+     amarelas deixavam este texto em ~1,7:1 quando era branco fixo. */
+  color: var(--chip-active-text, var(--color-on-primary));
 }
 
 .emotion-reason-actions {

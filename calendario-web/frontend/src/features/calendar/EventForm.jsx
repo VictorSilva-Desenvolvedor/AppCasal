@@ -16,6 +16,7 @@ import {
   reminderOffsetsToString,
   parseReminderOffsets,
   EVENT_COLORS,
+  EVENT_COLOR_LABELS,
 } from './calendarUtils.js';
 
 export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
@@ -142,6 +143,8 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
             type="button"
             className={`color-swatch swatch-none${color ? '' : ' is-active'}`}
             title="Usar cor padrão"
+            aria-label="Usar cor padrão"
+            aria-pressed={!color}
             onClick={() => setColor('')}
           />
           {EVENT_COLORS.map((hex) => (
@@ -150,7 +153,9 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
               type="button"
               className={`color-swatch${color === hex ? ' is-active' : ''}`}
               style={{ backgroundColor: hex }}
-              title={hex}
+              title={EVENT_COLOR_LABELS[hex] || hex}
+              aria-label={EVENT_COLOR_LABELS[hex] || hex}
+              aria-pressed={color === hex}
               onClick={() => setColor(hex)}
             />
           ))}

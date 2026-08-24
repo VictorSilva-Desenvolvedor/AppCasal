@@ -15,6 +15,10 @@ function stepViewDate(mode, viewDate, direction) {
   return new Date(viewDate.getFullYear(), viewDate.getMonth() + direction, 1);
 }
 
+function capitalizeFirst(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 function titleFor(mode, viewDate) {
   if (mode === 'week') {
     const weekStart = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate() - viewDate.getDay());
@@ -30,10 +34,10 @@ function titleFor(mode, viewDate) {
       month: 'long',
       year: 'numeric',
     });
-    return label.charAt(0).toUpperCase() + label.slice(1);
+    return capitalizeFirst(label);
   }
   if (mode === 'agenda') return 'Próximos 60 dias';
-  return viewDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  return capitalizeFirst(viewDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }));
 }
 
 export function CalendarToolbar({ mode, onChangeMode, viewDate, onChangeViewDate }) {
@@ -45,6 +49,7 @@ export function CalendarToolbar({ mode, onChangeMode, viewDate, onChangeViewDate
             key={item.value}
             type="button"
             className={`calendar-view-toggle-btn${mode === item.value ? ' is-active' : ''}`}
+            aria-pressed={mode === item.value}
             onClick={() => onChangeMode(item.value)}
           >
             {item.label}

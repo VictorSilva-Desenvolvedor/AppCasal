@@ -1,5 +1,6 @@
 import { Field, Icon } from '../../components/ui/index.js';
 import { REASONS, REASON_ORDER } from '../../constants/emotionReasons.js';
+import { readableTextOn } from './emocoesUtils.js';
 
 export function EmotionReasonPicker({
   selectedReasons,
@@ -32,7 +33,11 @@ export function EmotionReasonPicker({
               key={key}
               type="button"
               className={`emotion-reason-chip${active ? ' is-active' : ''}`}
-              style={active ? { '--chip-active-color': emotionColor } : undefined}
+              style={
+                active
+                  ? { '--chip-active-color': emotionColor, '--chip-active-text': readableTextOn(emotionColor) }
+                  : undefined
+              }
               onClick={() => onToggleReason(key)}
             >
               <Icon name={reason.icon} />

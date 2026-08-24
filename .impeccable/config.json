@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "files": [
+          "calendario-web/frontend/src/styles/emocoes.css"
+        ],
+        "createdAt": "2026-08-24T23:14:22.290Z",
+        "reason": "ui-reviewer sweep: .emotion-jar bounce simula um objeto físico (jarra) assentando após o arraste, não é chrome decorativo de UI datado"
+      },
+      {
+        "rule": "layout-transition",
+        "value": "transition: width, height",
+        "files": [
+          "calendario-web/frontend/src/styles/emocoes.css"
+        ],
+        "createdAt": "2026-08-24T23:14:22.365Z",
+        "reason": "ui-reviewer sweep: .emotion-intensity-preview-sphere é isolada dentro de container flex de altura fixa (90px), sem vizinhos pra sofrer reflow"
+      }
+    ]
+  }
+}

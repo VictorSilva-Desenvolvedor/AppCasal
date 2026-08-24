@@ -8,6 +8,14 @@ function formatPct(value) {
   return `${value >= 0 ? '+' : ''}${Math.round(value)}%`;
 }
 
+// Sem mês anterior pra comparar não há variação boa nem ruim: fica neutro,
+// senão o traço "—" apareceria pintado de verde como se fosse ganho.
+function pctToneClass(value, higherIsWorse) {
+  if (value === null || value === undefined) return '';
+  const isBad = higherIsWorse ? value > 0 : value < 0;
+  return isBad ? 'finance-value--negative' : 'finance-value--positive';
+}
+
 export function FinanceSummary({ report, goals = [], history = [], hideFinanceValues = false }) {
   if (!report) {
     return <p className="sidebar-empty">Carregando resumo…</p>;
@@ -105,7 +113,7 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
                     }}
                   />
                 </div>
-                <span className="finance-category-bar-value">{formatCurrency(item.total)}</span>
+                <span className="finance-category-bar-value">{formatCurrency(item.total, hideFinanceValues)}</span>
               </div>
             ))}
           </div>
@@ -119,7 +127,7 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
             <div className="finance-goal-progress-fill" style={{ width: `${goalsProgressPct}%` }} />
           </div>
           <span className="finance-entry-item-meta">
-            {formatCurrency(goalsCurrentTotal)} de {formatCurrency(goalsTargetTotal)} ({Math.round(goalsProgressPct)}%)
+            {formatCurrency(goalsCurrentTotal, hideFinanceValues)} de {formatCurrency(goalsTargetTotal, hideFinanceValues)} ({Math.round(goalsProgressPct)}%)
           </span>
         </Card>
       )}
@@ -131,7 +139,7 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
             {topDespesas.map((item) => (
               <div className="finance-category-bar-row" key={item._id}>
                 <span className="finance-category-bar-label">{item.description}</span>
-                <span className="finance-category-bar-value finance-value--negative">{formatCurrency(item.amount)}</span>
+                <span className="finance-category-bar-value finance-value--negative">{formatCurrency(item.amount, hideFinanceValues)}</span>
               </div>
             ))}
           </div>
@@ -145,9 +153,10 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
             <div className="finance-category-bar-row">
               <span className="finance-category-bar-label">Despesas</span>
               <span
-                className={`finance-category-bar-value ${
-                  comparativoMesAnterior.variacaoDespesasPct > 0 ? 'finance-value--negative' : 'finance-value--positive'
-                }`}
+                className={`finance-category-bar-value ${pctToneClass(
+                  comparativoMesAnterior.variacaoDespesasPct,
+                  true
+                )}`}
               >
                 {formatPct(comparativoMesAnterior.variacaoDespesasPct)}
               </span>
@@ -155,9 +164,10 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
             <div className="finance-category-bar-row">
               <span className="finance-category-bar-label">Receitas</span>
               <span
-                className={`finance-category-bar-value ${
-                  comparativoMesAnterior.variacaoReceitasPct < 0 ? 'finance-value--negative' : 'finance-value--positive'
-                }`}
+                className={`finance-category-bar-value ${pctToneClass(
+                  comparativoMesAnterior.variacaoReceitasPct,
+                  false
+                )}`}
               >
                 {formatPct(comparativoMesAnterior.variacaoReceitasPct)}
               </span>
@@ -179,7 +189,7 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
                     style={{ width: `${maxNatureza ? (item.total / maxNatureza) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="finance-category-bar-value">{formatCurrency(item.total)}</span>
+                <span className="finance-category-bar-value">{formatCurrency(item.total, hideFinanceValues)}</span>
               </div>
             ))}
           </div>
@@ -190,7 +200,7 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
         <Card className="finance-report-card">
           <h3>Parcelas futuras a pagar</h3>
           <strong className="finance-summary-card-value finance-value--negative">
-            {formatCurrency(remainingInstallmentsTotal)}
+            {formatCurrency(remainingInstallmentsTotal, hideFinanceValues)}
           </strong>
           <span className="finance-entry-item-meta">Soma do que ainda falta em financiamentos ativos</span>
         </Card>
@@ -211,7 +221,7 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
                     style={{ width: `${maxHistorySaldo ? (Math.abs(item.saldo) / maxHistorySaldo) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="finance-category-bar-value">{formatCurrency(item.saldo)}</span>
+                <span className="finance-category-bar-value">{formatCurrency(item.saldo, hideFinanceValues)}</span>
               </div>
             ))}
           </div>

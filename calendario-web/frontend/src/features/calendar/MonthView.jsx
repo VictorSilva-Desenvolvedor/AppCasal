@@ -11,6 +11,7 @@ import {
   buildMonthCells,
   buildOccurrenceMap,
   dateKeyToNoonISO,
+  dayCellAriaLabel,
   dayIconBadgeSrcs,
   fileUrl,
   filteredEvents,
@@ -106,6 +107,7 @@ export function MonthView({ viewDate, filters, onSelectDay }) {
               type="button"
               key={dateKey}
               className={cellClassName}
+              aria-label={dayCellAriaLabel(date, dayEvents.length)}
               onClick={() => onSelectDay(dateKey)}
               {...dnd.dropProps(dateKey)}
             >

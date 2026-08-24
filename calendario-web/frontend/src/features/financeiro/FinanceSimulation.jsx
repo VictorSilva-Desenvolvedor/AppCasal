@@ -167,7 +167,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
                 <input type="checkbox" checked={!excludedIds.has(entry._id)} onChange={() => toggleEntry(entry._id)} />
                 <span className="finance-entry-item-meta">{entry.description}</span>
                 <span className={entry.type === 'receita' ? 'finance-value--positive' : 'finance-value--negative'}>
-                  {entry.type === 'receita' ? '+' : '-'} {formatCurrency(entry.amount)}
+                  {entry.type === 'receita' ? '+' : '-'} {formatCurrency(entry.amount, hideFinanceValues)}
                 </span>
               </label>
             ))}
@@ -180,6 +180,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
         <div className="finance-type-toggle">
           <button
             type="button"
+            aria-pressed={hypoType === 'despesa'}
             className={`finance-type-toggle-btn${hypoType === 'despesa' ? ' is-active' : ''}`}
             onClick={() => setHypoType('despesa')}
           >
@@ -187,6 +188,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
           </button>
           <button
             type="button"
+            aria-pressed={hypoType === 'receita'}
             className={`finance-type-toggle-btn${hypoType === 'receita' ? ' is-active' : ''}`}
             onClick={() => setHypoType('receita')}
           >
@@ -208,7 +210,11 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
             value={hypoAmount}
             onChange={(event) => setHypoAmount(event.target.value)}
           />
-          <Button variant="secondary" onClick={handleAddHypothetical}>
+          <Button
+            variant="secondary"
+            disabled={!hypoDescription.trim() || !Number(hypoAmount)}
+            onClick={handleAddHypothetical}
+          >
             <Icon name="plus" /> Adicionar
           </Button>
         </div>
@@ -218,7 +224,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
               <div key={entry.id} className="finance-simulation-hypo-row">
                 <span className="finance-entry-item-meta">{entry.description}</span>
                 <span className={entry.type === 'receita' ? 'finance-value--positive' : 'finance-value--negative'}>
-                  {entry.type === 'receita' ? '+' : '-'} {formatCurrency(entry.amount)}
+                  {entry.type === 'receita' ? '+' : '-'} {formatCurrency(entry.amount, hideFinanceValues)}
                 </span>
                 <button type="button" onClick={() => handleRemoveHypothetical(entry.id)} title="Remover">
                   <Icon name="trash" />
@@ -256,7 +262,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
             className={`finance-summary-card-value ${delta >= 0 ? 'finance-value--positive' : 'finance-value--negative'}`}
           >
             {delta >= 0 ? '+' : ''}
-            {formatCurrency(delta)}
+            {formatCurrency(delta, hideFinanceValues)}
           </strong>
         </Card>
       </div>

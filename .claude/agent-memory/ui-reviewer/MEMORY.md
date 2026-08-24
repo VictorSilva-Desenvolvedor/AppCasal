@@ -1,0 +1,4 @@
+- [Full UI/UX sweep in progress](project_ui_sweep.md) — proactive screen-by-screen review via /loop, one route per call, started 2026-08-24
+- [Auth screens conventions](auth_screens_conventions.md) — /login and /register are always light+indigo by design; hero photo is a random cat, so screenshot diffs are meaningless
+- [Local UI review setup](reference_local_ui_review_setup.md) — porta 3000 ocupada, use VITE_API_URL + PORT=3010; navegador real via CDP puro (sem Playwright)
+- [Cleaning up test data](reference_test_data_cleanup.md) — no DELETE user endpoint; mongoose script + dns.setServers workaround to remove a throwaway account

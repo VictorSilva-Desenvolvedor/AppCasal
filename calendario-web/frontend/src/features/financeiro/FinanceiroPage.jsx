@@ -235,9 +235,11 @@ export function FinanceiroPage() {
       />
 
       {otherUser && (
-        <div className="finance-view-toggle">
+        <div className="finance-view-toggle" role="tablist" aria-label="De quem são os dados">
           <button
             type="button"
+            role="tab"
+            aria-selected={isMyView}
             className={`finance-type-toggle-btn${isMyView ? ' is-active' : ''}`}
             onClick={() => setViewScope(user._id)}
           >
@@ -245,6 +247,8 @@ export function FinanceiroPage() {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={!isMyView}
             className={`finance-type-toggle-btn${!isMyView ? ' is-active' : ''}`}
             onClick={() => setViewScope(otherUser._id)}
           >
@@ -253,11 +257,13 @@ export function FinanceiroPage() {
         </div>
       )}
 
-      <div className="finance-tabs">
+      <div className="finance-tabs" role="tablist" aria-label="Seções do financeiro">
         {TABS.map((tab) => (
           <button
             key={tab.value}
             type="button"
+            role="tab"
+            aria-selected={activeTab === tab.value}
             className={`finance-tab-btn${activeTab === tab.value ? ' is-active' : ''}`}
             onClick={() => setActiveTab(tab.value)}
           >
@@ -303,6 +309,7 @@ export function FinanceiroPage() {
             onEdit={setEditingEntry}
             onDeleted={handleEntryDeleted}
             onChanged={handleEntrySaved}
+            hideFinanceValues={hideFinanceValues}
             groupByNature
             dnd={dnd}
           />
@@ -310,7 +317,12 @@ export function FinanceiroPage() {
       )}
 
       {activeTab === 'reembolsos' && (
-        <ReimbursementWallet reimbursements={reimbursements} users={users} onChanged={reloadReimbursements} />
+        <ReimbursementWallet
+          reimbursements={reimbursements}
+          users={users}
+          onChanged={reloadReimbursements}
+          hideFinanceValues={hideFinanceValues}
+        />
       )}
 
       {activeTab === 'objetivos' && (
@@ -329,7 +341,13 @@ export function FinanceiroPage() {
               Você está vendo os objetivos de {otherUser?.name}. Mude pra &quot;Meu&quot; pra adicionar um objetivo.
             </p>
           )}
-          <FinanceGoals goals={goals} onChanged={reloadGoals} onEdit={setEditingGoal} onArchive={setArchivingGoal} />
+          <FinanceGoals
+            goals={goals}
+            onChanged={reloadGoals}
+            onEdit={setEditingGoal}
+            onArchive={setArchivingGoal}
+            hideFinanceValues={hideFinanceValues}
+          />
         </div>
       )}
 
@@ -360,6 +378,7 @@ export function FinanceiroPage() {
               onEdit={setEditingEntry}
               onDeleted={handleEntryDeleted}
               onChanged={handleEntrySaved}
+              hideFinanceValues={hideFinanceValues}
               dnd={dnd}
             />
           </Card>
@@ -374,6 +393,7 @@ export function FinanceiroPage() {
               onEdit={setEditingEntry}
               onDeleted={handleEntryDeleted}
               onChanged={handleEntrySaved}
+              hideFinanceValues={hideFinanceValues}
               dnd={dnd}
             />
           </Card>

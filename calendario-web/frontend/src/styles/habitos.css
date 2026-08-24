@@ -10,6 +10,9 @@
   --habit-coral: var(--color-primary);
   --habit-purple: var(--color-accent);
   --habit-teal: var(--color-success);
+  /* O verde de sucesso é claro em todos os temas (e mais ainda no modo escuro),
+     então texto/ícone em cima dele usa tinta escura, não branco. */
+  --habit-on-teal: #14171c;
   --habit-text: var(--color-text);
   --habit-text-muted: var(--color-text-muted);
   --habit-card-bg: var(--color-surface);
@@ -60,6 +63,10 @@
 .habit-empty {
   @apply text-center py-10;
   color: var(--habit-text-muted);
+}
+
+.habit-load-error {
+  @apply flex flex-col items-center gap-3;
 }
 
 /* ---------- Lista e card de hábito ---------- */
@@ -164,9 +171,14 @@
   color: var(--partner-color, var(--habit-purple));
 }
 
+/* Estado concluído reforça o tint e o peso em vez de inverter para texto branco:
+   a cor do parceiro vem do tema ativo e em vários deles (verde, laranja, âmbar)
+   branco por cima não teria contraste. */
 .habit-partner-chip.is-done {
-  background: var(--partner-color, var(--habit-purple));
-  color: #fff;
+  @apply font-bold;
+  background: color-mix(in oklch, var(--partner-color, var(--habit-purple)) 32%, transparent);
+  color: var(--partner-color, var(--habit-purple));
+  box-shadow: inset 0 0 0 1px var(--partner-color, var(--habit-purple));
 }
 
 .habit-card-actions {
@@ -180,7 +192,7 @@
 .habit-checkin-btn:disabled {
   @apply flex items-center justify-center gap-1.5;
   background: var(--habit-teal);
-  color: #fff;
+  color: var(--habit-on-teal);
   opacity: 1;
 }
 
@@ -373,7 +385,7 @@
 .habit-subtask-item.is-done .habit-subtask-checkbox {
   background: var(--habit-teal);
   border-color: var(--habit-teal);
-  color: #fff;
+  color: var(--habit-on-teal);
 }
 
 .habit-subtask-checkbox .icon {

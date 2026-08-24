@@ -143,6 +143,7 @@ export function FinanceEntryForm({
         <div className="finance-type-toggle">
           <button
             type="button"
+            aria-pressed={form.type === 'despesa'}
             className={`finance-type-toggle-btn${form.type === 'despesa' ? ' is-active' : ''}`}
             onClick={() => update('type', 'despesa')}
           >
@@ -150,6 +151,7 @@ export function FinanceEntryForm({
           </button>
           <button
             type="button"
+            aria-pressed={form.type === 'receita'}
             className={`finance-type-toggle-btn${form.type === 'receita' ? ' is-active' : ''}`}
             onClick={() => update('type', 'receita')}
           >

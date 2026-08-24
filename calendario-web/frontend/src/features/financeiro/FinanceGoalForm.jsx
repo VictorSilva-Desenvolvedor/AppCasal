@@ -89,7 +89,6 @@ export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit
 
   return (
     <Card className="finance-goal-form-card">
-      <h3>{editingGoal ? 'Editar objetivo' : 'Novo objetivo'}</h3>
       <form className="finance-goal-form" onSubmit={handleSubmit}>
         <Field label="Nome" htmlFor="goal-name">
           <input id="goal-name" type="text" value={form.name} onChange={(event) => update('name', event.target.value)} />
@@ -99,6 +98,7 @@ export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit
           <div className="finance-type-toggle">
             <button
               type="button"
+              aria-pressed={type === 'poupanca'}
               className={`finance-type-toggle-btn${type === 'poupanca' ? ' is-active' : ''}`}
               onClick={() => setType('poupanca')}
             >
@@ -106,6 +106,7 @@ export function FinanceGoalForm({ editingGoal, forcedType, onSaved, onCancelEdit
             </button>
             <button
               type="button"
+              aria-pressed={type === 'parcelamento'}
               className={`finance-type-toggle-btn${type === 'parcelamento' ? ' is-active' : ''}`}
               onClick={() => setType('parcelamento')}
             >

@@ -9,6 +9,7 @@ import {
   WEEKDAYS,
   buildOccurrenceMap,
   dateKeyToNoonISO,
+  dayCellAriaLabel,
   dayIconBadgeSrcs,
   filteredEvents,
   hasImportantDate,
@@ -92,6 +93,7 @@ export function WeekView({ viewDate, filters, onSelectDay }) {
             type="button"
             key={dateKey}
             className={cellClassName}
+            aria-label={dayCellAriaLabel(date, dayEvents.length)}
             onClick={() => onSelectDay(dateKey)}
             {...dnd.dropProps(dateKey)}
           >

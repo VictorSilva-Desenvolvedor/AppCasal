@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { Button, Icon } from '../../components/ui/index.js';
+import { Link } from 'react-router-dom';
+import { Button, Icon, IconButton } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useTheme } from '../../hooks/useTheme.js';
 
@@ -22,43 +22,38 @@ const LOBBY_APPS = [
 export function LobbyPage() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
+
+  const isDark = theme === 'dark';
 
   return (
     <div className="lobby-page">
       <header className="lobby-header">
-        <div className="lobby-greeting">{user ? `Olá, ${user.name}` : ''}</div>
+        <h1 className="lobby-greeting">{user ? `Olá, ${user.name}` : ''}</h1>
         <div className="lobby-header-actions">
-          <button
-            type="button"
-            className="icon-btn lobby-icon-btn"
-            title="Alternar tema"
-            aria-label="Alternar tema"
+          <IconButton
+            className="lobby-icon-btn"
+            title={isDark ? 'Usar tema claro' : 'Usar tema escuro'}
+            aria-label={isDark ? 'Usar tema claro' : 'Usar tema escuro'}
             onClick={toggleTheme}
           >
-            <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
-          </button>
+            <Icon name={isDark ? 'sun' : 'moon'} />
+          </IconButton>
           <Button variant="secondary" onClick={logout}>
             Sair
           </Button>
         </div>
       </header>
 
-      <div className="lobby-grid">
+      <nav className="lobby-grid" aria-label="Seções do aplicativo">
         {LOBBY_APPS.map((app) => (
-          <button
-            key={app.to}
-            type="button"
-            className="lobby-app-tile"
-            onClick={() => navigate(app.to)}
-          >
+          <Link key={app.to} to={app.to} className="lobby-app-tile">
             <span className="lobby-app-icon">
               <Icon name={app.icon} />
             </span>
             <span className="lobby-app-label">{app.label}</span>
-          </button>
+          </Link>
         ))}
-      </div>
+      </nav>
     </div>
   );
 }

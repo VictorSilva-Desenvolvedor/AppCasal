@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Card, Field } from '../../components/ui/index.js';
+import { Button, Card, Field, Icon } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
 import { AuthHeroPanel } from './AuthHeroPanel.jsx';
@@ -8,6 +8,7 @@ import { AuthHeroPanel } from './AuthHeroPanel.jsx';
 export function RegisterPage() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const { showToast } = useToast();
@@ -42,22 +43,34 @@ export function RegisterPage() {
                   id="name"
                   name="name"
                   required
+                  autoFocus
                   autoComplete="username"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                 />
               </Field>
-              <Field label="Senha" htmlFor="password">
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  required
-                  minLength={4}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
+              <Field label="Senha (mínimo de 4 caracteres)" htmlFor="password">
+                <div className="password-field">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    required
+                    minLength={4}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    aria-pressed={showPassword}
+                  >
+                    <Icon name={showPassword ? 'eye-off' : 'eye'} />
+                  </button>
+                </div>
               </Field>
               <Button type="submit" block loading={loading}>
                 Cadastrar

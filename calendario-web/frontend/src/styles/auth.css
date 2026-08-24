@@ -1,6 +1,6 @@
 /*
   @layer components — telas de login/registro. O plano de fundo do
-  .auth-hero é definido dinamicamente por js/authHero.js (foto de gato
+  .auth-hero é definido dinamicamente por AuthHeroPanel.jsx (foto de gato
   aleatória via cataas.com), por isso o background-image fica como CSS puro.
 */
 
@@ -13,19 +13,21 @@
   @apply flex flex-col md:flex-row;
 }
 
+/* O conteúdo fica ancorado no rodapé porque é onde o degradê é mais escuro —
+   no meio da foto o texto branco cai em cima de uma região de tom imprevisível. */
 .auth-hero {
-  @apply relative hidden md:flex md:flex-[2.2] items-center justify-center p-12 overflow-hidden bg-primary bg-cover bg-center bg-no-repeat;
+  @apply relative hidden md:flex md:flex-[2.2] items-end justify-start p-10 lg:p-14 overflow-hidden bg-primary bg-cover bg-center bg-no-repeat;
 }
 
 .auth-hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(20, 15, 30, 0.5) 0%, rgba(20, 15, 30, 0.25) 45%, rgba(20, 15, 30, 0.65) 100%);
+  background: linear-gradient(180deg, rgba(20, 15, 30, 0.45) 0%, rgba(20, 15, 30, 0.2) 40%, rgba(20, 15, 30, 0.85) 100%);
 }
 
 .auth-hero-content {
-  @apply relative z-[1] max-w-[380px] text-left;
+  @apply relative z-[1] max-w-[420px] text-left;
   color: #fff;
 }
 
@@ -47,9 +49,28 @@
 }
 
 .auth-hero-content p {
-  @apply mt-[0.6rem] mb-0 text-base;
+  @apply mt-[0.6rem] mb-0 text-base text-pretty;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Cabeçalho de marca que substitui o painel da foto abaixo de md. */
+.auth-brand-compact {
+  @apply flex md:hidden items-center gap-2.5 px-6 pt-10 pb-2 bg-bg;
+}
+
+.auth-brand-compact .auth-hero-logo {
+  @apply mb-0 w-10 h-10 rounded-md bg-primary text-on-primary;
+  backdrop-filter: none;
+}
+
+.auth-brand-compact .auth-hero-logo .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.auth-brand-compact h1 {
+  @apply text-xl m-0 text-text;
 }
 
 .auth-form-side {
@@ -74,4 +95,24 @@
 
 .auth-hint {
   @apply mt-4 text-sm text-text-muted bg-surface-alt border border-border rounded-sm px-3 py-2;
+}
+
+/* Campo de senha com botão de mostrar/ocultar. */
+.password-field {
+  @apply relative;
+}
+
+.password-field input {
+  @apply pr-10;
+}
+
+.password-toggle {
+  @apply absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center
+    w-9 h-9 rounded-sm border-none bg-transparent cursor-pointer p-0
+    text-text-muted transition-colors duration-150 hover:text-primary;
+}
+
+.password-toggle .icon {
+  width: 18px;
+  height: 18px;
 }

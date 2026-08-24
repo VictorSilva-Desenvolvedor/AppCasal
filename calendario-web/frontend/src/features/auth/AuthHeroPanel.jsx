@@ -18,14 +18,25 @@ export function AuthHeroPanel({ tagline }) {
   }, []);
 
   return (
-    <aside className="auth-hero" ref={heroRef}>
-      <div className="auth-hero-content">
+    <>
+      {/* Abaixo de md o painel da foto não cabe — a marca vira um cabeçalho compacto
+          acima do formulário, para a tela não ficar sem identidade nem sem h1. */}
+      <div className="auth-brand-compact">
         <div className="auth-hero-logo">
           <Icon name="heart" />
         </div>
         <h1>AppCasal</h1>
-        {tagline && <p>{tagline}</p>}
       </div>
-    </aside>
+
+      <aside className="auth-hero" ref={heroRef}>
+        <div className="auth-hero-content">
+          <div className="auth-hero-logo">
+            <Icon name="heart" />
+          </div>
+          <h1>AppCasal</h1>
+          {tagline && <p>{tagline}</p>}
+        </div>
+      </aside>
+    </>
   );
 }

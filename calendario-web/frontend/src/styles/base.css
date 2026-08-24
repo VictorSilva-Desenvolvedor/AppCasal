@@ -43,7 +43,11 @@ a {
 
 /* ---------- Ícones (sprite SVG) ---------- */
 
+/* display: inline-block é necessário porque o preflight do Tailwind aplica
+   `svg { display: block }` — sem isto o ícone quebra a linha em todo uso inline
+   (pílulas de evento, itens de lista, badges). */
 .icon {
+  display: inline-block;
   width: 1em;
   height: 1em;
   flex-shrink: 0;
@@ -59,6 +63,7 @@ a {
 /* Ícones raster (PNG) de categoria especial (aniversário/saúde) — mesmo alinhamento
    do .icon, mas sem fill/stroke (são imagens coloridas, não símbolos monocromáticos). */
 .special-category-icon {
+  display: inline-block;
   width: 1em;
   height: 1em;
   object-fit: contain;

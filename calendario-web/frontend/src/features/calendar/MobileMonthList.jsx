@@ -26,6 +26,7 @@ export function MobileMonthList({ onSelectMonth }) {
             type="button"
             key={`${monthDate.getFullYear()}-${monthDate.getMonth()}`}
             className={`calendar-month-item${isCurrent ? ' is-current' : ''}`}
+            aria-label={count === 1 ? `${label}, 1 evento` : `${label}, ${count} eventos`}
             onClick={() => onSelectMonth(monthDate)}
           >
             <span>{label}</span>

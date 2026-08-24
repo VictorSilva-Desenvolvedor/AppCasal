@@ -29,7 +29,7 @@ function computeNetBalances(reimbursements, users) {
   return balances;
 }
 
-export function ReimbursementWallet({ reimbursements, users, onChanged }) {
+export function ReimbursementWallet({ reimbursements, users, onChanged, hideFinanceValues = false }) {
   const [owedBy, setOwedBy] = useState('');
   const [owedTo, setOwedTo] = useState('');
   const [amount, setAmount] = useState('');
@@ -96,7 +96,8 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
           <ul className="finance-wallet-balance-list">
             {netBalances.map((balance) => (
               <li key={`${balance.from._id}-${balance.to._id}`}>
-                <strong>{balance.from.name}</strong> deve <strong>{formatCurrency(balance.amount)}</strong> para{' '}
+                <strong>{balance.from.name}</strong> deve{' '}
+                <strong>{formatCurrency(balance.amount, hideFinanceValues)}</strong> para{' '}
                 <strong>{balance.to.name}</strong>
               </li>
             ))}
@@ -156,6 +157,10 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
         </form>
       </Card>
 
+      {reimbursements.length === 0 && (
+        <p className="sidebar-empty">Nenhum empréstimo registrado ainda</p>
+      )}
+
       <div className="finance-entry-list">
         {reimbursements.map((r) => (
           <Card className="finance-entry-item" key={r._id}>
@@ -168,7 +173,7 @@ export function ReimbursementWallet({ reimbursements, users, onChanged }) {
               </div>
             </div>
             <div className="finance-entry-item-side">
-              <strong className="finance-value--negative">{formatCurrency(r.amount)}</strong>
+              <strong className="finance-value--negative">{formatCurrency(r.amount, hideFinanceValues)}</strong>
               <Pill className={`finance-status-pill finance-status--${r.status === 'quitado' ? 'pago' : 'pendente'}`}>
                 {r.status === 'quitado' ? 'Quitado' : 'Pendente'}
               </Pill>

@@ -31,6 +31,26 @@ export const EVENT_COLORS = [
   '#db2777',
 ];
 
+export const EVENT_COLOR_LABELS = {
+  '#2563eb': 'Azul',
+  '#9333ea': 'Roxo',
+  '#16a34a': 'Verde',
+  '#f97316': 'Laranja',
+  '#dc2626': 'Vermelho',
+  '#0891b2': 'Ciano',
+  '#ca8a04': 'Amarelo',
+  '#db2777': 'Rosa',
+};
+
+// Rótulo acessível da célula de dia: sozinho, o número do dia não diz nada num
+// leitor de tela ("12" em vez de "12 de agosto, 2 eventos").
+export function dayCellAriaLabel(date, eventCount) {
+  const dateLabel = date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (eventCount === 0) return `${dateLabel}, sem eventos`;
+  if (eventCount === 1) return `${dateLabel}, 1 evento`;
+  return `${dateLabel}, ${eventCount} eventos`;
+}
+
 export function toDateKey(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');

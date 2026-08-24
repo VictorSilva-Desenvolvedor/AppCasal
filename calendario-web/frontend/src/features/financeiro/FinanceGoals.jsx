@@ -28,7 +28,7 @@ function InstallmentGrid({ total, paid, onSetPaid }) {
   );
 }
 
-function GoalCard({ goal, onChanged, onEdit, onArchive }) {
+function GoalCard({ goal, onChanged, onEdit, onArchive, hideFinanceValues }) {
   const [contribution, setContribution] = useState('');
   const [pending, setPending] = useState(false);
   const { showToast } = useToast();
@@ -132,13 +132,13 @@ function GoalCard({ goal, onChanged, onEdit, onArchive }) {
       </div>
 
       <span className="finance-entry-item-meta">
-        {formatCurrency(currentAmount)} de {formatCurrency(goal.targetAmount)}
+        {formatCurrency(currentAmount, hideFinanceValues)} de {formatCurrency(goal.targetAmount, hideFinanceValues)}
       </span>
       {hasInstallments && (
         <>
           <span className="finance-entry-item-meta">
             {goal.paidInstallments} de {goal.totalInstallments} parcelas (
-            {formatCurrency(goalInstallmentAmount(goal))}/mês)
+            {formatCurrency(goalInstallmentAmount(goal), hideFinanceValues)}/mês)
           </span>
           {!archived && (
             <InstallmentGrid
@@ -151,7 +151,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive }) {
       )}
 
       <span className="finance-entry-item-meta finance-goal-remaining">
-        Faltam {formatCurrency(remainingAmount)}
+        Faltam {formatCurrency(remainingAmount, hideFinanceValues)}
         {hasInstallments
           ? ` · ${remainingInstallments} parcela${remainingInstallments === 1 ? '' : 's'} restante${remainingInstallments === 1 ? '' : 's'}`
           : ''}
@@ -169,7 +169,12 @@ function GoalCard({ goal, onChanged, onEdit, onArchive }) {
             value={contribution}
             onChange={(event) => setContribution(event.target.value)}
           />
-          <Button variant="secondary" onClick={handleAddContribution}>
+          <Button
+            variant="secondary"
+            loading={pending}
+            disabled={!Number(contribution)}
+            onClick={handleAddContribution}
+          >
             Adicionar
           </Button>
         </div>
@@ -178,7 +183,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive }) {
   );
 }
 
-export function FinanceGoals({ goals, onChanged, onEdit, onArchive }) {
+export function FinanceGoals({ goals, onChanged, onEdit, onArchive, hideFinanceValues = false }) {
   const [showArchived, setShowArchived] = useState(false);
 
   if (goals.length === 0) {
@@ -195,7 +200,14 @@ export function FinanceGoals({ goals, onChanged, onEdit, onArchive }) {
       ) : (
         <div className="finance-goal-list">
           {activeGoals.map((goal) => (
-            <GoalCard key={goal._id} goal={goal} onChanged={onChanged} onEdit={onEdit} onArchive={onArchive} />
+            <GoalCard
+              key={goal._id}
+              goal={goal}
+              onChanged={onChanged}
+              onEdit={onEdit}
+              onArchive={onArchive}
+              hideFinanceValues={hideFinanceValues}
+            />
           ))}
         </div>
       )}
@@ -213,7 +225,14 @@ export function FinanceGoals({ goals, onChanged, onEdit, onArchive }) {
           {showArchived && (
             <div className="finance-archived-goals-body finance-goal-list">
               {archivedGoals.map((goal) => (
-                <GoalCard key={goal._id} goal={goal} onChanged={onChanged} onEdit={onEdit} onArchive={onArchive} />
+                <GoalCard
+                  key={goal._id}
+                  goal={goal}
+                  onChanged={onChanged}
+                  onEdit={onEdit}
+                  onArchive={onArchive}
+                  hideFinanceValues={hideFinanceValues}
+                />
               ))}
             </div>
           )}

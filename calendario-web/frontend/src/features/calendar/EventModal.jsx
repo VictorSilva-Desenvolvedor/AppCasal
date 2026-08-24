@@ -4,10 +4,18 @@ import { EventListPanel } from './EventListPanel.jsx';
 import { EventForm } from './EventForm.jsx';
 import { toDateKey } from './calendarUtils.js';
 
-function formatModalTitle(dateKey) {
-  if (!dateKey) return 'Eventos do dia';
+function formatDate(dateKey) {
   const [y, m, d] = dateKey.split('-');
-  return `Eventos em ${d}/${m}/${y}`;
+  return `${d}/${m}/${y}`;
+}
+
+function formatModalTitle(mode, dateKey, isEditing) {
+  if (mode === 'form') {
+    if (isEditing) return 'Editar evento';
+    return dateKey ? `Novo evento em ${formatDate(dateKey)}` : 'Novo evento';
+  }
+  if (!dateKey) return 'Eventos do dia';
+  return `Eventos em ${formatDate(dateKey)}`;
 }
 
 export function EventModal({
@@ -26,7 +34,7 @@ export function EventModal({
   const editingEvent = editingEventId ? events.find((event) => event._id === editingEventId) : null;
 
   return (
-    <Modal open={open} onClose={onClose} title={formatModalTitle(dateKey)}>
+    <Modal open={open} onClose={onClose} title={formatModalTitle(mode, dateKey, Boolean(editingEvent))}>
       {mode === 'list' ? (
         <EventListPanel dateKey={dateKey} onEdit={onRequestEdit} onNew={onRequestNew} />
       ) : (

@@ -35,6 +35,7 @@ export function FinanceEntryList({
   onEdit,
   onDeleted,
   onChanged,
+  hideFinanceValues = false,
   groupByNature = false,
   dnd = null,
 }) {
@@ -120,7 +121,7 @@ export function FinanceEntryList({
         <div className="finance-entry-item-side">
           <strong className={entry.type === 'receita' ? 'finance-value--positive' : 'finance-value--negative'}>
             {entry.type === 'receita' ? '+' : '-'}
-            {formatCurrency(entry.amount)}
+            {formatCurrency(entry.amount, hideFinanceValues)}
           </strong>
           {entry.type === 'despesa' && <Pill className={`finance-status-pill finance-status--${status}`}>{STATUS_LABEL[status]}</Pill>}
           <div className="finance-entry-item-actions">

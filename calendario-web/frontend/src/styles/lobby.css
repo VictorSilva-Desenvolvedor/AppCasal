@@ -13,11 +13,11 @@
 }
 
 .lobby-greeting {
-  @apply text-xl md:text-2xl font-semibold text-text;
+  @apply text-xl md:text-2xl font-semibold text-text m-0 truncate;
 }
 
 .lobby-header-actions {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 shrink-0;
 }
 
 .lobby-icon-btn {
@@ -32,7 +32,7 @@
 
 .lobby-app-tile {
   @apply flex flex-col items-center gap-2 rounded-lg border-none bg-transparent cursor-pointer
-    text-text text-sm font-semibold p-2
+    text-text text-sm font-semibold text-center leading-tight no-underline p-2
     transition-transform duration-150 active:scale-95;
 }
 

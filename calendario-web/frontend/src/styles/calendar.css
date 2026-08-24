@@ -230,12 +230,16 @@
 
 /* ---------- Calendário ---------- */
 
+/* Agrupado à esquerda (e não justify-between): em telas largas os botões
+   Anterior/Próximo ficavam a mais de mil pixels um do outro e do título. */
 .calendar-nav {
-  @apply flex items-center justify-between mb-4;
+  @apply flex items-center flex-wrap gap-3 mb-4;
 }
 
+/* Sem `capitalize`: em pt-BR só a primeira letra sobe ("Agosto de 2026"), e isso
+   já é feito no JS que monta o rótulo. */
 .calendar-nav h2 {
-  @apply text-lg capitalize;
+  @apply text-lg;
 }
 
 .calendar-view-toggle {
@@ -680,9 +684,11 @@
   @apply text-xs font-bold text-text-muted uppercase;
 }
 
+/* max-w: em telas largas a lista ocupava toda a área principal e jogava o botão
+   "Editar" a mais de mil pixels do título do evento. */
 .calendar-day-list,
 .calendar-agenda-list {
-  @apply flex flex-col gap-[0.6rem];
+  @apply flex flex-col gap-[0.6rem] max-w-[46rem];
 }
 
 .agenda-day-group {
@@ -690,7 +696,7 @@
 }
 
 .agenda-day-heading {
-  @apply text-sm font-bold capitalize text-text-muted mt-2 mb-0;
+  @apply text-sm font-bold text-text-muted mt-2 mb-0;
 }
 
 /* ---------- Formulário de recorrência ---------- */

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Icon, Modal, HeartLoader } from '../../components/ui/index.js';
+import { Icon, Modal, HeartLoader, ConfirmDialog, Button } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -26,6 +26,7 @@ export function HabitosPage() {
   const [habits, setHabits] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [viewScope, setViewScope] = useState('ambos'); // 'ambos' | 'meu' | 'parceiro'
   const [formOpen, setFormOpen] = useState(false);
@@ -33,14 +34,20 @@ export function HabitosPage() {
   const [checkinHabit, setCheckinHabit] = useState(null);
   const [checkinMode, setCheckinMode] = useState('form'); // 'form' | 'waiting'
   const [historyHabit, setHistoryHabit] = useState(null);
+  const [habitToDelete, setHabitToDelete] = useState(null);
 
   const reload = useCallback(async () => {
-    const [habitsData, checkinsData] = await Promise.all([
-      api.getHabits({ active: showArchived ? 'false' : 'true' }),
-      api.getHabitCheckins(),
-    ]);
-    setHabits(habitsData);
-    setCheckins(checkinsData);
+    try {
+      const [habitsData, checkinsData] = await Promise.all([
+        api.getHabits({ active: showArchived ? 'false' : 'true' }),
+        api.getHabitCheckins(),
+      ]);
+      setHabits(habitsData);
+      setCheckins(checkinsData);
+      setLoadError('');
+    } catch {
+      setLoadError('Não foi possível carregar os hábitos. Verifique sua conexão e tente de novo.');
+    }
   }, [showArchived]);
 
   useEffect(() => {
@@ -99,10 +106,12 @@ export function HabitosPage() {
     }
   }
 
-  async function handleDelete(habit) {
-    if (!window.confirm(`Excluir "${habit.name}" permanentemente? Essa ação não pode ser desfeita.`)) return;
+  async function handleDelete() {
+    const habit = habitToDelete;
+    if (!habit) return;
     try {
       await run(habit._id, () => api.deleteHabit(habit._id));
+      setHabitToDelete(null);
       showToast('Hábito excluído', 'info');
       reload();
     } catch (err) {
@@ -144,8 +153,6 @@ export function HabitosPage() {
 
   return (
     <section className="view habit-page">
-      <div className="habit-bg-pattern" aria-hidden="true" />
-
       <div className="habit-page-header">
         <div className="habit-page-header-title">
           <HabitLogo />
@@ -208,14 +215,22 @@ export function HabitosPage() {
       </div>
 
       <div className="habit-list">
-        {scopedHabits.length === 0 && (
+        {loadError && (
+          <div className="habit-empty habit-load-error" role="alert">
+            <p>{loadError}</p>
+            <Button type="button" variant="secondary" onClick={reload}>
+              Tentar de novo
+            </Button>
+          </div>
+        )}
+        {!loadError && scopedHabits.length === 0 && (
           <p className="habit-empty">
             {showArchived
               ? 'Nenhum hábito arquivado.'
               : viewScope === 'meu'
-                ? 'Nenhum hábito individual seu ainda.'
+                ? 'Nenhum hábito seu ainda.'
                 : viewScope === 'parceiro'
-                  ? `Nenhum hábito individual de ${otherUser?.name ?? 'parceiro(a)'} ainda.`
+                  ? `Nenhum hábito de ${otherUser?.name ?? 'parceiro(a)'} ainda.`
                   : 'Nenhum hábito ainda. Crie o primeiro!'}
           </p>
         )}
@@ -230,7 +245,8 @@ export function HabitosPage() {
             onEdit={handleOpenEdit}
             onArchive={handleArchive}
             onUnarchive={handleUnarchive}
-            onDelete={handleDelete}
+            onDelete={setHabitToDelete}
+            pending={isPending(habit._id)}
             onViewHistory={setHistoryHabit}
             onFrozen={reload}
             onReacted={reload}
@@ -284,6 +300,16 @@ export function HabitosPage() {
             />
           ))}
       </Modal>
+
+      <ConfirmDialog
+        open={!!habitToDelete}
+        title="Excluir hábito"
+        message={`Excluir "${habitToDelete?.name ?? ''}" permanentemente? Todo o histórico de check-ins vai junto e essa ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        loading={habitToDelete ? isPending(habitToDelete._id) : false}
+        onCancel={() => setHabitToDelete(null)}
+        onConfirm={handleDelete}
+      />
 
       <Modal open={!!historyHabit} onClose={() => setHistoryHabit(null)} title={`Histórico: ${historyHabit?.name ?? ''}`}>
         {historyHabit && (
