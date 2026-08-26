@@ -1,6 +1,7 @@
 import { Button, Icon } from '../../components/ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { CATEGORIES } from '../../constants/categories.js';
+import { readableTextOn } from '../../lib/contrast.js';
 import {
   IMAGE_MIME,
   attachmentIconName,
@@ -31,7 +32,10 @@ export function EventListItem({ event, onEdit }) {
             {event.title}
           </strong>
           {category && (
-            <span className="category-chip" style={{ background: category.color }}>
+            <span
+              className="category-chip"
+              style={{ background: category.color, color: readableTextOn(category.color) }}
+            >
               {category.label}
             </span>
           )}

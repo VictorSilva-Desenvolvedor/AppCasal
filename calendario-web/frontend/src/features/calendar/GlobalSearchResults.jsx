@@ -1,5 +1,6 @@
 import { CATEGORIES } from '../../constants/categories.js';
 import { formatDateOnly } from './calendarUtils.js';
+import { readableTextOn } from '../../lib/contrast.js';
 
 export function GlobalSearchResults({ results, onSelect }) {
   if (results.length === 0) {
@@ -21,7 +22,10 @@ export function GlobalSearchResults({ results, onSelect }) {
             <span>
               {event.title}
               {category && (
-                <span className="category-chip" style={{ background: category.color }}>
+                <span
+                  className="category-chip"
+                  style={{ background: category.color, color: readableTextOn(category.color) }}
+                >
                   {category.label}
                 </span>
               )}
