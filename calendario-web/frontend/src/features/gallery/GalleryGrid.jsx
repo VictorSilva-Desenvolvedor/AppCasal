@@ -1,8 +1,8 @@
 import { fileUrl } from '../calendar/calendarUtils.js';
 
-export function GalleryGrid({ photos, onOpenPhoto }) {
+export function GalleryGrid({ photos, onOpenPhoto, emptyMessage = 'Nenhuma foto neste mês.' }) {
   if (photos.length === 0) {
-    return <p className="sidebar-empty">Nenhuma foto neste período.</p>;
+    return <p className="sidebar-empty">{emptyMessage}</p>;
   }
 
   return (
@@ -13,8 +13,9 @@ export function GalleryGrid({ photos, onOpenPhoto }) {
           className="gallery-thumb"
           key={`${photo.eventId}-${photo.url}`}
           onClick={() => onOpenPhoto(index)}
+          title={photo.eventTitle}
         >
-          <img src={fileUrl(photo.url)} alt={photo.name} loading="lazy" />
+          <img src={fileUrl(photo.url)} alt={`Foto do evento ${photo.eventTitle}`} loading="lazy" />
         </button>
       ))}
     </div>

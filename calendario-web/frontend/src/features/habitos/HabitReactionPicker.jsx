@@ -4,7 +4,9 @@ import { useToast } from '../../hooks/useToast.js';
 
 const REACTION_EMOJIS = ['❤️', '👏', '🔥', '😂', '💪'];
 
-export function HabitReactionPicker({ checkin, currentUserId, onReacted }) {
+// `canReact` é falso no próprio check-in: o servidor recusa reagir a si mesmo,
+// então o gatilho some, mas as reações que o parceiro deixou continuam à vista.
+export function HabitReactionPicker({ checkin, currentUserId, canReact = true, onReacted }) {
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -33,19 +35,30 @@ export function HabitReactionPicker({ checkin, currentUserId, onReacted }) {
       {checkin.reactions?.length > 0 && (
         <span className="habit-reaction-summary">{checkin.reactions.map((r) => r.emoji).join(' ')}</span>
       )}
-      <button
-        type="button"
-        className={`habit-reaction-trigger${myReaction ? ' is-active' : ''}`}
-        onClick={() => setOpen((prev) => !prev)}
-        disabled={saving}
-        aria-label="Reagir ao check-in"
-      >
-        {myReaction ? myReaction.emoji : '+'}
-      </button>
-      {open && (
-        <div className="habit-reaction-options">
+      {canReact && (
+        <button
+          type="button"
+          className={`habit-reaction-trigger${myReaction ? ' is-active' : ''}`}
+          onClick={() => setOpen((prev) => !prev)}
+          disabled={saving}
+          aria-label="Reagir ao check-in"
+          aria-haspopup="true"
+          aria-expanded={open}
+        >
+          {myReaction ? myReaction.emoji : '+'}
+        </button>
+      )}
+      {canReact && open && (
+        <div className="habit-reaction-options" onKeyDown={(event) => event.key === 'Escape' && setOpen(false)}>
           {REACTION_EMOJIS.map((emoji) => (
-            <button key={emoji} type="button" onClick={() => handlePick(emoji)}>
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => handlePick(emoji)}
+              disabled={saving}
+              aria-pressed={myReaction?.emoji === emoji}
+              aria-label={myReaction?.emoji === emoji ? `Remover reação ${emoji}` : `Reagir com ${emoji}`}
+            >
               {emoji}
             </button>
           ))}

@@ -1,3 +1,5 @@
+import { formatDateOnly, parseDateOnly } from '../../lib/dateOnly.js';
+
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const MONTH_LABELS = [
@@ -35,14 +37,16 @@ export function paymentStatus(entry) {
   return 'parcial';
 }
 
+// `entry.date` é o vencimento (dia inteiro), gravado como meia-noite UTC.
 export function formatEntryDate(date) {
-  return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return formatDateOnly(date);
 }
 
 export function dueInfo(entry) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(entry.date);
+  const due = parseDateOnly(entry.date);
+  if (!due) return { label: 'Sem vencimento', urgent: false };
   due.setHours(0, 0, 0, 0);
   const diffDays = Math.round((due - today) / 86400000);
 

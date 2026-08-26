@@ -27,7 +27,12 @@ export function HabitHistoryView({ habit, checkins, users }) {
             : STATUS_LABEL[status];
 
           return (
-            <span key={dayKey} className={`habit-history-cell habit-history-cell--${status}`} title={title}>
+            <span
+              key={dayKey}
+              className={`habit-history-cell habit-history-cell--${status}`}
+              title={title}
+              aria-label={`Dia ${dayKey}: ${STATUS_LABEL[status]}`}
+            >
               {Number(dayKey.slice(-2))}
             </span>
           );
@@ -35,16 +40,16 @@ export function HabitHistoryView({ habit, checkins, users }) {
       </div>
       <div className="habit-history-legend">
         <span className="habit-history-legend-item">
-          <span className="habit-history-cell habit-history-cell--complete" /> Completo
+          <span aria-hidden="true" className="habit-history-cell habit-history-cell--complete" /> Completo
         </span>
         <span className="habit-history-legend-item">
-          <span className="habit-history-cell habit-history-cell--partial" /> Parcial
+          <span aria-hidden="true" className="habit-history-cell habit-history-cell--partial" /> Parcial
         </span>
         <span className="habit-history-legend-item">
-          <span className="habit-history-cell habit-history-cell--frozen" /> Congelado
+          <span aria-hidden="true" className="habit-history-cell habit-history-cell--frozen" /> Congelado
         </span>
         <span className="habit-history-legend-item">
-          <span className="habit-history-cell habit-history-cell--missed" /> Falhou
+          <span aria-hidden="true" className="habit-history-cell habit-history-cell--missed" /> Falhou
         </span>
       </div>
     </div>

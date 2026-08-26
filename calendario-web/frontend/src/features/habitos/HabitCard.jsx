@@ -1,4 +1,4 @@
-import { Icon, InfoTooltip, IconButton } from '../../components/ui/index.js';
+import { Icon, InfoTooltip, IconButton, Button } from '../../components/ui/index.js';
 import {
   displayStreak,
   computeWeekProgress,
@@ -124,7 +124,12 @@ export function HabitCard({
             >
               {done ? '✓' : '·'} {user._id === currentUserId ? 'Você' : user.name}
               {done && checkin && (
-                <HabitReactionPicker checkin={checkin} currentUserId={currentUserId} onReacted={onReacted} />
+                <HabitReactionPicker
+                  checkin={checkin}
+                  currentUserId={currentUserId}
+                  canReact={user._id !== currentUserId}
+                  onReacted={onReacted}
+                />
               )}
             </span>
           ))}
@@ -135,9 +140,9 @@ export function HabitCard({
 
       <div className="habit-card-actions">
         {!isArchived && canCheckin && (
-          <button
+          <Button
             type="button"
-            className="btn btn-primary habit-checkin-btn"
+            className="habit-checkin-btn"
             disabled={Boolean(myCheckinToday)}
             onClick={() => onCheckin(habit)}
           >
@@ -148,15 +153,15 @@ export function HabitCard({
             ) : (
               'Fazer check-in'
             )}
-          </button>
+          </Button>
         )}
         {!isArchived && <HabitFreezeButton habit={habit} onFrozen={onFrozen} />}
-        <button type="button" className="icon-btn" aria-label="Ver histórico" onClick={() => onViewHistory(habit)}>
+        <IconButton aria-label="Ver histórico" onClick={() => onViewHistory(habit)}>
           <Icon name="calendar" />
-        </button>
-        <button type="button" className="icon-btn" aria-label="Editar hábito" onClick={() => onEdit(habit)}>
+        </IconButton>
+        <IconButton aria-label="Editar hábito" onClick={() => onEdit(habit)}>
           <Icon name="settings" />
-        </button>
+        </IconButton>
         {isArchived ? (
           <>
             <IconButton aria-label="Restaurar hábito" loading={pending} onClick={() => onUnarchive(habit)}>

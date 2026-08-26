@@ -1,4 +1,5 @@
 - [Full UI/UX sweep in progress](project_ui_sweep.md) — proactive screen-by-screen review via /loop, one route per call, started 2026-08-24
 - [Auth screens conventions](auth_screens_conventions.md) — /login and /register are always light+indigo by design; hero photo is a random cat, so screenshot diffs are meaningless
 - [Local UI review setup](reference_local_ui_review_setup.md) — porta 3000 ocupada, use VITE_API_URL + PORT=3010; navegador real via CDP puro (sem Playwright)
+- [Shared UI conventions](feedback_shared_ui_conventions.md) — ARIA de tabs (resolvido), border-left é falso-positivo, Modal montado quando fechado, sprite ignora fill, `capitalize` em data pt-BR, input fora de `.field` sem estilo, `.btn-secondary` sem borda, color-scheme/accent-color ausentes, primary claro quebra links
 - [Cleaning up test data](reference_test_data_cleanup.md) — no DELETE user endpoint; mongoose script + dns.setServers workaround to remove a throwaway account

@@ -1,14 +1,23 @@
 .candy-page {
   /* Identidade visual própria da feature — fixa, não reage aos ~15 temas de
-     cor do app (nem ao escuro). Mantida em sincronia manual com os hex
-     literais em features/doces/candyConfig.js (mesmo mecanismo de scoping
-     que .habit-page já usa em habitos.css pra --habit-coral, só que aqui com
-     hex fixo em vez de alias de token de tema — decisão deliberada). */
-  --candy-brand: #d4537e;
+     cor do app (mesmo mecanismo de scoping que .habit-page já usa em
+     habitos.css pra --habit-coral, só que aqui com hex fixo em vez de alias
+     de token de tema — decisão deliberada). Estes hex vivem só aqui; o JS da
+     feature (candyConfig.js) guarda apenas a escala de peso. */
+  --candy-brand: #c23f6c; /* usado como preenchimento com texto branco por cima: precisa ficar escuro o bastante pra passar 4.5:1 */
   --candy-on-brand: #ffffff;
+  --candy-brand-text: #b0325d; /* o mesmo rosa quando é texto/borda sobre a superfície clara */
   --candy-color-light: #5dcaa5;
   --candy-color-light-text: #085041;
   --candy-color-heavy: #e24b4a;
+}
+
+/* Único ponto em que a identidade fixa cede ao tema: rosa escuro é ilegível
+   sobre superfície escura, então a variante de texto clareia. O tema
+   black-green já é escuro mesmo sem [data-theme='dark']. */
+[data-theme='dark'] .candy-page,
+[data-color-theme='black-green'] .candy-page {
+  --candy-brand-text: #f58caf;
 }
 
 .candy-page-header {
@@ -187,8 +196,8 @@
     cursor-pointer transition-colors duration-150;
   width: 64px;
   height: 64px;
-  border-color: var(--candy-brand);
-  color: var(--candy-brand);
+  border-color: var(--candy-brand-text);
+  color: var(--candy-brand-text);
   background: var(--color-surface);
   touch-action: none;
 }
@@ -272,11 +281,11 @@
 .candy-bar-value {
   @apply text-xl font-medium text-right flex-shrink-0;
   font-variant-numeric: tabular-nums;
-  color: var(--candy-brand);
+  color: var(--candy-brand-text);
 }
 
 .candy-bar-row.is-winner .candy-bar-value {
-  color: color-mix(in oklch, var(--candy-color-light) 55%, var(--color-text));
+  color: color-mix(in oklch, var(--candy-color-light) 40%, var(--color-text));
 }
 
 /* ---------- Histórico (agrupado por dia) ---------- */

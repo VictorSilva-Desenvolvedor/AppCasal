@@ -1,4 +1,5 @@
 import { CATEGORIES } from '../../constants/categories.js';
+import { formatDateOnly } from './calendarUtils.js';
 
 export function GlobalSearchResults({ results, onSelect }) {
   if (results.length === 0) {
@@ -12,7 +13,7 @@ export function GlobalSearchResults({ results, onSelect }) {
   return (
     <div className="global-search-results">
       {results.map((event) => {
-        const dateLabel = new Date(event.date).toLocaleDateString('pt-BR');
+        const dateLabel = formatDateOnly(event.date);
         const category = event.category && CATEGORIES[event.category];
 
         return (

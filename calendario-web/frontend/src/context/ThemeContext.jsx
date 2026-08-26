@@ -29,6 +29,7 @@ export function ThemeProvider({ children }) {
     if (!isAuthenticated) {
       setTheme('light');
       setColorThemeState('indigo');
+      setBackground('');
       setSidebarCollapsedState(false);
       return;
     }

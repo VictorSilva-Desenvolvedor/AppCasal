@@ -1,3 +1,5 @@
+import { parseDateOnly } from './dateOnly.js';
+
 const GUARD_MAX = 20000;
 
 function toLocalDateOnly(date) {
@@ -36,7 +38,9 @@ export function normalizeRule(event) {
     frequency: rule.frequency || 'none',
     interval: Math.max(1, rule.interval || 1),
     daysOfWeek: Array.isArray(rule.daysOfWeek) ? rule.daysOfWeek : [],
-    endDate: rule.endDate || null,
+    // Fim da recorrência vem da API como data de dia inteiro: converte na
+    // fronteira pra não perder um dia na leitura local.
+    endDate: rule.endDate ? parseDateOnly(rule.endDate) : null,
     endCount: rule.endCount || null,
   };
 }

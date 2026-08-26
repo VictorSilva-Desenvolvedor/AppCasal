@@ -1,7 +1,7 @@
-export function Card({ className = '', children, ...props }) {
+export function Card({ as: Component = 'div', className = '', children, ...props }) {
   return (
-    <div className={`card ${className}`.trim()} {...props}>
+    <Component className={`card ${className}`.trim()} {...props}>
       {children}
-    </div>
+    </Component>
   );
 }

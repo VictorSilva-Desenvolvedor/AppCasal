@@ -40,6 +40,7 @@ export function SettingsPage() {
       <p>Tema e plano de fundo são compartilhados entre todos os usuários do calendário.</p>
 
       <form className="card settings-form" onSubmit={handleSubmit}>
+        <h3>Aparência</h3>
         <Field label="Tema" htmlFor="settings-theme">
           <select
             id="settings-theme"
@@ -52,7 +53,9 @@ export function SettingsPage() {
         </Field>
 
         <div className="field">
-          <label>Cor de destaque</label>
+          <span className="field-label" id="settings-color-theme-label">
+            Cor de destaque
+          </span>
           <ColorThemeSwatches />
         </div>
 

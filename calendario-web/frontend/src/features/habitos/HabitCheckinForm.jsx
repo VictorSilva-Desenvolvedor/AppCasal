@@ -60,6 +60,7 @@ export function HabitCheckinForm({ habit, day, onSaved, onCancel }) {
               key={option}
               type="button"
               className={`habit-emoji-option${emoji === option ? ' is-active' : ''}`}
+              aria-pressed={emoji === option}
               onClick={() => setEmoji(option)}
             >
               {option}

@@ -13,6 +13,16 @@ import { getAppSection } from './appSections.js';
 
 const MOBILE_QUERY = '(max-width: 768px)';
 
+// A URL vai direto para dentro de `url("...")` num style inline, então só
+// aceitamos endereços http(s)/data sem aspas, parênteses ou espaços — assim
+// nada consegue "escapar" do valor e injetar outras declarações CSS.
+const SAFE_BACKGROUND_URL = /^(https?:\/\/|data:image\/)[^"'()\\\s]+$/i;
+
+function toCssBackgroundImage(url) {
+  const value = (url || '').trim();
+  return SAFE_BACKGROUND_URL.test(value) ? `url("${value}")` : null;
+}
+
 function AppMainContent() {
   const { loading } = useCalendarData();
   return loading ? <HeartLoader label="Carregando seus dados..." /> : <Outlet />;
@@ -22,7 +32,7 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(MOBILE_QUERY);
-  const { sidebarCollapsed: collapsed, setSidebarCollapsed: setCollapsed } = useTheme();
+  const { sidebarCollapsed: collapsed, setSidebarCollapsed: setCollapsed, background } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useFcmRegistration();
@@ -50,9 +60,14 @@ export function AppShell() {
     navigate('/app/calendario', { state: { quickNewEvent: true } });
   }
 
+  const backgroundImage = toCssBackgroundImage(background);
+
   return (
     <CalendarDataProvider>
-      <div className="app-shell">
+      <div
+        className={`app-shell${backgroundImage ? ' has-custom-background' : ''}`}
+        style={backgroundImage ? { '--app-background-image': backgroundImage } : undefined}
+      >
         {showSidebar && (
           <>
             <Sidebar

@@ -10,6 +10,21 @@
   --tarefas-semanal: #0f6e56;
   --tarefas-mensal: #ef9f27;
   --tarefas-unica: var(--color-text-muted);
+
+  /* Variante de preenchimento: sempre que o acento vira FUNDO com algo branco
+     por cima (o ✓ da caixa, o + do FAB, o rótulo do botão ativo) o tom claro
+     não passa AA — o âmbar #ef9f27 dá 2.2:1 com branco. Os tons acima seguem
+     valendo para o que é só sinalização (ponto do grupo, traço do anel). */
+  --tarefas-diaria-fill: #c04a20;
+  --tarefas-semanal-fill: #0f6e56;
+  --tarefas-mensal-fill: #a05f00;
+  --tarefas-unica-fill: #4b5563;
+}
+
+/* O FAB é fixo no canto inferior direito e cobria os botões de editar/excluir da
+   última linha quando a lista chega ao fim da rolagem. */
+.tarefas-page {
+  @apply pb-24;
 }
 
 .tarefas-page h2,
@@ -27,9 +42,15 @@
   letter-spacing: -0.01em;
 }
 
+/* `capitalize` deixava "Terça-Feira, 25 De Agosto": em pt-BR só a primeira letra
+   sobe. inline-block é o que torna ::first-letter aplicável a um <span>. */
 .tarefas-header .tarefas-date {
-  @apply text-xs capitalize;
+  @apply text-xs inline-block;
   color: var(--color-text-muted);
+}
+
+.tarefas-header .tarefas-date::first-letter {
+  text-transform: uppercase;
 }
 
 /* ---------- Abas ---------- */
@@ -144,10 +165,11 @@
   background: var(--color-primary);
 }
 
+/* Sem opacity: o texto já é --color-text-muted, e reduzi-lo de novo derrubava o
+   contraste para ~2.9:1. */
 .tarefas-period-empty {
   @apply text-xs italic m-0 mb-1;
   color: var(--color-text-muted);
-  opacity: 0.7;
 }
 
 /* ---------- Linha de item ---------- */
@@ -156,8 +178,11 @@
   @apply flex items-center gap-2.5 mb-2;
 }
 
-.tarefa-item.is-completed {
-  opacity: 0.6;
+/* O "concluído" é dito pelo risco no título e pela caixa preenchida. Baixar a
+   opacidade da linha inteira por cima disso levava o título a ~2.3:1 e apagava
+   também os botões de editar/excluir, que continuam clicáveis. */
+.tarefa-item.is-completed .tarefa-grip {
+  opacity: 0.5;
 }
 
 /* Item em movimento: sai do fluxo visualmente (o transform vem inline, seguindo
@@ -260,7 +285,7 @@
   @apply fixed right-5 bottom-24 sm:bottom-8 flex items-center justify-center rounded-full border-none cursor-pointer z-30;
   width: 60px;
   height: 60px;
-  background: var(--tarefas-diaria);
+  background: var(--tarefas-diaria-fill);
   color: #fff;
   box-shadow: var(--shadow-lg);
   transition: transform 0.15s, background-color 0.15s;
@@ -292,10 +317,12 @@
   transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
+/* Quando o fundo é um acento fixo o texto vem branco em qualquer tema
+   (--toggle-fg); sem acento o fundo é --color-text e o texto acompanha o tema. */
 .tarefa-toggle-btn.is-active {
   background: var(--toggle-color, var(--color-text));
   border-color: var(--toggle-color, var(--color-text));
-  color: var(--color-bg);
+  color: var(--toggle-fg, var(--color-bg));
 }
 
 .tarefas-empty {

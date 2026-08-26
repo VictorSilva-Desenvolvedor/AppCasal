@@ -10,11 +10,45 @@
   @apply min-h-screen flex;
 }
 
+/* Plano de fundo opcional (URL salva em Configurações). A imagem fica numa
+   camada fixa atrás de todo o shell e leva por cima um véu na cor de fundo do
+   tema atual, para o texto continuar legível no claro, no escuro e em
+   qualquer tema de cor. Sem URL salva a classe não é aplicada e nada muda. */
+.app-shell.has-custom-background {
+  position: relative;
+  z-index: 0;
+}
+
+.app-shell.has-custom-background::before,
+.app-shell.has-custom-background::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.app-shell.has-custom-background::before {
+  background-image: var(--app-background-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.app-shell.has-custom-background::after {
+  background: var(--color-bg);
+  opacity: 0.85;
+}
+
+[data-theme='dark'] .app-shell.has-custom-background::after {
+  opacity: 0.88;
+}
+
 /* ---------- Sidebar ---------- */
 
 .sidebar {
   @apply fixed inset-y-0 left-0 z-50 w-[82%] max-w-[300px] -translate-x-full shadow-lg
-    md:static md:translate-x-0 md:w-[260px] md:max-w-none md:shadow-none md:z-auto;
+    md:sticky md:top-0 md:h-screen md:translate-x-0 md:w-[260px] md:max-w-none md:shadow-none md:z-auto;
   flex-shrink: 0;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
@@ -99,6 +133,12 @@
   @apply text-sm text-text-muted overflow-hidden text-ellipsis whitespace-nowrap;
 }
 
+/* Área rolável entre o cabeçalho e o botão "Sair": a navegação completa de
+   módulos não cabe em telas baixas. */
+.sidebar-scroll {
+  @apply flex-1 min-h-0 flex flex-col gap-5 overflow-y-auto overflow-x-hidden;
+}
+
 .sidebar-nav {
   @apply flex flex-col gap-[0.3rem];
 }
@@ -145,6 +185,16 @@
 
 .toolbar {
   @apply flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-5 flex-wrap;
+}
+
+/* Voltar + menu + sino sempre numa faixa horizontal compacta; busca global e
+   filtros continuam em linhas próprias abaixo no mobile. */
+.toolbar-actions {
+  @apply flex flex-row items-center gap-3 flex-shrink-0;
+}
+
+.toolbar-actions .notification-bell-wrapper {
+  @apply ml-auto md:ml-0;
 }
 
 .filter-bar {
@@ -582,7 +632,11 @@
 }
 
 .settings-form {
-  @apply p-6 max-w-[420px] mt-4;
+  @apply p-6 max-w-[420px] mt-6;
+}
+
+.settings-form h3 {
+  @apply mt-0 mb-3;
 }
 
 /* ---------- Pedidos de atualização / Convites (estrutura do board) ---------- */

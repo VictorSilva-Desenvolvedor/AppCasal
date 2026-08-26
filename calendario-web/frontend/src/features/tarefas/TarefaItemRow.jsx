@@ -93,7 +93,7 @@ export function TarefaItemRow({
         aria-label={item.title}
         tabIndex={0}
         className={`tarefa-check${item.completed ? ' is-checked' : ''}`}
-        style={{ '--check-color': `var(--tarefas-${item.kind})` }}
+        style={{ '--check-color': `var(--tarefas-${item.kind}-fill)` }}
         onClick={pending ? undefined : onToggle}
         onKeyDown={(e) => {
           if (pending) return;

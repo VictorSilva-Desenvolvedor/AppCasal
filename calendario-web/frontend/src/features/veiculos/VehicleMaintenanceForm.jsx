@@ -76,11 +76,12 @@ export function VehicleMaintenanceForm({ vehicle, editingItem, onSaved, onCancel
       </Field>
 
       <Field label="Categoria">
-        <div className="vehicle-category-toggle">
+        <div className="vehicle-category-toggle" role="group" aria-label="Categoria">
           {MAINTENANCE_CATEGORIES.map((option) => (
             <button
               key={option.value}
               type="button"
+              aria-pressed={category === option.value}
               className={`vehicle-category-toggle-btn${category === option.value ? ' is-active' : ''}`}
               onClick={() => setCategory(option.value)}
             >

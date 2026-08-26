@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Icon } from '../../components/ui/index.js';
+import { Icon, IconButton } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { toDayKey } from './habitUtils.js';
@@ -35,15 +35,15 @@ export function HabitFreezeButton({ habit, onFrozen }) {
   }
 
   return (
-    <button
-      type="button"
-      className="icon-btn habit-freeze-btn"
+    <IconButton
+      className="habit-freeze-btn"
       onClick={handleFreeze}
-      disabled={saving || remaining <= 0 || alreadyFrozenToday}
+      loading={saving}
+      disabled={remaining <= 0 || alreadyFrozenToday}
       aria-label={freezeLabel}
       title={freezeLabel}
     >
       <Icon name="habit-snowflake" />
-    </button>
+    </IconButton>
   );
 }

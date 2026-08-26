@@ -37,7 +37,7 @@ export function WatchlistForm({ onSaved, onCancel }) {
 
   async function handleSelect(result) {
     setSelectedResult(result);
-    setPosterUrl(result.posterUrl);
+    setPosterUrl(result.posterUrl || '');
     setTitle(result.title);
     setPosterResults([]);
     setDetails(null);
@@ -145,7 +145,6 @@ export function WatchlistForm({ onSaved, onCancel }) {
                 type="button"
                 className="watchlist-poster-option"
                 onClick={() => handleSelect(result)}
-                disabled={!result.posterUrl}
                 title={`${result.title}${result.subtitle ? ` (${result.subtitle})` : ''}`}
               >
                 {result.posterUrl ? (
@@ -160,12 +159,14 @@ export function WatchlistForm({ onSaved, onCancel }) {
       </Field>
 
       <Field label="Tipo">
-        <div className="watchlist-type-toggle">
+        <div className="watchlist-type-toggle" role="group" aria-label="Tipo do item">
           {Object.entries(TYPE_META).map(([key, meta]) => (
             <button
               key={key}
               type="button"
               className={`watchlist-type-toggle-btn${type === key ? ' is-active' : ''}`}
+              data-type={key}
+              aria-pressed={type === key}
               style={{ '--watch-type-color': `var(${meta.colorVar})` }}
               onClick={() => handleTypeChange(key)}
             >

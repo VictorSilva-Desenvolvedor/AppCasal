@@ -3,17 +3,18 @@ import { Button, Field } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
+import { dateOnlyKey, localDateKey } from '../../lib/dateOnly.js';
 
-function toDateInputValue(date) {
-  return new Date(date).toISOString().slice(0, 10);
-}
+// Data de vencimento vinda da API é dia inteiro (meia-noite UTC) e se lê em UTC;
+// o "hoje" do usuário é local. Misturar os dois (o antigo toISOString em cima de
+// `new Date()`) fazia o campo abrir com um dia de diferença à noite.
 
 const EMPTY_FORM = {
   type: 'despesa',
   description: '',
   amount: '',
   category: '',
-  date: toDateInputValue(new Date()),
+  date: localDateKey(new Date()),
   paidAmount: '',
   nature: 'unica',
   wishType: '',
@@ -60,7 +61,7 @@ export function FinanceEntryForm({
         description: editingEntry.description,
         amount: String(editingEntry.amount),
         category: editingEntry.category?._id || '',
-        date: toDateInputValue(editingEntry.date),
+        date: dateOnlyKey(editingEntry.date),
         paidAmount: editingEntry.paidAmount ? String(editingEntry.paidAmount) : '',
         nature: editingEntry.nature || 'unica',
         wishType: editingEntry.wishType || '',

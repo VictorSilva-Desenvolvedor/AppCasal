@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Field, Badge, Icon, Modal } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
+import { localDateKey } from '../../lib/dateOnly.js';
 import {
   IMPORT_SECTIONS as SECTIONS,
   buildEntryRows,
@@ -19,8 +20,10 @@ const SHEET_ROLES = [
   { value: 'ignorar', label: 'Ignorar' },
 ];
 
+// A data aqui é construída no fuso local (1º dia do mês em tela): `toISOString`
+// jogava o dia 1 pro último dia do mês anterior em UTC-3.
 function toDateInputValue(date) {
-  return new Date(date).toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 export function FinanceImportModal({ open, onClose, categories, monthYear, onImported }) {

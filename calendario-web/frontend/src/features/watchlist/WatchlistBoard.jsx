@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ConfirmDialog } from '../../components/ui/index.js';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -10,6 +11,7 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
   const [justDroppedId, setJustDroppedId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const groups = useMemo(() => {
     const map = { quero_ver: [], em_andamento: [], visto_ouvido: [] };
@@ -19,8 +21,9 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
     return map;
   }, [items]);
 
-  async function handleDelete(id) {
-    if (!window.confirm('Remover este item da watchlist?')) return;
+  async function handleConfirmDelete() {
+    const id = deleteTarget._id;
+    setDeleteTarget(null);
     try {
       await run(id, () => api.deleteWatchlistItem(id));
       await onChanged();
@@ -48,8 +51,10 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
 
   return (
     <div className="watchlist-board">
-      {STATUS_COLUMNS.map((column) => {
+      {STATUS_COLUMNS.map((column, columnIndex) => {
         const columnItems = groups[column.status];
+        const prevColumn = STATUS_COLUMNS[columnIndex - 1];
+        const nextColumn = STATUS_COLUMNS[columnIndex + 1];
         const columnKey = column.status.replace(/_/g, '-');
         return (
           <div className={`watchlist-column watchlist-column--${columnKey}`} key={column.status}>
@@ -74,7 +79,10 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
                     justDropped={item._id === justDroppedId}
                     saving={isPending(item._id)}
                     dragProps={dnd.dragProps({ id: item._id })}
-                    onDelete={handleDelete}
+                    prevColumn={prevColumn}
+                    nextColumn={nextColumn}
+                    onMove={handleDrop}
+                    onDelete={() => setDeleteTarget(item)}
                     onRate={onRate}
                   />
                 ))
@@ -83,6 +91,15 @@ export function WatchlistBoard({ items, ratingsByItem, users, currentUserId, onC
           </div>
         );
       })}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Remover da watchlist"
+        message={deleteTarget ? `"${deleteTarget.title}" será removido da lista. Não dá pra desfazer.` : ''}
+        confirmLabel="Remover"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

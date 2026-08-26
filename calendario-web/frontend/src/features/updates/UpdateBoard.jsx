@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { ConfirmDialog } from '../../components/ui/index.js';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -14,6 +15,7 @@ const COLUMNS = [
 export function UpdateBoard({ items, onChanged }) {
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
+  const [confirmItem, setConfirmItem] = useState(null);
 
   const groups = useMemo(() => {
     const map = { todo: [], in_progress: [], done: [] };
@@ -23,8 +25,9 @@ export function UpdateBoard({ items, onChanged }) {
     return map;
   }, [items]);
 
-  async function handleDelete(id) {
-    if (!window.confirm('Excluir este pedido?')) return;
+  async function handleConfirmDelete() {
+    const id = confirmItem._id;
+    setConfirmItem(null);
     try {
       await run(id, () => api.deleteUpdateRequest(id));
       await onChanged();
@@ -53,6 +56,8 @@ export function UpdateBoard({ items, onChanged }) {
       showToast('Observação adicionada', 'success');
     } catch (err) {
       showToast(err.message, 'error');
+      // Repassa o erro pro card não limpar o texto que o usuário digitou.
+      throw err;
     }
   }
 
@@ -60,8 +65,10 @@ export function UpdateBoard({ items, onChanged }) {
 
   return (
     <div className="update-board">
-      {COLUMNS.map((column) => {
+      {COLUMNS.map((column, columnIndex) => {
         const columnItems = groups[column.status];
+        const prevColumn = COLUMNS[columnIndex - 1];
+        const nextColumn = COLUMNS[columnIndex + 1];
         return (
           <div className="update-column" key={column.status}>
             <h3>
@@ -81,7 +88,10 @@ export function UpdateBoard({ items, onChanged }) {
                     dragging={dnd.isDragging(item._id)}
                     saving={isPending(item._id)}
                     dragProps={dnd.dragProps({ id: item._id })}
-                    onDelete={handleDelete}
+                    prevColumn={prevColumn}
+                    nextColumn={nextColumn}
+                    onMove={handleDrop}
+                    onDelete={() => setConfirmItem(item)}
                     onAddNote={handleAddNote}
                   />
                 ))
@@ -90,6 +100,15 @@ export function UpdateBoard({ items, onChanged }) {
           </div>
         );
       })}
+
+      <ConfirmDialog
+        open={Boolean(confirmItem)}
+        title="Excluir pedido"
+        message={confirmItem ? `"${confirmItem.title}" será excluído para sempre.` : ''}
+        confirmLabel="Excluir"
+        onCancel={() => setConfirmItem(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

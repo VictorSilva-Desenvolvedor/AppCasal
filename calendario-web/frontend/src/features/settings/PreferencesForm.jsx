@@ -6,8 +6,8 @@ import { useToast } from '../../hooks/useToast.js';
 function CheckboxField({ id, label, checked, onChange }) {
   return (
     <div className="field">
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 400 }} htmlFor={id}>
-        <input type="checkbox" id={id} style={{ width: 'auto' }} checked={checked} onChange={onChange} />
+      <label className="field-checkbox" htmlFor={id}>
+        <input type="checkbox" id={id} checked={checked} onChange={onChange} />
         {label}
       </label>
     </div>
@@ -73,8 +73,8 @@ export function PreferencesForm() {
   }
 
   return (
-    <div className="card settings-form" style={{ marginTop: '1.5rem' }}>
-      <h3 style={{ marginTop: 0 }}>Preferências do sistema</h3>
+    <div className="card settings-form">
+      <h3>Preferências do sistema</h3>
       <form onSubmit={handleSubmit}>
         <CheckboxField
           id="pref-reminders-muted"

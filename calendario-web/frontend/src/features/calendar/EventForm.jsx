@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '../../components/ui/index.js';
+import { Button, ConfirmDialog } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -39,6 +39,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const existingAttachments = event?.attachments || [];
 
@@ -86,9 +87,9 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
     }
   }
 
-  async function handleDelete() {
+  async function handleConfirmDelete() {
+    setConfirmDelete(false);
     if (!event) return;
-    if (!window.confirm('Excluir este evento?')) return;
 
     setDeleting(true);
     try {
@@ -214,7 +215,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
           Cancelar
         </Button>
         {isEditing && (
-          <Button type="button" variant="danger" loading={deleting} onClick={handleDelete}>
+          <Button type="button" variant="danger" loading={deleting} onClick={() => setConfirmDelete(true)}>
             Excluir
           </Button>
         )}
@@ -222,6 +223,15 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
           Salvar
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Excluir evento"
+        message={event ? `"${event.title}" será removido do calendário. Não dá pra desfazer.` : ''}
+        confirmLabel="Excluir"
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </form>
   );
 }

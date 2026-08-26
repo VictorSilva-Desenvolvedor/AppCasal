@@ -61,7 +61,9 @@
   --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Cores fixas por pessoa (independem do tema de cor escolhido) */
+  /* Cores fixas por pessoa (independem do tema de cor escolhido).
+     Espelhadas em PERSON_COLOR_HEX (features/calendar/calendarUtils.js), que
+     calcula a cor de texto legível sobre elas — alterar aqui exige alterar lá. */
   --color-person-1: #2563eb;
   --color-person-2: #ec4899;
   --color-person-3: #16a34a;
@@ -196,10 +198,14 @@
   --color-text: #001b29;
   --color-text-muted: #4d5f8a;
 
-  --color-primary: #4dd4cd;
+  /* O turquesa claro da Miku (#4dd4cd) só chega a ~1.8:1 sobre a superfície
+     clara, então links e ícones ficavam ilegíveis. Usamos a versão profunda do
+     mesmo turquesa como cor de ação (>=4.5:1 sobre superfície e sobre
+     primary-light) e deixamos o tom claro só nos gradientes decorativos. */
+  --color-primary: #0b716c;
   --color-primary-hover: #333c77;
   --color-primary-light: #d2f4f1;
-  --color-on-primary: #001b29;
+  --color-on-primary: #ffffff;
   --gradient-brand: linear-gradient(135deg, #4dd4cd 0%, #a4cbe3 50%, #333c77 100%);
 
   --shadow-sm: 0 1px 2px rgba(51, 60, 119, 0.08);
@@ -254,6 +260,17 @@
 }
 
 /* ---------- Modo escuro (base indigo + tokens comuns a todos os temas) ---------- */
+
+/* Sem color-scheme os controles nativos (caixa do checkbox, lista aberta do
+   select, barra de rolagem) continuam no esquema claro do sistema e destoam
+   dos temas escuros. */
+:root {
+  color-scheme: light;
+}
+[data-theme='dark'],
+[data-color-theme='black-green'] {
+  color-scheme: dark;
+}
 
 [data-theme='dark'] {
   --color-bg: #0f1115;
@@ -318,8 +335,8 @@
 }
 
 .color-swatch.is-active {
-  border-color: var(--color-text);
-  box-shadow: 0 0 0 2px var(--color-surface);
+  border-color: var(--color-surface);
+  box-shadow: 0 0 0 2px var(--color-text);
 }
 
 .swatch-indigo {
@@ -349,9 +366,10 @@
 .swatch-miku {
   background: linear-gradient(135deg, #4dd4cd 0%, #333c77 100%);
 }
+/* O verde vive dentro do círculo: a borda é reservada para o estado
+   selecionado, senão este swatch parece sempre ativo. */
 .swatch-black-green {
-  background: #05080a;
-  border-color: #39ff6a;
+  background: radial-gradient(circle at 50% 50%, #39ff6a 0 30%, #05080a 32% 100%);
 }
 .swatch-none {
   background: repeating-linear-gradient(

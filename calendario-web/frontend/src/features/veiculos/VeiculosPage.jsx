@@ -86,6 +86,17 @@ export function VeiculosPage() {
     return list;
   }
 
+  async function handleVehicleDeleted(vehicle) {
+    setEditingVehicle(null);
+    const list = await reloadVehicles();
+    if (vehicle._id === selectedVehicleId) {
+      setMaintenances([]);
+      setPayments([]);
+      setSelectedVehicleId(list[0]?._id || null);
+      setActiveTab('dashboard');
+    }
+  }
+
   async function handleMaintenanceSaved() {
     await reloadMaintenances(selectedVehicleId);
     setAddingMaintenance(false);
@@ -112,7 +123,7 @@ export function VeiculosPage() {
 
       {vehicles.length === 0 ? (
         <div className="vehicle-empty-state">
-          <Icon name="tool" />
+          <Icon name="moto" />
           <p>Nenhum veículo cadastrado ainda.</p>
           <Button variant="primary" onClick={() => setAddingVehicle(true)}>
             Cadastrar veículo
@@ -121,11 +132,12 @@ export function VeiculosPage() {
       ) : (
         <>
           {vehicles.length > 1 && (
-            <div className="vehicle-selector">
+            <div className="vehicle-selector" role="group" aria-label="Selecionar veículo">
               {vehicles.map((vehicle) => (
                 <button
                   key={vehicle._id}
                   type="button"
+                  aria-pressed={vehicle._id === selectedVehicleId}
                   className={`vehicle-selector-pill${vehicle._id === selectedVehicleId ? ' is-active' : ''}`}
                   onClick={() => setSelectedVehicleId(vehicle._id)}
                 >
@@ -137,11 +149,12 @@ export function VeiculosPage() {
 
           {selectedVehicle && (
             <>
-              <div className="vehicle-tabs">
+              <div className="vehicle-tabs" role="group" aria-label="Seções do veículo">
                 {TABS.map((tab) => (
                   <button
                     key={tab.value}
                     type="button"
+                    aria-pressed={activeTab === tab.value}
                     className={`vehicle-tab-btn${activeTab === tab.value ? ' is-active' : ''}`}
                     onClick={() => setActiveTab(tab.value)}
                   >
@@ -204,6 +217,7 @@ export function VeiculosPage() {
             editingVehicle={editingVehicle}
             onSaved={handleVehicleSaved}
             onCancel={() => setEditingVehicle(null)}
+            onDeleted={handleVehicleDeleted}
           />
         )}
       </Modal>

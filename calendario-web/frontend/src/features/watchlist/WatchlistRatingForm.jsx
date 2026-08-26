@@ -39,10 +39,11 @@ export function WatchlistRatingForm({ item, existingRating, onSaved, onCancel })
               key={n}
               type="button"
               className="watchlist-heart-picker-btn"
-              aria-label={`${n} corações`}
+              aria-label={n === 1 ? '1 coração' : `${n} corações`}
+              aria-pressed={n === hearts}
               onClick={() => setHearts(n)}
             >
-              <Icon name="heart" className={n <= hearts ? 'is-filled' : ''} />
+              <Icon name={n <= hearts ? 'heart-filled' : 'heart'} />
             </button>
           ))}
         </div>

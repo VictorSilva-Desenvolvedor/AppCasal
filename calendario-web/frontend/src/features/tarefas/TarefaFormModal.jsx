@@ -48,7 +48,7 @@ export function TarefaFormModal({ me, partner, defaultBelongsTo, defaultKind, de
               key={k}
               type="button"
               className={`tarefa-toggle-btn${kind === k ? ' is-active' : ''}`}
-              style={{ '--toggle-color': `var(--tarefas-${k})` }}
+              style={{ '--toggle-color': `var(--tarefas-${k}-fill)`, '--toggle-fg': '#fff' }}
               aria-pressed={kind === k}
               onClick={() => setKind(k)}
             >

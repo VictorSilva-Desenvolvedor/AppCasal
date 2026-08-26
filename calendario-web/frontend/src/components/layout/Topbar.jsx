@@ -4,7 +4,7 @@ import { Icon } from '../ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { NotificationBell } from './NotificationBell.jsx';
 import { GlobalSearchResults } from '../../features/calendar/GlobalSearchResults.jsx';
-import { matchesSearchTerm, toDateKey } from '../../features/calendar/calendarUtils.js';
+import { compareDateOnly, dateOnlyKey, matchesSearchTerm } from '../../features/calendar/calendarUtils.js';
 import { CATEGORIES } from '../../constants/categories.js';
 import { getAppSection } from './appSections.js';
 
@@ -35,12 +35,12 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
   const results = resultsVisible
     ? events
         .filter((event) => matchesSearchTerm(event, trimmedQuery))
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .sort((a, b) => compareDateOnly(a.date, b.date))
         .slice(0, GLOBAL_SEARCH_RESULT_LIMIT)
     : [];
 
   function handleSelectResult(event) {
-    const dateKey = toDateKey(new Date(event.date));
+    const dateKey = dateOnlyKey(event.date);
     setQuery('');
     setDismissed(true);
     navigate('/app/calendario', { state: { openDateKey: dateKey } });
@@ -52,27 +52,31 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
 
   return (
     <div className="toolbar">
-      <button
-        type="button"
-        className="sidebar-toggle"
-        title="Voltar para o lobby"
-        aria-label="Voltar para o lobby"
-        onClick={() => navigate('/app')}
-      >
-        <Icon name="chevron-left" />
-      </button>
-
-      {showSidebarToggle && (
+      <div className="toolbar-actions">
         <button
           type="button"
           className="sidebar-toggle"
-          title="Mostrar/ocultar barra lateral"
-          aria-label="Mostrar/ocultar barra lateral"
-          onClick={onToggleSidebar}
+          title="Voltar para o lobby"
+          aria-label="Voltar para o lobby"
+          onClick={() => navigate('/app')}
         >
-          <Icon name="menu" />
+          <Icon name="chevron-left" />
         </button>
-      )}
+
+        {showSidebarToggle && (
+          <button
+            type="button"
+            className="sidebar-toggle"
+            title="Mostrar/ocultar barra lateral"
+            aria-label="Mostrar/ocultar barra lateral"
+            onClick={onToggleSidebar}
+          >
+            <Icon name="menu" />
+          </button>
+        )}
+
+        <NotificationBell />
+      </div>
 
       {isCalendarSection && (
         <div className="global-search" ref={searchRef}>
@@ -89,8 +93,6 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
           {resultsVisible && <GlobalSearchResults results={results} onSelect={handleSelectResult} />}
         </div>
       )}
-
-      <NotificationBell />
 
       {showFilterBar && (
         <div className="filter-bar card">

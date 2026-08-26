@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, Card, Field, Pill } from '../../components/ui/index.js';
+import { Button, Card, ConfirmDialog, Field, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
@@ -36,6 +36,7 @@ export function ReimbursementWallet({ reimbursements, users, onChanged, hideFina
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
 
@@ -75,8 +76,9 @@ export function ReimbursementWallet({ reimbursements, users, onChanged, hideFina
     }
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm('Excluir este reembolso?')) return;
+  async function handleConfirmDelete() {
+    const id = deleteTarget._id;
+    setDeleteTarget(null);
     try {
       await run(id, () => api.deleteReimbursement(id));
       await onChanged();
@@ -183,7 +185,7 @@ export function ReimbursementWallet({ reimbursements, users, onChanged, hideFina
                     Quitar
                   </Button>
                 )}
-                <Button variant="danger" loading={isPending(r._id)} onClick={() => handleDelete(r._id)}>
+                <Button variant="danger" loading={isPending(r._id)} onClick={() => setDeleteTarget(r)}>
                   Excluir
                 </Button>
               </div>
@@ -191,6 +193,19 @@ export function ReimbursementWallet({ reimbursements, users, onChanged, hideFina
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Excluir reembolso"
+        message={
+          deleteTarget
+            ? `"${deleteTarget.description}" (${formatCurrency(deleteTarget.amount, hideFinanceValues)}) será removido da carteira. Não dá pra desfazer.`
+            : ''
+        }
+        confirmLabel="Excluir"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

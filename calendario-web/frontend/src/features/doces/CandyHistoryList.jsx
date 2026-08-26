@@ -1,4 +1,5 @@
-import { Card, IconButton, Icon, Pill } from '../../components/ui/index.js';
+import { useState } from 'react';
+import { Card, ConfirmDialog, IconButton, Icon, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -18,9 +19,11 @@ export function CandyHistoryList({ entries, onDeleted }) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  async function handleDelete(id) {
-    if (!window.confirm('Excluir este registro?')) return;
+  async function handleConfirmDelete() {
+    const id = deleteTarget._id;
+    setDeleteTarget(null);
     try {
       await run(id, () => api.deleteCandyEntry(id));
       await onDeleted();
@@ -66,7 +69,7 @@ export function CandyHistoryList({ entries, onDeleted }) {
                   </Pill>
                   {isOwner && (
                     <IconButton
-                      onClick={() => handleDelete(entry._id)}
+                      onClick={() => setDeleteTarget(entry)}
                       title="Excluir"
                       loading={isPending(entry._id)}
                     >
@@ -79,6 +82,19 @@ export function CandyHistoryList({ entries, onDeleted }) {
           </div>
         </div>
       ))}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Excluir registro"
+        message={
+          deleteTarget
+            ? `O registro das ${formatEntryTime(deleteTarget.createdAt)} (${formatDuration(deleteTarget.durationMs)}) será removido do histórico.`
+            : ''
+        }
+        confirmLabel="Excluir"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

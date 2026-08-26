@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card, IconButton, Icon } from '../../components/ui/index.js';
+import { Button, Card, ConfirmDialog, IconButton, Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
@@ -10,6 +10,7 @@ export function FinanceCategoryManager({ categories, onChanged }) {
   const [type, setType] = useState('despesa');
   const [color, setColor] = useState('#64748b');
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
 
@@ -31,8 +32,9 @@ export function FinanceCategoryManager({ categories, onChanged }) {
     }
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm('Excluir esta categoria?')) return;
+  async function handleConfirmDelete() {
+    const id = deleteTarget._id;
+    setDeleteTarget(null);
     try {
       await run(id, () => api.deleteFinanceCategory(id));
       await onChanged();
@@ -58,7 +60,7 @@ export function FinanceCategoryManager({ categories, onChanged }) {
                 {category.name}
                 <span className="finance-category-chip-type">{category.type === 'receita' ? 'receita' : 'despesa'}</span>
                 <IconButton
-                  onClick={() => handleDelete(category._id)}
+                  onClick={() => setDeleteTarget(category)}
                   title="Excluir categoria"
                   loading={isPending(category._id)}
                 >
@@ -87,6 +89,19 @@ export function FinanceCategoryManager({ categories, onChanged }) {
           </form>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Excluir categoria"
+        message={
+          deleteTarget
+            ? `A categoria "${deleteTarget.name}" será removida. Os lançamentos que usam ela ficam sem categoria.`
+            : ''
+        }
+        confirmLabel="Excluir"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </Card>
   );
 }

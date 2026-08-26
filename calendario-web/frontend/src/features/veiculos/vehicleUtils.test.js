@@ -27,4 +27,19 @@ describe('maintenanceUrgency', () => {
 
     expect(urgency.label).toContain('30.500 km');
   });
+
+  test('prazo por data diz o que os dias significam', () => {
+    const inTenDays = new Date();
+    inTenDays.setDate(inTenDays.getDate() + 10);
+    const urgency = maintenanceUrgency({ status: 'pendente', dueOdometer: null, dueDate: inTenDays }, 30000);
+
+    expect(urgency.label).toBe('Vence em 10 dias');
+    expect(urgency.overdue).toBe(false);
+  });
+
+  test('prazo por data no dia de hoje ainda não é atraso na leitura', () => {
+    const urgency = maintenanceUrgency({ status: 'pendente', dueOdometer: null, dueDate: new Date() }, 30000);
+
+    expect(urgency.label).toBe('Vence hoje');
+  });
 });

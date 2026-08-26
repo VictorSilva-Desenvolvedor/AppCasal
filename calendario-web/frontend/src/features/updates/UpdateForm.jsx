@@ -60,7 +60,9 @@ export function UpdateForm({ onCreated }) {
   }
 
   return (
-    <form className="card update-form" onSubmit={handleSubmit}>
+    // noValidate: a validação nativa do navegador mostra mensagem em inglês
+    // ("Please fill out this field") e engole a mensagem em pt-BR do formulário.
+    <form className="card update-form" onSubmit={handleSubmit} noValidate>
       <div className="field">
         <label htmlFor="update-idea">Ideia rápida</label>
         <textarea
@@ -93,7 +95,9 @@ export function UpdateForm({ onCreated }) {
           onChange={(event) => setDescription(event.target.value)}
         />
       </div>
-      <p className="error-text">{error}</p>
+      <p className="error-text" role="alert">
+        {error}
+      </p>
       <Button type="submit" loading={saving}>
         Pedir atualização
       </Button>

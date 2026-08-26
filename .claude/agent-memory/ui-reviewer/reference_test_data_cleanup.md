@@ -18,6 +18,14 @@ Two gotchas that cost a round each:
 - Requires must point at `calendario-web/backend/node_modules/...` by absolute path
   when the script lives in the scratchpad.
 
+**Já existe um segundo usuário no mesmo time do `Teste`: `Teste2` / `Teste2@123`** (mesmo
+`team: "teste"`). Use-o para qualquer fluxo que precise de duas pessoas (convites, hábitos
+conjuntos, notificação de parceiro) em vez de registrar alguém novo. Dados criados por ele
+saem limpos pela própria API: `DELETE /api/events/:id` já apaga em cascata as
+`Invitation` do evento (`eventController.js`), o que é o único jeito de remover convite
+já aceito/recusado — `DELETE /api/invitations/:id` só aceita convite **pendente** e só do
+próprio remetente.
+
 **How to apply:** prefer testing error paths (duplicate name → 409, empty body →
 400) which create nothing; only create a clearly disposable user for the happy path
 and delete it in the same session. See [[test-user-convention]] and

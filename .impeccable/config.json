@@ -20,6 +20,42 @@
         ],
         "createdAt": "2026-08-24T23:14:22.365Z",
         "reason": "ui-reviewer sweep: .emotion-intensity-preview-sphere é isolada dentro de container flex de altura fixa (90px), sem vizinhos pra sofrer reflow"
+      },
+      {
+        "rule": "side-tab",
+        "value": "border-left: 4px solid var(--habit-color, var(--habit-purple))",
+        "files": [
+          "calendario-web/frontend/src/styles/habitos.css"
+        ],
+        "createdAt": "2026-08-25T22:10:33.237Z",
+        "reason": "ui-reviewer sweep: cor funcional escolhida pelo usuário para o hábito, mesmo padrão já usado em watchlist.css, não é chrome decorativo genérico"
+      },
+      {
+        "rule": "side-tab",
+        "value": ".habit-card.is-united::before — absolute 4px pseudo-element stripe (top: 0)",
+        "files": [
+          "calendario-web/frontend/src/styles/habitos.css"
+        ],
+        "createdAt": "2026-08-25T22:10:33.325Z",
+        "reason": "ui-reviewer sweep: sinaliza estado funcional (casal completou o hábito junto hoje), não é stripe decorativa"
+      },
+      {
+        "rule": "side-tab",
+        "value": "border-left: 4px solid var(--watch-type-color, var(--watch-vinho))",
+        "files": [
+          "calendario-web/frontend/src/styles/watchlist.css"
+        ],
+        "createdAt": "2026-08-25T22:20:45.919Z",
+        "reason": "ui-reviewer sweep: cor carrega o tipo do item (filme/série/jogo), mesmo padrão funcional já aceito em habitos.css/watchlist.css"
+      },
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "files": [
+          "calendario-web/frontend/src/styles/tarefas.css"
+        ],
+        "createdAt": "2026-08-25T22:44:21.182Z",
+        "reason": "ui-reviewer sweep: escolha pré-existente e deliberada (serif de destaque só nos headings da tela de Tarefas, não usada em nenhuma outra tela) — não é convergência genérica de IA, é acento tipográfico único desta feature"
       }
     ]
   }

@@ -55,13 +55,17 @@ export function DocesPage() {
     setEntries(await api.getCandyEntries());
   }, []);
 
+  // Sem o catch, uma falha de rede deixava a tela em branco (balança e ranking
+  // vazios) sem nenhum aviso de que os dados não carregaram.
   useEffect(() => {
-    reloadRanking();
-  }, [reloadRanking]);
+    reloadRanking().catch((err) => showToast(err.message, 'error'));
+  }, [reloadRanking, showToast]);
 
   useEffect(() => {
-    Promise.all([reloadWeek(), reloadHistory()]).finally(() => setLoading(false));
-  }, [reloadWeek, reloadHistory]);
+    Promise.all([reloadWeek(), reloadHistory()])
+      .catch((err) => showToast(err.message, 'error'))
+      .finally(() => setLoading(false));
+  }, [reloadWeek, reloadHistory, showToast]);
 
   async function handleLogged(durationMs) {
     setSubmitting(true);
@@ -116,6 +120,7 @@ export function DocesPage() {
             key={tab.value}
             type="button"
             className={`candy-tab-btn${activeTab === tab.value ? ' is-active' : ''}`}
+            aria-pressed={activeTab === tab.value}
             onClick={() => setActiveTab(tab.value)}
           >
             {tab.label}

@@ -8,13 +8,16 @@ import { api } from '../../services/api.js';
 import {
   WEEKDAYS,
   buildOccurrenceMap,
+  compareDateOnly,
   dateKeyToNoonISO,
+  dateOnlyKey,
   dayCellAriaLabel,
   dayIconBadgeSrcs,
   filteredEvents,
   hasImportantDate,
   isEventRecurring,
   pillColorFor,
+  pillTextColorFor,
   sharedEventIdSet,
   toDateKey,
 } from './calendarUtils.js';
@@ -44,7 +47,7 @@ export function WeekView({ viewDate, filters, onSelectDay }) {
 
   async function rescheduleEvent(eventId, dateKey) {
     const event = events.find((item) => item._id === eventId);
-    if (!event || toDateKey(new Date(event.date)) === dateKey) return;
+    if (!event || dateOnlyKey(event.date) === dateKey) return;
 
     try {
       await run(eventId, () =>
@@ -74,7 +77,7 @@ export function WeekView({ viewDate, filters, onSelectDay }) {
     <div className="calendar-week-grid fade-in" key={toDateKey(weekStart)}>
       {days.map((date) => {
         const dateKey = toDateKey(date);
-        const dayEvents = (occMap.get(dateKey) || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+        const dayEvents = (occMap.get(dateKey) || []).slice().sort((a, b) => compareDateOnly(a.date, b.date));
         const isToday = dateKey === todayKey;
         const badgeSrcs = dayIconBadgeSrcs(dayEvents);
 
@@ -113,7 +116,7 @@ export function WeekView({ viewDate, filters, onSelectDay }) {
                 <span
                   key={event._id}
                   className={`event-pill${dnd.isDragging(event._id) ? ' is-dragging' : ''}${isPending(event._id) ? ' is-saving' : ''}`}
-                  style={{ background: pillColorFor(event, users) }}
+                  style={{ background: pillColorFor(event, users), color: pillTextColorFor(event, users) }}
                   {...dnd.dragProps({ id: event._id, event })}
                 >
                   {sharedIds.has(event._id) && <Icon name="heart" className="icon-inline shared-badge-icon" />}

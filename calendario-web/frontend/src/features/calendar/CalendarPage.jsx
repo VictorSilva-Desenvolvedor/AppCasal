@@ -9,7 +9,7 @@ import { DayView } from './DayView.jsx';
 import { AgendaView } from './AgendaView.jsx';
 import { MobileMonthList } from './MobileMonthList.jsx';
 import { EventModal } from './EventModal.jsx';
-import { toDateKey } from './calendarUtils.js';
+import { dateOnlyKey } from './calendarUtils.js';
 
 const MOBILE_QUERY = '(max-width: 768px)';
 
@@ -67,7 +67,7 @@ export function CalendarPage() {
   }
 
   function openEditEventForm(event) {
-    setSelectedDateKey(toDateKey(new Date(event.date)));
+    setSelectedDateKey(dateOnlyKey(event.date));
     setEditingEventId(event._id);
     setModalMode('form');
     setDayModalOpen(true);

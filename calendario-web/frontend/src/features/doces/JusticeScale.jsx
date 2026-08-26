@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useDeviceTilt } from '../../hooks/useDeviceTilt.js';
 import { useEmotionJarPhysics } from '../../hooks/useEmotionJarPhysics.js';
-import { personColorFor } from '../calendar/calendarUtils.js';
+import { personColorFor, personTextColorFor } from '../calendar/calendarUtils.js';
 import { MAX_BEAM_TILT_DEG } from './candyConfig.js';
 import { candyColorMix, formatScore, initialsOf, intensityForDuration, scaleForElapsed } from './candyUtils.js';
 
@@ -64,11 +64,11 @@ function CandyPan({ entries, resetKey, gravityAngleRef, wakeSignal }) {
   );
 }
 
-function ScaleSide({ name, color, entries, resetKey, total, offsetPx, gravityAngleRef, wakeSignal }) {
+function ScaleSide({ name, color, textColor, entries, resetKey, total, offsetPx, gravityAngleRef, wakeSignal }) {
   return (
     <div className="candy-justice-pan-wrap" style={{ transform: `translateY(${offsetPx}px)` }}>
       <CandyPan entries={entries} resetKey={resetKey} gravityAngleRef={gravityAngleRef} wakeSignal={wakeSignal} />
-      <div className="candy-justice-avatar" style={{ background: color }}>
+      <div className="candy-justice-avatar" style={{ background: color, color: textColor }}>
         {initialsOf(name)}
       </div>
       <strong className="candy-justice-name">{name}</strong>
@@ -137,6 +137,7 @@ export function JusticeScale({ users, weekEntries, resetKey, holdSlot }) {
           <ScaleSide
             name={me.name}
             color={leftColor}
+            textColor={personTextColorFor(users, me._id)}
             entries={leftEntries}
             resetKey={resetKey}
             total={leftTotal}
@@ -149,6 +150,7 @@ export function JusticeScale({ users, weekEntries, resetKey, holdSlot }) {
           <ScaleSide
             name={partner.name}
             color={rightColor}
+            textColor={personTextColorFor(users, partner._id)}
             entries={rightEntries}
             resetKey={resetKey}
             total={rightTotal}

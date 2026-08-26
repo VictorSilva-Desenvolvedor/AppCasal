@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Icon, Spinner } from '../../components/ui/index.js';
+import { Icon, MoveControls, Spinner } from '../../components/ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { personColorFor } from '../calendar/calendarUtils.js';
 
@@ -13,7 +13,7 @@ function formatLogTimestamp(date) {
   });
 }
 
-export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddNote }) {
+export function UpdateCard({ item, dragging, saving, dragProps, prevColumn, nextColumn, onMove, onDelete, onAddNote }) {
   const { users } = useCalendarData();
   const dotColor = item.creator ? personColorFor(users, item.creator._id) : 'var(--color-text-muted)';
   const authorName = item.creator?.name || 'desconhecido';
@@ -32,6 +32,8 @@ export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddN
     try {
       await onAddNote(item._id, trimmed);
       setNoteText('');
+    } catch {
+      // O board já avisou o erro por toast; manter o texto digitado.
     } finally {
       setSavingNote(false);
     }
@@ -50,21 +52,31 @@ export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddN
           <span className="person-dot" style={{ background: dotColor }} />
           {authorName} · {formatLogTimestamp(item.createdAt)}
         </span>
-        <button
-          type="button"
-          className="update-card-delete"
-          title="Excluir"
-          aria-label="Excluir pedido"
-          disabled={saving}
-          onClick={() => onDelete(item._id)}
-        >
-          {saving ? <Spinner /> : <Icon name="trash" />}
-        </button>
+        <div className="update-card-actions">
+          <MoveControls
+            prevLabel={prevColumn?.label}
+            nextLabel={nextColumn?.label}
+            disabled={saving}
+            onMovePrev={() => onMove(item._id, prevColumn.status)}
+            onMoveNext={() => onMove(item._id, nextColumn.status)}
+          />
+          <button
+            type="button"
+            className="update-card-delete"
+            title="Excluir"
+            aria-label="Excluir pedido"
+            disabled={saving}
+            onClick={() => onDelete(item)}
+          >
+            {saving ? <Spinner /> : <Icon name="trash" />}
+          </button>
+        </div>
       </div>
 
       <button
         type="button"
         className="update-card-notes-toggle"
+        aria-expanded={showNotes}
         onClick={() => setShowNotes((prev) => !prev)}
       >
         {showNotes ? 'Ocultar' : 'Ver'} observações ({notes.length})
@@ -86,6 +98,7 @@ export function UpdateCard({ item, dragging, saving, dragProps, onDelete, onAddN
           )}
           <form className="update-card-note-form" onSubmit={handleAddNote}>
             <textarea
+              aria-label="Nova observação"
               placeholder="Adicionar observação..."
               value={noteText}
               onChange={(event) => setNoteText(event.target.value)}

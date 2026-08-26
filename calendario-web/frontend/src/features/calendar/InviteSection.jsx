@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Icon, Spinner } from '../../components/ui/index.js';
+import { Button, ConfirmDialog, Icon, Spinner } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
@@ -10,6 +10,7 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
   const [inviteeId, setInviteeId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cancelTarget, setCancelTarget] = useState(null);
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
 
@@ -43,8 +44,9 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
     }
   }
 
-  async function handleCancel(id) {
-    if (!window.confirm('Cancelar este convite?')) return;
+  async function handleConfirmCancel() {
+    const id = cancelTarget._id;
+    setCancelTarget(null);
     try {
       await run(id, () => api.cancelInvitation(id));
       await onInvitationsChanged();
@@ -97,7 +99,7 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
                 title="Cancelar"
                 aria-label="Cancelar convite"
                 disabled={isPending(inv._id)}
-                onClick={() => handleCancel(inv._id)}
+                onClick={() => setCancelTarget(inv)}
               >
                 {isPending(inv._id) ? <Spinner /> : <Icon name="trash" />}
               </button>
@@ -105,6 +107,20 @@ export function InviteSection({ event, users, invitations, currentUserId, onInvi
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(cancelTarget)}
+        title="Cancelar convite"
+        message={
+          cancelTarget
+            ? `O convite para ${cancelTarget.invitee?.name || 'a outra pessoa'} será removido deste evento.`
+            : ''
+        }
+        confirmLabel="Cancelar convite"
+        cancelLabel="Voltar"
+        onCancel={() => setCancelTarget(null)}
+        onConfirm={handleConfirmCancel}
+      />
     </div>
   );
 }

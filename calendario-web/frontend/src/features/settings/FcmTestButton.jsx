@@ -23,8 +23,8 @@ export function FcmTestButton() {
   }
 
   return (
-    <div className="card settings-form" style={{ marginTop: '1.5rem' }}>
-      <h3 style={{ marginTop: 0 }}>Testar notificação nativa</h3>
+    <div className="card settings-form">
+      <h3>Testar notificação nativa</h3>
       <p>Envia uma notificação de teste para este celular, para conferir se o push está chegando.</p>
       <Button type="button" variant="secondary" loading={loading} onClick={handleTestPush}>
         Enviar notificação de teste

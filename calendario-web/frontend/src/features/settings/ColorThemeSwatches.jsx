@@ -27,13 +27,15 @@ export function ColorThemeSwatches() {
   }
 
   return (
-    <div className="color-swatch-grid">
+    <div className="color-swatch-grid" role="group" aria-labelledby="settings-color-theme-label">
       {SWATCHES.map((swatch) => (
         <button
           key={swatch.value}
           type="button"
           className={`color-swatch swatch-${swatch.value}${colorTheme === swatch.value ? ' is-active' : ''}`}
           title={swatch.label}
+          aria-label={swatch.label}
+          aria-pressed={colorTheme === swatch.value}
           onClick={() => handleSelect(swatch.value)}
         />
       ))}

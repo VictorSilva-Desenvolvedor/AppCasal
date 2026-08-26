@@ -1,6 +1,6 @@
 import { Field, Icon } from '../../components/ui/index.js';
 import { REASONS, REASON_ORDER } from '../../constants/emotionReasons.js';
-import { readableTextOn } from './emocoesUtils.js';
+import { readableTextOn } from '../../lib/contrast.js';
 
 export function EmotionReasonPicker({
   selectedReasons,

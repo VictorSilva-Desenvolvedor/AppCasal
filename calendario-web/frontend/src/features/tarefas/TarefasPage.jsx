@@ -247,35 +247,35 @@ export function TarefasPage() {
         <span className="tarefas-date">{dateLabel}</span>
       </div>
 
-      <div className="tarefas-tabs" role="tablist" aria-label="De quem é a lista">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'me'}
-          className={`tarefas-tab-btn${activeTab === 'me' ? ' is-active' : ''}`}
-          onClick={() => setActiveTab('me')}
-        >
-          Minha lista
-        </button>
-        {partner && (
+      {/* Grupo de filtro, não abas: não há painéis irmãos nem navegação por
+          setas, então o par correto é role="group" + aria-pressed. */}
+      {partner && (
+        <div className="tarefas-tabs" role="group" aria-label="De quem é a lista">
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'partner'}
+            aria-pressed={activeTab === 'me'}
+            className={`tarefas-tab-btn${activeTab === 'me' ? ' is-active' : ''}`}
+            onClick={() => setActiveTab('me')}
+          >
+            Minha lista
+          </button>
+          <button
+            type="button"
+            aria-pressed={activeTab === 'partner'}
             className={`tarefas-tab-btn${activeTab === 'partner' ? ' is-active' : ''}`}
             onClick={() => setActiveTab('partner')}
           >
             Lista de {partner.name}
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="tarefas-progress">
         <TarefaProgressRing done={dailyDone} total={dailyTotal} />
         <div className="tarefas-progress-text">
           <div className="tarefas-progress-label">Tarefas diárias de {activeUser?.name} hoje</div>
           <div className="tarefas-progress-value">
-            {dailyDone} de {dailyTotal} concluídas
+            {dailyTotal > 0 ? `${dailyDone} de ${dailyTotal} concluídas` : 'Nenhuma tarefa diária ainda'}
           </div>
         </div>
       </div>

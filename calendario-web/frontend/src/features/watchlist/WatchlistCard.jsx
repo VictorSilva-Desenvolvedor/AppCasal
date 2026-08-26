@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Icon, IconButton } from '../../components/ui/index.js';
-import { personColorFor } from '../calendar/calendarUtils.js';
+import { Icon, IconButton, MoveControls } from '../../components/ui/index.js';
+import { personColorFor, personTextColorFor } from '../calendar/calendarUtils.js';
 import { TYPE_META, RATING_SCALE, ratingByUser, isFullyRated, initialOf } from './watchlistUtils.js';
 
 function HeartsDisplay({ hearts }) {
   return (
     <span className="watchlist-hearts" aria-label={`${hearts} de 5 corações`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <Icon key={n} name="heart" className={n <= hearts ? 'is-filled' : ''} />
+        <Icon key={n} name={n <= hearts ? 'heart-filled' : 'heart'} />
       ))}
     </span>
   );
@@ -22,12 +22,16 @@ export function WatchlistCard({
   justDropped,
   saving,
   dragProps,
+  prevColumn,
+  nextColumn,
+  onMove,
   onDelete,
   onRate,
 }) {
   const meta = TYPE_META[item.type] || TYPE_META.filme;
   const authorName = item.creator?.name || 'desconhecido';
   const authorColor = item.creator ? personColorFor(users, item.creator._id) : 'var(--watch-vinho)';
+  const authorTextColor = item.creator ? personTextColorFor(users, item.creator._id) : '#fff';
   const canRate = item.status === 'visto_ouvido';
   const fullyRated = canRate && isFullyRated(ratings, users);
 
@@ -97,11 +101,21 @@ export function WatchlistCard({
 
       <div className="watchlist-card-footer">
         <span className="watchlist-card-author">
-          <span className="watchlist-avatar" style={{ '--author-color': authorColor }}>
+          <span
+            className="watchlist-avatar"
+            style={{ '--author-color': authorColor, '--author-text-color': authorTextColor }}
+          >
             {initialOf(authorName)}
           </span>
           sugerido por {authorName}
         </span>
+        <MoveControls
+          prevLabel={prevColumn?.label}
+          nextLabel={nextColumn?.label}
+          disabled={saving}
+          onMovePrev={() => onMove(item._id, prevColumn.status)}
+          onMoveNext={() => onMove(item._id, nextColumn.status)}
+        />
       </div>
 
       {canRate && (
@@ -111,7 +125,13 @@ export function WatchlistCard({
             const isMe = u._id === currentUserId;
             return (
               <div key={u._id} className="watchlist-rating-row">
-                <span className="watchlist-avatar" style={{ '--author-color': personColorFor(users, u._id) }}>
+                <span
+                  className="watchlist-avatar"
+                  style={{
+                    '--author-color': personColorFor(users, u._id),
+                    '--author-text-color': personTextColorFor(users, u._id),
+                  }}
+                >
                   {initialOf(u.name)}
                 </span>
                 <span className="watchlist-rating-name">{isMe ? 'Você' : u.name}</span>

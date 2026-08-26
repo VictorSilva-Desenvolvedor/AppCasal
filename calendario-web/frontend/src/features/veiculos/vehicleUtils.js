@@ -76,7 +76,11 @@ export function maintenanceUrgency(item, currentOdometer) {
   }
   if (daysRemaining != null) {
     const days = Math.abs(daysRemaining);
-    parts.push(overdueDate ? `Atrasada há ${days} dia${days === 1 ? '' : 's'}` : `${daysRemaining} dia${daysRemaining === 1 ? '' : 's'}`);
+    // Sem o verbo, o prazo por data virava só "10 dias" — não dava pra saber se
+    // eram 10 dias restantes ou de atraso.
+    if (daysRemaining === 0) parts.push('Vence hoje');
+    else if (overdueDate) parts.push(`Atrasada há ${days} dia${days === 1 ? '' : 's'}`);
+    else parts.push(`Vence em ${days} dia${days === 1 ? '' : 's'}`);
   }
 
   return {

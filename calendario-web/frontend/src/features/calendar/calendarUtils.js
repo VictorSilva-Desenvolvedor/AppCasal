@@ -1,19 +1,21 @@
 import { API_BASE_URL } from '../../services/api.js';
 import { getOccurrencesInRange, normalizeRule } from '../../lib/recurrence.js';
+import { compareDateOnly, dateOnlyKey, localDateKey, parseDateOnly } from '../../lib/dateOnly.js';
 import { CATEGORIES } from '../../constants/categories.js';
+import { readableTextOn } from '../../lib/contrast.js';
+
+export { compareDateOnly, dateOnlyKey, formatDateOnly, parseDateOnly } from '../../lib/dateOnly.js';
 
 export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
 export const IMAGE_MIME = /^image\//;
 export const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export const PERSON_COLORS = [
-  'var(--color-person-1)',
-  'var(--color-person-2)',
-  'var(--color-person-3)',
-  'var(--color-person-4)',
-  'var(--color-person-5)',
-  'var(--color-person-6)',
-];
+// Espelha --color-person-1..6 de styles/tokens.css (mesmas cores nos 9 temas e
+// no modo escuro). O hex fica aqui porque o cálculo de contraste do texto sobre
+// o avatar precisa do valor real, que a var() do CSS não entrega ao JS.
+export const PERSON_COLOR_HEX = ['#2563eb', '#ec4899', '#16a34a', '#d97706', '#7c3aed', '#0d9488'];
+
+export const PERSON_COLORS = PERSON_COLOR_HEX.map((_, i) => `var(--color-person-${i + 1})`);
 
 export const SPECIAL_CATEGORY_ICONS = {
   aniversario: '/icon-aniversario.png',
@@ -51,16 +53,17 @@ export function dayCellAriaLabel(date, eventCount) {
   return `${dateLabel}, ${eventCount} eventos`;
 }
 
+// Data já construída no fuso local (célula do grid, `new Date()`) -> chave.
+// Para valor vindo da API use `dateOnlyKey`.
 export function toDateKey(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+  return localDateKey(date);
 }
 
+// Grava ao meio-dia UTC: assim a data lida de volta com componentes UTC
+// (`parseDateOnly`) é sempre o mesmo dia, em qualquer fuso do usuário.
 export function dateKeyToNoonISO(dateKey) {
   const [y, m, d] = dateKey.split('-').map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0).toISOString();
+  return new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).toISOString();
 }
 
 export function fileUrl(path) {
@@ -88,7 +91,7 @@ export function matchesFilters(event, filters) {
 
 export function isHiddenPastEvent(event) {
   if (isEventRecurring(event) || !event.hideWhenPast) return false;
-  return toDateKey(new Date(event.date)) < toDateKey(new Date());
+  return dateOnlyKey(event.date) < toDateKey(new Date());
 }
 
 export function filteredEvents(events, filters) {
@@ -101,7 +104,7 @@ export function buildOccurrenceMap(events, rangeStart, rangeEnd) {
   const map = new Map();
 
   events.forEach((event) => {
-    getOccurrencesInRange(event.date, normalizeRule(event), rangeStart, rangeEnd).forEach((occurrence) => {
+    getOccurrencesInRange(parseDateOnly(event.date), normalizeRule(event), rangeStart, rangeEnd).forEach((occurrence) => {
       const key = toDateKey(occurrence);
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(event);
@@ -115,31 +118,50 @@ export function matchesDateKey(event, dateKey) {
   if (!dateKey) return false;
   const [y, m, d] = dateKey.split('-').map(Number);
   const target = new Date(y, m - 1, d, 12, 0, 0);
-  return getOccurrencesInRange(event.date, normalizeRule(event), target, target).length > 0;
+  return getOccurrencesInRange(parseDateOnly(event.date), normalizeRule(event), target, target).length > 0;
 }
 
 export function nextOccurrenceDate(event) {
   const today = new Date();
   const horizon = new Date(today.getFullYear() + 5, today.getMonth(), today.getDate());
-  const occurrences = getOccurrencesInRange(event.date, normalizeRule(event), today, horizon);
-  return occurrences[0] || new Date(event.date);
+  const occurrences = getOccurrencesInRange(parseDateOnly(event.date), normalizeRule(event), today, horizon);
+  return occurrences[0] || parseDateOnly(event.date);
 }
 
 export function eventsByDateKey(events, filters, dateKey) {
   return filteredEvents(events, filters)
     .filter((event) => matchesDateKey(event, dateKey))
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .sort((a, b) => compareDateOnly(a.date, b.date));
+}
+
+function personColorIndex(users, userId) {
+  const index = users.findIndex((user) => user._id === userId);
+  return (index === -1 ? 0 : index) % PERSON_COLORS.length;
 }
 
 export function personColorFor(users, userId) {
-  const index = users.findIndex((user) => user._id === userId);
-  return PERSON_COLORS[index === -1 ? 0 : index % PERSON_COLORS.length];
+  return PERSON_COLORS[personColorIndex(users, userId)];
+}
+
+// Cor de texto legível sobre personColorFor(...) — cada cor de pessoa exige um
+// contraste próprio (4 das 6 pedem texto escuro), então texto branco fixo não serve.
+export function personTextColorFor(users, userId) {
+  return readableTextOn(PERSON_COLOR_HEX[personColorIndex(users, userId)]);
 }
 
 export function pillColorFor(event, users) {
   if (event.color) return event.color;
   if (event.category && CATEGORIES[event.category]) return CATEGORIES[event.category].color;
   return event.creator ? personColorFor(users, event.creator._id) : 'var(--color-primary)';
+}
+
+// Par de pillColorFor: o fundo do pill varia por evento/categoria/pessoa, então
+// a cor do texto tem que ser calculada junto (--color-on-primary só é calibrado
+// pro --color-primary do tema).
+export function pillTextColorFor(event, users) {
+  if (event.color) return readableTextOn(event.color);
+  if (event.category && CATEGORIES[event.category]) return readableTextOn(CATEGORIES[event.category].color);
+  return event.creator ? personTextColorFor(users, event.creator._id) : 'var(--color-on-primary)';
 }
 
 export function specialCategoryIconSrc(event) {
@@ -228,7 +250,7 @@ export function initialRecurrenceState(event) {
 
   if (rule.endDate) {
     endType = 'date';
-    endDateKey = toDateKey(new Date(rule.endDate));
+    endDateKey = toDateKey(rule.endDate);
   } else if (rule.endCount) {
     endType = 'count';
     endCount = rule.endCount;

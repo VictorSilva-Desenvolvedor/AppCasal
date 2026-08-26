@@ -2,22 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button, Icon, IconButton } from '../../components/ui/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useTheme } from '../../hooks/useTheme.js';
-
-const LOBBY_APPS = [
-  { to: '/app/resumo', icon: 'sunrise', label: 'Resumo da Semana' },
-  { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
-  { to: '/app/financeiro', icon: 'wallet', label: 'Financeiro' },
-  { to: '/app/emocoes', icon: 'smile', label: 'Emoções do Dia' },
-  { to: '/app/habitos', icon: 'repeat', label: 'Hábitos' },
-  { to: '/app/watchlist', icon: 'film', label: 'Watchlist a Dois' },
-  { to: '/app/doces', icon: 'candy', label: 'Doces' },
-  { to: '/app/tarefas', icon: 'check-circle', label: 'Tarefas' },
-  { to: '/app/veiculos', icon: 'moto', label: 'Veículos' },
-  { to: '/app/galeria', icon: 'image', label: 'Galeria' },
-  { to: '/app/atividades', icon: 'clock', label: 'Atividades' },
-  { to: '/app/atualizacoes', icon: 'tool', label: 'Atualizações' },
-  { to: '/app/configuracoes', icon: 'settings', label: 'Configurações' },
-];
+import { APP_MODULES } from '../../constants/appModules.js';
 
 export function LobbyPage() {
   const { user, logout } = useAuth();
@@ -45,7 +30,7 @@ export function LobbyPage() {
       </header>
 
       <nav className="lobby-grid" aria-label="Seções do aplicativo">
-        {LOBBY_APPS.map((app) => (
+        {APP_MODULES.map((app) => (
           <Link key={app.to} to={app.to} className="lobby-app-tile">
             <span className="lobby-app-icon">
               <Icon name={app.icon} />

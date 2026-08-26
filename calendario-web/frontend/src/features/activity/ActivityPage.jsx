@@ -14,6 +14,8 @@ const MODULE_LABELS = {
   watchlist: 'Watchlist',
   convite: 'Convites',
   tarefa: 'Tarefas',
+  veiculo: 'Veículos',
+  doce: 'Doces',
 };
 
 function formatLogTimestamp(date) {
@@ -36,6 +38,7 @@ export function ActivityPage() {
 
   useEffect(() => {
     let cancelled = false;
+    setError(false);
     api
       .getActivityLog(actorFilter === 'all' ? undefined : actorFilter)
       .then((data) => {
@@ -66,14 +69,18 @@ export function ActivityPage() {
   return (
     <section className="view">
       <h2>Atividades</h2>
-      <p>Histórico de atividades no Calendário, Financeiro, Hábitos, Emoções, Watchlist e Convites.</p>
+      <p>
+        Histórico de atividades no Calendário, Financeiro, Hábitos, Emoções, Watchlist, Tarefas,
+        Veículos e Convites.
+      </p>
       {filterTabs.length > 1 && (
-        <div className="activity-filter-tabs">
+        <div className="activity-filter-tabs" role="group" aria-label="Filtrar por pessoa">
           {filterTabs.map((tab) => (
             <button
               key={tab.value}
               type="button"
               className={`activity-filter-btn${actorFilter === tab.value ? ' is-active' : ''}`}
+              aria-pressed={actorFilter === tab.value}
               onClick={() => setActorFilter(tab.value)}
             >
               {tab.label}
@@ -84,7 +91,11 @@ export function ActivityPage() {
       <div className="activity-feed">
         {error && <p className="sidebar-empty">Não foi possível carregar as atividades</p>}
         {!error && logs && logs.length === 0 && (
-          <p className="sidebar-empty">Nenhuma atividade registrada ainda</p>
+          <p className="sidebar-empty">
+            {actorFilter === 'all'
+              ? 'Nenhuma atividade registrada ainda'
+              : 'Nenhuma atividade registrada para esta pessoa'}
+          </p>
         )}
         {!error &&
           logs?.map((log) => {
@@ -99,7 +110,7 @@ export function ActivityPage() {
                     <span className="person-dot" style={{ background: dotColor }} />
                     <strong>{actorName}</strong> {actionLabel} &quot;{log.eventTitle}&quot;
                   </span>
-                  <span>
+                  <span className="activity-feed-item-meta">
                     <span className="pill">{MODULE_LABELS[log.module] || log.module}</span>
                     <span className="badge">{formatLogTimestamp(log.createdAt)}</span>
                   </span>

@@ -56,7 +56,12 @@
 }
 
 .vehicle-form-actions {
-  @apply flex justify-end gap-2 mt-2;
+  @apply flex flex-wrap justify-end gap-2 mt-2;
+}
+
+/* Separa a ação destrutiva das ações de salvar/cancelar. */
+.vehicle-form-delete {
+  @apply mr-auto;
 }
 
 .vehicle-category-toggle {
@@ -201,8 +206,11 @@
   @apply flex gap-2 mt-1 flex-wrap;
 }
 
+/* Fora de um `.field`, o input não herda nenhum estilo base e virava texto solto. */
 .vehicle-odometer-form input {
-  @apply max-w-[10rem];
+  @apply max-w-[10rem] rounded-sm border border-border bg-bg text-text text-base font-sans px-3 py-[0.6rem]
+    transition-[border-color,box-shadow] duration-200
+    focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-light)];
 }
 
 .vehicle-odometer-history {
@@ -253,8 +261,10 @@
   @apply border-danger;
 }
 
+/* Sem opacity: o fundo alternativo já sinaliza "concluído" e reduzir a opacidade
+   derrubava o contraste do texto secundário abaixo do mínimo AA. */
 .vehicle-maintenance-item.is-done {
-  @apply bg-bg opacity-80;
+  @apply bg-bg;
 }
 
 .vehicle-maintenance-item-main {
@@ -329,7 +339,7 @@
 }
 
 .vehicle-payment-item.is-paid {
-  @apply bg-bg opacity-80;
+  @apply bg-bg;
 }
 
 .vehicle-payment-item-main {

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Field, Button, Icon, IconButton } from '../../components/ui/index.js';
+import { Field, Button, ConfirmDialog, Icon, IconButton } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 
-export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
+export function VehicleForm({ editingVehicle, onSaved, onCancel, onDeleted }) {
   const { showToast } = useToast();
   const [name, setName] = useState(editingVehicle?.name || '');
   const [brand, setBrand] = useState(editingVehicle?.brand || '');
@@ -16,6 +16,8 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [notes, setNotes] = useState(editingVehicle?.notes || '');
   const [saving, setSaving] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function handlePhotoChange(event) {
     const file = event.target.files?.[0];
@@ -64,6 +66,20 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
       showToast(err.message, 'error');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleConfirmDelete() {
+    setDeleting(true);
+    try {
+      await api.deleteVehicle(editingVehicle._id);
+      showToast('Veículo excluído', 'success');
+      setConfirmingDelete(false);
+      onDeleted(editingVehicle);
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -177,6 +193,16 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
       </Field>
 
       <div className="vehicle-form-actions">
+        {editingVehicle && onDeleted && (
+          <Button
+            type="button"
+            variant="danger"
+            className="vehicle-form-delete"
+            onClick={() => setConfirmingDelete(true)}
+          >
+            <Icon name="trash" /> Excluir veículo
+          </Button>
+        )}
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancelar
         </Button>
@@ -184,6 +210,18 @@ export function VehicleForm({ editingVehicle, onSaved, onCancel }) {
           {editingVehicle ? 'Salvar' : 'Cadastrar'}
         </Button>
       </div>
+
+      {editingVehicle && onDeleted && (
+        <ConfirmDialog
+          open={confirmingDelete}
+          title="Excluir veículo"
+          message={`Excluir ${editingVehicle.name}? Isso apaga também todo o histórico de manutenção e os pagamentos desse veículo. Não dá pra desfazer.`}
+          confirmLabel="Excluir"
+          loading={deleting}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
     </form>
   );
 }

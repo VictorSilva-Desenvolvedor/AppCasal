@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { HeartLoader } from '../../components/ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { GalleryMonthStrip } from './GalleryMonthStrip.jsx';
 import { GalleryGrid } from './GalleryGrid.jsx';
@@ -13,25 +14,43 @@ function computeInitialMonthKey(photos) {
 }
 
 export function GalleryPage() {
-  const { events } = useCalendarData();
+  const { events, loading } = useCalendarData();
   const photos = useMemo(() => allEventPhotos(events), [events]);
 
-  // Lazy initializer roda uma vez por montagem — GalleryPage remonta a cada
-  // navegação para /app/galeria, reproduzindo o reset que o legado fazia ao
-  // trocar para a view (renderGallery() recalculava o mês sempre que a
-  // galeria era aberta, mesmo que outro mês tivesse sido escolhido antes).
-  const [monthKey, setMonthKey] = useState(() => computeInitialMonthKey(photos));
+  // `undefined` = mês ainda não escolhido pelo usuário; nesse caso o mês exibido
+  // é derivado das fotos a cada render, porque na primeira montagem os eventos
+  // ainda não chegaram (loading) e um lazy initializer fixaria o valor errado.
+  // Como a página remonta a cada navegação para /app/galeria, isso reproduz o
+  // reset que o legado fazia ao abrir a view.
+  const [selectedMonthKey, setSelectedMonthKey] = useState(undefined);
   const [lightbox, setLightbox] = useState(null);
 
+  const monthKey = selectedMonthKey === undefined ? computeInitialMonthKey(photos) : selectedMonthKey;
   const visiblePhotos = monthKey ? photos.filter((photo) => photoMonthKey(photo.date) === monthKey) : photos;
+
+  if (loading) {
+    return (
+      <section className="view">
+        <HeartLoader />
+      </section>
+    );
+  }
 
   return (
     <section className="view">
       <h2>Galeria</h2>
       <p>Todas as fotos adicionadas aos eventos, organizadas por mês.</p>
 
-      <GalleryMonthStrip photos={photos} activeMonthKey={monthKey} onSelectMonth={setMonthKey} />
-      <GalleryGrid photos={visiblePhotos} onOpenPhoto={(index) => setLightbox({ photos: visiblePhotos, index })} />
+      <GalleryMonthStrip photos={photos} activeMonthKey={monthKey} onSelectMonth={setSelectedMonthKey} />
+      <GalleryGrid
+        photos={visiblePhotos}
+        emptyMessage={
+          photos.length === 0
+            ? 'Nenhuma foto ainda. Anexe imagens aos eventos do calendário para vê-las aqui.'
+            : 'Nenhuma foto neste mês.'
+        }
+        onOpenPhoto={(index) => setLightbox({ photos: visiblePhotos, index })}
+      />
 
       <Lightbox
         open={Boolean(lightbox)}

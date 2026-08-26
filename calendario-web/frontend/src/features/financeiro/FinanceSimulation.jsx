@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Icon } from '../../components/ui/index.js';
+import { Button, Card, ConfirmDialog, Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { computeSimulatedTotals, formatCurrency, monthLabel } from './financeUtils.js';
@@ -16,6 +16,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
   const [hypoAmount, setHypoAmount] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function reloadSimulations() {
     setSimulations(await api.getFinanceSimulations());
@@ -99,8 +100,9 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
     }
   }
 
-  async function handleDelete() {
-    if (!activeId || !window.confirm('Excluir esta simulação?')) return;
+  async function handleConfirmDelete() {
+    setConfirmDelete(false);
+    if (!activeId) return;
     setDeleting(true);
     try {
       await api.deleteFinanceSimulation(activeId);
@@ -144,7 +146,7 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
               <Button variant="secondary" disabled={deleting} onClick={() => handleSave(true)}>
                 Salvar como novo
               </Button>
-              <Button variant="danger" loading={deleting} onClick={handleDelete}>
+              <Button variant="danger" loading={deleting} onClick={() => setConfirmDelete(true)}>
                 Excluir
               </Button>
             </>
@@ -266,6 +268,19 @@ export function FinanceSimulation({ entries, report, monthYear, hideFinanceValue
           </strong>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Excluir simulação"
+        message={
+          activeId
+            ? `A simulação "${simulations.find((sim) => sim._id === activeId)?.name || name}" será removida. Não dá pra desfazer.`
+            : ''
+        }
+        confirmLabel="Excluir"
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

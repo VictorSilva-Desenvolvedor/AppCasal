@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Icon, Button } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
+import { useToast } from '../../hooks/useToast.js';
 import { isDayComplete, groupCheckinsByDay } from './habitUtils.js';
 
 const POLL_INTERVAL_MS = 4000;
@@ -11,6 +12,7 @@ const CELEBRATION_MS = 800;
 // dele antes desta tela abrir — aqui só ficamos consultando o servidor até o
 // outro também confirmar. Fechar a tela não afeta os dados de forma alguma.
 export function HabitJointWaitingView({ habit, day, users, onComplete, onClose }) {
+  const { showToast } = useToast();
   const [checking, setChecking] = useState(true);
   const [celebrating, setCelebrating] = useState(false);
 
@@ -40,8 +42,12 @@ export function HabitJointWaitingView({ habit, day, users, onComplete, onClose }
 
     poll();
     intervalId = setInterval(poll, POLL_INTERVAL_MS);
+    // Fechar sozinho sem avisar deixa o usuário sem saber o que aconteceu com
+    // o check-in dele — o dele já foi salvo, só o do parceiro não veio.
     timeoutId = setTimeout(() => {
-      if (!cancelled) onClose();
+      if (cancelled) return;
+      showToast('Seu check-in foi salvo. Avisamos quando seu parceiro confirmar.', 'info');
+      onClose();
     }, TIMEOUT_MS);
 
     return () => {

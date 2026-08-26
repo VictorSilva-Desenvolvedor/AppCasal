@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { EventListItem } from './EventListItem.jsx';
-import { buildOccurrenceMap, filteredEvents } from './calendarUtils.js';
+import { buildOccurrenceMap, compareDateOnly, filteredEvents } from './calendarUtils.js';
 
 const AGENDA_DAYS_AHEAD = 60;
 
@@ -29,7 +29,7 @@ export function AgendaView({ filters, onEdit }) {
           month: 'long',
         });
         const label = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
-        const dayEvents = occMap.get(key).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+        const dayEvents = occMap.get(key).slice().sort((a, b) => compareDateOnly(a.date, b.date));
 
         return (
           <div className="agenda-day-group" key={key}>

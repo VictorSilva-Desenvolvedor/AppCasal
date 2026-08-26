@@ -1,4 +1,5 @@
-import { Button, Card, Icon, IconButton, Pill } from '../../components/ui/index.js';
+import { useState } from 'react';
+import { Button, Card, ConfirmDialog, Icon, IconButton, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
@@ -14,6 +15,7 @@ import {
 export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const pendentes = payments
     .filter((item) => item.status === 'pendente')
@@ -27,7 +29,7 @@ export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
 
   async function handlePay(item) {
     try {
-      await run(item._id, () => api.payVehiclePayment(item._id));
+      await run(`pay-${item._id}`, () => api.payVehiclePayment(item._id));
       await onChanged();
       showToast('Marcado como pago', 'success');
     } catch (err) {
@@ -35,9 +37,11 @@ export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
     }
   }
 
-  async function handleDelete(item) {
+  async function handleConfirmDelete() {
+    const item = deleteTarget;
+    setDeleteTarget(null);
     try {
-      await run(item._id, () => api.deleteVehiclePayment(item._id));
+      await run(`delete-${item._id}`, () => api.deleteVehiclePayment(item._id));
       await onChanged();
       showToast('Pagamento removido', 'success');
     } catch (err) {
@@ -92,12 +96,12 @@ export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
                   <IconButton
                     title="Remover"
                     aria-label="Remover"
-                    loading={isPending(item._id)}
-                    onClick={() => handleDelete(item)}
+                    loading={isPending(`delete-${item._id}`)}
+                    onClick={() => setDeleteTarget(item)}
                   >
                     <Icon name="trash" />
                   </IconButton>
-                  <Button variant="primary" loading={isPending(item._id)} onClick={() => handlePay(item)}>
+                  <Button variant="primary" loading={isPending(`pay-${item._id}`)} onClick={() => handlePay(item)}>
                     Pagar
                   </Button>
                 </div>
@@ -128,6 +132,19 @@ export function VehiclePaymentsTab({ payments, onChanged, onAdd, onEdit }) {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Excluir pagamento"
+        message={
+          deleteTarget
+            ? `"${deleteTarget.description}" (${formatCurrency(deleteTarget.amount)}) será removido. Não dá pra desfazer.`
+            : ''
+        }
+        confirmLabel="Excluir"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

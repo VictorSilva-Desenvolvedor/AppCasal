@@ -23,8 +23,11 @@
     active:bg-primary-active;
 }
 
+/* `border-solid` é obrigatório: `.btn` zera o estilo da borda com `border-none`,
+   e a utility `border` só define a espessura — sem isso o botão secundário
+   ficava sem contorno nenhum, indistinguível de texto solto. */
 .btn-secondary {
-  @apply bg-transparent text-text border border-border
+  @apply bg-transparent text-text border border-solid border-border
     hover:bg-bg hover:border-primary hover:text-primary
     hover:-translate-y-px hover:scale-[1.04];
 }
@@ -72,6 +75,21 @@
     hover:bg-bg hover:text-primary hover:scale-[1.15];
 }
 
+/* ---------- Setas de mover card entre colunas do kanban (alternativa ao arrastar) ---------- */
+
+.move-controls {
+  @apply flex items-center gap-1 flex-shrink-0;
+}
+
+.move-controls-btn {
+  @apply w-[30px] h-[30px] text-base;
+}
+
+/* Sozinho (primeira coluna), o "avançar" ainda encosta na direita do rodapé. */
+.move-controls-btn--next {
+  @apply ml-auto;
+}
+
 /* ---------- Ícone de ajuda com popover (clique, não hover — funciona em toque) ---------- */
 
 .info-tooltip {
@@ -104,7 +122,8 @@
   @apply mb-4 text-left;
 }
 
-.field label {
+.field label,
+.field .field-label {
   @apply block text-sm font-semibold mb-[0.35rem] text-text-muted;
 }
 
@@ -119,6 +138,22 @@
 
 .field textarea {
   @apply resize-y min-h-[70px];
+}
+
+/* Sem isto o check nativo sai no azul do sistema, ignorando o tema de cor. */
+.field input[type='checkbox'],
+.field input[type='radio'] {
+  @apply w-auto p-0;
+  accent-color: var(--color-primary);
+}
+
+/* Caixa + rótulo: alinhados pelo topo para o rótulo poder quebrar em 2 linhas. */
+.field label.field-checkbox {
+  @apply flex items-start gap-2 font-normal text-text;
+}
+
+.field-checkbox input {
+  @apply mt-[0.15rem] shrink-0;
 }
 
 .field select {
@@ -275,7 +310,14 @@
 }
 
 .activity-feed-item-header {
-  @apply flex justify-between items-center gap-2 text-base;
+  @apply flex flex-col items-start gap-1 text-base
+    sm:flex-row sm:justify-between sm:items-center sm:gap-2;
+}
+
+/* Módulo + horário: no celular viram uma linha própria abaixo da frase, senão
+   disputam largura com o título e quebram no meio. */
+.activity-feed-item-meta {
+  @apply inline-flex items-center gap-2 flex-shrink-0;
 }
 
 .activity-feed-item-details {
@@ -308,7 +350,7 @@
 }
 
 .update-card-description {
-  @apply text-sm text-text-muted;
+  @apply text-sm text-text-muted whitespace-pre-wrap;
 }
 
 .update-card-footer {
@@ -338,6 +380,25 @@
 
 .update-card[data-status='done'] {
   @apply border-l-success bg-success-bg;
+}
+
+/* Convites reaproveitam o card do kanban, mas não são arrastáveis: o estado vem
+   da resposta ao convite, não da coluna. */
+.invite-card {
+  @apply cursor-default;
+}
+
+/* Sem o "levantar" do card arrastável: aqui só os botões são clicáveis. */
+.invite-card:hover {
+  @apply border-border shadow-sm translate-y-0 scale-100;
+}
+
+.invite-card[data-status='accepted'] {
+  @apply border-l-success bg-success-bg;
+}
+
+.invite-card[data-status='declined'] {
+  @apply border-l-danger bg-danger-bg;
 }
 
 .update-card.dragging {

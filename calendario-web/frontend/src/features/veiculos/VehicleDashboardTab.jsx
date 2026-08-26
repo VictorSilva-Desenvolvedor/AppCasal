@@ -24,7 +24,7 @@ export function VehicleDashboardTab({ vehicle, maintenances, payments, onGoToMai
       <Card className="vehicle-hero-card">
         <span className="vehicle-label-caps">Odômetro atual</span>
         <div className="vehicle-hero-odometer">
-          <Icon name="tool" />
+          <Icon name="clock" />
           <strong>{formatKm(vehicle.currentOdometer)}</strong>
         </div>
         {(vehicle.brand || vehicle.model || vehicle.plate) && (

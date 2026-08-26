@@ -30,6 +30,7 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) 
             key={p.value}
             type="button"
             className={`candy-tab-btn${period === p.value ? ' is-active' : ''}`}
+            aria-pressed={period === p.value}
             onClick={() => onPeriodChange(p.value)}
           >
             {p.label}
@@ -48,9 +49,9 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) 
                 <span className="candy-bar-marker" aria-hidden="true">
                   {row.isWinner ? (
                     <Icon name="trophy" className="candy-bar-trophy" />
-                  ) : (
+                  ) : row.count > 0 ? (
                     <span className="candy-bar-dot" />
-                  )}
+                  ) : null}
                 </span>
                 <div className="candy-bar-body">
                   <span className="candy-bar-label">

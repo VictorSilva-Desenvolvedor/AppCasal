@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card, IconButton, Icon } from '../../components/ui/index.js';
+import { Button, Card, ConfirmDialog, IconButton, Icon } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import {
@@ -31,6 +31,7 @@ function InstallmentGrid({ total, paid, onSetPaid }) {
 function GoalCard({ goal, onChanged, onEdit, onArchive, hideFinanceValues }) {
   const [contribution, setContribution] = useState('');
   const [pending, setPending] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { showToast } = useToast();
   const hasInstallments = Boolean(goal.totalInstallments);
   const archived = isGoalArchived(goal);
@@ -71,8 +72,8 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, hideFinanceValues }) {
     }
   }
 
-  async function handleDelete() {
-    if (!window.confirm('Excluir este objetivo?')) return;
+  async function handleConfirmDelete() {
+    setConfirmDelete(false);
     setPending(true);
     try {
       await api.deleteFinanceGoal(goal._id);
@@ -121,7 +122,7 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, hideFinanceValues }) {
               </IconButton>
             </>
           )}
-          <IconButton onClick={handleDelete} title="Excluir objetivo" loading={pending}>
+          <IconButton onClick={() => setConfirmDelete(true)} title="Excluir objetivo" loading={pending}>
             <Icon name="trash" />
           </IconButton>
         </div>
@@ -179,6 +180,15 @@ function GoalCard({ goal, onChanged, onEdit, onArchive, hideFinanceValues }) {
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Excluir objetivo"
+        message={`"${goal.name}" e todo o progresso registrado serão removidos. Não dá pra desfazer.`}
+        confirmLabel="Excluir"
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </Card>
   );
 }

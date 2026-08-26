@@ -59,15 +59,17 @@
 }
 
 .watchlist-type-toggle-btn.is-active {
-  background: var(--watch-type-color, var(--watch-vinho));
-  border-color: var(--watch-type-color, var(--watch-vinho));
-  color: #fff;
-}
-
-.watchlist-pending-toggle.is-active {
   background: var(--watch-vinho);
   border-color: var(--watch-vinho);
   color: var(--color-on-primary);
+}
+
+/* Terracota e rosa puros dão só ~3:1 com texto branco. O preenchimento ativo
+   escurece a cor do tipo pra passar em 4.5:1; a borda mantém o tom puro. */
+.watchlist-type-toggle-btn.is-active[data-type] {
+  background: color-mix(in srgb, var(--watch-type-color) 78%, #000);
+  border-color: var(--watch-type-color);
+  color: #fff;
 }
 
 /* ---------- Board / colunas ---------- */
@@ -181,7 +183,7 @@
 }
 
 .watchlist-card-title {
-  @apply text-base m-0 pr-6 font-semibold;
+  @apply text-base m-0 pr-8 font-semibold;
   color: var(--watch-text);
 }
 
@@ -209,7 +211,7 @@
   width: 20px;
   height: 20px;
   font-size: 0.65rem;
-  color: #fff;
+  color: var(--author-text-color, #fff);
   background: var(--author-color, var(--watch-vinho));
 }
 
@@ -246,21 +248,15 @@
   @apply inline-flex items-center gap-0.5;
 }
 
-/* Corações reaproveitam o icon-heart existente (fill:none por padrão) — a
-   classe .is-filled troca fill:none por fill:vinho, sem precisar de um par
-   de ícones "outline/filled" novo. */
+/* O sprite fixa fill/stroke dentro do <symbol>, e CSS não atravessa o <use>
+   pra sobrescrever isso — por isso o vazio e o cheio são dois símbolos
+   (icon-heart / icon-heart-filled) e a cor vem por `color` (currentColor). */
 .watchlist-hearts .icon,
 .watchlist-heart-picker-btn .icon {
   width: 20px;
   height: 20px;
-  fill: none;
-  stroke: var(--watch-vinho);
-  transition: transform 0.15s var(--ease), fill 0.2s;
-}
-
-.watchlist-hearts .icon.is-filled,
-.watchlist-heart-picker-btn .icon.is-filled {
-  fill: var(--watch-vinho);
+  color: var(--watch-vinho);
+  transition: transform 0.15s var(--ease), color 0.2s;
 }
 
 .watchlist-heart-picker {

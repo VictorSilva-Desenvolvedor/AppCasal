@@ -1,4 +1,4 @@
-import { IMAGE_MIME } from '../calendar/calendarUtils.js';
+import { IMAGE_MIME, parseDateOnly } from '../calendar/calendarUtils.js';
 
 export function allEventPhotos(events) {
   return events.flatMap((event) =>
@@ -15,7 +15,8 @@ export function allEventPhotos(events) {
 }
 
 export function photoMonthKey(dateStr) {
-  const date = new Date(dateStr);
+  const date = parseDateOnly(dateStr);
+  if (!date) return '';
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 

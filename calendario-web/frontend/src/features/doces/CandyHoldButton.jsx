@@ -43,12 +43,34 @@ export function CandyHoldButton({ onLogged, submitting, color }) {
     rafRef.current = requestAnimationFrame(tick);
   }, [finish]);
 
-  function handlePointerDown(event) {
-    event.preventDefault();
+  const startHold = useCallback(() => {
+    if (holding) return;
     submittedRef.current = false;
     startRef.current = Date.now();
     setHolding(true);
     rafRef.current = requestAnimationFrame(tick);
+  }, [holding, tick]);
+
+  function handlePointerDown(event) {
+    event.preventDefault();
+    // Prende o ponteiro ao botão: sem isso, o dedo escorregar alguns pixels
+    // durante o "segurar" dispara pointerleave e joga o registro fora.
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    startHold();
+  }
+
+  // Teclado: o mesmo gesto de segurar, com Espaço/Enter mantidos pressionados.
+  function handleKeyDown(event) {
+    if (event.key !== ' ' && event.key !== 'Enter') return;
+    event.preventDefault();
+    if (event.repeat) return;
+    startHold();
+  }
+
+  function handleKeyUp(event) {
+    if (event.key !== ' ' && event.key !== 'Enter') return;
+    event.preventDefault();
+    handleRelease();
   }
 
   function handleRelease() {
@@ -91,10 +113,14 @@ export function CandyHoldButton({ onLogged, submitting, color }) {
         type="button"
         className={`candy-hold-trigger${holding ? ' is-holding' : ''}`}
         disabled={submitting}
+        aria-label={holding ? undefined : 'Segurar para registrar um doce'}
         onPointerDown={handlePointerDown}
         onPointerUp={handleRelease}
         onPointerLeave={handleCancel}
         onPointerCancel={handleCancel}
+        onKeyDown={handleKeyDown}
+        onKeyUp={handleKeyUp}
+        onBlur={handleCancel}
       >
         {holding ? formatScore(elapsedMs) : 'Segurar'}
       </button>

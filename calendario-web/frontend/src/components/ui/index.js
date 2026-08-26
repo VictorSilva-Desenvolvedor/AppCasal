@@ -2,6 +2,7 @@ export { Icon } from './Icon.jsx';
 export { InfoTooltip } from './InfoTooltip.jsx';
 export { Button } from './Button.jsx';
 export { IconButton } from './IconButton.jsx';
+export { MoveControls } from './MoveControls.jsx';
 export { Card } from './Card.jsx';
 export { Field } from './Field.jsx';
 export { Pill } from './Pill.jsx';

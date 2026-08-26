@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from './Button.jsx';
 import { useDialogFocus } from '../../hooks/useDialogFocus.js';
 
@@ -20,7 +21,10 @@ export function ConfirmDialog({
   const titleId = useId();
   const messageId = useId();
 
-  return (
+  // Portal no body porque o diálogo também é usado de dentro de um Modal, e o
+  // .modal tem transform (containing block) — sem o portal o overlay fixed
+  // ficaria preso e recortado dentro do card do modal.
+  return createPortal(
     <div
       className={`modal-overlay confirm-overlay${open ? ' is-open' : ''}`}
       inert={!open}
@@ -54,6 +58,7 @@ export function ConfirmDialog({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

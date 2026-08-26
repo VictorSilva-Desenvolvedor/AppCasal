@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Button, Card, Field, Icon, IconButton, Modal, Pill } from '../../components/ui/index.js';
+import { useEffect, useState } from 'react';
+import { Button, Card, ConfirmDialog, Field, Icon, IconButton, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
 import {
+  formatCurrency,
   formatDate,
   formatKm,
   categoryLabel,
@@ -24,6 +25,13 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
   const [completingOdometer, setCompletingOdometer] = useState(vehicle.currentOdometer);
   const [completingNotes, setCompletingNotes] = useState('');
   const [completing, setCompleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // O componente não é remontado ao trocar de veículo nem após salvar o km,
+  // então o campo precisa acompanhar o odômetro que veio do servidor.
+  useEffect(() => {
+    setOdometerInput(vehicle.currentOdometer);
+  }, [vehicle._id, vehicle.currentOdometer]);
 
   const pending = maintenances
     .filter((item) => item.status === 'pendente')
@@ -84,7 +92,9 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
     }
   }
 
-  async function handleDelete(item) {
+  async function handleConfirmDelete() {
+    const item = deleteTarget;
+    setDeleteTarget(null);
     try {
       await run(item._id, () => api.deleteVehicleMaintenance(item._id));
       await onChanged();
@@ -130,6 +140,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
           <input
             type="number"
             min={0}
+            aria-label="Novo valor do odômetro (km)"
             value={odometerInput}
             onChange={(event) => setOdometerInput(event.target.value)}
           />
@@ -173,8 +184,13 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
       <div className="vehicle-section-header">
         <h3>Próximos serviços</h3>
         <div className="vehicle-section-header-actions">
-          <Button variant="secondary" loading={applyingPreset} onClick={handleApplyPreset}>
-            <Icon name="repeat" /> Checklist Honda CB Twister 250F
+          <Button
+            variant="secondary"
+            loading={applyingPreset}
+            onClick={handleApplyPreset}
+            title="Modelo de manutenções de exemplo, baseado na Honda CB Twister 250F — serve de ponto de partida para qualquer veículo"
+          >
+            <Icon name="repeat" /> Checklist de exemplo (Honda CB Twister 250F)
           </Button>
           <Button variant="primary" onClick={onAdd}>
             <Icon name="plus" /> Adicionar
@@ -215,7 +231,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
                   title="Remover"
                   aria-label="Remover"
                   loading={isPending(item._id)}
-                  onClick={() => handleDelete(item)}
+                  onClick={() => setDeleteTarget(item)}
                 >
                   <Icon name="trash" />
                 </IconButton>
@@ -249,7 +265,7 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
                 </div>
               </div>
               <div className="vehicle-maintenance-item-actions">
-                {item.cost != null && <Pill className="vehicle-cost-pill">R$ {item.cost.toFixed(2)}</Pill>}
+                {item.cost != null && <Pill className="vehicle-cost-pill">{formatCurrency(item.cost)}</Pill>}
                 <IconButton title="Editar anotação" aria-label="Editar anotação" onClick={() => onEdit(item)}>
                   <Icon name="edit" />
                 </IconButton>
@@ -297,6 +313,15 @@ export function VehicleMaintenanceTab({ vehicle, maintenances, onChanged, onAdd,
           </form>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Excluir manutenção"
+        message={deleteTarget ? `"${deleteTarget.title}" será removida do veículo. Não dá pra desfazer.` : ''}
+        confirmLabel="Excluir"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

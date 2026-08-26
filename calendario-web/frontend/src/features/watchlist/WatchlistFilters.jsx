@@ -3,10 +3,11 @@ import { TYPE_META } from './watchlistUtils.js';
 export function WatchlistFilters({ typeFilter, onTypeFilterChange, onlyPending, onOnlyPendingChange }) {
   return (
     <div className="watchlist-filters">
-      <div className="watchlist-type-toggle">
+      <div className="watchlist-type-toggle" role="group" aria-label="Filtrar por tipo">
         <button
           type="button"
           className={`watchlist-type-toggle-btn${typeFilter === '' ? ' is-active' : ''}`}
+          aria-pressed={typeFilter === ''}
           onClick={() => onTypeFilterChange('')}
         >
           Todos
@@ -16,6 +17,8 @@ export function WatchlistFilters({ typeFilter, onTypeFilterChange, onlyPending, 
             key={key}
             type="button"
             className={`watchlist-type-toggle-btn${typeFilter === key ? ' is-active' : ''}`}
+            data-type={key}
+            aria-pressed={typeFilter === key}
             style={{ '--watch-type-color': `var(${meta.colorVar})` }}
             onClick={() => onTypeFilterChange(key)}
           >
@@ -27,6 +30,7 @@ export function WatchlistFilters({ typeFilter, onTypeFilterChange, onlyPending, 
       <button
         type="button"
         className={`watchlist-type-toggle-btn watchlist-pending-toggle${onlyPending ? ' is-active' : ''}`}
+        aria-pressed={onlyPending}
         onClick={() => onOnlyPendingChange(!onlyPending)}
       >
         Só o que falta ver/jogar

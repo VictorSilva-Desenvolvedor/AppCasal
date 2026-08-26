@@ -4,14 +4,9 @@ import { SidebarNavItem } from './SidebarNavItem.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { UpcomingEventsList } from '../../features/calendar/UpcomingEventsList.jsx';
-import { personColorFor } from '../../features/calendar/calendarUtils.js';
+import { personColorFor, personTextColorFor } from '../../features/calendar/calendarUtils.js';
 import { getAppSection } from './appSections.js';
-
-const CALENDAR_NAV_ITEMS = [
-  { to: '/app/calendario', icon: 'calendar', label: 'Calendário' },
-  { to: '/app/atividades', icon: 'clock', label: 'Atividades' },
-  { to: '/app/convites', icon: 'user-plus', label: 'Convites' },
-];
+import { APP_MODULES } from '../../constants/appModules.js';
 
 function initialsOf(name) {
   return name
@@ -47,7 +42,14 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent 
         <div className="sidebar-user-row">
           <div
             className="sidebar-avatar"
-            style={user && users.length ? { background: personColorFor(users, user._id) } : undefined}
+            style={
+              user && users.length
+                ? {
+                    background: personColorFor(users, user._id),
+                    color: personTextColorFor(users, user._id),
+                  }
+                : undefined
+            }
           >
             {user ? initialsOf(user.name) : ''}
           </div>
@@ -55,32 +57,32 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent 
         </div>
       </div>
 
-      {isCalendarSection && (
-        <nav className="sidebar-nav">
-          {CALENDAR_NAV_ITEMS.map((item) => (
+      <div className="sidebar-scroll">
+        <nav className="sidebar-nav" aria-label="Módulos do aplicativo">
+          {APP_MODULES.map((item) => (
             <SidebarNavItem key={item.to} to={item.to} icon={item.icon} onClick={onCloseMobile}>
               {item.label}
             </SidebarNavItem>
           ))}
         </nav>
-      )}
 
-      {isCalendarSection && (
-        <div className="sidebar-section">
-          <h3>Atalhos</h3>
-          <Button block onClick={onQuickNewEvent}>
-            <Icon name="plus" />
-            Novo evento
-          </Button>
-        </div>
-      )}
+        {isCalendarSection && (
+          <div className="sidebar-section">
+            <h3>Atalhos</h3>
+            <Button block onClick={onQuickNewEvent}>
+              <Icon name="plus" />
+              Novo evento
+            </Button>
+          </div>
+        )}
 
-      {isCalendarSection && (
-        <div className="sidebar-section">
-          <h3>Próximos eventos</h3>
-          <UpcomingEventsList />
-        </div>
-      )}
+        {isCalendarSection && (
+          <div className="sidebar-section">
+            <h3>Próximos eventos</h3>
+            <UpcomingEventsList />
+          </div>
+        )}
+      </div>
 
       <Button variant="secondary" block onClick={logout}>
         Sair

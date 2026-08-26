@@ -1,5 +1,5 @@
 .resumo-header {
-  @apply flex items-baseline justify-between mb-5;
+  @apply flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-5;
 }
 
 .resumo-header h2 {
@@ -17,12 +17,26 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.resumo-load-error {
+  @apply flex flex-col items-start gap-2;
+}
+
 .resumo-card {
   @apply p-4 flex flex-col gap-2;
 }
 
+/* Card inteiro clicável: mesmo gesto da lobby (elevação no hover, sem sublinhado). */
+.resumo-card-link {
+  @apply no-underline text-text transition-[transform,box-shadow] duration-150
+    hover:-translate-y-0.5 hover:shadow-md active:translate-y-0;
+}
+
 .resumo-card h3 {
   @apply text-sm font-medium text-text-muted m-0;
+}
+
+.resumo-card-period {
+  @apply font-normal;
 }
 
 .resumo-card-detail {
@@ -44,11 +58,13 @@
 }
 
 .resumo-list-row {
-  @apply flex items-center justify-between gap-2 text-sm;
+  @apply flex items-baseline justify-between gap-2 text-sm;
 }
 
+/* Sem truncate: nos cards estreitos o nome do hábito/pessoa quebra em duas
+   linhas em vez de virar "Beber 2L de…" — o rótulo é o conteúdo, não a moldura. */
 .resumo-list-label {
-  @apply truncate;
+  @apply min-w-0 break-words;
 }
 
 .resumo-list-meta {

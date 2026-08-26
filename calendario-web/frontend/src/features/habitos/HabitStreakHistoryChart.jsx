@@ -18,7 +18,8 @@ export function HabitStreakHistoryChart({ habit }) {
           <div
             className={`habit-streak-chart-bar${bar.current ? ' is-current' : ''}`}
             style={{ height: `${Math.max(4, (bar.length / max) * 100)}%` }}
-            title={`${bar.length} ${bar.unit}`}
+            title={`${bar.length} ${bar.unit}${bar.current ? ' (streak atual)' : ''}`}
+            aria-label={`${bar.current ? 'Streak atual' : 'Streak anterior'}: ${bar.length} ${bar.unit}`}
           />
           <span className="habit-streak-chart-value">{bar.length}</span>
         </div>

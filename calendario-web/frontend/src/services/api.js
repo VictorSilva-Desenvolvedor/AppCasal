@@ -61,11 +61,19 @@ async function request(path, { method = 'GET', body, isForm = false } = {}) {
   if (token) headers.Authorization = `Bearer ${token}`;
   if (!isForm && body !== undefined) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers,
-    body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  // fetch rejeita com "Failed to fetch"/"NetworkError" (texto do navegador, em
+  // inglês) quando o servidor está fora ou a rede caiu — esse texto chega cru
+  // aos avisos de erro das telas, então traduzimos aqui, na origem.
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers,
+      body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new Error('Sem conexão com o servidor. Verifique sua internet e tente de novo.');
+  }
 
   if (response.status === 204) return null;
 

@@ -185,8 +185,10 @@
   @apply flex items-center gap-2 flex-wrap;
 }
 
+/* Largura total no celular (alvo de toque confortável); no desktop volta ao
+   tamanho natural, senão o botão estica por toda a largura do card. */
 .habit-checkin-btn {
-  @apply flex-1;
+  @apply flex-1 sm:flex-none sm:min-w-44;
 }
 
 .habit-checkin-btn:disabled {
@@ -480,10 +482,11 @@
   background: color-mix(in oklch, var(--habit-text) 12%, transparent);
 }
 
+/* Anima por transform (não por width) pra não forçar layout a cada frame. */
 .habit-recovery-progress-fill {
-  @apply h-full rounded-full;
+  @apply w-full h-full rounded-full origin-left;
   background: linear-gradient(90deg, var(--habit-coral), var(--habit-purple));
-  transition: width 0.3s var(--ease);
+  transition: transform 0.3s var(--ease);
 }
 
 .habit-recovery-hint {

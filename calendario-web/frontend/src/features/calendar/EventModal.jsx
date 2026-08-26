@@ -2,7 +2,7 @@ import { Modal } from '../../components/ui/index.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { EventListPanel } from './EventListPanel.jsx';
 import { EventForm } from './EventForm.jsx';
-import { toDateKey } from './calendarUtils.js';
+import { dateOnlyKey } from './calendarUtils.js';
 
 function formatDate(dateKey) {
   const [y, m, d] = dateKey.split('-');
@@ -41,7 +41,7 @@ export function EventModal({
         <EventForm
           key={editingEventId || `new-${dateKey}`}
           event={editingEvent}
-          dateKey={editingEvent ? toDateKey(new Date(editingEvent.date)) : dateKey}
+          dateKey={editingEvent ? dateOnlyKey(editingEvent.date) : dateKey}
           onCancel={onCancelForm}
           onSaved={onSaved}
           onDeleted={onDeleted}

@@ -8,7 +8,8 @@ metadata:
 The user asked for a proactive screen-by-screen UI/UX sweep of the whole AppCasal
 web app (no triggering bug or feature). A `/loop` drives it, one route per call,
 each call returning a short report that feeds a progress checklist. Started
-2026-08-24 with `/login` (+ `AuthHeroPanel`), then `/register`.
+2026-08-24 with `/login` (+ `AuthHeroPanel`), then `/register`. **Encerrada em
+2026-08-25 com `/app/configuracoes`, a última tela da lista.**
 
 **Why:** the frontend was recently ported wholesale from vanilla JS to React/Vite/
 Tailwind, so screens carry migration-era drift rather than a single deliberate pass.

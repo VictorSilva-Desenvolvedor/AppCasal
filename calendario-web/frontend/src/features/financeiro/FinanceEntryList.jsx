@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, IconButton, Icon, Modal, Pill } from '../../components/ui/index.js';
+import { Card, ConfirmDialog, IconButton, Icon, Modal, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { usePendingIds } from '../../hooks/usePendingIds.js';
@@ -42,11 +42,13 @@ export function FinanceEntryList({
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
   const [previewImage, setPreviewImage] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const canDrag = Boolean(dnd) && !monthLocked;
 
-  async function handleDelete(id) {
-    if (!window.confirm('Excluir este lançamento?')) return;
+  async function handleConfirmDelete() {
+    const id = deleteTarget._id;
+    setDeleteTarget(null);
     try {
       await run(id, () => api.deleteFinanceEntry(id));
       await onDeleted();
@@ -140,7 +142,7 @@ export function FinanceEntryList({
               <Icon name="tool" />
             </IconButton>
             <IconButton
-              onClick={() => handleDelete(entry._id)}
+              onClick={() => setDeleteTarget(entry)}
               title="Excluir"
               disabled={monthLocked}
               loading={isPending(entry._id)}
@@ -159,11 +161,27 @@ export function FinanceEntryList({
     </Modal>
   );
 
+  const deleteDialog = (
+    <ConfirmDialog
+      open={Boolean(deleteTarget)}
+      title="Excluir lançamento"
+      message={
+        deleteTarget
+          ? `"${deleteTarget.description}" (${formatCurrency(deleteTarget.amount, hideFinanceValues)}) será removido do mês. Não dá pra desfazer.`
+          : ''
+      }
+      confirmLabel="Excluir"
+      onCancel={() => setDeleteTarget(null)}
+      onConfirm={handleConfirmDelete}
+    />
+  );
+
   if (!groupByNature) {
     return (
       <div className="finance-entry-list">
         {entries.map(renderEntry)}
         {imageModal}
+        {deleteDialog}
       </div>
     );
   }
@@ -207,6 +225,7 @@ export function FinanceEntryList({
         );
       })}
       {imageModal}
+      {deleteDialog}
     </div>
   );
 }
