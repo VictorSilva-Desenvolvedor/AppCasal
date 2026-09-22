@@ -4,7 +4,10 @@ function daysInMonth(month, year) {
   return new Date(year, month, 0).getDate();
 }
 
-async function generateForNewMonth(month, year, team) {
+// Idempotente: pode rodar a cada acesso. Replica pro mês informado as despesas
+// fixas do mês anterior que ainda não existem nele e que ainda não foram
+// geradas antes (`alreadyGenerated`). Retorna as chaves de série geradas.
+async function generateForNewMonth(month, year, team, alreadyGenerated = []) {
   const prevMonth = month === 1 ? 12 : month - 1;
   const prevYear = month === 1 ? year - 1 : year;
   const prevStart = new Date(prevYear, prevMonth - 1, 1);
@@ -33,6 +36,7 @@ async function generateForNewMonth(month, year, team) {
     date: { $gte: newStart, $lt: newEnd },
   });
   const existingSeriesKeys = new Set(existingInNewMonth.map((e) => String(e.recurringRootId || e._id)));
+  for (const key of alreadyGenerated) existingSeriesKeys.add(String(key));
 
   const toCreate = [];
   for (const [seriesKey, { entry, rootId }] of latestBySeries) {
@@ -60,6 +64,7 @@ async function generateForNewMonth(month, year, team) {
   }
 
   if (toCreate.length) await FinanceEntry.insertMany(toCreate);
+  return toCreate.map((e) => e.recurringRootId);
 }
 
 module.exports = { generateForNewMonth };

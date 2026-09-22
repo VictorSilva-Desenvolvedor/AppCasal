@@ -8,6 +8,9 @@ const financeMonthSchema = new mongoose.Schema(
     closedAt: { type: Date, default: null },
     closedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     team: { type: String, default: 'principal' },
+    // Séries de despesas fixas já replicadas pra este mês (recurringRootId).
+    // Evita recriar um fixo que alguém apagou de propósito neste mês.
+    generatedSeries: { type: [mongoose.Schema.Types.ObjectId], default: [] },
   },
   { timestamps: true }
 );

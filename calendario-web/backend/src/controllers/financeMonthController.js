@@ -2,16 +2,62 @@ const FinanceMonth = require('../models/FinanceMonth');
 const { notifyPartner } = require('../services/notificationService');
 const { generateForNewMonth } = require('../services/recurringFixedExpenses');
 
-async function ensureCurrentMonth(team) {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
+// Máximo de meses sem registro que são preenchidos de uma vez (evita laço
+// longo se o time ficou muito tempo sem abrir o Financeiro).
+const MAX_BACKFILL_MONTHS = 12;
 
+function currentMonthInSaoPaulo() {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: 'numeric' })
+    .formatToParts(new Date());
+  const get = (type) => Number(parts.find((p) => p.type === type).value);
+  return { month: get('month'), year: get('year') };
+}
+
+function previousMonth({ month, year }) {
+  return month === 1 ? { month: 12, year: year - 1 } : { month: month - 1, year };
+}
+
+async function ensureMonth(month, year, team) {
   let record = await FinanceMonth.findOne({ month, year, team });
   if (!record) {
-    record = await FinanceMonth.create({ month, year, team });
-    await generateForNewMonth(month, year, team);
+    try {
+      record = await FinanceMonth.create({ month, year, team });
+    } catch (err) {
+      if (err.code !== 11000) throw err;
+      record = await FinanceMonth.findOne({ month, year, team });
+    }
   }
+  const generated = await generateForNewMonth(month, year, team, record.generatedSeries);
+  if (generated.length) {
+    record = await FinanceMonth.findByIdAndUpdate(
+      record._id,
+      { $addToSet: { generatedSeries: { $each: generated } } },
+      { new: true }
+    );
+  }
+  return record;
+}
+
+// Garante o mês atual e preenche meses sem registro entre o último existente e
+// o atual, em ordem, pra que as despesas fixas sigam a corrente mês a mês.
+async function ensureCurrentMonth(team) {
+  const current = currentMonthInSaoPaulo();
+  const latest = await FinanceMonth.findOne({ team }).sort({ year: -1, month: -1 });
+
+  const pending = [current];
+  if (latest) {
+    let cursor = previousMonth(current);
+    while (
+      pending.length < MAX_BACKFILL_MONTHS &&
+      (cursor.year > latest.year || (cursor.year === latest.year && cursor.month > latest.month))
+    ) {
+      pending.unshift(cursor);
+      cursor = previousMonth(cursor);
+    }
+  }
+
+  let record;
+  for (const { month, year } of pending) record = await ensureMonth(month, year, team);
   return record;
 }
 
