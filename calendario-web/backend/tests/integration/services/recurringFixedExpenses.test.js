@@ -112,4 +112,42 @@ describe('ensureCurrentMonth — despesas fixas', () => {
 
     expect(await entriesIn(9, 2026)).toHaveLength(0);
   });
+
+  test('traz de volta um fixo cuja corrente quebrou meses atrás', async () => {
+    setToday('2026-09-10T12:00:00-03:00');
+    await FinanceMonth.create({ month: 6, year: 2026, team: 'principal' });
+    await FinanceMonth.create({ month: 7, year: 2026, team: 'principal' });
+    await FinanceMonth.create({ month: 8, year: 2026, team: 'principal' });
+    await FinanceMonth.create({ month: 9, year: 2026, team: 'principal' });
+    await fixedEntry({ date: new Date(2026, 5, 20) });
+
+    await ensureCurrentMonth('principal');
+
+    const setembro = await entriesIn(9, 2026);
+    expect(setembro).toHaveLength(1);
+    expect(setembro[0].date.getDate()).toBe(20);
+    expect(await entriesIn(8, 2026)).toHaveLength(0);
+  });
+
+  test('não traz de volta quando a última ocorrência deixou de ser fixa', async () => {
+    setToday('2026-09-10T12:00:00-03:00');
+    await FinanceMonth.create({ month: 8, year: 2026, team: 'principal' });
+    const raiz = await fixedEntry({ date: new Date(2026, 6, 15) });
+    await fixedEntry({ nature: 'unica', recurringRootId: raiz._id });
+
+    await ensureCurrentMonth('principal');
+
+    expect(await entriesIn(9, 2026)).toHaveLength(0);
+  });
+
+  test('não traz de volta um fixo apagado num mês posterior', async () => {
+    setToday('2026-10-10T12:00:00-03:00');
+    const raiz = await fixedEntry();
+    await FinanceMonth.create({ month: 8, year: 2026, team: 'principal' });
+    await FinanceMonth.create({ month: 9, year: 2026, team: 'principal', generatedSeries: [raiz._id] });
+
+    await ensureCurrentMonth('principal');
+
+    expect(await entriesIn(10, 2026)).toHaveLength(0);
+  });
 });

@@ -1,37 +1,57 @@
 const FinanceEntry = require('../models/FinanceEntry');
+const FinanceMonth = require('../models/FinanceMonth');
+
+const FIXED_NATURES = ['fixa', 'a_decidir'];
 
 function daysInMonth(month, year) {
   return new Date(year, month, 0).getDate();
 }
 
 // Idempotente: pode rodar a cada acesso. Replica pro mês informado as despesas
-// fixas do mês anterior que ainda não existem nele e que ainda não foram
+// fixas de meses anteriores que ainda não existem nele e que ainda não foram
 // geradas antes (`alreadyGenerated`). Retorna as chaves de série geradas.
 async function generateForNewMonth(month, year, team, alreadyGenerated = []) {
-  const prevMonth = month === 1 ? 12 : month - 1;
-  const prevYear = month === 1 ? year - 1 : year;
-  const prevStart = new Date(prevYear, prevMonth - 1, 1);
-  const prevEnd = new Date(prevYear, prevMonth, 1);
+  const newStart = new Date(year, month - 1, 1);
 
-  const prevFixedEntries = await FinanceEntry.find({
+  // Olha todo o histórico anterior (não só o mês passado): se a corrente
+  // quebrou em algum mês, o fixo volta a partir do lançamento mais recente
+  // da série. Considera todas as naturezas pra respeitar quem desmarcou o
+  // fixo depois (a última ocorrência deixa de ser fixa e a série termina).
+  const previousEntries = await FinanceEntry.find({
     type: 'despesa',
-    nature: { $in: ['fixa', 'a_decidir'] },
     team,
-    date: { $gte: prevStart, $lt: prevEnd },
+    date: { $lt: newStart },
   }).sort({ date: -1 });
 
   const latestBySeries = new Map();
-  for (const entry of prevFixedEntries) {
+  for (const entry of previousEntries) {
     const seriesKey = String(entry.recurringRootId || entry._id);
     if (!latestBySeries.has(seriesKey)) {
       latestBySeries.set(seriesKey, { entry, rootId: entry.recurringRootId || entry._id });
     }
   }
+  for (const [seriesKey, { entry }] of latestBySeries) {
+    if (!FIXED_NATURES.includes(entry.nature)) latestBySeries.delete(seriesKey);
+  }
 
-  const newStart = new Date(year, month - 1, 1);
+  // Série gerada num mês posterior à última ocorrência e depois apagada:
+  // alguém encerrou o fixo de propósito, então não ressuscita.
+  const laterMonths = await FinanceMonth.find({ team, 'generatedSeries.0': { $exists: true } });
+  for (const [seriesKey, { entry }] of latestBySeries) {
+    const lastKey = entry.date.getFullYear() * 12 + entry.date.getMonth();
+    const deletedLater = laterMonths.some((m) => {
+      const key = m.year * 12 + (m.month - 1);
+      return key > lastKey && key < year * 12 + (month - 1)
+        && m.generatedSeries.some((id) => String(id) === seriesKey);
+    });
+    if (deletedLater) latestBySeries.delete(seriesKey);
+  }
+
   const newEnd = new Date(year, month, 1);
+  // Todas as naturezas: uma cópia que foi desmarcada como fixa neste mês
+  // continua ocupando a série e não deve ser recriada.
   const existingInNewMonth = await FinanceEntry.find({
-    nature: { $in: ['fixa', 'a_decidir'] },
+    type: 'despesa',
     team,
     date: { $gte: newStart, $lt: newEnd },
   });
