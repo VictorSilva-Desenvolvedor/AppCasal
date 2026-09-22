@@ -21,38 +21,63 @@ Quer só dar uma olhada sem mexer nos dados reais? Use a conta de teste, que fic
 
 <table>
   <tr>
-    <td><img src="docs/screenshots/login.png" alt="Tela de login" width="400"/><br/><sub>Login</sub></td>
-    <td><img src="docs/screenshots/lobby.png" alt="Lobby com atalhos para cada módulo" width="400"/><br/><sub>Lobby</sub></td>
+    <td align="center"><img src="docs/screenshots/login.png" alt="Tela de login com foto do casal" width="420"/><br/><sub><b>Login</b></sub></td>
+    <td align="center"><img src="docs/screenshots/lobby.png" alt="Lobby com atalhos para cada módulo" width="420"/><br/><sub><b>Lobby</b></sub></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/calendario.png" alt="Calendário mensal com eventos" width="400"/><br/><sub>Calendário</sub></td>
-    <td><img src="docs/screenshots/financeiro.png" alt="Painel financeiro com resumo do mês" width="400"/><br/><sub>Financeiro</sub></td>
+    <td align="center"><img src="docs/screenshots/calendario.png" alt="Calendário mensal com eventos" width="420"/><br/><sub><b>Calendário</b></sub></td>
+    <td align="center"><img src="docs/screenshots/resumo.png" alt="Resumo semanal do casal" width="420"/><br/><sub><b>Resumo da Semana</b></sub></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/habitos.png" alt="Lista de hábitos com check-in" width="400"/><br/><sub>Hábitos</sub></td>
-    <td><img src="docs/screenshots/tarefas.png" alt="Lista de tarefas do dia" width="400"/><br/><sub>Tarefas</sub></td>
+    <td align="center"><img src="docs/screenshots/financeiro.png" alt="Painel financeiro com resumo do mês" width="420"/><br/><sub><b>Financeiro</b></sub></td>
+    <td align="center"><img src="docs/screenshots/veiculos.png" alt="Gestão de veículos, manutenções e pagamentos" width="420"/><br/><sub><b>Veículos</b></sub></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/emocoes.png" alt="Registro de emoções do dia" width="400"/><br/><sub>Emoções do Dia</sub></td>
-    <td><img src="docs/screenshots/watchlist.png" alt="Watchlist de filmes, séries e jogos" width="400"/><br/><sub>Watchlist a Dois</sub></td>
+    <td align="center"><img src="docs/screenshots/habitos.png" alt="Hábitos com streak e check-in" width="420"/><br/><sub><b>Hábitos</b></sub></td>
+    <td align="center"><img src="docs/screenshots/tarefas.png" alt="Tarefas em estilo kanban" width="420"/><br/><sub><b>Tarefas</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/emocoes.png" alt="Registro de emoções do dia" width="420"/><br/><sub><b>Emoções do Dia</b></sub></td>
+    <td align="center"><img src="docs/screenshots/watchlist.png" alt="Watchlist de filmes, séries e jogos" width="420"/><br/><sub><b>Watchlist a Dois</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/doces.png" alt="Ranking e balança de doces" width="420"/><br/><sub><b>Doces</b></sub></td>
+    <td align="center"><img src="docs/screenshots/galeria.png" alt="Galeria de fotos compartilhadas" width="420"/><br/><sub><b>Galeria</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/configuracoes.png" alt="Preferências, tema e notificações" width="420"/><br/><sub><b>Configurações</b></sub></td>
+    <td></td>
   </tr>
 </table>
+
+### 📱 No celular
+
+<p align="center">
+  <img src="docs/screenshots/mobile-lobby.png" alt="Lobby no celular" width="240"/>
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/mobile-calendario.png" alt="Calendário no celular" width="240"/>
+</p>
+
+> Os prints são da conta de teste, então alguns módulos aparecem vazios.
 
 ## ✨ Funcionalidades
 
 - **Calendário e eventos** — criação, edição, anexos (fotos/arquivos via Cloudinary)
-- **Financeiro** — categorias, lançamentos, metas, reembolsos, simulações e importação de dados
-- **Hábitos** — acompanhamento com sequência (streak)
-- **Tarefas** — listas com progresso
-- **Humor** — registro diário de emoções
+- **Resumo da Semana** — visão consolidada da semana do casal
+- **Financeiro** — orçamento compartilhado, lançamentos, *Pagar Contas*, carteira de reembolsos, objetivos, comodidades, simulações, importação de planilha e fechamento de mês
+- **Hábitos** — streak, check-in com foto, hábitos em conjunto, congelamento, reações e histórico
+- **Tarefas** — sub-listas por período, arrastar estilo kanban (inclusive no toque) e reset diário
+- **Emoções do Dia** — registro diário de emoções com motivos
 - **Watchlist** — filmes, séries e jogos (busca de capas via TMDB/RAWG)
-- **Doces** — registro de consumo (funcionalidade lúdica do casal)
+- **Doces** — registro de consumo com ranking e "balança da justiça" (funcionalidade lúdica do casal)
+- **Veículos** — cadastro com foto, odômetro, manutenção recorrente com checklist e controle de pagamentos
 - **Galeria** — fotos compartilhadas
 - **Convites** — convite de parceiro(a) para o mesmo espaço (team)
 - **Log de atividades** — histórico do que foi feito no app
 - **Solicitações de atualização** — pedidos de mudança com geração de título/descrição via IA (Gemini)
 - **Notificações push** — Web Push e Firebase Cloud Messaging (app Android)
-- **App Android** — empacotado com Capacitor
+- **Tema claro/escuro** — com paletas de cor configuráveis
+- **App Android** — empacotado com Capacitor, com suporte ao botão físico de voltar
 
 ## 🛠️ Stack técnica
 
