@@ -173,3 +173,24 @@ describe('ensureMonthUpTo — mês futuro', () => {
     expect(await FinanceEntry.countDocuments()).toBe(1);
   });
 });
+
+describe('receitas fixas', () => {
+  test('salário marcado como fixo é replicado como receita no mês seguinte', async () => {
+    setToday('2026-10-07T12:00:00-03:00');
+    await fixedEntry({ type: 'receita', description: 'Salário', amount: 3000, date: new Date(2026, 9, 5) });
+
+    await ensureMonthUpTo(11, 2026, 'principal');
+
+    const [copy] = await entriesIn(11, 2026);
+    expect(copy).toMatchObject({ type: 'receita', description: 'Salário', amount: 3000 });
+  });
+
+  test('receita única não é replicada', async () => {
+    setToday('2026-10-07T12:00:00-03:00');
+    await fixedEntry({ type: 'receita', description: 'Bônus', nature: 'unica', date: new Date(2026, 9, 5) });
+
+    await ensureMonthUpTo(11, 2026, 'principal');
+
+    expect(await entriesIn(11, 2026)).toHaveLength(0);
+  });
+});

@@ -109,7 +109,7 @@ export function FinanceEntryForm({
         category: form.category,
         date: form.date,
         paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
-        nature: form.type === 'despesa' ? form.nature : 'unica',
+        nature: form.type === 'despesa' || form.nature === 'fixa' ? form.nature : 'unica',
         wishType: form.wishType || null,
         reason: form.reason,
         image,
@@ -224,6 +224,21 @@ export function FinanceEntryForm({
               <option value="fixa">Fixa (repete todo mês)</option>
               <option value="com_prazo">Com prazo</option>
               <option value="a_decidir">A decidir</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {form.type === 'receita' && (
+        <div className="finance-form-row">
+          <Field label="Recorrência da receita" htmlFor="finance-income-nature">
+            <select
+              id="finance-income-nature"
+              value={form.nature === 'fixa' ? 'fixa' : 'unica'}
+              onChange={(event) => update('nature', event.target.value)}
+            >
+              <option value="unica">Única</option>
+              <option value="fixa">Fixa (repete todo mês)</option>
             </select>
           </Field>
         </div>

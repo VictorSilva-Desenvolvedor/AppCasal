@@ -17,8 +17,8 @@ async function generateForNewMonth(month, year, team, alreadyGenerated = []) {
   // quebrou em algum mês, o fixo volta a partir do lançamento mais recente
   // da série. Considera todas as naturezas pra respeitar quem desmarcou o
   // fixo depois (a última ocorrência deixa de ser fixa e a série termina).
+  // Receitas fixas (ex.: salário) seguem a mesma regra das despesas fixas.
   const previousEntries = await FinanceEntry.find({
-    type: 'despesa',
     team,
     date: { $lt: newStart },
   }).sort({ date: -1 });
@@ -51,7 +51,6 @@ async function generateForNewMonth(month, year, team, alreadyGenerated = []) {
   // Todas as naturezas: uma cópia que foi desmarcada como fixa neste mês
   // continua ocupando a série e não deve ser recriada.
   const existingInNewMonth = await FinanceEntry.find({
-    type: 'despesa',
     team,
     date: { $gte: newStart, $lt: newEnd },
   });
@@ -63,7 +62,7 @@ async function generateForNewMonth(month, year, team, alreadyGenerated = []) {
     if (existingSeriesKeys.has(seriesKey)) continue;
     const day = Math.min(entry.date.getDate(), daysInMonth(month, year));
     toCreate.push({
-      type: 'despesa',
+      type: entry.type,
       description: entry.description,
       amount: entry.amount,
       category: entry.category,
