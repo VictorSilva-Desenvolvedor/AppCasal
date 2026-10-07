@@ -1,7 +1,7 @@
 const User = require('../../../src/models/User');
 const FinanceEntry = require('../../../src/models/FinanceEntry');
 const FinanceMonth = require('../../../src/models/FinanceMonth');
-const { ensureCurrentMonth } = require('../../../src/controllers/financeMonthController');
+const { ensureCurrentMonth, ensureMonthUpTo } = require('../../../src/controllers/financeMonthController');
 const db = require('../../helpers/db');
 
 let maria;
@@ -149,5 +149,27 @@ describe('ensureCurrentMonth — despesas fixas', () => {
     await ensureCurrentMonth('principal');
 
     expect(await entriesIn(10, 2026)).toHaveLength(0);
+  });
+});
+
+describe('ensureMonthUpTo — mês futuro', () => {
+  test('gera os fixos em cada mês até o mês futuro aberto', async () => {
+    setToday('2026-10-07T12:00:00-03:00');
+    await fixedEntry({ date: new Date(2026, 9, 14) });
+
+    await ensureMonthUpTo(12, 2026, 'principal');
+
+    expect(await entriesIn(11, 2026)).toHaveLength(1);
+    expect(await entriesIn(12, 2026)).toHaveLength(1);
+  });
+
+  test('mês passado não gera nada além do mês atual', async () => {
+    setToday('2026-10-07T12:00:00-03:00');
+    await fixedEntry({ date: new Date(2026, 9, 14) });
+
+    await ensureMonthUpTo(9, 2026, 'principal');
+
+    expect(await entriesIn(11, 2026)).toHaveLength(0);
+    expect(await FinanceEntry.countDocuments()).toBe(1);
   });
 });
