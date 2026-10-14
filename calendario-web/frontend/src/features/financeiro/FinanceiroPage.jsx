@@ -96,7 +96,7 @@ export function FinanceiroPage() {
   const [loadError, setLoadError] = useState('');
   const [retryKey, setRetryKey] = useState(0);
   const failLoad = useCallback(() => {
-    setLoadError('Não foi possível carregar o financeiro. Verifique sua conexão e tente de novo.');
+    setLoadError('Não foi possível carregar o financeiro. Tente de novo em instantes.');
   }, []);
 
   useEffect(() => {

@@ -59,7 +59,10 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
         </Card>
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">% da renda gasta</span>
-          <strong className="finance-summary-card-value">{Math.round(percentualGasto * 100)}%</strong>
+          {/* Sem receita no mês, "0%" com despesa lançada parecia erro. */}
+          <strong className="finance-summary-card-value">
+            {totalReceitas > 0 ? `${Math.round(percentualGasto * 100)}%` : 'Sem receita'}
+          </strong>
           <div className="finance-category-bar-track finance-percent-bar-track">
             <div
               className={`finance-category-bar-fill ${percentualGasto > 1 ? 'finance-percent-bar-fill--over' : 'finance-percent-bar-fill'}`}

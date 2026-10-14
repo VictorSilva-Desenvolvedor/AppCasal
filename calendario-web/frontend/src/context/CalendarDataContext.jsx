@@ -43,6 +43,9 @@ export function CalendarDataProvider({ children }) {
         setUsers(usersData);
         setInvitations(invitationsData);
       })
+      // Sem catch a falha virava rejeição não tratada; a tela carrega vazia e
+      // cada seção já mostra o próprio estado de erro ao recarregar.
+      .catch((err) => console.error('Falha ao carregar dados do calendário:', err.message))
       .finally(() => {
         if (!cancelled) setLoading(false);
       });

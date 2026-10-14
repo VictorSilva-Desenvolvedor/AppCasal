@@ -46,7 +46,7 @@ export function HabitosPage() {
       setCheckins(checkinsData);
       setLoadError('');
     } catch {
-      setLoadError('Não foi possível carregar os hábitos. Verifique sua conexão e tente de novo.');
+      setLoadError('Não foi possível carregar os hábitos. Tente de novo em instantes.');
     }
   }, [showArchived]);
 
@@ -80,9 +80,17 @@ export function HabitosPage() {
     setFormOpen(true);
   }
 
-  function handleFormSaved() {
+  function handleFormSaved(saved) {
     setFormOpen(false);
     setEditingHabit(null);
+    // "Ambos" só lista os hábitos compartilhados: um individual recém-criado
+    // "sumia" depois do toast. Troca pra aba onde ele aparece.
+    if (saved?.type === 'individual') {
+      const ownerId = saved.owner?._id ?? saved.owner;
+      setViewScope(ownerId === otherUser?._id ? 'parceiro' : 'meu');
+    } else if (saved) {
+      setViewScope('ambos');
+    }
     reload();
   }
 
@@ -256,7 +264,7 @@ export function HabitosPage() {
 
       <button type="button" className="habit-fab" onClick={handleOpenCreate}>
         <Icon name="plus" />
-        Criar hábito
+        Novo hábito
       </button>
 
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editingHabit ? 'Editar hábito' : 'Novo hábito'}>

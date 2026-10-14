@@ -31,6 +31,13 @@ export function HabitCheckinForm({ habit, day, onSaved, onCancel }) {
       showToast('Check-in registrado!', 'success');
       onSaved(checkin);
     } catch (err) {
+      // 409 = o check-in de hoje já existe (feito em outra aba/aparelho). A tela
+      // estava desatualizada: atualiza e fecha em vez de deixar o modal preso.
+      if (err.status === 409) {
+        showToast('Esse check-in já estava registrado', 'info');
+        onSaved(null);
+        return;
+      }
       showToast(err.message, 'error');
     } finally {
       setSaving(false);

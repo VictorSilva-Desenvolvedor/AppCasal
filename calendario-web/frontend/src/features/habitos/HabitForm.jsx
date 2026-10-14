@@ -5,6 +5,7 @@ import { useToast } from '../../hooks/useToast.js';
 import { HABIT_EMOJIS } from '../../constants/habitEmojis.js';
 import { EVENT_COLORS } from '../calendar/calendarUtils.js';
 import { HABIT_TYPE_LABELS, HABIT_TYPE_DESCRIPTIONS } from './habitUtils.js';
+import { EVENT_COLOR_LABELS } from '../calendar/calendarUtils.js';
 
 const HABIT_TYPE_HINT = Object.entries(HABIT_TYPE_LABELS)
   .map(([value, label]) => `${label}: ${HABIT_TYPE_DESCRIPTIONS[value]}`)
@@ -287,7 +288,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                   className={`habit-color-option${color === option ? ' is-active' : ''}`}
                   style={{ background: option }}
                   onClick={() => setColor(option)}
-                  aria-label={`Cor ${option}`}
+                  aria-label={`Cor ${EVENT_COLOR_LABELS[option] ?? option}`}
                 />
               ))}
             </div>

@@ -80,7 +80,15 @@ async function request(path, { method = 'GET', body, isForm = false } = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error((data && data.message) || `Erro na requisição (${response.status})`);
+    // 5xx sem mensagem da API vira texto pra gente: "Erro na requisição (500)"
+    // não dizia se tinha salvo nem o que fazer.
+    const fallback =
+      response.status >= 500
+        ? 'O servidor não respondeu agora e nada foi salvo. Tente de novo em instantes.'
+        : `Não foi possível concluir a ação (erro ${response.status}).`;
+    const error = new Error((data && data.message) || fallback);
+    error.status = response.status;
+    throw error;
   }
 
   return data;

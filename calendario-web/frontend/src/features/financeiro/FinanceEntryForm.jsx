@@ -81,8 +81,23 @@ export function FinanceEntryForm({
   const filteredCategories = categories.filter((category) => category.type === form.type);
   const otherUsers = users.filter((u) => u._id !== user?._id);
 
+  // Mapeia o campo do form pro id do input, pra limpar a marca de inválido
+  // assim que a pessoa corrige (antes ficava vermelho até o próximo envio).
+  const FIELD_IDS = {
+    description: 'finance-description',
+    amount: 'finance-amount',
+    date: 'finance-date',
+    category: 'finance-category',
+    paidAmount: 'finance-paid',
+    splitAmount: 'finance-split',
+  };
+
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    const fieldId = FIELD_IDS[field];
+    if (fieldId && invalidFields.includes(fieldId)) {
+      setInvalidFields((prev) => prev.filter((id) => id !== fieldId));
+    }
   }
 
   async function handleSubmit(event) {

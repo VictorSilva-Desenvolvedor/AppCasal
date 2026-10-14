@@ -44,6 +44,7 @@ export function Sidebar({ collapsed, mobileOpen, offscreen = false, onCloseMobil
         <div className="sidebar-user-row">
           <div
             className="sidebar-avatar"
+            aria-hidden="true"
             style={
               user && users.length
                 ? {

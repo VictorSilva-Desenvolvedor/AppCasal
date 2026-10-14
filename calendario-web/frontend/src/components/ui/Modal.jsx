@@ -1,5 +1,15 @@
 import { useEffect, useId } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from './Icon.jsx';
+
+// Quantos Modals estão abertos agora: o #root só volta a ser interativo quando
+// o último fechar (há telas que abrem um Modal por cima de outro).
+let openModals = 0;
+
+function setAppInert(inert) {
+  const root = document.getElementById('root');
+  if (root) root.inert = inert;
+}
 
 // Fica sempre montado (mesmo fechado) para que a transição CSS de
 // opacity/visibility de .modal-overlay (components.css) funcione — igual ao
@@ -19,9 +29,25 @@ export function Modal({ open, onClose, title, children }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, onClose]);
 
-  return (
+  // Com o modal aberto, o app por trás fica inert: sem isso o Tab e o leitor
+  // de tela alcançavam a página de fundo, e um botão homônimo atrás (ex.: o
+  // "Criar hábito" da página) competia com o do diálogo.
+  useEffect(() => {
+    if (!open) return undefined;
+    openModals += 1;
+    setAppInert(true);
+    return () => {
+      openModals -= 1;
+      if (openModals === 0) setAppInert(false);
+    };
+  }, [open]);
+
+  // Portal no body pelo mesmo motivo do ConfirmDialog e porque o overlay
+  // precisa ficar fora do #root, que fica inert enquanto o modal está aberto.
+  return createPortal(
     <div
       className={`modal-overlay${open ? ' is-open' : ''}`}
+      inert={!open}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -35,6 +61,7 @@ export function Modal({ open, onClose, title, children }) {
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
