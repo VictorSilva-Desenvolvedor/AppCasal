@@ -61,6 +61,25 @@ async function ensureCurrentMonth(team) {
   return record;
 }
 
+function monthKey({ month, year }) {
+  return year * 12 + (month - 1);
+}
+
+// Mês futuro aberto no Financeiro: gera os fixos de cada mês entre o atual e o
+// pedido, em ordem, pra que a corrente chegue até ele. Mês atual ou passado
+// cai só no ensureCurrentMonth.
+async function ensureMonthUpTo(month, year, team) {
+  await ensureCurrentMonth(team);
+  const target = { month, year };
+  let cursor = currentMonthInSaoPaulo();
+  let steps = 0;
+  while (monthKey(cursor) < monthKey(target) && steps < MAX_BACKFILL_MONTHS) {
+    cursor = cursor.month === 12 ? { month: 1, year: cursor.year + 1 } : { month: cursor.month + 1, year: cursor.year };
+    await ensureMonth(cursor.month, cursor.year, team);
+    steps += 1;
+  }
+}
+
 async function list(req, res) {
   await ensureCurrentMonth(req.userTeam);
   const months = await FinanceMonth.find({ team: req.userTeam }).populate('closedBy', 'name').sort({ year: -1, month: -1 });
@@ -130,4 +149,4 @@ async function reopen(req, res) {
   }).catch((err) => console.error('Falha ao notificar reabertura de mês:', err.message));
 }
 
-module.exports = { list, create, close, reopen, ensureCurrentMonth };
+module.exports = { list, create, close, reopen, ensureCurrentMonth, ensureMonthUpTo };

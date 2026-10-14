@@ -101,7 +101,11 @@ export function FinanceiroPage() {
   }, [reloadGoals]);
 
   useEffect(() => {
-    Promise.all([reloadEntries(), reloadReport(), reloadHistory()]).finally(() => setLoading(false));
+    // Lançamentos primeiro: essa chamada gera os fixos do mês, e o resumo em
+    // paralelo poderia gerá-los de novo ao mesmo tempo (duplicando).
+    reloadEntries()
+      .then(() => Promise.all([reloadReport(), reloadHistory()]))
+      .finally(() => setLoading(false));
     setEditingEntry(null);
   }, [reloadEntries, reloadReport, reloadHistory]);
 

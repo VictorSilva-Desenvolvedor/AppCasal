@@ -4,6 +4,7 @@ const FinanceGoal = require('../models/FinanceGoal');
 const Reimbursement = require('../models/Reimbursement');
 const { notifyPartner } = require('../services/notificationService');
 const { logActivity } = require('../services/activityLogger');
+const { ensureMonthUpTo } = require('./financeMonthController');
 
 const ENTRY_POPULATE = [
   { path: 'category' },
@@ -81,6 +82,7 @@ async function list(req, res) {
   const filter = { team: req.userTeam };
 
   if (month && year) {
+    await ensureMonthUpTo(Number(month), Number(year), req.userTeam);
     const start = new Date(Number(year), Number(month) - 1, 1);
     const end = new Date(Number(year), Number(month), 1);
     filter.date = { $gte: start, $lt: end };
@@ -367,6 +369,7 @@ async function report(req, res) {
     return res.status(400).json({ message: 'Mês e ano são obrigatórios' });
   }
 
+  await ensureMonthUpTo(Number(month), Number(year), req.userTeam);
   const { entries, totalReceitas, totalDespesas } = await computeMonthTotals(month, year, paidBy, req.userTeam);
   const saldo = totalReceitas - totalDespesas;
   const percentualGasto = totalReceitas > 0 ? totalDespesas / totalReceitas : 0;
