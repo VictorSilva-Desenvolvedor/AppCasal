@@ -1,0 +1,5 @@
+[
+  {"name": "casal_jovem", "weight": 0.5, "age": [20, 32], "tech_literacy": [0.6, 1.0]},
+  {"name": "adulto_ocupado", "weight": 0.35, "age": [30, 50], "tech_literacy": [0.3, 0.8]},
+  {"name": "senior", "weight": 0.15, "age": [55, 75], "tech_literacy": [0.0, 0.4]}
+]

@@ -1,0 +1,2582 @@
+{
+  "seed": 42,
+  "mode": "explore",
+  "target": "web",
+  "n": 100,
+  "archetypes": [
+    {
+      "id": "arch_01",
+      "representative": "p0093",
+      "variant": "-",
+      "size": 4
+    },
+    {
+      "id": "arch_02",
+      "representative": "p0046",
+      "variant": "-",
+      "size": 5
+    },
+    {
+      "id": "arch_03",
+      "representative": "p0003",
+      "variant": "-",
+      "size": 17
+    },
+    {
+      "id": "arch_04",
+      "representative": "p0018",
+      "variant": "-",
+      "size": 1
+    },
+    {
+      "id": "arch_05",
+      "representative": "p0043",
+      "variant": "-",
+      "size": 10
+    },
+    {
+      "id": "arch_06",
+      "representative": "p0028",
+      "variant": "-",
+      "size": 11
+    },
+    {
+      "id": "arch_07",
+      "representative": "p0047",
+      "variant": "-",
+      "size": 8
+    },
+    {
+      "id": "arch_08",
+      "representative": "p0055",
+      "variant": "-",
+      "size": 2
+    },
+    {
+      "id": "arch_09",
+      "representative": "p0017",
+      "variant": "-",
+      "size": 6
+    },
+    {
+      "id": "arch_10",
+      "representative": "p0014",
+      "variant": "-",
+      "size": 7
+    },
+    {
+      "id": "arch_11",
+      "representative": "p0067",
+      "variant": "-",
+      "size": 20
+    },
+    {
+      "id": "arch_12",
+      "representative": "p0083",
+      "variant": "-",
+      "size": 9
+    }
+  ],
+  "personas": [
+    {
+      "id": "p0001",
+      "name": "Ana",
+      "segment": "adulto_ocupado",
+      "age": 44,
+      "tech_literacy": 0.42,
+      "patience": 0.14,
+      "goal_focus": 0.1,
+      "ocean": {
+        "O": 0.74,
+        "C": 0.55,
+        "E": 0.59,
+        "A": 0.03,
+        "N": 0.09
+      },
+      "device": "desktop",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0002",
+      "name": "Wagner",
+      "segment": "adulto_ocupado",
+      "age": 42,
+      "tech_literacy": 0.57,
+      "patience": 0.22,
+      "goal_focus": 0.59,
+      "ocean": {
+        "O": 0.81,
+        "C": 0.01,
+        "E": 0.81,
+        "A": 0.7,
+        "N": 0.34
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0003",
+      "name": "Marta",
+      "segment": "casal_jovem",
+      "age": 21,
+      "tech_literacy": 0.94,
+      "patience": 0.6,
+      "goal_focus": 0.81,
+      "ocean": {
+        "O": 0.73,
+        "C": 0.54,
+        "E": 0.97,
+        "A": 0.38,
+        "N": 0.55
+      },
+      "device": "tablet",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0004",
+      "name": "Wagner",
+      "segment": "adulto_ocupado",
+      "age": 31,
+      "tech_literacy": 0.63,
+      "patience": 0.77,
+      "goal_focus": 0.99,
+      "ocean": {
+        "O": 0.86,
+        "C": 0.87,
+        "E": 0.38,
+        "A": 0.45,
+        "N": 0.83
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0005",
+      "name": "Iara",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.87,
+      "patience": 0.07,
+      "goal_focus": 0.63,
+      "ocean": {
+        "O": 0.53,
+        "C": 0.24,
+        "E": 0.46,
+        "A": 0.27,
+        "N": 0.93
+      },
+      "device": "tablet",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_08"
+    },
+    {
+      "id": "p0006",
+      "name": "Bruno",
+      "segment": "adulto_ocupado",
+      "age": 34,
+      "tech_literacy": 0.32,
+      "patience": 0.32,
+      "goal_focus": 0.27,
+      "ocean": {
+        "O": 0.21,
+        "C": 0.94,
+        "E": 0.88,
+        "A": 0.31,
+        "N": 0.66
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0007",
+      "name": "Hugo",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.82,
+      "patience": 0.75,
+      "goal_focus": 0.43,
+      "ocean": {
+        "O": 0.58,
+        "C": 0.36,
+        "E": 1.0,
+        "A": 0.14,
+        "N": 0.49
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0008",
+      "name": "Vera",
+      "segment": "adulto_ocupado",
+      "age": 38,
+      "tech_literacy": 0.33,
+      "patience": 0.38,
+      "goal_focus": 1.0,
+      "ocean": {
+        "O": 0.53,
+        "C": 0.97,
+        "E": 0.86,
+        "A": 0.01,
+        "N": 0.72
+      },
+      "device": "tablet",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0009",
+      "name": "Kátia",
+      "segment": "adulto_ocupado",
+      "age": 32,
+      "tech_literacy": 0.52,
+      "patience": 0.45,
+      "goal_focus": 0.95,
+      "ocean": {
+        "O": 0.88,
+        "C": 0.26,
+        "E": 0.5,
+        "A": 0.18,
+        "N": 0.91
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0010",
+      "name": "Felipe",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 0.91,
+      "patience": 0.53,
+      "goal_focus": 0.0,
+      "ocean": {
+        "O": 0.32,
+        "C": 0.02,
+        "E": 0.93,
+        "A": 0.88,
+        "N": 0.83
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0011",
+      "name": "Sônia",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.63,
+      "patience": 0.49,
+      "goal_focus": 0.07,
+      "ocean": {
+        "O": 0.76,
+        "C": 0.77,
+        "E": 0.13,
+        "A": 0.48,
+        "N": 0.55
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0012",
+      "name": "Rafa",
+      "segment": "senior",
+      "age": 70,
+      "tech_literacy": 0.28,
+      "patience": 0.71,
+      "goal_focus": 0.4,
+      "ocean": {
+        "O": 0.67,
+        "C": 0.37,
+        "E": 0.9,
+        "A": 0.45,
+        "N": 0.25
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0013",
+      "name": "Hugo",
+      "segment": "adulto_ocupado",
+      "age": 41,
+      "tech_literacy": 0.3,
+      "patience": 0.71,
+      "goal_focus": 0.06,
+      "ocean": {
+        "O": 0.07,
+        "C": 0.03,
+        "E": 0.33,
+        "A": 0.51,
+        "N": 0.28
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0014",
+      "name": "Sônia",
+      "segment": "adulto_ocupado",
+      "age": 41,
+      "tech_literacy": 0.42,
+      "patience": 0.47,
+      "goal_focus": 0.41,
+      "ocean": {
+        "O": 0.09,
+        "C": 0.66,
+        "E": 0.35,
+        "A": 0.41,
+        "N": 0.86
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0015",
+      "name": "Kátia",
+      "segment": "casal_jovem",
+      "age": 29,
+      "tech_literacy": 0.64,
+      "patience": 0.19,
+      "goal_focus": 0.54,
+      "ocean": {
+        "O": 0.14,
+        "C": 0.18,
+        "E": 0.46,
+        "A": 0.87,
+        "N": 0.08
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0016",
+      "name": "Rafa",
+      "segment": "adulto_ocupado",
+      "age": 46,
+      "tech_literacy": 0.78,
+      "patience": 0.93,
+      "goal_focus": 0.85,
+      "ocean": {
+        "O": 0.17,
+        "C": 0.49,
+        "E": 0.21,
+        "A": 0.4,
+        "N": 0.06
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 14,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0017",
+      "name": "Olga",
+      "segment": "casal_jovem",
+      "age": 23,
+      "tech_literacy": 0.88,
+      "patience": 0.73,
+      "goal_focus": 0.78,
+      "ocean": {
+        "O": 0.66,
+        "C": 0.49,
+        "E": 0.19,
+        "A": 0.22,
+        "N": 0.06
+      },
+      "device": "tablet",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_09"
+    },
+    {
+      "id": "p0018",
+      "name": "Bruno",
+      "segment": "adulto_ocupado",
+      "age": 31,
+      "tech_literacy": 0.54,
+      "patience": 0.92,
+      "goal_focus": 0.53,
+      "ocean": {
+        "O": 0.06,
+        "C": 0.51,
+        "E": 0.85,
+        "A": 0.07,
+        "N": 0.07
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 14,
+      "archetype": "arch_04"
+    },
+    {
+      "id": "p0019",
+      "name": "Sônia",
+      "segment": "senior",
+      "age": 59,
+      "tech_literacy": 0.24,
+      "patience": 0.62,
+      "goal_focus": 0.42,
+      "ocean": {
+        "O": 0.58,
+        "C": 0.52,
+        "E": 0.93,
+        "A": 0.2,
+        "N": 0.72
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0020",
+      "name": "Úrsula",
+      "segment": "casal_jovem",
+      "age": 23,
+      "tech_literacy": 0.73,
+      "patience": 0.75,
+      "goal_focus": 0.07,
+      "ocean": {
+        "O": 0.46,
+        "C": 1.0,
+        "E": 1.0,
+        "A": 0.07,
+        "N": 0.21
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0021",
+      "name": "Hugo",
+      "segment": "senior",
+      "age": 62,
+      "tech_literacy": 0.06,
+      "patience": 0.83,
+      "goal_focus": 0.7,
+      "ocean": {
+        "O": 0.61,
+        "C": 0.99,
+        "E": 0.65,
+        "A": 0.01,
+        "N": 0.82
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_02"
+    },
+    {
+      "id": "p0022",
+      "name": "Diego",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.66,
+      "patience": 0.28,
+      "goal_focus": 0.21,
+      "ocean": {
+        "O": 0.34,
+        "C": 0.69,
+        "E": 0.85,
+        "A": 0.51,
+        "N": 0.25
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0023",
+      "name": "Bruno",
+      "segment": "adulto_ocupado",
+      "age": 30,
+      "tech_literacy": 0.69,
+      "patience": 0.64,
+      "goal_focus": 0.26,
+      "ocean": {
+        "O": 0.74,
+        "C": 0.55,
+        "E": 0.43,
+        "A": 0.01,
+        "N": 0.08
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_09"
+    },
+    {
+      "id": "p0024",
+      "name": "Sônia",
+      "segment": "adulto_ocupado",
+      "age": 41,
+      "tech_literacy": 0.51,
+      "patience": 0.04,
+      "goal_focus": 0.36,
+      "ocean": {
+        "O": 0.93,
+        "C": 0.97,
+        "E": 0.04,
+        "A": 0.36,
+        "N": 0.68
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 3,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0025",
+      "name": "Nilo",
+      "segment": "adulto_ocupado",
+      "age": 49,
+      "tech_literacy": 0.67,
+      "patience": 0.93,
+      "goal_focus": 0.24,
+      "ocean": {
+        "O": 0.16,
+        "C": 0.8,
+        "E": 0.18,
+        "A": 0.41,
+        "N": 0.18
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 14,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0026",
+      "name": "Wagner",
+      "segment": "casal_jovem",
+      "age": 21,
+      "tech_literacy": 0.95,
+      "patience": 0.86,
+      "goal_focus": 0.22,
+      "ocean": {
+        "O": 0.82,
+        "C": 0.46,
+        "E": 0.31,
+        "A": 0.8,
+        "N": 0.23
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0027",
+      "name": "Carla",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.71,
+      "patience": 0.64,
+      "goal_focus": 0.4,
+      "ocean": {
+        "O": 0.98,
+        "C": 0.54,
+        "E": 0.94,
+        "A": 0.12,
+        "N": 0.97
+      },
+      "device": "desktop",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0028",
+      "name": "Tiago",
+      "segment": "casal_jovem",
+      "age": 25,
+      "tech_literacy": 0.89,
+      "patience": 0.31,
+      "goal_focus": 0.61,
+      "ocean": {
+        "O": 0.51,
+        "C": 0.39,
+        "E": 0.58,
+        "A": 0.25,
+        "N": 0.71
+      },
+      "device": "desktop",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0029",
+      "name": "Carla",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.97,
+      "patience": 0.62,
+      "goal_focus": 0.66,
+      "ocean": {
+        "O": 0.12,
+        "C": 0.9,
+        "E": 0.51,
+        "A": 0.67,
+        "N": 0.33
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0030",
+      "name": "Vera",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.87,
+      "patience": 0.9,
+      "goal_focus": 0.62,
+      "ocean": {
+        "O": 0.3,
+        "C": 0.55,
+        "E": 0.0,
+        "A": 0.29,
+        "N": 0.43
+      },
+      "device": "tablet",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "skeptic",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 14,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0031",
+      "name": "Olga",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.8,
+      "patience": 0.79,
+      "goal_focus": 0.96,
+      "ocean": {
+        "O": 0.74,
+        "C": 0.66,
+        "E": 0.28,
+        "A": 0.66,
+        "N": 0.62
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0032",
+      "name": "Gabi",
+      "segment": "casal_jovem",
+      "age": 21,
+      "tech_literacy": 0.62,
+      "patience": 0.98,
+      "goal_focus": 0.61,
+      "ocean": {
+        "O": 0.77,
+        "C": 0.46,
+        "E": 0.89,
+        "A": 0.58,
+        "N": 0.72
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 15,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0033",
+      "name": "Úrsula",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.96,
+      "patience": 0.86,
+      "goal_focus": 0.89,
+      "ocean": {
+        "O": 0.78,
+        "C": 0.22,
+        "E": 0.8,
+        "A": 0.7,
+        "N": 0.46
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0034",
+      "name": "Olga",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 1.0,
+      "patience": 0.6,
+      "goal_focus": 0.95,
+      "ocean": {
+        "O": 0.89,
+        "C": 0.61,
+        "E": 0.72,
+        "A": 0.5,
+        "N": 0.83
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0035",
+      "name": "Paulo",
+      "segment": "adulto_ocupado",
+      "age": 39,
+      "tech_literacy": 0.68,
+      "patience": 0.84,
+      "goal_focus": 0.28,
+      "ocean": {
+        "O": 0.78,
+        "C": 0.48,
+        "E": 0.24,
+        "A": 0.44,
+        "N": 0.71
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0036",
+      "name": "Rafa",
+      "segment": "casal_jovem",
+      "age": 20,
+      "tech_literacy": 0.66,
+      "patience": 0.38,
+      "goal_focus": 0.15,
+      "ocean": {
+        "O": 0.21,
+        "C": 0.41,
+        "E": 0.33,
+        "A": 0.47,
+        "N": 0.06
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0037",
+      "name": "Sônia",
+      "segment": "senior",
+      "age": 62,
+      "tech_literacy": 0.0,
+      "patience": 0.35,
+      "goal_focus": 0.75,
+      "ocean": {
+        "O": 0.85,
+        "C": 0.95,
+        "E": 0.42,
+        "A": 0.75,
+        "N": 0.55
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0038",
+      "name": "Nilo",
+      "segment": "casal_jovem",
+      "age": 25,
+      "tech_literacy": 0.76,
+      "patience": 0.67,
+      "goal_focus": 0.8,
+      "ocean": {
+        "O": 0.72,
+        "C": 0.84,
+        "E": 0.92,
+        "A": 0.98,
+        "N": 0.53
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0039",
+      "name": "Nilo",
+      "segment": "casal_jovem",
+      "age": 21,
+      "tech_literacy": 0.78,
+      "patience": 0.05,
+      "goal_focus": 0.38,
+      "ocean": {
+        "O": 0.21,
+        "C": 0.33,
+        "E": 0.76,
+        "A": 0.38,
+        "N": 0.75
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_01"
+    },
+    {
+      "id": "p0040",
+      "name": "Yara",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 1.0,
+      "patience": 0.35,
+      "goal_focus": 0.65,
+      "ocean": {
+        "O": 0.78,
+        "C": 0.65,
+        "E": 0.75,
+        "A": 0.95,
+        "N": 0.2
+      },
+      "device": "desktop",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0041",
+      "name": "Paulo",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.83,
+      "patience": 0.22,
+      "goal_focus": 0.7,
+      "ocean": {
+        "O": 0.77,
+        "C": 0.17,
+        "E": 0.61,
+        "A": 0.75,
+        "N": 0.11
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0042",
+      "name": "João",
+      "segment": "adulto_ocupado",
+      "age": 41,
+      "tech_literacy": 0.75,
+      "patience": 0.38,
+      "goal_focus": 0.94,
+      "ocean": {
+        "O": 0.2,
+        "C": 0.59,
+        "E": 0.83,
+        "A": 0.24,
+        "N": 0.7
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0043",
+      "name": "Sônia",
+      "segment": "adulto_ocupado",
+      "age": 45,
+      "tech_literacy": 0.47,
+      "patience": 0.43,
+      "goal_focus": 0.37,
+      "ocean": {
+        "O": 0.51,
+        "C": 0.34,
+        "E": 0.85,
+        "A": 0.82,
+        "N": 0.11
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0044",
+      "name": "Yara",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 0.86,
+      "patience": 0.62,
+      "goal_focus": 0.92,
+      "ocean": {
+        "O": 0.77,
+        "C": 0.46,
+        "E": 0.83,
+        "A": 0.59,
+        "N": 0.32
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0045",
+      "name": "Hugo",
+      "segment": "senior",
+      "age": 70,
+      "tech_literacy": 0.23,
+      "patience": 0.67,
+      "goal_focus": 0.34,
+      "ocean": {
+        "O": 0.49,
+        "C": 0.33,
+        "E": 0.49,
+        "A": 0.35,
+        "N": 0.26
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0046",
+      "name": "Quésia",
+      "segment": "adulto_ocupado",
+      "age": 48,
+      "tech_literacy": 0.34,
+      "patience": 0.72,
+      "goal_focus": 0.49,
+      "ocean": {
+        "O": 0.76,
+        "C": 0.69,
+        "E": 0.65,
+        "A": 0.49,
+        "N": 0.79
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_02"
+    },
+    {
+      "id": "p0047",
+      "name": "Hugo",
+      "segment": "casal_jovem",
+      "age": 23,
+      "tech_literacy": 0.83,
+      "patience": 0.47,
+      "goal_focus": 0.53,
+      "ocean": {
+        "O": 0.43,
+        "C": 0.75,
+        "E": 0.33,
+        "A": 0.7,
+        "N": 0.27
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0048",
+      "name": "Kátia",
+      "segment": "adulto_ocupado",
+      "age": 32,
+      "tech_literacy": 0.57,
+      "patience": 0.76,
+      "goal_focus": 0.19,
+      "ocean": {
+        "O": 0.22,
+        "C": 0.48,
+        "E": 0.72,
+        "A": 0.98,
+        "N": 0.52
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0049",
+      "name": "Lucas",
+      "segment": "casal_jovem",
+      "age": 22,
+      "tech_literacy": 0.61,
+      "patience": 0.53,
+      "goal_focus": 0.27,
+      "ocean": {
+        "O": 0.97,
+        "C": 0.55,
+        "E": 0.7,
+        "A": 0.13,
+        "N": 0.87
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_02"
+    },
+    {
+      "id": "p0050",
+      "name": "Paulo",
+      "segment": "adulto_ocupado",
+      "age": 39,
+      "tech_literacy": 0.47,
+      "patience": 0.97,
+      "goal_focus": 0.25,
+      "ocean": {
+        "O": 0.86,
+        "C": 0.11,
+        "E": 0.07,
+        "A": 0.49,
+        "N": 0.58
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 15,
+      "archetype": "arch_09"
+    },
+    {
+      "id": "p0051",
+      "name": "Sônia",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.63,
+      "patience": 0.25,
+      "goal_focus": 0.56,
+      "ocean": {
+        "O": 0.42,
+        "C": 0.6,
+        "E": 0.62,
+        "A": 0.78,
+        "N": 0.38
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0052",
+      "name": "Tiago",
+      "segment": "casal_jovem",
+      "age": 20,
+      "tech_literacy": 0.98,
+      "patience": 0.1,
+      "goal_focus": 0.76,
+      "ocean": {
+        "O": 0.63,
+        "C": 0.26,
+        "E": 0.08,
+        "A": 0.24,
+        "N": 0.55
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0053",
+      "name": "Tiago",
+      "segment": "casal_jovem",
+      "age": 25,
+      "tech_literacy": 0.61,
+      "patience": 0.29,
+      "goal_focus": 0.28,
+      "ocean": {
+        "O": 0.86,
+        "C": 0.07,
+        "E": 0.23,
+        "A": 0.26,
+        "N": 0.79
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0054",
+      "name": "Hugo",
+      "segment": "casal_jovem",
+      "age": 27,
+      "tech_literacy": 0.96,
+      "patience": 0.83,
+      "goal_focus": 0.07,
+      "ocean": {
+        "O": 0.17,
+        "C": 0.31,
+        "E": 0.75,
+        "A": 0.57,
+        "N": 0.29
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0055",
+      "name": "Iara",
+      "segment": "adulto_ocupado",
+      "age": 40,
+      "tech_literacy": 0.55,
+      "patience": 0.08,
+      "goal_focus": 0.04,
+      "ocean": {
+        "O": 0.43,
+        "C": 0.32,
+        "E": 0.25,
+        "A": 0.09,
+        "N": 0.96
+      },
+      "device": "tablet",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_08"
+    },
+    {
+      "id": "p0056",
+      "name": "Vera",
+      "segment": "senior",
+      "age": 71,
+      "tech_literacy": 0.23,
+      "patience": 0.76,
+      "goal_focus": 0.18,
+      "ocean": {
+        "O": 0.52,
+        "C": 0.44,
+        "E": 0.28,
+        "A": 1.0,
+        "N": 0.44
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 12,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0057",
+      "name": "Kátia",
+      "segment": "casal_jovem",
+      "age": 23,
+      "tech_literacy": 0.64,
+      "patience": 0.16,
+      "goal_focus": 0.41,
+      "ocean": {
+        "O": 0.5,
+        "C": 0.66,
+        "E": 0.4,
+        "A": 0.76,
+        "N": 0.04
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0058",
+      "name": "Marta",
+      "segment": "casal_jovem",
+      "age": 30,
+      "tech_literacy": 0.93,
+      "patience": 0.0,
+      "goal_focus": 0.87,
+      "ocean": {
+        "O": 0.46,
+        "C": 0.05,
+        "E": 0.52,
+        "A": 0.62,
+        "N": 0.5
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 3,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0059",
+      "name": "Elisa",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.78,
+      "patience": 0.7,
+      "goal_focus": 0.12,
+      "ocean": {
+        "O": 0.97,
+        "C": 0.61,
+        "E": 0.24,
+        "A": 0.16,
+        "N": 0.55
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_09"
+    },
+    {
+      "id": "p0060",
+      "name": "Diego",
+      "segment": "casal_jovem",
+      "age": 25,
+      "tech_literacy": 0.65,
+      "patience": 0.83,
+      "goal_focus": 0.5,
+      "ocean": {
+        "O": 0.72,
+        "C": 0.51,
+        "E": 0.27,
+        "A": 0.83,
+        "N": 0.98
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_02"
+    },
+    {
+      "id": "p0061",
+      "name": "Tiago",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 0.95,
+      "patience": 0.86,
+      "goal_focus": 0.28,
+      "ocean": {
+        "O": 0.79,
+        "C": 0.41,
+        "E": 0.93,
+        "A": 0.51,
+        "N": 0.82
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0062",
+      "name": "Olga",
+      "segment": "senior",
+      "age": 65,
+      "tech_literacy": 0.14,
+      "patience": 0.55,
+      "goal_focus": 0.54,
+      "ocean": {
+        "O": 0.46,
+        "C": 0.32,
+        "E": 0.19,
+        "A": 0.7,
+        "N": 0.57
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0063",
+      "name": "Paulo",
+      "segment": "casal_jovem",
+      "age": 28,
+      "tech_literacy": 0.92,
+      "patience": 0.39,
+      "goal_focus": 0.66,
+      "ocean": {
+        "O": 0.82,
+        "C": 0.98,
+        "E": 0.5,
+        "A": 0.04,
+        "N": 0.5
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0064",
+      "name": "Olga",
+      "segment": "senior",
+      "age": 56,
+      "tech_literacy": 0.36,
+      "patience": 0.02,
+      "goal_focus": 0.14,
+      "ocean": {
+        "O": 0.87,
+        "C": 0.97,
+        "E": 0.07,
+        "A": 0.78,
+        "N": 0.27
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 3,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0065",
+      "name": "Vera",
+      "segment": "senior",
+      "age": 72,
+      "tech_literacy": 0.15,
+      "patience": 0.32,
+      "goal_focus": 0.72,
+      "ocean": {
+        "O": 0.76,
+        "C": 0.87,
+        "E": 0.04,
+        "A": 0.07,
+        "N": 0.63
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_02"
+    },
+    {
+      "id": "p0066",
+      "name": "Diego",
+      "segment": "casal_jovem",
+      "age": 29,
+      "tech_literacy": 0.88,
+      "patience": 0.1,
+      "goal_focus": 0.17,
+      "ocean": {
+        "O": 0.3,
+        "C": 0.03,
+        "E": 0.32,
+        "A": 0.06,
+        "N": 0.36
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_01"
+    },
+    {
+      "id": "p0067",
+      "name": "Sônia",
+      "segment": "adulto_ocupado",
+      "age": 43,
+      "tech_literacy": 0.39,
+      "patience": 0.18,
+      "goal_focus": 0.61,
+      "ocean": {
+        "O": 0.38,
+        "C": 0.68,
+        "E": 0.5,
+        "A": 0.58,
+        "N": 0.23
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0068",
+      "name": "Ana",
+      "segment": "casal_jovem",
+      "age": 30,
+      "tech_literacy": 0.79,
+      "patience": 0.29,
+      "goal_focus": 0.55,
+      "ocean": {
+        "O": 0.07,
+        "C": 0.95,
+        "E": 0.99,
+        "A": 0.3,
+        "N": 0.96
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0069",
+      "name": "Gabi",
+      "segment": "adulto_ocupado",
+      "age": 49,
+      "tech_literacy": 0.73,
+      "patience": 0.11,
+      "goal_focus": 0.38,
+      "ocean": {
+        "O": 0.36,
+        "C": 0.3,
+        "E": 0.7,
+        "A": 0.02,
+        "N": 0.83
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_01"
+    },
+    {
+      "id": "p0070",
+      "name": "Vera",
+      "segment": "adulto_ocupado",
+      "age": 45,
+      "tech_literacy": 0.79,
+      "patience": 0.91,
+      "goal_focus": 0.75,
+      "ocean": {
+        "O": 0.83,
+        "C": 0.9,
+        "E": 0.78,
+        "A": 0.23,
+        "N": 0.8
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 14,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0071",
+      "name": "Yara",
+      "segment": "adulto_ocupado",
+      "age": 45,
+      "tech_literacy": 0.64,
+      "patience": 0.14,
+      "goal_focus": 0.1,
+      "ocean": {
+        "O": 0.63,
+        "C": 0.04,
+        "E": 0.79,
+        "A": 0.03,
+        "N": 0.36
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0072",
+      "name": "Nilo",
+      "segment": "casal_jovem",
+      "age": 22,
+      "tech_literacy": 0.65,
+      "patience": 0.54,
+      "goal_focus": 0.97,
+      "ocean": {
+        "O": 0.53,
+        "C": 0.91,
+        "E": 0.83,
+        "A": 0.26,
+        "N": 0.82
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0073",
+      "name": "Olga",
+      "segment": "adulto_ocupado",
+      "age": 49,
+      "tech_literacy": 0.37,
+      "patience": 0.97,
+      "goal_focus": 0.86,
+      "ocean": {
+        "O": 0.72,
+        "C": 0.98,
+        "E": 0.97,
+        "A": 0.8,
+        "N": 0.37
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 15,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0074",
+      "name": "Olga",
+      "segment": "adulto_ocupado",
+      "age": 37,
+      "tech_literacy": 0.67,
+      "patience": 0.26,
+      "goal_focus": 0.38,
+      "ocean": {
+        "O": 0.64,
+        "C": 0.37,
+        "E": 0.67,
+        "A": 0.47,
+        "N": 0.62
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0075",
+      "name": "Úrsula",
+      "segment": "adulto_ocupado",
+      "age": 46,
+      "tech_literacy": 0.75,
+      "patience": 0.3,
+      "goal_focus": 0.41,
+      "ocean": {
+        "O": 0.14,
+        "C": 0.95,
+        "E": 0.3,
+        "A": 0.49,
+        "N": 0.1
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0076",
+      "name": "Vera",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.88,
+      "patience": 0.54,
+      "goal_focus": 0.59,
+      "ocean": {
+        "O": 0.73,
+        "C": 0.89,
+        "E": 0.65,
+        "A": 0.83,
+        "N": 0.62
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0077",
+      "name": "Olga",
+      "segment": "casal_jovem",
+      "age": 31,
+      "tech_literacy": 0.94,
+      "patience": 0.1,
+      "goal_focus": 0.69,
+      "ocean": {
+        "O": 0.54,
+        "C": 0.98,
+        "E": 0.36,
+        "A": 0.4,
+        "N": 0.19
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0078",
+      "name": "Úrsula",
+      "segment": "adulto_ocupado",
+      "age": 42,
+      "tech_literacy": 0.79,
+      "patience": 0.05,
+      "goal_focus": 0.33,
+      "ocean": {
+        "O": 0.99,
+        "C": 0.79,
+        "E": 0.21,
+        "A": 0.83,
+        "N": 0.55
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_07"
+    },
+    {
+      "id": "p0079",
+      "name": "Elisa",
+      "segment": "casal_jovem",
+      "age": 29,
+      "tech_literacy": 0.84,
+      "patience": 0.28,
+      "goal_focus": 0.98,
+      "ocean": {
+        "O": 0.99,
+        "C": 0.54,
+        "E": 0.8,
+        "A": 0.11,
+        "N": 0.87
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0080",
+      "name": "Hugo",
+      "segment": "adulto_ocupado",
+      "age": 41,
+      "tech_literacy": 0.31,
+      "patience": 0.27,
+      "goal_focus": 0.13,
+      "ocean": {
+        "O": 0.42,
+        "C": 0.11,
+        "E": 0.06,
+        "A": 0.45,
+        "N": 0.36
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0081",
+      "name": "Tiago",
+      "segment": "adulto_ocupado",
+      "age": 30,
+      "tech_literacy": 0.69,
+      "patience": 0.87,
+      "goal_focus": 0.52,
+      "ocean": {
+        "O": 0.46,
+        "C": 0.96,
+        "E": 0.06,
+        "A": 0.48,
+        "N": 0.4
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0082",
+      "name": "Olga",
+      "segment": "adulto_ocupado",
+      "age": 31,
+      "tech_literacy": 0.34,
+      "patience": 0.61,
+      "goal_focus": 0.07,
+      "ocean": {
+        "O": 0.28,
+        "C": 0.63,
+        "E": 0.55,
+        "A": 0.33,
+        "N": 0.99
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0083",
+      "name": "Nilo",
+      "segment": "adulto_ocupado",
+      "age": 31,
+      "tech_literacy": 0.65,
+      "patience": 0.85,
+      "goal_focus": 0.65,
+      "ocean": {
+        "O": 0.77,
+        "C": 0.72,
+        "E": 0.22,
+        "A": 0.45,
+        "N": 0.23
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 13,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0084",
+      "name": "Diego",
+      "segment": "casal_jovem",
+      "age": 23,
+      "tech_literacy": 0.73,
+      "patience": 0.25,
+      "goal_focus": 0.95,
+      "ocean": {
+        "O": 0.69,
+        "C": 0.47,
+        "E": 0.09,
+        "A": 0.09,
+        "N": 0.43
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 6,
+      "archetype": "arch_09"
+    },
+    {
+      "id": "p0085",
+      "name": "Sônia",
+      "segment": "adulto_ocupado",
+      "age": 49,
+      "tech_literacy": 0.58,
+      "patience": 0.67,
+      "goal_focus": 0.41,
+      "ocean": {
+        "O": 0.87,
+        "C": 0.94,
+        "E": 0.42,
+        "A": 0.92,
+        "N": 0.05
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_12"
+    },
+    {
+      "id": "p0086",
+      "name": "Sônia",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 0.66,
+      "patience": 0.48,
+      "goal_focus": 0.85,
+      "ocean": {
+        "O": 0.35,
+        "C": 0.56,
+        "E": 0.11,
+        "A": 0.28,
+        "N": 0.23
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "low_vision"
+      ],
+      "attitude": "enthusiast",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_09"
+    },
+    {
+      "id": "p0087",
+      "name": "Vera",
+      "segment": "adulto_ocupado",
+      "age": 46,
+      "tech_literacy": 0.43,
+      "patience": 0.18,
+      "goal_focus": 0.7,
+      "ocean": {
+        "O": 0.31,
+        "C": 0.34,
+        "E": 0.01,
+        "A": 0.87,
+        "N": 0.57
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0088",
+      "name": "Ana",
+      "segment": "adulto_ocupado",
+      "age": 31,
+      "tech_literacy": 0.57,
+      "patience": 0.38,
+      "goal_focus": 0.45,
+      "ocean": {
+        "O": 0.16,
+        "C": 0.31,
+        "E": 0.32,
+        "A": 0.94,
+        "N": 0.6
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0089",
+      "name": "Bruno",
+      "segment": "adulto_ocupado",
+      "age": 43,
+      "tech_literacy": 0.44,
+      "patience": 0.66,
+      "goal_focus": 0.49,
+      "ocean": {
+        "O": 0.44,
+        "C": 0.27,
+        "E": 0.75,
+        "A": 0.11,
+        "N": 0.43
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0090",
+      "name": "João",
+      "segment": "adulto_ocupado",
+      "age": 30,
+      "tech_literacy": 0.5,
+      "patience": 0.6,
+      "goal_focus": 0.01,
+      "ocean": {
+        "O": 0.3,
+        "C": 0.21,
+        "E": 0.14,
+        "A": 0.26,
+        "N": 0.33
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0091",
+      "name": "Marta",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 0.69,
+      "patience": 0.56,
+      "goal_focus": 0.67,
+      "ocean": {
+        "O": 0.35,
+        "C": 0.4,
+        "E": 0.74,
+        "A": 0.44,
+        "N": 0.46
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "hostile",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 10,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0092",
+      "name": "Wagner",
+      "segment": "adulto_ocupado",
+      "age": 42,
+      "tech_literacy": 0.44,
+      "patience": 0.41,
+      "goal_focus": 0.97,
+      "ocean": {
+        "O": 0.17,
+        "C": 0.95,
+        "E": 0.46,
+        "A": 0.69,
+        "N": 0.36
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 8,
+      "archetype": "arch_10"
+    },
+    {
+      "id": "p0093",
+      "name": "Marta",
+      "segment": "casal_jovem",
+      "age": 26,
+      "tech_literacy": 0.76,
+      "patience": 0.31,
+      "goal_focus": 0.34,
+      "ocean": {
+        "O": 0.33,
+        "C": 0.17,
+        "E": 0.51,
+        "A": 0.11,
+        "N": 0.51
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_01"
+    },
+    {
+      "id": "p0094",
+      "name": "Elisa",
+      "segment": "casal_jovem",
+      "age": 23,
+      "tech_literacy": 0.67,
+      "patience": 0.15,
+      "goal_focus": 0.76,
+      "ocean": {
+        "O": 0.08,
+        "C": 0.95,
+        "E": 0.63,
+        "A": 0.46,
+        "N": 0.56
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 5,
+      "archetype": "arch_03"
+    },
+    {
+      "id": "p0095",
+      "name": "Úrsula",
+      "segment": "senior",
+      "age": 61,
+      "tech_literacy": 0.18,
+      "patience": 0.47,
+      "goal_focus": 0.63,
+      "ocean": {
+        "O": 0.8,
+        "C": 0.59,
+        "E": 0.35,
+        "A": 0.07,
+        "N": 0.46
+      },
+      "device": "desktop",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 9,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0096",
+      "name": "Carla",
+      "segment": "adulto_ocupado",
+      "age": 42,
+      "tech_literacy": 0.79,
+      "patience": 0.09,
+      "goal_focus": 0.59,
+      "ocean": {
+        "O": 0.38,
+        "C": 0.58,
+        "E": 0.95,
+        "A": 0.74,
+        "N": 0.04
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "skeptic",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_11"
+    },
+    {
+      "id": "p0097",
+      "name": "Quésia",
+      "segment": "adulto_ocupado",
+      "age": 33,
+      "tech_literacy": 0.33,
+      "patience": 0.1,
+      "goal_focus": 0.9,
+      "ocean": {
+        "O": 0.34,
+        "C": 0.71,
+        "E": 0.5,
+        "A": 0.17,
+        "N": 0.25
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0098",
+      "name": "João",
+      "segment": "casal_jovem",
+      "age": 24,
+      "tech_literacy": 0.91,
+      "patience": 0.68,
+      "goal_focus": 0.05,
+      "ocean": {
+        "O": 0.63,
+        "C": 0.33,
+        "E": 0.33,
+        "A": 0.56,
+        "N": 0.39
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "motor"
+      ],
+      "attitude": "neutral",
+      "policy": "llm",
+      "variant": "-",
+      "give_up_after": 11,
+      "archetype": "arch_05"
+    },
+    {
+      "id": "p0099",
+      "name": "Sônia",
+      "segment": "casal_jovem",
+      "age": 27,
+      "tech_literacy": 0.97,
+      "patience": 0.31,
+      "goal_focus": 0.66,
+      "ocean": {
+        "O": 0.66,
+        "C": 0.13,
+        "E": 0.71,
+        "A": 0.08,
+        "N": 0.56
+      },
+      "device": "tablet",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 7,
+      "archetype": "arch_06"
+    },
+    {
+      "id": "p0100",
+      "name": "Yara",
+      "segment": "adulto_ocupado",
+      "age": 49,
+      "tech_literacy": 0.76,
+      "patience": 0.09,
+      "goal_focus": 0.67,
+      "ocean": {
+        "O": 0.51,
+        "C": 0.02,
+        "E": 0.31,
+        "A": 0.95,
+        "N": 0.34
+      },
+      "device": "mobile_web",
+      "accessibility": [
+        "none"
+      ],
+      "attitude": "neutral",
+      "policy": "rule",
+      "variant": "-",
+      "give_up_after": 4,
+      "archetype": "arch_05"
+    }
+  ]
+}
