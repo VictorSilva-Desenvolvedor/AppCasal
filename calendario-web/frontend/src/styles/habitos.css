@@ -214,9 +214,10 @@
 /* ---------- Botão flutuante de criar hábito ---------- */
 
 .habit-fab {
-  @apply fixed right-5 bottom-24 sm:bottom-8 flex items-center justify-center rounded-full border-none cursor-pointer;
-  width: 60px;
-  height: 60px;
+  /* Com rótulo visível: só o "+" não dizia o que o botão fazia. */
+  @apply fixed right-5 bottom-24 sm:bottom-8 flex items-center justify-center gap-2 rounded-full border-none cursor-pointer
+    px-5 font-semibold;
+  height: 56px;
   background: var(--habit-coral);
   color: var(--color-on-primary);
   box-shadow: var(--shadow-lg);
@@ -233,8 +234,8 @@
 }
 
 .habit-fab .icon {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
 }
 
 /* ---------- Logotipo da feature ---------- */
@@ -246,7 +247,8 @@
 /* ---------- Formulários (hábito e check-in) ---------- */
 
 .habit-type-toggle {
-  @apply flex gap-2;
+  /* flex-wrap: no celular os tipos (Alternado, Colaborativo) vazavam pela borda. */
+  @apply flex flex-wrap gap-2;
 }
 
 .habit-emoji-picker,
@@ -578,4 +580,8 @@
 
 .habit-form-sections {
   @apply flex-wrap mb-4;
+}
+
+.habit-waiting-hint {
+  @apply text-sm text-text-muted mt-2;
 }

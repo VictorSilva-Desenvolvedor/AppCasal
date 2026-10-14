@@ -104,8 +104,9 @@ export function FinanceEntryList({
               ) : (
                 <span className="finance-missing-category">Sem categoria</span>
               )}{' '}
-              · {formatEntryDate(entry.date)} · pago por{' '}
-              {entry.paidBy?.name || '—'}
+              · {formatEntryDate(entry.date)}
+              {/* paidBy é o dono do lançamento; "pago por" ao lado de "Pendente" soava contraditório. */}
+              {entry.paidBy?.name && (status === 'pago' ? ` · pago por ${entry.paidBy.name}` : ` · de ${entry.paidBy.name}`)}
               {entry.sharedWith && ` · dividido com ${entry.sharedWith.name}`}
             </span>
             {entry.wishType && (

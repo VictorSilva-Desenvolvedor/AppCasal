@@ -93,10 +93,6 @@
   @apply mt-5 text-sm text-text-muted;
 }
 
-.auth-hint {
-  @apply mt-4 text-sm text-text-muted bg-surface-alt border border-border rounded-sm px-3 py-2;
-}
-
 /* Campo de senha com botão de mostrar/ocultar. */
 .password-field {
   @apply relative;

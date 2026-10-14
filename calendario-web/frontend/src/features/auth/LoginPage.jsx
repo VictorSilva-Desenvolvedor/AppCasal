@@ -76,12 +76,6 @@ export function LoginPage() {
               </Button>
             </form>
 
-            <p className="auth-hint">
-              Usuário: <strong>primeiro nome nosso</strong>
-              <br />
-              Senha: <strong>data de namoro</strong>
-            </p>
-
             <p className="auth-footer">
               Não tem conta? <Link to="/register">Cadastre-se</Link>
             </p>

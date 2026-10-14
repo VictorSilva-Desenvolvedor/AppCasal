@@ -155,6 +155,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
           <button
             key={s}
             type="button"
+            aria-pressed={section === s}
             className={`habit-type-toggle-btn${section === s ? ' is-active' : ''}`}
             onClick={() => setSection(s)}
           >
@@ -183,6 +184,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 <button
                   key={value}
                   type="button"
+                  aria-pressed={type === value}
                   className={`habit-type-toggle-btn${type === value ? ' is-active' : ''}`}
                   disabled={isEditing}
                   onClick={() => setType(value)}
@@ -265,6 +267,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 <button
                   key={option}
                   type="button"
+                  aria-pressed={emoji === option}
                   className={`habit-emoji-option${emoji === option ? ' is-active' : ''}`}
                   onClick={() => setEmoji(option)}
                 >
@@ -280,6 +283,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 <button
                   key={option}
                   type="button"
+                  aria-pressed={color === option}
                   className={`habit-color-option${color === option ? ' is-active' : ''}`}
                   style={{ background: option }}
                   onClick={() => setColor(option)}
@@ -305,6 +309,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 <button
                   key={value}
                   type="button"
+                  aria-pressed={difficulty === value}
                   className={`habit-type-toggle-btn${difficulty === value ? ' is-active' : ''}`}
                   onClick={() => setDifficulty(value)}
                 >
@@ -326,6 +331,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
               <div className="habit-type-toggle">
                 <button
                   type="button"
+                  aria-pressed={goalType === 'binario'}
                   className={`habit-type-toggle-btn${goalType === 'binario' ? ' is-active' : ''}`}
                   onClick={() => setGoalType('binario')}
                 >
@@ -333,6 +339,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
                 </button>
                 <button
                   type="button"
+                  aria-pressed={goalType === 'quantitativo'}
                   className={`habit-type-toggle-btn${goalType === 'quantitativo' ? ' is-active' : ''}`}
                   onClick={() => setGoalType('quantitativo')}
                 >
@@ -424,6 +431,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
             <div className="habit-type-toggle">
               <button
                 type="button"
+                aria-pressed={durationType === 'para_sempre'}
                 className={`habit-type-toggle-btn${durationType === 'para_sempre' ? ' is-active' : ''}`}
                 onClick={() => setDurationType('para_sempre')}
               >
@@ -431,6 +439,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
               </button>
               <button
                 type="button"
+                aria-pressed={durationType === 'desafio'}
                 className={`habit-type-toggle-btn${durationType === 'desafio' ? ' is-active' : ''}`}
                 onClick={() => setDurationType('desafio')}
               >

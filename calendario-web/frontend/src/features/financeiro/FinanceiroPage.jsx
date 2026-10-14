@@ -90,31 +90,58 @@ export function FinanceiroPage() {
     setHistory(await api.getFinanceHistory(monthYear.month, monthYear.year, 6, viewScope));
   }, [monthYear, viewScope]);
 
-  useEffect(() => {
-    reloadCategories();
-    reloadMonths();
-    reloadReimbursements();
-  }, [reloadCategories, reloadMonths, reloadReimbursements]);
+  // Qualquer carga que falhe vira estado de erro com "Tentar de novo" — antes a
+  // rejeição escapava sem tratamento e a tela ficava em "Carregando…" ou com
+  // listas falsamente vazias. retryKey refaz todas as cargas.
+  const [loadError, setLoadError] = useState('');
+  const [retryKey, setRetryKey] = useState(0);
+  const failLoad = useCallback(() => {
+    setLoadError('Não foi possível carregar o financeiro. Verifique sua conexão e tente de novo.');
+  }, []);
 
   useEffect(() => {
-    reloadGoals();
-  }, [reloadGoals]);
+    Promise.all([reloadCategories(), reloadMonths(), reloadReimbursements()]).catch(failLoad);
+  }, [reloadCategories, reloadMonths, reloadReimbursements, retryKey, failLoad]);
+
+  useEffect(() => {
+    reloadGoals().catch(failLoad);
+  }, [reloadGoals, retryKey, failLoad]);
 
   useEffect(() => {
     // Lançamentos primeiro: essa chamada gera os fixos do mês, e o resumo em
     // paralelo poderia gerá-los de novo ao mesmo tempo (duplicando).
     reloadEntries()
       .then(() => Promise.all([reloadReport(), reloadHistory()]))
+      .catch(failLoad)
       .finally(() => setLoading(false));
     setEditingEntry(null);
-  }, [reloadEntries, reloadReport, reloadHistory]);
+  }, [reloadEntries, reloadReport, reloadHistory, retryKey, failLoad]);
 
   const dnd = useDragAndDrop({ onDrop: handleMoveDrop });
+
+  function handleRetry() {
+    setLoadError('');
+    setLoading(true);
+    setRetryKey((key) => key + 1);
+  }
 
   if (loading) {
     return (
       <section className="view finance-page">
         <HeartLoader />
+      </section>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <section className="view finance-page">
+        <Card className="finance-load-error" role="alert">
+          <p>{loadError}</p>
+          <Button type="button" variant="secondary" onClick={handleRetry}>
+            Tentar de novo
+          </Button>
+        </Card>
       </section>
     );
   }
@@ -206,11 +233,21 @@ export function FinanceiroPage() {
         </div>
 
         <div className="finance-month-nav">
-          <Button variant="secondary" onClick={() => setMonthYear((prev) => shiftMonthYear(prev, -1))}>
+          <Button
+            variant="secondary"
+            aria-label="Mês anterior"
+            title="Mês anterior"
+            onClick={() => setMonthYear((prev) => shiftMonthYear(prev, -1))}
+          >
             <Icon name="chevron-left" />
           </Button>
           <strong>{monthLabel(monthYear.month, monthYear.year)}</strong>
-          <Button variant="secondary" onClick={() => setMonthYear((prev) => shiftMonthYear(prev, 1))}>
+          <Button
+            variant="secondary"
+            aria-label="Próximo mês"
+            title="Próximo mês"
+            onClick={() => setMonthYear((prev) => shiftMonthYear(prev, 1))}
+          >
             <Icon name="chevron-right" />
           </Button>
           {isClosed && <Pill className="finance-status-pill finance-status--pago">Finalizado</Pill>}

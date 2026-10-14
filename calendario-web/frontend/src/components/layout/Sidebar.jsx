@@ -17,7 +17,7 @@ function initialsOf(name) {
     .join('');
 }
 
-export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent }) {
+export function Sidebar({ collapsed, mobileOpen, offscreen = false, onCloseMobile, onQuickNewEvent }) {
   const { user, logout } = useAuth();
   const { users } = useCalendarData();
   const location = useLocation();
@@ -33,7 +33,9 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile, onQuickNewEvent 
     .join(' ');
 
   return (
-    <aside className={className}>
+    // Fora da tela (gaveta fechada no celular) ela some também do leitor de tela
+    // e do Tab — senão o "Novo evento" escondido competia com o botão visível.
+    <aside className={className} inert={offscreen} aria-hidden={offscreen || undefined}>
       <div className="sidebar-header">
         <Link to="/app" className="sidebar-title" title="Voltar para a tela inicial">
           <Icon name="heart" />

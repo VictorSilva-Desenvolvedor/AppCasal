@@ -9,6 +9,7 @@ import { useHardwareBackButton } from '../../hooks/useHardwareBackButton.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
 import { HeartLoader } from '../ui/HeartLoader.jsx';
+import { RouteErrorBoundary } from './RouteErrorBoundary.jsx';
 import { getAppSection } from './appSections.js';
 
 const MOBILE_QUERY = '(max-width: 768px)';
@@ -25,7 +26,13 @@ function toCssBackgroundImage(url) {
 
 function AppMainContent() {
   const { loading } = useCalendarData();
-  return loading ? <HeartLoader label="Carregando seus dados..." /> : <Outlet />;
+  const location = useLocation();
+  if (loading) return <HeartLoader label="Carregando seus dados..." />;
+  return (
+    <RouteErrorBoundary key={location.pathname}>
+      <Outlet />
+    </RouteErrorBoundary>
+  );
 }
 
 export function AppShell() {
@@ -73,6 +80,7 @@ export function AppShell() {
             <Sidebar
               collapsed={collapsed}
               mobileOpen={mobileOpen}
+              offscreen={isMobile && !mobileOpen}
               onCloseMobile={() => setMobileOpen(false)}
               onQuickNewEvent={handleQuickNewEvent}
             />

@@ -136,6 +136,19 @@ export function HabitCard({
         </div>
       )}
 
+      {/* Sem isso o card mostrava "Feito hoje" com a sequência parada em 0 e
+          parecia que o check-in não tinha contado. */}
+      {isShared && myCheckinToday && partnerStatuses.some((p) => !p.done) && (
+        <p className="habit-waiting-hint">
+          Seu check-in foi registrado. A sequência sobe quando{' '}
+          {partnerStatuses
+            .filter((p) => !p.done)
+            .map((p) => p.user.name)
+            .join(' e ')}{' '}
+          também fizer o de hoje.
+        </p>
+      )}
+
       <HabitRecoveryBanner habit={habit} />
 
       <div className="habit-card-actions">

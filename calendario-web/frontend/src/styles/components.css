@@ -136,6 +136,14 @@
     focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-light)];
 }
 
+.field-hint {
+  @apply mt-1 text-sm text-text-muted;
+}
+
+.field [aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
 .field textarea {
   @apply resize-y min-h-[70px];
 }
@@ -481,4 +489,17 @@
 
 .toast-action:hover {
   @apply underline;
+}
+
+/* Tela de erro contida pelo RouteErrorBoundary. */
+.route-error {
+  @apply flex flex-col items-center gap-3 text-center max-w-md mx-auto mt-8;
+}
+
+.route-error p {
+  @apply text-text-muted;
+}
+
+.route-error-actions {
+  @apply flex flex-wrap justify-center gap-2;
 }

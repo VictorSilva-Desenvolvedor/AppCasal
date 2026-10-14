@@ -9,7 +9,8 @@ import { DayView } from './DayView.jsx';
 import { AgendaView } from './AgendaView.jsx';
 import { MobileMonthList } from './MobileMonthList.jsx';
 import { EventModal } from './EventModal.jsx';
-import { dateOnlyKey } from './calendarUtils.js';
+import { Icon } from '../../components/ui/index.js';
+import { dateOnlyKey, toDateKey } from './calendarUtils.js';
 
 const MOBILE_QUERY = '(max-width: 768px)';
 
@@ -124,6 +125,14 @@ export function CalendarPage() {
         </div>
       )}
 
+      {/* No celular o atalho "Novo evento" da sidebar fica escondido na gaveta. */}
+      {isMobile && (
+        <button type="button" className="calendar-fab" onClick={() => openNewEventForm(toDateKey(new Date()))}>
+          <Icon name="plus" />
+          Novo evento
+        </button>
+      )}
+
       <EventModal
         open={dayModalOpen}
         mode={modalMode}
@@ -132,7 +141,9 @@ export function CalendarPage() {
         onClose={closeModal}
         onRequestNew={() => openNewEventForm(selectedDateKey)}
         onRequestEdit={openEditEventForm}
-        onSaved={backToList}
+        // Salvar fecha o modal (o toast confirma): voltar pra lista do dia
+        // dava a impressão de que nada tinha sido salvo.
+        onSaved={closeModal}
         onDeleted={backToList}
         onCancelForm={backToList}
       />

@@ -7,6 +7,7 @@ const Event = require('./models/Event');
 const FinanceCategory = require('./models/FinanceCategory');
 const FinanceEntry = require('./models/FinanceEntry');
 const FinanceGoal = require('./models/FinanceGoal');
+const { DEFAULT_FINANCE_CATEGORIES } = require('./constants/defaultFinanceCategories');
 
 const COUPLE_PASSWORD = '2605';
 const COUPLE_NAMES = ['Victor', 'Maria'];
@@ -24,19 +25,6 @@ const TEST_USERS = [
 // Data real migrada da planilha "Orçamento mensal 14 julho lIMPO.xlsx" do casal.
 const BUDGET_REFERENCE_DATE = new Date(2026, 6, 14);
 
-const DEFAULT_FINANCE_CATEGORIES = [
-  { name: 'Salário', type: 'receita', color: '#16a34a' },
-  { name: 'Outros', type: 'receita', color: '#0891b2' },
-  { name: 'Moradia', type: 'despesa', color: '#2563eb' },
-  { name: 'Transporte', type: 'despesa', color: '#f97316' },
-  { name: 'Assinaturas', type: 'despesa', color: '#9333ea' },
-  { name: 'Alimentação', type: 'despesa', color: '#ca8a04' },
-  { name: 'Saúde', type: 'despesa', color: '#16a34a' },
-  { name: 'Financiamento', type: 'despesa', color: '#dc2626' },
-  { name: 'Educação', type: 'despesa', color: '#0891b2' },
-  { name: 'Pessoal', type: 'despesa', color: '#db2777' },
-  { name: 'Outros', type: 'despesa', color: '#64748b' },
-];
 
 // Tabela "Renda" (planilha Renda mensal, B3:C6)
 const BUDGET_INCOME = [{ description: 'SALARIO', amount: 3100, category: 'Salário' }];

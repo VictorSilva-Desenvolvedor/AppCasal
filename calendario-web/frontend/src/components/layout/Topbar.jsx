@@ -118,7 +118,7 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
               </option>
             ))}
           </select>
-          <label className="filter-chip flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-text-muted cursor-pointer transition-colors hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white">
+          <label className="filter-chip flex items-center gap-2 whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-sm text-text-muted cursor-pointer transition-colors hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white">
             <input
               type="checkbox"
               className="sr-only"

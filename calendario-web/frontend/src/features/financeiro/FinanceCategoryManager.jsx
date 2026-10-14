@@ -10,6 +10,7 @@ export function FinanceCategoryManager({ categories, onChanged }) {
   const [type, setType] = useState('despesa');
   const [color, setColor] = useState('#64748b');
   const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const { showToast } = useToast();
   const { isPending, run } = usePendingIds();
@@ -17,7 +18,11 @@ export function FinanceCategoryManager({ categories, onChanged }) {
   async function handleSubmit(event) {
     event.preventDefault();
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      setNameError('Digite o nome da categoria.');
+      return;
+    }
+    setNameError('');
 
     setSaving(true);
     try {
@@ -46,8 +51,13 @@ export function FinanceCategoryManager({ categories, onChanged }) {
 
   return (
     <Card className="finance-category-manager">
-      <button type="button" className="finance-collapsible-toggle" onClick={() => setExpanded((v) => !v)}>
-        <Icon name={expanded ? 'chevron-left' : 'chevron-right'} />
+      <button
+        type="button"
+        className={`finance-collapsible-toggle${expanded ? ' is-expanded' : ''}`}
+        aria-expanded={expanded}
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <Icon name="chevron-right" />
         Categorias
       </button>
 
@@ -62,6 +72,7 @@ export function FinanceCategoryManager({ categories, onChanged }) {
                 <IconButton
                   onClick={() => setDeleteTarget(category)}
                   title="Excluir categoria"
+                  aria-label={`Excluir categoria ${category.name}`}
                   loading={isPending(category._id)}
                 >
                   <Icon name="trash" />
@@ -70,23 +81,36 @@ export function FinanceCategoryManager({ categories, onChanged }) {
             ))}
           </ul>
 
-          <form className="finance-category-form" onSubmit={handleSubmit}>
+          {/* noValidate + mensagem própria: o balão nativo saía em inglês. */}
+          <form className="finance-category-form" onSubmit={handleSubmit} noValidate>
             <input
               type="text"
               placeholder="Nova categoria"
+              aria-label="Nome da nova categoria"
+              aria-invalid={Boolean(nameError)}
+              aria-describedby={nameError ? 'finance-category-name-error' : undefined}
               value={name}
               onChange={(event) => setName(event.target.value)}
-              required
             />
-            <select value={type} onChange={(event) => setType(event.target.value)}>
+            <select aria-label="Tipo da categoria" value={type} onChange={(event) => setType(event.target.value)}>
               <option value="despesa">Despesa</option>
               <option value="receita">Receita</option>
             </select>
-            <input type="color" value={color} onChange={(event) => setColor(event.target.value)} />
+            <input
+              type="color"
+              aria-label="Cor da categoria"
+              value={color}
+              onChange={(event) => setColor(event.target.value)}
+            />
             <Button type="submit" variant="secondary" loading={saving}>
               Adicionar
             </Button>
           </form>
+          {nameError && (
+            <p id="finance-category-name-error" className="error-text" role="alert">
+              {nameError}
+            </p>
+          )}
         </div>
       )}
 

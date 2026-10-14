@@ -254,8 +254,9 @@ export function HabitosPage() {
         ))}
       </div>
 
-      <button type="button" className="habit-fab" onClick={handleOpenCreate} aria-label="Criar hábito">
+      <button type="button" className="habit-fab" onClick={handleOpenCreate}>
         <Icon name="plus" />
+        Criar hábito
       </button>
 
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editingHabit ? 'Editar hábito' : 'Novo hábito'}>

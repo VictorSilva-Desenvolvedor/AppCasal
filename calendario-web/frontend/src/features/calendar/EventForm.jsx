@@ -171,9 +171,13 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
           type="text"
           id="event-reminder-offsets"
           placeholder="5, 3, 1"
+          aria-describedby="event-reminder-offsets-hint"
           value={reminderOffsets}
           onChange={(formEvent) => setReminderOffsets(formEvent.target.value)}
         />
+        <p id="event-reminder-offsets-hint" className="field-hint">
+          Você recebe um aviso nesses dias antes do evento. Já vem com o padrão (5, 3 e 1); apague ou troque se quiser.
+        </p>
       </div>
 
       <div className="field">

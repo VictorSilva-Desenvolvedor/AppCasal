@@ -9,7 +9,8 @@
 }
 
 .finance-month-nav strong {
-  @apply capitalize min-w-[9rem] text-center;
+  /* Sem `capitalize`: deixava "Outubro De 2026"; o rótulo já vem com a inicial maiúscula. */
+  @apply min-w-[9rem] text-center;
 }
 
 .finance-tabs {
@@ -739,4 +740,20 @@
 .finance-sheet-table tr.is-goal-row > td:not(.is-imported):not(.is-skipped),
 .finance-sheet-legend-item.is-goal {
   background: var(--color-primary-light);
+}
+
+.finance-load-error {
+  @apply flex flex-col items-center gap-3 text-center text-text-muted;
+}
+
+.finance-collapsible-toggle .icon {
+  transition: transform 0.15s;
+}
+
+.finance-collapsible-toggle.is-expanded .icon {
+  transform: rotate(90deg);
+}
+
+.finance-category-form [aria-invalid='true'] {
+  border-color: var(--color-danger);
 }

@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Field } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
 import { dateOnlyKey, localDateKey } from '../../lib/dateOnly.js';
+import { parseMoneyInput } from './financeUtils.js';
 
 // Data de vencimento vinda da API é dia inteiro (meia-noite UTC) e se lê em UTC;
 // o "hoje" do usuário é local. Misturar os dois (o antigo toISOString em cima de
@@ -38,6 +39,8 @@ export function FinanceEntryForm({
   const { user } = useAuth();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
+  const [invalidFields, setInvalidFields] = useState([]);
+  const formRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [removeImage, setRemoveImage] = useState(false);
@@ -86,14 +89,32 @@ export function FinanceEntryForm({
     event.preventDefault();
     setError('');
 
-    if (!form.description.trim() || !form.amount || !form.category || !form.date) {
-      setError('Preencha descrição, valor, categoria e data');
+    // Diz exatamente o que falta e leva o foco ao primeiro campo — a mensagem
+    // genérica deixava a pessoa caçando o campo.
+    const amount = parseMoneyInput(form.amount);
+    const paidAmount = form.paidAmount ? parseMoneyInput(form.paidAmount) : 0;
+    const splitAmount = form.sharedWith ? parseMoneyInput(form.splitAmount) : null;
+    const checks = [
+      ['finance-description', 'descrição', !form.description.trim()],
+      ['finance-amount', 'valor', !(amount > 0)],
+      ['finance-date', 'data', !form.date],
+      ['finance-category', 'categoria', !form.category],
+      ['finance-paid', 'valor já pago', Number.isNaN(paidAmount) || paidAmount < 0],
+      ['finance-split', 'valor que essa pessoa deve', form.sharedWith && !(splitAmount > 0)],
+    ].filter(([, , failed]) => failed);
+
+    if (checks.length) {
+      const fieldIds = checks.map(([id]) => id);
+      setInvalidFields(fieldIds);
+      setError(
+        !form.category && !filteredCategories.length
+          ? 'Nenhuma categoria cadastrada. Crie uma no botão "Categorias", acima da lista de lançamentos.'
+          : `Preencha corretamente: ${checks.map(([, label]) => label).join(', ')}`
+      );
+      formRef.current?.querySelector(`#${fieldIds[0]}`)?.focus();
       return;
     }
-    if (form.sharedWith && !form.splitAmount) {
-      setError('Informe o valor que a outra pessoa deve ao compartilhar a despesa');
-      return;
-    }
+    setInvalidFields([]);
 
     setSaving(true);
     try {
@@ -105,17 +126,17 @@ export function FinanceEntryForm({
       const payload = {
         type: form.type,
         description: form.description.trim(),
-        amount: Number(form.amount),
+        amount,
         category: form.category,
         date: form.date,
-        paidAmount: form.paidAmount ? Number(form.paidAmount) : 0,
+        paidAmount,
         nature: form.type === 'despesa' || form.nature === 'fixa' ? form.nature : 'unica',
         wishType: form.wishType || null,
         reason: form.reason,
         image,
         linkedGoal: form.linkedGoal || null,
         sharedWith: form.sharedWith || null,
-        splitAmount: form.sharedWith ? Number(form.splitAmount) : null,
+        splitAmount,
       };
 
       if (editingEntry) {
@@ -139,7 +160,7 @@ export function FinanceEntryForm({
   }
 
   return (
-    <form className="card finance-entry-form" onSubmit={handleSubmit}>
+    <form ref={formRef} className="card finance-entry-form" onSubmit={handleSubmit} noValidate>
       {!forcedType && (
         <div className="finance-type-toggle">
           <button
@@ -164,6 +185,7 @@ export function FinanceEntryForm({
       <Field label="Descrição" htmlFor="finance-description">
         <input
           id="finance-description"
+          aria-invalid={invalidFields.includes('finance-description')}
           type="text"
           placeholder="Ex: Internet, Salário..."
           value={form.description}
@@ -175,9 +197,11 @@ export function FinanceEntryForm({
         <Field label="Valor" htmlFor="finance-amount">
           <input
             id="finance-amount"
-            type="number"
-            min="0"
-            step="0.01"
+            aria-invalid={invalidFields.includes('finance-amount')}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="0,00"
             value={form.amount}
             onChange={(event) => update('amount', event.target.value)}
           />
@@ -185,6 +209,7 @@ export function FinanceEntryForm({
         <Field label="Data" htmlFor="finance-date">
           <input
             id="finance-date"
+            aria-invalid={invalidFields.includes('finance-date')}
             type="date"
             value={form.date}
             onChange={(event) => update('date', event.target.value)}
@@ -194,7 +219,12 @@ export function FinanceEntryForm({
 
       <div className="finance-form-row">
         <Field label="Categoria" htmlFor="finance-category">
-          <select id="finance-category" value={form.category} onChange={(event) => update('category', event.target.value)}>
+          <select
+            id="finance-category"
+            aria-invalid={invalidFields.includes('finance-category')}
+            value={form.category}
+            onChange={(event) => update('category', event.target.value)}
+          >
             <option value="">Selecione</option>
             {filteredCategories.map((category) => (
               <option key={category._id} value={category._id}>
@@ -206,10 +236,11 @@ export function FinanceEntryForm({
         <Field label="Valor já pago" htmlFor="finance-paid">
           <input
             id="finance-paid"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0"
+            aria-invalid={invalidFields.includes('finance-paid')}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="0,00"
             value={form.paidAmount}
             onChange={(event) => update('paidAmount', event.target.value)}
           />
@@ -345,21 +376,24 @@ export function FinanceEntryForm({
         <Field label="Valor que essa pessoa deve" htmlFor="finance-split">
           <input
             id="finance-split"
-            type="number"
-            min="0"
-            step="0.01"
+            aria-invalid={invalidFields.includes('finance-split')}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
             value={form.splitAmount}
             onChange={(event) => update('splitAmount', event.target.value)}
           />
         </Field>
       )}
 
-      <p className="error-text">{error}</p>
+      <p className="error-text" role="alert">
+        {error}
+      </p>
       {monthLocked && <p className="error-text">Este mês está finalizado — reabra para lançar ou editar.</p>}
 
       <div className="finance-form-actions">
         <Button type="submit" loading={saving} disabled={monthLocked}>
-          {editingEntry ? 'Salvar alterações' : 'Adicionar lançamento'}
+          {editingEntry ? 'Salvar alterações' : form.type === 'receita' ? 'Adicionar receita' : 'Adicionar despesa'}
         </Button>
         {editingEntry && (
           <Button type="button" variant="secondary" onClick={onCancelEdit}>

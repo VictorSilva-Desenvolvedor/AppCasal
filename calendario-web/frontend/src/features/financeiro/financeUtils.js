@@ -96,3 +96,14 @@ export function computeSimulatedTotals(entries, excludedIds, hypotheticalEntries
 
   return { totalReceitas, totalDespesas, saldo: totalReceitas - totalDespesas };
 }
+
+// Valor digitado no formato brasileiro ("1.234,56", "187,50") ou com ponto
+// ("187.50"). Com vírgula presente, o ponto é separador de milhar. Devolve NaN
+// quando não dá pra ler um número.
+export function parseMoneyInput(text) {
+  const raw = String(text ?? '').trim().replace(/\s|R\$/g, '');
+  if (!raw) return NaN;
+  const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw;
+  if (!/^-?\d+(\.\d+)?$/.test(normalized)) return NaN;
+  return Number(normalized);
+}
