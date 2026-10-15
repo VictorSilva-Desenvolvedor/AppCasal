@@ -29,12 +29,16 @@ async function snap(a) {
   };
 }
 
-function loc(p, b) {
+async function loc(p, b) {
   if (b.selector) return p.locator(b.selector).first();
   if (b.role) return p.getByRole(b.role, b.name ? { name: b.name } : {}).first();
   if (b.label) return p.getByLabel(b.label, { exact: true }).first();
   if (b.placeholder) return p.getByPlaceholder(b.placeholder).first();
-  return p.getByText(b.text, { exact: false }).first();
+  // Texto exato e visível primeiro: o parcial pegava subtítulos ("...lançamentos...")
+  // e itens da barra lateral fechada antes do botão/aba que o agente queria.
+  const exact = p.getByText(b.text, { exact: true }).filter({ visible: true });
+  if (await exact.count()) return exact.first();
+  return p.getByText(b.text, { exact: false }).filter({ visible: true }).first();
 }
 
 async function handle(b) {
@@ -60,9 +64,9 @@ async function handle(b) {
   const p = a.page;
   switch (b.op) {
     case 'goto': await p.goto(b.url.startsWith('http') ? b.url : BASE + b.url); break;
-    case 'click': await loc(p, b).click({ timeout: 5000 }); break;
-    case 'fill': await loc(p, b).fill(String(b.value), { timeout: 5000 }); break;
-    case 'select': await loc(p, b).selectOption(b.value, { timeout: 5000 }); break;
+    case 'click': await (await loc(p, b)).click({ timeout: 5000 }); break;
+    case 'fill': await (await loc(p, b)).fill(String(b.value), { timeout: 5000 }); break;
+    case 'select': await (await loc(p, b)).selectOption(b.value, { timeout: 5000 }); break;
     case 'press': await p.keyboard.press(b.key); break;
     case 'scroll': await p.mouse.wheel(0, b.dy || 600); break;
     case 'back': await p.goBack(); break;

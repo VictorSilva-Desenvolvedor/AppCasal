@@ -91,7 +91,7 @@ export function HabitCard({
         <span className="habit-card-streak">
           <Icon name="habit-flame" />
           {streak}
-          <span className="sr-only"> dias seguidos</span>
+          <span className="sr-only">{streak === 1 ? ' dia seguido' : ' dias seguidos'}</span>
           <InfoTooltip text="Dias seguidos que vocês completaram esse hábito, sem quebrar." label="sequência" />
         </span>
       </div>
@@ -169,7 +169,7 @@ export function HabitCard({
             )}
           </Button>
         )}
-        {!isArchived && <HabitFreezeButton habit={habit} onFrozen={onFrozen} />}
+        {!isArchived && <HabitFreezeButton habit={habit} doneToday={Boolean(myCheckinToday)} onFrozen={onFrozen} />}
         <IconButton aria-label="Ver histórico" onClick={() => onViewHistory(habit)}>
           <Icon name="calendar" />
         </IconButton>

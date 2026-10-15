@@ -1,7 +1,7 @@
 # Swarm de usuários sintéticos: estado e como continuar
 
-Última sessão: 2026-10-15. Seis rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
-Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md) · [rodada 5](2026-10-15-round5.md) · [rodada 6](2026-10-15-round6.md).
+Última sessão: 2026-10-15. Sete rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
+Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md) · [rodada 5](2026-10-15-round5.md) · [rodada 6](2026-10-15-round6.md) · [rodada 7](2026-10-15-round7.md).
 
 ## Onde paramos
 
@@ -13,8 +13,9 @@ Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14
 | 4 | `5d7324d` (contas próprias) | **12/12** | **3,6** |
 | 5 | `e6f8276` | **12/12** | 3,4 |
 | 6 | `60c5529` | **12/12** | **3,7** |
+| 7 | `a61830c` | **12/12** | **3,7** (zero erro técnico) |
 
-A R6 (12/12, 3,7) achou a regressão do portal (botões ativos invisíveis no modal de hábito) e o texto falso de tema compartilhado; corrigidos no commit seguinte, ainda sem rodada 7. A R5 (12/12) achou uma regressão da R4 (asterisco no rótulo quebrava a busca de campo) e defeitos menores de celular; corrigidos no commit seguinte, **ainda sem rodada 6 de confirmação**. A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
+A R7 (12/12, zero erro técnico) achou só defeitos pequenos (plural, congelar após check-in, mensagem de validação, lista de meses); corrigidos no commit seguinte, ainda sem rodada 8. A R6 (12/12, 3,7) achou a regressão do portal (botões ativos invisíveis no modal de hábito) e o texto falso de tema compartilhado; corrigidos no commit seguinte, ainda sem rodada 7. A R5 (12/12) achou uma regressão da R4 (asterisco no rótulo quebrava a busca de campo) e defeitos menores de celular; corrigidos no commit seguinte, **ainda sem rodada 6 de confirmação**. A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
 
 Commits desta sessão (todos na `main`):
 - `c9b93e7` correções das rodadas 1 e 2 (segurança, tela branca, financeiro, acessibilidade)

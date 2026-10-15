@@ -4,7 +4,7 @@ import { api } from '../../services/api.js';
 import { useToast } from '../../hooks/useToast.js';
 import { toDayKey } from './habitUtils.js';
 
-export function HabitFreezeButton({ habit, onFrozen }) {
+export function HabitFreezeButton({ habit, doneToday = false, onFrozen }) {
   const { showToast } = useToast();
   const [saving, setSaving] = useState(false);
 
@@ -13,13 +13,15 @@ export function HabitFreezeButton({ habit, onFrozen }) {
   const remaining = habit.freezesPerMonth - usedThisMonth;
   const alreadyFrozenToday = habit.freezeDays.some((f) => f.day === todayKey);
 
-  // O botão fica desabilitado em dois casos bem diferentes — o texto precisa
+  // O botão fica desabilitado em três casos diferentes — o texto precisa
   // dizer qual deles, senão o usuário só vê um ícone apagado sem explicação.
   const freezeLabel = alreadyFrozenToday
     ? 'Hoje já está congelado'
-    : remaining <= 0
-      ? `Você já usou os ${habit.freezesPerMonth} congelamentos deste mês`
-      : `Congelar hoje (${remaining} de ${habit.freezesPerMonth} congelamentos restantes este mês)`;
+    : doneToday
+      ? 'Hoje já está feito, não precisa congelar'
+      : remaining <= 0
+        ? `Você já usou os ${habit.freezesPerMonth} congelamentos deste mês`
+        : `Congelar hoje (${remaining} de ${habit.freezesPerMonth} congelamentos restantes este mês)`;
 
   async function handleFreeze() {
     setSaving(true);
@@ -39,7 +41,7 @@ export function HabitFreezeButton({ habit, onFrozen }) {
       className="habit-freeze-btn"
       onClick={handleFreeze}
       loading={saving}
-      disabled={remaining <= 0 || alreadyFrozenToday}
+      disabled={remaining <= 0 || alreadyFrozenToday || doneToday}
       aria-label={freezeLabel}
       title={freezeLabel}
     >

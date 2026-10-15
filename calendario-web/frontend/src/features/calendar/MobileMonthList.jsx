@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { buildOccurrenceMap, countEventsInMonth, filteredEvents, generateMonthRange } from './calendarUtils.js';
 
@@ -6,6 +6,13 @@ export function MobileMonthList({ onSelectMonth }) {
   const { events, filters } = useCalendarData();
   const today = new Date();
   const months = useMemo(() => generateMonthRange(), []);
+  const currentRef = useRef(null);
+
+  // A lista começa meses antes de hoje: sem isso o mês atual abria fora da tela,
+  // abaixo de uma pilha de meses passados vazios.
+  useEffect(() => {
+    currentRef.current?.scrollIntoView?.({ block: 'center' });
+  }, []);
 
   const occMap = useMemo(() => {
     const lastMonth = months[months.length - 1];
@@ -25,7 +32,9 @@ export function MobileMonthList({ onSelectMonth }) {
           <button
             type="button"
             key={`${monthDate.getFullYear()}-${monthDate.getMonth()}`}
+            ref={isCurrent ? currentRef : undefined}
             className={`calendar-month-item${isCurrent ? ' is-current' : ''}`}
+            aria-current={isCurrent ? 'date' : undefined}
             aria-label={count === 1 ? `${label}, 1 evento` : `${label}, ${count} eventos`}
             onClick={() => onSelectMonth(monthDate)}
           >
