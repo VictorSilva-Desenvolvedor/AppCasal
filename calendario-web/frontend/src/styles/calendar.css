@@ -792,3 +792,10 @@
   width: 20px;
   height: 20px;
 }
+
+/* Espaço pro botão flutuante não tampar a última linha do mês no celular. */
+@media (max-width: 768px) {
+  #view-calendar {
+    padding-bottom: 5rem;
+  }
+}

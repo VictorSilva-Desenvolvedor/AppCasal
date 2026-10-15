@@ -36,7 +36,8 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
   const [section, setSection] = useState('basico');
 
   const [name, setName] = useState(habit?.name ?? '');
-  const [type, setType] = useState(habit?.type ?? 'casal');
+  // Sem parceiro no time, "Sincronizado" não tem com quem sincronizar.
+  const [type, setType] = useState(habit?.type ?? (users.length > 1 ? 'casal' : 'individual'));
   const [owner, setOwner] = useState(habit?.owner?._id ?? habit?.owner ?? currentUserId ?? '');
   const [startingUserId, setStartingUserId] = useState(
     habit?.currentTurnUserId?._id ?? habit?.currentTurnUserId ?? currentUserId ?? ''

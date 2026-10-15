@@ -175,16 +175,18 @@ export function FinanceiroPage() {
     }
   }
 
+  // O histórico entra junto: sem ele o gráfico de saldo ficava com o valor de
+  // antes do lançamento enquanto o resumo já mostrava o novo saldo.
   async function handleEntrySaved() {
-    await Promise.all([reloadEntries(), reloadReport(), reloadReimbursements()]);
+    await Promise.all([reloadEntries(), reloadReport(), reloadHistory(), reloadReimbursements()]);
   }
 
   async function handleEntryDeleted() {
-    await Promise.all([reloadEntries(), reloadReport(), reloadReimbursements()]);
+    await Promise.all([reloadEntries(), reloadReport(), reloadHistory(), reloadReimbursements()]);
   }
 
   async function handleImported() {
-    await Promise.all([reloadEntries(), reloadReport(), reloadReimbursements(), reloadGoals()]);
+    await Promise.all([reloadEntries(), reloadReport(), reloadHistory(), reloadReimbursements(), reloadGoals()]);
   }
 
   // Alvo de soltura codificado como "tipo:valor" (ex. "nature:fixa",

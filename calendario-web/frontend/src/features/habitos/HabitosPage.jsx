@@ -65,6 +65,9 @@ export function HabitosPage() {
   const checkinsByHabit = groupCheckinsByHabit(checkins);
 
   const scopedHabits = habits.filter((habit) => {
+    // Sem parceiro no time não existem abas por pessoa: mostra tudo, senão o
+    // hábito individual da própria pessoa ficava escondido atrás de "Ambos".
+    if (!otherUser) return true;
     if (viewScope === 'ambos') return habit.type !== 'individual';
     const ownerId = habit.owner?._id ?? habit.owner;
     return viewScope === 'meu' ? ownerId === user?._id : ownerId === otherUser?._id;
@@ -239,7 +242,9 @@ export function HabitosPage() {
                 ? 'Nenhum hábito seu ainda.'
                 : viewScope === 'parceiro'
                   ? `Nenhum hábito de ${otherUser?.name ?? 'parceiro(a)'} ainda.`
-                  : 'Nenhum hábito ainda. Crie o primeiro!'}
+                  : otherUser
+                    ? 'Nenhum hábito compartilhado ainda. Os individuais ficam em "Meu".'
+                    : 'Nenhum hábito ainda. Crie o primeiro!'}
           </p>
         )}
         {scopedHabits.map((habit) => (

@@ -110,7 +110,11 @@ export function displayStreak(habit, checkins, users, today = new Date()) {
   const yesterdayKey = addDays(todayKey, -1);
   const checkinsByDay = groupCheckinsByDay(checkins);
 
-  const todayCounted = habit.lastEvaluatedDay === yesterdayKey && isDayComplete(habit, todayKey, checkinsByDay, users);
+  // Hoje ainda não foi avaliado pelo cron noturno quando a última avaliação foi
+  // ontem — ou quando nunca houve avaliação (hábito criado hoje). Sem o segundo
+  // caso, o check-in do primeiro dia deixava a sequência parada em 0.
+  const todayPending = !habit.lastEvaluatedDay || habit.lastEvaluatedDay === yesterdayKey;
+  const todayCounted = todayPending && isDayComplete(habit, todayKey, checkinsByDay, users);
   return (habit.currentStreak || 0) + (todayCounted ? 1 : 0);
 }
 

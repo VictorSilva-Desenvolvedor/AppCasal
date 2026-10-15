@@ -96,7 +96,10 @@ export function FinanceEntryForm({
     setForm((prev) => ({ ...prev, [field]: value }));
     const fieldId = FIELD_IDS[field];
     if (fieldId && invalidFields.includes(fieldId)) {
-      setInvalidFields((prev) => prev.filter((id) => id !== fieldId));
+      const remaining = invalidFields.filter((id) => id !== fieldId);
+      setInvalidFields(remaining);
+      // Tudo corrigido: a mensagem também sai (antes ficava até o próximo envio).
+      if (remaining.length === 0) setError('');
     }
   }
 
@@ -197,9 +200,10 @@ export function FinanceEntryForm({
         </div>
       )}
 
-      <Field label="Descrição" htmlFor="finance-description">
+      <Field label="Descrição" htmlFor="finance-description" required>
         <input
           id="finance-description"
+            aria-required="true"
           aria-invalid={invalidFields.includes('finance-description')}
           type="text"
           placeholder="Ex: Internet, Salário..."
@@ -209,9 +213,10 @@ export function FinanceEntryForm({
       </Field>
 
       <div className="finance-form-row">
-        <Field label="Valor" htmlFor="finance-amount">
+        <Field label="Valor" htmlFor="finance-amount" required>
           <input
             id="finance-amount"
+            aria-required="true"
             aria-invalid={invalidFields.includes('finance-amount')}
             type="text"
             inputMode="decimal"
@@ -221,9 +226,10 @@ export function FinanceEntryForm({
             onChange={(event) => update('amount', event.target.value)}
           />
         </Field>
-        <Field label="Data" htmlFor="finance-date">
+        <Field label="Data" htmlFor="finance-date" required>
           <input
             id="finance-date"
+            aria-required="true"
             aria-invalid={invalidFields.includes('finance-date')}
             type="date"
             value={form.date}
@@ -233,9 +239,10 @@ export function FinanceEntryForm({
       </div>
 
       <div className="finance-form-row">
-        <Field label="Categoria" htmlFor="finance-category">
+        <Field label="Categoria" htmlFor="finance-category" required>
           <select
             id="finance-category"
+            aria-required="true"
             aria-invalid={invalidFields.includes('finance-category')}
             value={form.category}
             onChange={(event) => update('category', event.target.value)}
@@ -401,9 +408,12 @@ export function FinanceEntryForm({
         </Field>
       )}
 
-      <p className="error-text" role="alert">
-        {error}
-      </p>
+      <p className="field-hint">* obrigatório</p>
+      {error && (
+        <p className="error-text" role="alert">
+          {error}
+        </p>
+      )}
       {monthLocked && <p className="error-text">Este mês está finalizado — reabra para lançar ou editar.</p>}
 
       <div className="finance-form-actions">

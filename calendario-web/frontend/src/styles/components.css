@@ -136,6 +136,10 @@
     focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-light)];
 }
 
+.field-required {
+  color: var(--color-danger);
+}
+
 .field-hint {
   @apply mt-1 text-sm text-text-muted;
 }

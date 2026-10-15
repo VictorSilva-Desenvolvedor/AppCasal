@@ -1,7 +1,7 @@
 # Swarm de usuários sintéticos: estado e como continuar
 
-Última sessão: 2026-10-14. Três rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
-Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md).
+Última sessão: 2026-10-15. Quatro rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
+Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md).
 
 ## Onde paramos
 
@@ -10,8 +10,9 @@ Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14
 | 1 | antes das correções | 5/12 | 2,2 |
 | 2 | correções da R1 | 12/12 | 3,3 |
 | 3 | `c9b93e7` | 8/12 | 3,3 |
+| 4 | `5d7324d` (contas próprias) | **12/12** | **3,6** |
 
-Os 4 resultados ruins da R3 vieram de quedas do backend local, não de bugs. Os defeitos que a R3 achou estão corrigidos em `3d671b9`, **mas ainda não passaram por uma rodada nova**. A meta "100% sem erros" depende da rodada 4.
+A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
 
 Commits desta sessão (todos na `main`):
 - `c9b93e7` correções das rodadas 1 e 2 (segurança, tela branca, financeiro, acessibilidade)
@@ -66,7 +67,7 @@ Commits desta sessão (todos na `main`):
 - Outros campos de valor (objetivos, importação, carteira) ainda são `type=number` e não aceitam vírgula.
 
 ### Ambiente
-- O backend local caiu várias vezes sem stack (código 1). Não reproduziu com 18 sessões paralelas nem no cron de lembretes. O `supervise-backend.ps1` reinicia sozinho e guarda o stderr de cada execução em `run/backend-logs/`.
+- O backend local é encerrado de fora a cada 4–6 min nesta máquina Windows, mesmo parado (nenhum gancho de saída dispara). Não é bug do app. O `supervise-backend.ps1` reinicia em ~1 s. Se aparecerem 500 isolados durante uma rodada, confira `run/backend-logs/supervisor.log` antes de tratar como defeito.
 - Bugs da skill (na cópia original em SkillTree também):
   - `population.py` quebra no console Windows. Use `python -X utf8`.
   - A ação `wait` estava documentada, mas não existia. Já existe no `pwserver.mjs`.
@@ -99,7 +100,7 @@ cd calendario-web/backend && MONGO_URI=mongodb://127.0.0.1:27999/swarm node src/
 ```
 Em macOS/Linux, troque o passo 2 por `MONGO_URI=mongodb://127.0.0.1:27999/swarm node src/server.js` (dentro de `calendario-web/backend`).
 
-### 3. Rodar a rodada 4
+### 3. Rodar a próxima rodada
 ```bash
 mkdir -p run && cp docs/swarm/population.json docs/swarm/segments.json run/
 python -X utf8 .claude/skills/swarm/tools/make-missions.py --own-accounts
@@ -108,7 +109,7 @@ python -X utf8 .claude/skills/swarm/tools/make-missions.py --own-accounts
 
 No Claude Code, peça algo como:
 
-> Rode a rodada 4 do swarm (regression) seguindo docs/swarm/README.md: o ambiente já está de pé; dispare 12 subagentes em background, cada um lendo `run/prompt_arch_XX.md` (alternando sonnet e haiku). Quando terminarem, rode `python -X utf8 .claude/skills/swarm/scripts/aggregate.py --population run/population.json --traces run/traces --out run/report.json`, compare com docs/swarm/2026-10-14-round3.md e separe defeito real de artefato do ambiente.
+> Rode a próxima rodada do swarm (regression) seguindo docs/swarm/README.md: o ambiente já está de pé; dispare 12 subagentes em background, cada um lendo `run/prompt_arch_XX.md` (alternando sonnet e haiku). Quando terminarem, rode `python -X utf8 .claude/skills/swarm/scripts/aggregate.py --population run/population.json --traces run/traces --out run/report.json`, compare com o relatório mais recente em docs/swarm/ e separe defeito real de artefato do ambiente.
 
 ### 4. Depois de cada rodada
 - Copie o relatório para `docs/swarm/<data>-roundN.md` (`run/` fica fora do git).
