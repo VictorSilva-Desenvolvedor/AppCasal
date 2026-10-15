@@ -264,7 +264,7 @@ export function HabitForm({ habit, users, currentUserId, onSaved, onCancel }) {
           )}
 
           <Field label="Emoji">
-            <div className="habit-emoji-picker">
+            <div className="habit-emoji-picker" role="group" aria-label="Emoji">
               {HABIT_EMOJIS.map((option) => (
                 <button
                   key={option}

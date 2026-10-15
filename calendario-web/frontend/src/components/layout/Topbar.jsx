@@ -6,7 +6,6 @@ import { NotificationBell } from './NotificationBell.jsx';
 import { GlobalSearchResults } from '../../features/calendar/GlobalSearchResults.jsx';
 import { compareDateOnly, dateOnlyKey, matchesSearchTerm } from '../../features/calendar/calendarUtils.js';
 import { CATEGORIES } from '../../constants/categories.js';
-import { getAppSection } from './appSections.js';
 
 const GLOBAL_SEARCH_RESULT_LIMIT = 20;
 
@@ -14,7 +13,8 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
   const { events, users, filters, setFilters } = useCalendarData();
   const navigate = useNavigate();
   const location = useLocation();
-  const isCalendarSection = getAppSection(location.pathname) === 'calendario';
+  // A busca de eventos só faz sentido no calendário, não em Configurações/Convites/Atividades.
+  const isCalendarSection = location.pathname.startsWith('/app/calendario');
 
   const [query, setQuery] = useState('');
   const [dismissed, setDismissed] = useState(false);
@@ -82,7 +82,8 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
         <div className="global-search" ref={searchRef}>
           <input
             type="text"
-            placeholder="Buscar em todos os eventos (qualquer data)..."
+            placeholder="Buscar eventos em qualquer data"
+            aria-label="Buscar eventos em qualquer data"
             autoComplete="off"
             value={query}
             onChange={(event) => {
@@ -99,10 +100,11 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
           <input
             type="text"
             placeholder="Buscar por título ou descrição..."
+            aria-label="Filtrar por título ou descrição"
             value={filters.search}
             onChange={(event) => updateFilter({ search: event.target.value })}
           />
-          <select value={filters.creatorId} onChange={(event) => updateFilter({ creatorId: event.target.value })}>
+          <select aria-label="Filtrar por usuário" value={filters.creatorId} onChange={(event) => updateFilter({ creatorId: event.target.value })}>
             <option value="">Todos os usuários</option>
             {users.map((user) => (
               <option key={user._id} value={user._id}>
@@ -110,7 +112,7 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
               </option>
             ))}
           </select>
-          <select value={filters.category} onChange={(event) => updateFilter({ category: event.target.value })}>
+          <select aria-label="Filtrar por categoria" value={filters.category} onChange={(event) => updateFilter({ category: event.target.value })}>
             <option value="">Todas as categorias</option>
             {Object.entries(CATEGORIES).map(([value, meta]) => (
               <option key={value} value={value}>

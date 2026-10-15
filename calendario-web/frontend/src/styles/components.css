@@ -140,6 +140,11 @@
   color: var(--color-danger);
 }
 
+.field-required::before {
+  content: ' *';
+  white-space: pre;
+}
+
 .field-hint {
   @apply mt-1 text-sm text-text-muted;
 }

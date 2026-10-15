@@ -87,8 +87,9 @@ export function HabitosPage() {
     setFormOpen(false);
     setEditingHabit(null);
     // "Ambos" só lista os hábitos compartilhados: um individual recém-criado
-    // "sumia" depois do toast. Troca pra aba onde ele aparece.
-    if (saved?.type === 'individual') {
+    // "sumia" depois do toast. Troca pra aba onde ele aparece. Sem parceiro a
+    // lista já mostra tudo, então não mexe no filtro.
+    if (saved?.type === 'individual' && otherUser) {
       const ownerId = saved.owner?._id ?? saved.owner;
       setViewScope(ownerId === otherUser?._id ? 'parceiro' : 'meu');
     } else if (saved) {

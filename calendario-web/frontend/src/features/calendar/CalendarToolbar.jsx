@@ -62,17 +62,19 @@ export function CalendarToolbar({ mode, onChangeMode, viewDate, onChangeViewDate
           <button
             type="button"
             className="btn btn-secondary"
+            aria-label="Anterior"
             onClick={() => onChangeViewDate(stepViewDate(mode, viewDate, -1))}
           >
-            &larr; Anterior
+            &larr;<span className="calendar-nav-text"> Anterior</span>
           </button>
           <h2>{titleFor(mode, viewDate)}</h2>
           <button
             type="button"
             className="btn btn-secondary"
+            aria-label="Próximo"
             onClick={() => onChangeViewDate(stepViewDate(mode, viewDate, 1))}
           >
-            Próximo &rarr;
+            <span className="calendar-nav-text">Próximo </span>&rarr;
           </button>
         </div>
       )}

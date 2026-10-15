@@ -286,8 +286,17 @@
 
 /* Agrupado à esquerda (e não justify-between): em telas largas os botões
    Anterior/Próximo ficavam a mais de mil pixels um do outro e do título. */
+/* No celular só as setas: com o texto, "Anterior / mês / Próximo" quebrava em 3 linhas. */
 .calendar-nav {
-  @apply flex items-center flex-wrap gap-3 mb-4;
+  @apply flex items-center gap-3 mb-4;
+}
+
+.calendar-nav h2 {
+  @apply flex-1 min-w-0 text-center sm:flex-none sm:text-left;
+}
+
+.calendar-nav-text {
+  @apply hidden sm:inline;
 }
 
 /* Sem `capitalize`: em pt-BR só a primeira letra sobe ("Agosto de 2026"), e isso
@@ -342,12 +351,15 @@
   }
 }
 
-.calendar-day:hover {
-  @apply shadow-md;
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
-  transform: translateY(-2px) scale(1.035);
-  z-index: 2;
+/* Só com mouse: no toque o :hover fica preso no dia tocado e parece um segundo "hoje". */
+@media (hover: hover) {
+  .calendar-day:hover {
+    @apply shadow-md;
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    transform: translateY(-2px) scale(1.035);
+    z-index: 2;
+  }
 }
 
 .calendar-day.is-empty {

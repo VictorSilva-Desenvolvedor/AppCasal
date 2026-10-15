@@ -1,7 +1,7 @@
 # Swarm de usuários sintéticos: estado e como continuar
 
-Última sessão: 2026-10-15. Quatro rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
-Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md).
+Última sessão: 2026-10-15. Cinco rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
+Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md) · [rodada 5](2026-10-15-round5.md).
 
 ## Onde paramos
 
@@ -11,8 +11,9 @@ Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14
 | 2 | correções da R1 | 12/12 | 3,3 |
 | 3 | `c9b93e7` | 8/12 | 3,3 |
 | 4 | `5d7324d` (contas próprias) | **12/12** | **3,6** |
+| 5 | `e6f8276` | **12/12** | 3,4 |
 
-A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
+A R5 (12/12) achou uma regressão da R4 (asterisco no rótulo quebrava a busca de campo) e defeitos menores de celular; corrigidos no commit seguinte, **ainda sem rodada 6 de confirmação**. A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
 
 Commits desta sessão (todos na `main`):
 - `c9b93e7` correções das rodadas 1 e 2 (segurança, tela branca, financeiro, acessibilidade)
@@ -55,7 +56,7 @@ Commits desta sessão (todos na `main`):
 ## Pendências
 
 ### Decisões suas (banco de produção)
-1. **4 contas de persona no Atlas, time `principal`**: Bruno0018, Marta0003, Marta0093 e Quésia0046, com as `settings` padrão delas. Foram criadas por engano na rodada 1. Nenhum evento, lançamento ou hábito foi gravado por elas. Apagar? (`_id`s: `6acfd4d47f78b0a20f20517b`, `6acfd4d77f78b0a20f20517f`, `6acfd4d47f78b0a20f20517d`, `6acfd4d27f78b0a20f205179`)
+1. ~~4 contas de persona no Atlas~~: apagadas em 2026-10-15 (contas e `settings`, sem outras referências).
 2. **Cadastros antigos no time do casal**: a correção vale só para contas novas. Quem se cadastrou antes continua em `principal`. Vale listar e revisar os usuários desse time.
 
 ### Produto (pedidos recorrentes, não são bugs)

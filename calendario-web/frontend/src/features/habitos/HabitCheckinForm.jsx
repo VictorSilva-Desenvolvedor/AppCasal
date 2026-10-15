@@ -62,7 +62,7 @@ export function HabitCheckinForm({ habit, day, onSaved, onCancel }) {
 
       {/* Rótulo antigo "Como foi?" parecia pergunta de humor, mas a lista são ícones. */}
       <Field label="Ícone do registro (opcional)">
-        <div className="habit-emoji-picker">
+        <div className="habit-emoji-picker" role="group" aria-label="Emoji">
           {HABIT_EMOJIS.map((option) => (
             <button
               key={option}

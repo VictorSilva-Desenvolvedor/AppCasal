@@ -79,7 +79,7 @@ def main():
             ocean_text=f"abertura {o['O']}, conscienciosidade {o['C']}, extroversão {o['E']}, amabilidade {o['A']}, neuroticismo {o['N']} (0-1)",
             accessibility=', '.join(p['accessibility']), task=TASK.format(cred=cred),
             success_criteria='você concluiu pelo menos uma coisa que queria fazer e saiu satisfeito', variant=arch['variant'],
-            allowed_actions='goto, click, type, scroll, back, wait, search, abandon, done',
+            allowed_actions='goto, click, fill, select, press, scroll, back, wait, snapshot, screenshot, abandon, done',
             persona_summary=f"{p['name']}, {p['age']} anos, tecnologia {tech}, paciência {pat}, {p['attitude']}",
             trace_path=f"{run}/traces/{p['id']}.jsonl",
             target_instructions=TOOL.format(run=run).replace('AGENT', p['id']).replace('DEVICE', p['device']),
