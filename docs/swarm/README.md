@@ -1,7 +1,7 @@
 # Swarm de usuários sintéticos: estado e como continuar
 
-Última sessão: 2026-10-15. Sete rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
-Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md) · [rodada 5](2026-10-15-round5.md) · [rodada 6](2026-10-15-round6.md) · [rodada 7](2026-10-15-round7.md).
+Última sessão: 2026-10-15. Oito rodadas com 12 personas (de uma população de 100, seed 42) explorando o calendario-web.
+Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14-round2.md) · [rodada 3](2026-10-14-round3.md) · [rodada 4](2026-10-15-round4.md) · [rodada 5](2026-10-15-round5.md) · [rodada 6](2026-10-15-round6.md) · [rodada 7](2026-10-15-round7.md) · [rodada 8](2026-10-15-round8.md).
 
 ## Onde paramos
 
@@ -14,8 +14,9 @@ Relatórios completos: [rodada 1](2026-10-14-round1.md) · [rodada 2](2026-10-14
 | 5 | `e6f8276` | **12/12** | 3,4 |
 | 6 | `60c5529` | **12/12** | **3,7** |
 | 7 | `a61830c` | **12/12** | **3,7** (zero erro técnico) |
+| 8 | `8008398` | **12/12** | **3,8** (nenhum defeito de código) |
 
-A R7 (12/12, zero erro técnico) achou só defeitos pequenos (plural, congelar após check-in, mensagem de validação, lista de meses); corrigidos no commit seguinte, ainda sem rodada 8. A R6 (12/12, 3,7) achou a regressão do portal (botões ativos invisíveis no modal de hábito) e o texto falso de tema compartilhado; corrigidos no commit seguinte, ainda sem rodada 7. A R5 (12/12) achou uma regressão da R4 (asterisco no rótulo quebrava a busca de campo) e defeitos menores de celular; corrigidos no commit seguinte, **ainda sem rodada 6 de confirmação**. A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
+**A R8 (12/12, 3,8) não achou defeito de código do app**; só ajustamos o contraste do texto secundário (WCAG AA). As quedas do backend local e os 404 isolados vêm da ponte de WhatsApp do hermes-agent, que disputa a porta 3000 (ver relatório da R8). A R7 (12/12, zero erro técnico) achou só defeitos pequenos (plural, congelar após check-in, mensagem de validação, lista de meses); corrigidos no commit seguinte, ainda sem rodada 8. A R6 (12/12, 3,7) achou a regressão do portal (botões ativos invisíveis no modal de hábito) e o texto falso de tema compartilhado; corrigidos no commit seguinte, ainda sem rodada 7. A R5 (12/12) achou uma regressão da R4 (asterisco no rótulo quebrava a busca de campo) e defeitos menores de celular; corrigidos no commit seguinte, **ainda sem rodada 6 de confirmação**. A R4 foi a primeira rodada sem abandono nem erro: 12/12 com sucesso. Ela ainda achou defeitos menores, sendo o principal a sequência de hábito parada em 0 no dia da criação. Eles estão corrigidos no commit desta rodada, **ainda sem uma rodada 5 de confirmação**. As quedas do backend local foram diagnosticadas como encerramento externo do processo pelo ambiente Windows, não como bug do app (ver relatório da R4).
 
 Commits desta sessão (todos na `main`):
 - `c9b93e7` correções das rodadas 1 e 2 (segurança, tela branca, financeiro, acessibilidade)
@@ -70,7 +71,7 @@ Commits desta sessão (todos na `main`):
 - Outros campos de valor (objetivos, importação, carteira) ainda são `type=number` e não aceitam vírgula.
 
 ### Ambiente
-- O backend local é encerrado de fora a cada 4–6 min nesta máquina Windows, mesmo parado (nenhum gancho de saída dispara). Não é bug do app. O `supervise-backend.ps1` reinicia em ~1 s. Se aparecerem 500 isolados durante uma rodada, confira `run/backend-logs/supervisor.log` antes de tratar como defeito.
+- O backend local é encerrado de fora a cada 4–6 min nesta máquina: a ponte de WhatsApp do hermes-agent (`bridge.js --port 3000`) disputa a porta 3000. Use outra porta para o backend de teste ou pare o gateway do hermes. Não é bug do app. O `supervise-backend.ps1` reinicia em ~1 s. Se aparecerem 500 isolados durante uma rodada, confira `run/backend-logs/supervisor.log` antes de tratar como defeito.
 - Bugs da skill (na cópia original em SkillTree também):
   - `population.py` quebra no console Windows. Use `python -X utf8`.
   - A ação `wait` estava documentada, mas não existia. Já existe no `pwserver.mjs`.

@@ -12,7 +12,7 @@
   --color-border: #e4e6ed;
   --color-border-strong: #c7cbd6;
   --color-text: #1f2430;
-  --color-text-muted: #6b7280;
+  --color-text-muted: #596070; /* ≥ 4,5:1 também sobre --color-bg (o #6b7280 dava ~4,4:1) */
 
   /* Cor do texto sobre um fundo sólido de --color-primary / --color-danger
      (botões cheios, avatar, pills). Calculada por tema mais abaixo — em
