@@ -113,12 +113,12 @@ export function FinanceEntryForm({
     const paidAmount = form.paidAmount ? parseMoneyInput(form.paidAmount) : 0;
     const splitAmount = form.sharedWith ? parseMoneyInput(form.splitAmount) : null;
     const checks = [
-      ['finance-description', 'descrição', !form.description.trim()],
-      ['finance-amount', 'valor', !(amount > 0)],
-      ['finance-date', 'data', !form.date],
-      ['finance-category', 'categoria', !form.category],
-      ['finance-paid', 'valor já pago', Number.isNaN(paidAmount) || paidAmount < 0],
-      ['finance-split', 'valor que essa pessoa deve', form.sharedWith && !(splitAmount > 0)],
+      ['finance-description', 'Descrição', !form.description.trim()],
+      ['finance-amount', 'Valor', !(amount > 0)],
+      ['finance-date', 'Data', !form.date],
+      ['finance-category', 'Categoria', !form.category],
+      ['finance-paid', 'Valor já pago', Number.isNaN(paidAmount) || paidAmount < 0],
+      ['finance-split', 'Valor que essa pessoa deve', form.sharedWith && !(splitAmount > 0)],
     ].filter(([, , failed]) => failed);
 
     if (checks.length) {
@@ -127,7 +127,7 @@ export function FinanceEntryForm({
       setError(
         !form.category && !filteredCategories.length
           ? 'Nenhuma categoria cadastrada. Crie uma no botão "Categorias", acima da lista de lançamentos.'
-          : `Preencha corretamente: ${checks.map(([, label]) => label).join(', ')}`
+          : `${checks.length > 1 ? 'Confira os campos marcados' : 'Confira o campo marcado'}: ${checks.map(([, label]) => label).join(', ')}.`
       );
       formRef.current?.querySelector(`#${fieldIds[0]}`)?.focus();
       return;

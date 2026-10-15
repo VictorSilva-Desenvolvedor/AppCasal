@@ -37,7 +37,7 @@ export function SettingsPage() {
   return (
     <section className="view">
       <h2>Configurações</h2>
-      <p>Tema e plano de fundo são compartilhados entre todos os usuários do calendário.</p>
+      <p>Tema e plano de fundo valem só para a sua conta.</p>
 
       <form className="card settings-form" onSubmit={handleSubmit}>
         <h3>Aparência</h3>

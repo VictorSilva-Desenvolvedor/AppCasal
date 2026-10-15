@@ -80,7 +80,7 @@ export function HabitCard({
           <span className="habit-card-type">
             {HABIT_TYPE_LABELS[habit.type]}
             {isIndividual ? ` · ${habit.owner?.name ?? ''}` : ''}
-            <InfoTooltip text={HABIT_TYPE_DESCRIPTIONS[habit.type]} />
+            <InfoTooltip text={HABIT_TYPE_DESCRIPTIONS[habit.type]} label="tipo do hábito" />
           </span>
         </div>
         {completedTogetherToday && (
@@ -91,7 +91,8 @@ export function HabitCard({
         <span className="habit-card-streak">
           <Icon name="habit-flame" />
           {streak}
-          <InfoTooltip text="Dias seguidos que vocês completaram esse hábito, sem quebrar." />
+          <span className="sr-only"> dias seguidos</span>
+          <InfoTooltip text="Dias seguidos que vocês completaram esse hábito, sem quebrar." label="sequência" />
         </span>
       </div>
 

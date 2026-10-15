@@ -8,7 +8,9 @@
   de propósito — identificam Filme/Série/Jogo, não o tema do app.
 */
 
-.watchlist-page {
+/* Também em .modal: o Modal abre em portal fora de .watchlist-page. */
+.watchlist-page,
+.modal {
   --watch-text: var(--color-text);
   --watch-text-muted: var(--color-text-muted);
 
@@ -22,7 +24,9 @@
   --watch-col-visto: color-mix(in oklch, var(--color-success) 16%, var(--color-surface));
 
   --watch-card-bg: var(--color-surface);
+}
 
+.watchlist-page {
   @apply relative pb-24;
   color: var(--watch-text);
   background: var(--color-bg);

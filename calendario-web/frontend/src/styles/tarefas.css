@@ -5,7 +5,9 @@
   (--color-bg/--color-surface/--color-text/--color-border), então respeitam os
   ~15 temas de cor e o claro/escuro normalmente. Só os acentos abaixo são fixos.
 */
-.tarefas-page {
+/* Também em .modal: o Modal abre em portal fora de .tarefas-page. */
+.tarefas-page,
+.modal {
   --tarefas-diaria: #d85a30;
   --tarefas-semanal: #0f6e56;
   --tarefas-mensal: #ef9f27;

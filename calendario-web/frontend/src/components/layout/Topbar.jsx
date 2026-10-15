@@ -82,7 +82,7 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
         <div className="global-search" ref={searchRef}>
           <input
             type="text"
-            placeholder="Buscar eventos em qualquer data"
+            placeholder="Buscar eventos"
             aria-label="Buscar eventos em qualquer data"
             autoComplete="off"
             value={query}

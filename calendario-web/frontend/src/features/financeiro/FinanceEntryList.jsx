@@ -140,7 +140,7 @@ export function FinanceEntryList({
               </IconButton>
             )}
             <IconButton onClick={() => onEdit(entry)} title="Editar" disabled={monthLocked || isPending(entry._id)}>
-              <Icon name="tool" />
+              <Icon name="edit" />
             </IconButton>
             <IconButton
               onClick={() => setDeleteTarget(entry)}

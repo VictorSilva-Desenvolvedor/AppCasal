@@ -3,7 +3,8 @@ import { Icon } from './Icon.jsx';
 
 // Clique em vez de :hover/title nativo — o app roda como Android (Capacitor),
 // onde não existe hover.
-export function InfoTooltip({ text }) {
+// `label` diferencia os botões quando há mais de um na tela ("Sobre: Tipo").
+export function InfoTooltip({ text, label }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -28,7 +29,7 @@ export function InfoTooltip({ text }) {
       <button
         type="button"
         className="info-tooltip-trigger"
-        aria-label="Mais informações"
+        aria-label={label ? `Sobre: ${label}` : 'Mais informações'}
         aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation();

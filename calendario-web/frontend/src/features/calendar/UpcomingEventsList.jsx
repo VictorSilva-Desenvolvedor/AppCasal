@@ -5,7 +5,7 @@ import {
   filteredEvents,
   isEventRecurring,
   nextOccurrenceDate,
-  personColorFor,
+  pillColorFor,
   sharedEventIdSet,
   specialCategoryIconSrc,
   toDateKey,
@@ -35,7 +35,9 @@ export function UpcomingEventsList() {
       {upcoming.map(({ event, occurrence }) => {
         const dateKey = toDateKey(occurrence);
         const [, m, d] = dateKey.split('-');
-        const dotColor = event.creator ? personColorFor(users, event.creator._id) : 'var(--color-text-muted)';
+        // Mesma cor do pill na grade (cor do evento > categoria > pessoa), senão o mesmo
+        // evento aparecia roxo no mês e azul aqui.
+        const dotColor = pillColorFor(event, users);
         const specialIconSrc = specialCategoryIconSrc(event);
 
         return (

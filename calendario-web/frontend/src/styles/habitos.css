@@ -6,7 +6,10 @@
   valendo normalmente aqui dentro.
 */
 
-.habit-page {
+/* Também em .modal: o Modal abre em portal no <body>, fora de .habit-page, e sem
+   isso os botões ativos do formulário ficavam sem cor (texto branco no branco). */
+.habit-page,
+.modal {
   --habit-coral: var(--color-primary);
   --habit-purple: var(--color-accent);
   --habit-teal: var(--color-success);
@@ -16,7 +19,9 @@
   --habit-text: var(--color-text);
   --habit-text-muted: var(--color-text-muted);
   --habit-card-bg: var(--color-surface);
+}
 
+.habit-page {
   @apply relative pb-24;
   color: var(--color-text);
   background: var(--color-bg);

@@ -9,7 +9,7 @@ export function Field({ label, htmlFor, error, hint, required = false, children 
           {/* Asterisco via CSS (::before) para não entrar no texto do rótulo; o campo
               leva aria-required, então o leitor de tela já anuncia. */}
           {required && <span className="field-required" aria-hidden="true" />}
-          {hint && <InfoTooltip text={hint} />}
+          {hint && <InfoTooltip text={hint} label={label} />}
         </label>
       )}
       {children}

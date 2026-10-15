@@ -75,6 +75,15 @@
     hover:bg-bg hover:text-primary hover:scale-[1.15];
 }
 
+/* No toque, ícones de 16px colados (pago/editar/excluir) faziam errar o botão. */
+@media (pointer: coarse) {
+  .icon-btn,
+  .modal-close {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
 /* ---------- Setas de mover card entre colunas do kanban (alternativa ao arrastar) ---------- */
 
 .move-controls {
@@ -266,7 +275,8 @@
 .calendar-day-special-badge {
   position: absolute;
   top: -14px;
-  left: 6px;
+  /* À direita: à esquerda o selo cobria o número do dia (e o círculo de "hoje"). */
+  right: 6px;
   z-index: 3;
   display: flex;
   gap: 2px;
