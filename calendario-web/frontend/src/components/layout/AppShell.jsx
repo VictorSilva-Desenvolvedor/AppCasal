@@ -10,7 +10,6 @@ import { useCalendarData } from '../../hooks/useCalendarData.js';
 import { CalendarDataProvider } from '../../context/CalendarDataContext.jsx';
 import { HeartLoader } from '../ui/HeartLoader.jsx';
 import { RouteErrorBoundary } from './RouteErrorBoundary.jsx';
-import { getAppSection } from './appSections.js';
 
 const MOBILE_QUERY = '(max-width: 768px)';
 
@@ -59,9 +58,11 @@ export function AppShell() {
   }
 
   const showFilterBar = location.pathname.startsWith('/app/calendario');
-  const showSidebar =
-    !['financeiro', 'atualizacoes', 'resumo', 'veiculos'].includes(getAppSection(location.pathname)) &&
-    !location.pathname.startsWith('/app/atividades');
+  // Navegação igual em todas as telas (PRODUCT.md: todos os módulos têm o mesmo
+  // peso). Antes Financeiro, Resumo, Veículos, Atualizações e Atividades ficavam
+  // sem a lateral, e as personas do swarm tinham que voltar ao lobby para trocar
+  // de módulo (decisão revista em 2026-10-16).
+  const showSidebar = true;
 
   function handleQuickNewEvent() {
     navigate('/app/calendario', { state: { quickNewEvent: true } });
