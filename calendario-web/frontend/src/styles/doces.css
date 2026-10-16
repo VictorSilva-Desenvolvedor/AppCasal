@@ -1,92 +1,102 @@
+/*
+  Doces — a balança bordada.
+  Ordem da tela: quem está na frente → a balança da semana (trave de madeira,
+  fios e pratos em linha costurada, doces como bolinhas de linha na cor de cada
+  pessoa) → o botão de segurar → placar e histórico numa superfície só.
+  Segue o tema de destaque do app como todo o mundo Bordado; só a escala de
+  peso (verde/âmbar/vermelho) é própria da tela.
+*/
 .candy-page {
-  /* Identidade visual própria da feature — fixa, não reage aos ~15 temas de
-     cor do app (mesmo mecanismo de scoping que .habit-page já usa em
-     habitos.css pra --habit-coral, só que aqui com hex fixo em vez de alias
-     de token de tema — decisão deliberada). Estes hex vivem só aqui; o JS da
-     feature (candyConfig.js) guarda apenas a escala de peso. */
-  --candy-brand: #c23f6c; /* usado como preenchimento com texto branco por cima: precisa ficar escuro o bastante pra passar 4.5:1 */
-  --candy-on-brand: #ffffff;
-  --candy-brand-text: #b0325d; /* o mesmo rosa quando é texto/borda sobre a superfície clara */
+  --candy-wood: #a06a45; /* mesma madeira do bastidor do lobby */
+  --candy-wood-dark: #6a3f26;
+  --candy-thread: color-mix(in oklch, var(--color-text) 55%, transparent);
   --candy-color-light: #5dcaa5;
   --candy-color-light-text: #085041;
   --candy-color-heavy: #e24b4a;
 }
 
-/* Único ponto em que a identidade fixa cede ao tema: rosa escuro é ilegível
-   sobre superfície escura, então a variante de texto clareia. O tema
-   black-green já é escuro mesmo sem [data-theme='dark']. */
 [data-theme='dark'] .candy-page,
 [data-color-theme='black-green'] .candy-page {
-  --candy-brand-text: #f58caf;
+  --candy-wood: #c48b62;
+  --candy-wood-dark: #e0b48f;
 }
 
 .candy-page-header {
-  @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
+  @apply mb-4;
 }
 
-.candy-tabs,
-.candy-period-tabs {
-  @apply flex gap-[0.35rem] mb-4 flex-wrap;
+.candy-page-header p {
+  @apply text-text-muted;
 }
 
-.candy-tab-btn {
-  @apply text-sm px-3 py-[0.35rem] rounded-full border border-border bg-surface text-text-muted cursor-pointer
-    transition-colors duration-150;
+/* ---------- O palco: frase, balança e botão ---------- */
+
+.candy-stage {
+  @apply flex flex-col items-center px-4 pt-6 pb-5 mb-4;
+  background: var(--texture-aida), var(--color-surface);
 }
 
-.candy-tab-btn:hover {
-  border-color: var(--candy-brand);
+.candy-verdict {
+  @apply text-xl font-extrabold text-center text-balance mb-3;
+  font-family: var(--font-display);
 }
-
-.candy-tab-btn.is-active {
-  @apply border-transparent;
-  background: var(--candy-brand);
-  color: var(--candy-on-brand);
-}
-
-/* ---------- Balança de dois pratos (sempre visível) ---------- */
 
 .candy-justice-scale {
-  @apply flex flex-col items-center gap-0 mb-2;
+  @apply flex flex-col items-center;
 }
 
 .candy-justice-beam-svg {
   display: block;
   width: 300px;
+  max-width: 100%;
   height: 60px;
 }
 
+/* Linha de bordar: a trave é um fio grosso, os fios dos pratos e as bordas dos
+   pratos são pesponto. */
+.candy-thread {
+  fill: none;
+  stroke: var(--candy-thread);
+  stroke-linecap: round;
+}
+
+.candy-thread--beam {
+  stroke: var(--candy-wood);
+  stroke-width: 4;
+}
+
+.candy-thread--rope {
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+.candy-thread--pan {
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+
 .candy-justice-pans {
-  @apply flex gap-10 justify-center flex-wrap;
+  @apply flex justify-center;
+  gap: 1.75rem;
 }
 
 .candy-justice-pan-wrap {
-  @apply flex flex-col items-center gap-2;
+  @apply flex flex-col items-center gap-1.5;
   width: 130px;
-  transition: transform 400ms var(--ease);
-}
-
-.candy-justice-hold-center {
-  @apply flex justify-center;
-  margin-top: 0.75rem;
+  transition: transform 500ms var(--ease);
 }
 
 .candy-justice-pan {
-  @apply relative overflow-hidden w-full;
+  @apply relative overflow-hidden w-full mb-1;
   height: 72px;
-  border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px; /* máscara de recorte invisível — só molda a silhueta da tigela, sem fundo/borda visíveis */
+  /* Máscara de recorte invisível: só molda a silhueta do prato. */
+  border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px;
 }
 
-.candy-pan-rim {
-  @apply absolute inset-x-0 top-0 pointer-events-none;
+.candy-pan-bowl {
+  @apply absolute inset-0 pointer-events-none;
   width: 100%;
-  height: 10px;
-}
-
-.candy-pan-floor {
-  @apply absolute inset-x-0 bottom-0 pointer-events-none;
-  width: 100%;
-  height: 22px;
+  height: 100%;
 }
 
 .candy-pan-shadow {
@@ -96,25 +106,25 @@
   bottom: 4px;
   height: 8px;
   border-radius: 999px;
-  background: radial-gradient(ellipse at center, color-mix(in oklch, var(--color-border-strong) 55%, transparent), transparent 72%);
+  background: radial-gradient(ellipse at center, color-mix(in oklch, var(--color-text) 18%, transparent), transparent 72%);
 }
 
 .candy-justice-avatar {
-  @apply flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-on-primary;
+  @apply flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold;
 }
 
 .candy-justice-name {
-  @apply text-lg font-semibold;
+  @apply text-base font-bold leading-tight text-center;
+  font-family: var(--font-display);
 }
 
 .candy-justice-weight {
-  @apply text-sm font-medium text-text-muted;
+  @apply text-sm text-text-muted;
   font-variant-numeric: tabular-nums;
 }
 
-/* Bolinha de doce dentro do prato — visual próprio (glow radial + sombra
-   colorida), réplica pequena e independente do .emotion-blob da jarra de
-   emoções (não importa emocoes.css, cada feature mantém seu CSS autocontido). */
+/* Cada doce no prato é um novelo: brilho, a cor da pessoa e uma volta de
+   linha tracejada por dentro. */
 .candy-ball {
   @apply absolute rounded-full;
   top: 0;
@@ -124,8 +134,10 @@
 
 .candy-ball-inner {
   @apply block w-full h-full rounded-full;
-  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.55), transparent 45%), var(--ball-color);
-  box-shadow: var(--shadow-sm);
+  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.5), transparent 45%), var(--ball-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  outline: 1px dashed rgba(255, 255, 255, 0.55);
+  outline-offset: -3px;
 }
 
 @keyframes candyBallSquash {
@@ -148,36 +160,44 @@
   100% { transform: scale(1.5); opacity: 0; }
 }
 
-/* ---------- Segurar pra registrar (centralizado abaixo da balança) ---------- */
+/* ---------- Segurar para registrar ---------- */
+
+.candy-hold-area {
+  @apply flex flex-col items-center gap-3 mt-5;
+}
 
 .candy-hold-stage {
   @apply relative flex items-center justify-center;
-  width: 76px;
-  height: 76px;
-  margin-bottom: 1rem; /* espaço pro doce-prévia crescer sem cortar */
+  width: 104px;
+  height: 104px;
 }
 
+/* O doce crescendo enquanto segura: aparece acima do botão, onde o dedo não
+   cobre. */
 .candy-hold-preview {
   @apply absolute rounded-full pointer-events-none;
   width: 1rem;
   height: 1rem;
   left: 50%;
-  top: 100%;
-  margin-top: 0.4rem;
+  bottom: 100%;
+  margin-bottom: 0.5rem;
+  transform-origin: center bottom;
   transition: transform 80ms linear;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
 .candy-hold-ring {
   @apply absolute inset-0 pointer-events-none;
-  width: 76px;
-  height: 76px;
+  width: 104px;
+  height: 104px;
   transform: rotate(-90deg);
 }
 
 .candy-hold-ring-track {
   fill: none;
-  stroke: var(--color-border);
-  stroke-width: 4;
+  stroke: var(--stitch-color);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
 }
 
 .candy-hold-ring-progress {
@@ -187,21 +207,31 @@
   transition: stroke-dashoffset 80ms linear;
 }
 
+/* Um retalho redondo da linha de destaque, com pesponto por dentro, como o
+   botão principal do app. */
 .candy-hold-trigger {
-  @apply relative rounded-full border-2 text-xs font-semibold flex items-center justify-center select-none
-    cursor-pointer transition-colors duration-150;
-  width: 64px;
-  height: 64px;
-  border-color: var(--candy-brand-text);
-  color: var(--candy-brand-text);
-  background: var(--color-surface);
+  @apply relative rounded-full border-none text-base font-extrabold flex items-center justify-center select-none
+    cursor-pointer bg-primary text-on-primary shadow-md
+    transition-[background,transform,box-shadow] duration-200 ease-out hover:bg-primary-hover;
+  width: 86px;
+  height: 86px;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary) 55%, transparent);
+  outline-offset: -6px;
   touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 .candy-hold-trigger.is-holding {
-  @apply border-transparent;
-  background: var(--candy-brand);
-  color: var(--candy-on-brand);
+  @apply bg-primary-active shadow-sm;
+  transform: scale(0.95);
+}
+
+.candy-hold-trigger:focus-visible {
+  box-shadow:
+    0 0 0 3px var(--color-surface),
+    0 0 0 5px var(--color-primary);
 }
 
 .candy-hold-trigger:disabled {
@@ -209,54 +239,83 @@
 }
 
 .candy-hold-hint {
-  @apply text-sm text-text-muted text-center max-w-xs mx-auto mb-4;
+  @apply text-sm text-text-muted text-center text-pretty;
+  max-width: 30ch;
 }
 
-/* ---------- Ranking (docinhos empilhados por período) ---------- */
+/* ---------- Placar e histórico ---------- */
+
+.candy-board {
+  @apply p-4;
+}
+
+.candy-switch {
+  @apply grid grid-cols-2 gap-1 p-1 mb-4 rounded-full bg-surface-alt;
+}
+
+.candy-switch-btn {
+  @apply min-h-[40px] rounded-full border-none bg-transparent text-sm font-bold text-text-muted cursor-pointer
+    transition-colors duration-150 hover:text-text;
+}
+
+.candy-switch-btn.is-active {
+  @apply bg-surface text-text shadow-sm;
+}
+
+.candy-period-tabs {
+  @apply flex gap-1.5 mb-3;
+}
+
+.candy-period-btn {
+  @apply min-h-[36px] text-sm px-3.5 rounded-full border border-border bg-transparent text-text-muted cursor-pointer
+    transition-colors duration-150 hover:border-primary hover:text-text;
+}
+
+.candy-period-btn.is-active {
+  @apply border-transparent bg-primary text-on-primary;
+}
+
+.candy-empty {
+  @apply text-sm text-text-muted py-6 text-center;
+}
 
 .candy-bars {
-  @apply flex flex-col gap-2.5;
+  @apply flex flex-col;
 }
 
 .candy-bar-row {
-  @apply flex items-start gap-3 rounded-xl px-3.5 py-3 bg-surface-alt;
-  transition: background-color 150ms ease;
+  @apply flex items-start gap-3 py-3;
 }
 
-.candy-bar-row.is-winner {
-  background: color-mix(in oklch, var(--candy-color-light) 16%, var(--color-surface-alt));
+.candy-bar-row + .candy-bar-row {
+  border-top: var(--stitch);
 }
 
 .candy-bar-marker {
   @apply flex-shrink-0 flex items-center justify-center;
   width: 1.25rem;
-  height: 1.25rem;
-  margin-top: 0.15rem;
+  height: 1.5rem;
 }
 
 .candy-bar-trophy {
   width: 1.15rem;
   height: 1.15rem;
-  color: color-mix(in oklch, var(--candy-color-light) 60%, var(--color-text));
+  color: color-mix(in oklch, var(--candy-color-light) 55%, var(--color-text));
 }
 
 .candy-bar-dot {
   @apply rounded-full;
-  width: 0.6rem;
-  height: 0.6rem;
+  width: 0.5rem;
+  height: 0.5rem;
   background: var(--candy-color-heavy);
 }
 
 .candy-bar-body {
-  @apply flex-1 flex flex-col gap-1.5 min-w-0;
+  @apply flex-1 flex flex-col gap-2 min-w-0;
 }
 
 .candy-bar-label {
-  @apply text-sm flex items-center gap-2;
-}
-
-.candy-bar-row.is-winner .candy-bar-label {
-  @apply font-semibold;
+  @apply text-base font-semibold flex items-center gap-2 flex-wrap;
 }
 
 .candy-winner-pill {
@@ -266,49 +325,72 @@
 }
 
 .candy-rank-candies {
-  @apply flex flex-wrap items-center gap-1;
-}
-
-.candy-rank-candy {
-  @apply rounded-full flex-shrink-0;
-  box-shadow: var(--shadow-sm);
+  @apply flex flex-wrap items-center gap-1.5;
 }
 
 .candy-bar-value {
-  @apply text-xl font-medium text-right flex-shrink-0;
+  @apply text-2xl font-extrabold text-right flex-shrink-0 leading-none pt-0.5;
+  font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
-  color: var(--candy-brand-text);
 }
 
 .candy-bar-row.is-winner .candy-bar-value {
-  color: color-mix(in oklch, var(--candy-color-light) 40%, var(--color-text));
+  color: color-mix(in oklch, var(--candy-color-light) 45%, var(--color-text));
 }
 
-/* ---------- Histórico (agrupado por dia) ---------- */
+/* Ponto-cruz de um doce: duas linhas cruzadas na cor do peso. */
+.candy-x {
+  @apply relative inline-grid place-items-center flex-shrink-0;
+  width: var(--x-size, 14px);
+  height: var(--x-size, 14px);
+}
+
+.candy-x::before,
+.candy-x::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--x-color);
+}
+
+.candy-x::before {
+  transform: rotate(45deg);
+}
+
+.candy-x::after {
+  transform: rotate(-45deg);
+}
 
 .candy-history-days {
   @apply flex flex-col gap-4;
 }
 
 .candy-history-day-header {
-  @apply block text-sm text-text-muted mb-2;
+  @apply text-sm font-bold text-text-muted mb-1;
 }
 
 .candy-history-list {
-  @apply flex flex-col gap-2;
+  @apply flex flex-col list-none m-0 p-0;
 }
 
 .candy-history-item {
-  @apply flex items-center gap-3;
+  @apply flex items-center gap-3 py-2.5;
 }
 
-.candy-history-dot {
-  @apply flex-shrink-0 rounded-full;
-  box-shadow: var(--shadow-sm);
+.candy-history-item + .candy-history-item {
+  border-top: var(--stitch);
+}
+
+.candy-history-mark {
+  @apply flex-shrink-0 grid place-items-center;
+  width: 26px;
+  height: 26px;
 }
 
 .candy-history-item-info {
-  @apply flex flex-col flex-1;
+  @apply flex flex-col flex-1 min-w-0;
 }
 
 .candy-history-item-meta {
@@ -317,4 +399,11 @@
 
 .candy-history-chip {
   @apply flex-shrink-0;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 900px) {
+  .candy-page {
+    max-width: 720px;
+  }
 }

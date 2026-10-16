@@ -33,17 +33,10 @@ function CandyPan({ entries, resetKey, gravityAngleRef, wakeSignal }) {
 
   return (
     <div className="candy-justice-pan" ref={containerRef}>
-      <svg className="candy-pan-rim" viewBox="0 0 130 10" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M6,7 Q65,-2 124,7" fill="none" stroke="var(--color-border-strong)" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-      <svg className="candy-pan-floor" viewBox="0 0 130 22" preserveAspectRatio="none" aria-hidden="true">
-        <path
-          d="M6,3 Q6,19 65,19 Q124,19 124,3"
-          fill="none"
-          stroke="var(--color-border-strong)"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+      {/* A tigela inteira em pesponto: borda e fundo numa linha só. */}
+      <svg className="candy-pan-bowl" viewBox="0 0 130 72" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M4,7 Q65,1 126,7" className="candy-thread candy-thread--pan" />
+        <path d="M4,7 C6,56 30,69 65,69 C100,69 124,56 126,7" className="candy-thread candy-thread--pan" />
       </svg>
       <div className="candy-pan-shadow" aria-hidden="true" />
       {blobs.map((blob) => (
@@ -72,7 +65,9 @@ function ScaleSide({ name, color, textColor, entries, resetKey, total, offsetPx,
         {initialsOf(name)}
       </div>
       <strong className="candy-justice-name">{name}</strong>
-      <span className="candy-justice-weight">{formatScore(total)}</span>
+      <span className="candy-justice-weight">
+        {entries.length === 0 ? 'nenhum doce' : `${entries.length} ${entries.length === 1 ? 'doce' : 'doces'} · ${formatScore(total)}`}
+      </span>
     </div>
   );
 }
@@ -91,7 +86,7 @@ const PIVOT = { x: 150, y: 14 };
 const HALF_BEAM = 85;
 const ROPE_BOTTOM_Y = 58;
 
-export function JusticeScale({ users, weekEntries, resetKey, holdSlot }) {
+export function JusticeScale({ users, weekEntries, resetKey }) {
   const { user: me } = useAuth();
   const partner = users.find((u) => u._id !== me?._id);
   const { gravityAngleRef, wakeSignal } = useDeviceTilt();
@@ -120,16 +115,16 @@ export function JusticeScale({ users, weekEntries, resetKey, holdSlot }) {
     <div className="candy-justice-scale">
       <svg viewBox="0 0 300 60" className="candy-justice-beam-svg" aria-hidden="true">
         {/* Suporte central — sólido e fixo, não gira com a viga */}
-        <path d="M150,14 L136,34 L164,34 Z" fill="var(--color-border-strong)" />
-        <rect x="128" y="32" width="44" height="4" rx="2" fill="var(--color-border-strong)" />
+        <path d="M150,14 L136,34 L164,34 Z" fill="var(--candy-wood)" />
+        <rect x="126" y="32" width="48" height="5" rx="2.5" fill="var(--candy-wood-dark)" />
 
         {/* Fios — de cada ponta da viga até quase a base do prato */}
-        <line x1={leftBeamEnd.x} y1={leftBeamEnd.y} x2={leftBeamEnd.x} y2={ROPE_BOTTOM_Y} stroke="var(--color-border-strong)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1={rightBeamEnd.x} y1={rightBeamEnd.y} x2={rightBeamEnd.x} y2={ROPE_BOTTOM_Y} stroke="var(--color-border-strong)" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1={leftBeamEnd.x} y1={leftBeamEnd.y} x2={leftBeamEnd.x} y2={ROPE_BOTTOM_Y} className="candy-thread candy-thread--rope" />
+        <line x1={rightBeamEnd.x} y1={rightBeamEnd.y} x2={rightBeamEnd.x} y2={ROPE_BOTTOM_Y} className="candy-thread candy-thread--rope" />
 
         {/* Viga */}
-        <line x1={leftBeamEnd.x} y1={leftBeamEnd.y} x2={rightBeamEnd.x} y2={rightBeamEnd.y} stroke="var(--color-border-strong)" strokeWidth="3" strokeLinecap="round" />
-        <circle cx={PIVOT.x} cy={PIVOT.y} r="4" fill="var(--color-border-strong)" />
+        <line x1={leftBeamEnd.x} y1={leftBeamEnd.y} x2={rightBeamEnd.x} y2={rightBeamEnd.y} className="candy-thread candy-thread--beam" />
+        <circle cx={PIVOT.x} cy={PIVOT.y} r="4.5" fill="var(--candy-wood-dark)" />
       </svg>
 
       <div className="candy-justice-pans">
@@ -160,8 +155,6 @@ export function JusticeScale({ users, weekEntries, resetKey, holdSlot }) {
           />
         )}
       </div>
-
-      {holdSlot && <div className="candy-justice-hold-center">{holdSlot}</div>}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, ConfirmDialog, IconButton, Icon, Pill } from '../../components/ui/index.js';
+import { ConfirmDialog, IconButton, Icon, Pill } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -34,7 +34,7 @@ export function CandyHistoryList({ entries, onDeleted }) {
   }
 
   if (entries.length === 0) {
-    return <p className="sidebar-empty">Nenhum registro ainda</p>;
+    return <p className="candy-empty">Nenhum doce registrado ainda.</p>;
   }
 
   const days = groupEntriesByDay(entries);
@@ -43,23 +43,23 @@ export function CandyHistoryList({ entries, onDeleted }) {
     <div className="candy-history-days">
       {days.map(({ day, entries: dayEntries }) => (
         <div className="candy-history-day-group" key={day}>
-          <strong className="candy-history-day-header">{formatDayLabel(day)}</strong>
-          <div className="candy-history-list">
+          <h4 className="candy-history-day-header">{formatDayLabel(day)}</h4>
+          <ul className="candy-history-list">
             {dayEntries.map((entry) => {
               const isOwner = entry.user?._id === user?._id;
               const intensity = intensityForDuration(entry.durationMs);
               const tier = candyWeightTier(entry.durationMs);
               return (
-                <Card className="candy-history-item" key={entry._id}>
-                  <span
-                    className="candy-history-dot"
-                    aria-hidden="true"
-                    style={{
-                      width: 10 + intensity * 2,
-                      height: 10 + intensity * 2,
-                      background: candyWeightColor(scaleForElapsed(entry.durationMs)),
-                    }}
-                  />
+                <li className="candy-history-item" key={entry._id}>
+                  <span className="candy-history-mark" aria-hidden="true">
+                    <span
+                      className="candy-x"
+                      style={{
+                        '--x-size': `${12 + intensity * 2}px`,
+                        '--x-color': candyWeightColor(scaleForElapsed(entry.durationMs)),
+                      }}
+                    />
+                  </span>
                   <div className="candy-history-item-info">
                     <strong>{entry.user?.name || '—'}</strong>
                     <span className="candy-history-item-meta">{formatEntryTime(entry.createdAt)}</span>
@@ -70,16 +70,17 @@ export function CandyHistoryList({ entries, onDeleted }) {
                   {isOwner && (
                     <IconButton
                       onClick={() => setDeleteTarget(entry)}
-                      title="Excluir"
+                      title="Excluir registro"
+                      aria-label={`Excluir registro das ${formatEntryTime(entry.createdAt)}`}
                       loading={isPending(entry._id)}
                     >
                       <Icon name="trash" />
                     </IconButton>
                   )}
-                </Card>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </div>
       ))}
 

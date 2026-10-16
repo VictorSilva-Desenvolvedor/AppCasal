@@ -10,12 +10,24 @@ import { CandyRankingBoard } from './CandyRankingBoard.jsx';
 import { CandyHistoryList } from './CandyHistoryList.jsx';
 import { JusticeScale } from './JusticeScale.jsx';
 import { MAX_HOLD_MS } from './candyConfig.js';
-import { formatDuration } from './candyUtils.js';
+import { formatDuration, formatScore } from './candyUtils.js';
 
 const TABS = [
-  { value: 'ranking', label: 'Ranking' },
+  { value: 'ranking', label: 'Placar' },
   { value: 'historico', label: 'Histórico' },
 ];
+
+// A frase do topo diz quem está na frente, pelo mesmo peso (tempo somado) que
+// inclina a balança.
+function weekVerdict(weekEntries, me, partner) {
+  const total = (id) => weekEntries.filter((e) => e.user?._id === id).reduce((sum, e) => sum + e.durationMs, 0);
+  const mine = total(me?._id);
+  if (!partner) return mine === 0 ? 'Sua semana está sem doces até agora.' : `Sua semana: ${formatScore(mine)} de doce.`;
+  const theirs = total(partner._id);
+  if (mine === 0 && theirs === 0) return 'Semana sem doces até agora.';
+  if (mine === theirs) return 'Empate nesta semana.';
+  return mine < theirs ? 'Você está na frente nesta semana.' : `${partner.name} está na frente nesta semana.`;
+}
 
 export function DocesPage() {
   const { users } = useCalendarData();
@@ -92,47 +104,50 @@ export function DocesPage() {
     );
   }
 
+  const partner = users.find((u) => u._id !== me?._id);
+  const verdict = weekVerdict(weekEntries, me, partner);
+
   return (
     <section className="view candy-page">
-      <div className="candy-page-header">
-        <div>
-          <h2>Doces</h2>
-          <p>Competição de quem come menos doce/besteira no dia, semana e mês.</p>
+      <header className="candy-page-header">
+        <h2>Doces</h2>
+        <p>Quem comer menos doce na semana ganha.</p>
+      </header>
+
+      <section className="candy-stage card card-stitched" aria-labelledby="candy-verdict">
+        <h3 id="candy-verdict" className="candy-verdict">
+          {verdict}
+        </h3>
+        {users.length > 0 && <JusticeScale users={users} weekEntries={weekEntries} resetKey={weekRanking?.start} />}
+        <div className="candy-hold-area">
+          <CandyHoldButton onLogged={handleLogged} submitting={submitting} color={myColor} />
+          <p className="candy-hold-hint">
+            Comeu um doce? Segure o botão enquanto come. Quanto mais tempo, mais pesa (até {formatDuration(MAX_HOLD_MS)}).
+          </p>
         </div>
-      </div>
+      </section>
 
-      {users.length > 0 && (
-        <JusticeScale
-          users={users}
-          weekEntries={weekEntries}
-          resetKey={weekRanking?.start}
-          holdSlot={<CandyHoldButton onLogged={handleLogged} submitting={submitting} color={myColor} />}
-        />
-      )}
+      <section className="candy-board card" aria-label="Placar e histórico">
+        <div className="candy-switch" role="group" aria-label="Ver">
+          {TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              className={`candy-switch-btn${activeTab === tab.value ? ' is-active' : ''}`}
+              aria-pressed={activeTab === tab.value}
+              onClick={() => setActiveTab(tab.value)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      <p className="candy-hold-hint">
-        Segure o botão junto ao seu prato enquanto come — quanto mais tempo, mais pesou o deslize (máx. {formatDuration(MAX_HOLD_MS)}).
-      </p>
+        {activeTab === 'ranking' && (
+          <CandyRankingBoard period={period} onPeriodChange={setPeriod} ranking={ranking} entries={rankingEntries} />
+        )}
 
-      <div className="candy-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            className={`candy-tab-btn${activeTab === tab.value ? ' is-active' : ''}`}
-            aria-pressed={activeTab === tab.value}
-            onClick={() => setActiveTab(tab.value)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'ranking' && (
-        <CandyRankingBoard period={period} onPeriodChange={setPeriod} ranking={ranking} entries={rankingEntries} />
-      )}
-
-      {activeTab === 'historico' && <CandyHistoryList entries={entries} onDeleted={handleDeleted} />}
+        {activeTab === 'historico' && <CandyHistoryList entries={entries} onDeleted={handleDeleted} />}
+      </section>
     </section>
   );
 }

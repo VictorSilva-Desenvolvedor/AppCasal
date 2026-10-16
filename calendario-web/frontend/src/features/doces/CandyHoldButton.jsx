@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MAX_HOLD_MS } from './candyConfig.js';
 import { candyColorMix, formatScore, scaleForElapsed } from './candyUtils.js';
 
-const RING_SIZE = 76;
+const RING_SIZE = 104;
 const RING_STROKE = 4;
 const RING_R = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R;
@@ -122,7 +122,7 @@ export function CandyHoldButton({ onLogged, submitting, color }) {
         onKeyUp={handleKeyUp}
         onBlur={handleCancel}
       >
-        {holding ? formatScore(elapsedMs) : 'Segurar'}
+        {holding ? formatScore(elapsedMs) : submitting ? 'Salvando…' : 'Segurar'}
       </button>
     </div>
   );

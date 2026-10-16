@@ -1,4 +1,4 @@
-import { Card, Icon, Pill } from '../../components/ui/index.js';
+import { Icon, Pill } from '../../components/ui/index.js';
 import { candyWeightColor, formatCandyCount, intensityForDuration, scaleForElapsed } from './candyUtils.js';
 
 const PERIODS = [
@@ -23,13 +23,13 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) 
   const entriesByUser = groupEntriesByUser(entries || []);
 
   return (
-    <Card className="candy-ranking-card">
-      <div className="candy-period-tabs">
+    <div className="candy-ranking">
+      <div className="candy-period-tabs" role="group" aria-label="Período">
         {PERIODS.map((p) => (
           <button
             key={p.value}
             type="button"
-            className={`candy-tab-btn${period === p.value ? ' is-active' : ''}`}
+            className={`candy-period-btn${period === p.value ? ' is-active' : ''}`}
             aria-pressed={period === p.value}
             onClick={() => onPeriodChange(p.value)}
           >
@@ -39,7 +39,7 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) 
       </div>
 
       {rows.length === 0 ? (
-        <p className="sidebar-empty">Sem registros neste período</p>
+        <p className="candy-empty">Nenhum doce neste período. Bom sinal!</p>
       ) : (
         <div className="candy-bars">
           {rows.map((row) => {
@@ -59,22 +59,20 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) 
                     {row.isWinner && <Pill className="candy-winner-pill">Vencendo</Pill>}
                   </span>
                   {rowEntries.length > 0 && (
-                    <div className="candy-rank-candies">
-                      {rowEntries.map((entry) => {
-                        const intensity = intensityForDuration(entry.durationMs);
-                        return (
-                          <span
-                            key={entry._id}
-                            className="candy-rank-candy"
-                            title={`${Math.round(entry.durationMs / 1000)}s`}
-                            style={{
-                              width: 10 + intensity * 2,
-                              height: 10 + intensity * 2,
-                              background: candyWeightColor(scaleForElapsed(entry.durationMs)),
-                            }}
-                          />
-                        );
-                      })}
+                    // Cada doce é um ponto-cruz: maior e mais quente quanto mais tempo durou.
+                    <div className="candy-rank-candies" aria-hidden="true">
+                      {rowEntries.map((entry, i) => (
+                        <span
+                          key={entry._id}
+                          className="candy-x stitch-anim"
+                          title={`${Math.round(entry.durationMs / 1000)}s`}
+                          style={{
+                            '--x-size': `${12 + intensityForDuration(entry.durationMs) * 2}px`,
+                            '--x-color': candyWeightColor(scaleForElapsed(entry.durationMs)),
+                            '--stitch-delay': `${Math.min(i, 12) * 40}ms`,
+                          }}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
@@ -84,6 +82,6 @@ export function CandyRankingBoard({ period, onPeriodChange, ranking, entries }) 
           })}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
