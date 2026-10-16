@@ -3,6 +3,7 @@ import { Icon } from '../../components/ui/index.js';
 
 export function AuthHeroPanel({ tagline }) {
   const heroRef = useRef(null);
+  const hoopRef = useRef(null);
 
   useEffect(() => {
     const heroEl = heroRef.current;
@@ -13,6 +14,11 @@ export function AuthHeroPanel({ tagline }) {
     const preload = new Image();
     preload.onload = () => {
       heroEl.style.backgroundImage = `url('${photoUrl}')`;
+      // No celular o mesmo gatinho aparece dentro do bastidor do cabeçalho.
+      if (hoopRef.current) {
+        hoopRef.current.style.backgroundImage = `url('${photoUrl}')`;
+        hoopRef.current.classList.add('has-photo');
+      }
     };
     preload.src = photoUrl;
   }, []);
@@ -22,10 +28,13 @@ export function AuthHeroPanel({ tagline }) {
       {/* Abaixo de md o painel da foto não cabe — a marca vira um cabeçalho compacto
           acima do formulário, para a tela não ficar sem identidade nem sem h1. */}
       <div className="auth-brand-compact">
-        <div className="auth-hero-logo">
-          <Icon name="heart" />
+        <div className="auth-hoop" aria-hidden="true">
+          <div className="auth-hoop-photo" ref={hoopRef}>
+            <Icon name="heart" />
+          </div>
         </div>
         <h1>AppCasal</h1>
+        {tagline && <p>{tagline}</p>}
       </div>
 
       <aside className="auth-hero" ref={heroRef}>

@@ -44,7 +44,8 @@
 }
 
 .auth-hero-content h1 {
-  @apply text-[2.2rem] mb-0;
+  @apply text-[2.6rem] mb-0;
+  color: #fff;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
@@ -54,35 +55,70 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Cabeçalho de marca que substitui o painel da foto abaixo de md. */
+/* Cabeçalho de marca abaixo de md: o gatinho sorteado dentro de um bastidor de
+   bordar, a marca em escala de pôster e a frase do casal. */
 .auth-brand-compact {
-  @apply flex md:hidden items-center gap-2.5 px-6 pt-10 pb-2 bg-bg;
+  @apply flex md:hidden flex-col items-start gap-1 px-6 pt-10 pb-2;
 }
 
-.auth-brand-compact .auth-hero-logo {
-  @apply mb-0 w-10 h-10 rounded-md bg-primary text-on-primary;
-  backdrop-filter: none;
+.auth-hoop {
+  @apply relative rounded-full mb-4;
+  width: 108px;
+  height: 108px;
+  padding: 7px;
+  background: linear-gradient(145deg, #a06a45, #7a4a2e);
+  box-shadow: var(--shadow-md);
 }
 
-.auth-brand-compact .auth-hero-logo .icon {
+.auth-hoop::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
   width: 20px;
-  height: 20px;
+  height: 14px;
+  transform: translateX(-50%);
+  border-radius: 4px;
+  background: #6a3f26;
+}
+
+.auth-hoop-photo {
+  @apply grid place-items-center w-full h-full rounded-full bg-cover bg-center text-primary;
+  background-color: var(--color-primary-light);
+  outline: 1.5px dashed color-mix(in oklch, #fff 70%, transparent);
+  outline-offset: -5px;
+}
+
+.auth-hoop-photo.has-photo .icon {
+  display: none;
+}
+
+.auth-hoop-photo .icon {
+  width: 30px;
+  height: 30px;
 }
 
 .auth-brand-compact h1 {
-  @apply text-xl m-0 text-text;
+  @apply m-0 text-text;
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.auth-brand-compact p {
+  @apply m-0 text-md font-semibold;
 }
 
 .auth-form-side {
-  @apply flex-1 md:flex-[0_0_400px] flex items-center justify-center p-6 bg-bg;
+  @apply flex-1 md:flex-[0_0_420px] flex items-start md:items-center justify-center px-6 pt-4 pb-10 md:p-8;
 }
 
 .auth-card {
-  @apply w-full max-w-[380px] p-8 text-center;
+  @apply w-full max-w-[400px] p-7 md:p-8 text-left;
 }
 
 .auth-card h2 {
-  @apply text-xl;
+  @apply text-2xl m-0 mb-1;
 }
 
 .auth-card > p {

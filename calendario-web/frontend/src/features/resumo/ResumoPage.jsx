@@ -107,7 +107,7 @@ export function ResumoPage() {
           </h3>
           <div className="resumo-finance-row">
             <strong
-              className={`resumo-finance-saldo ${finance.saldo >= 0 ? 'finance-value--positive' : 'finance-value--negative'}`}
+              className={`resumo-finance-saldo ${finance.saldo > 0 ? 'finance-value--positive' : finance.saldo < 0 ? 'finance-value--negative' : ''}`}
             >
               {formatCurrency(finance.saldo, hideFinanceValues)}
             </strong>
