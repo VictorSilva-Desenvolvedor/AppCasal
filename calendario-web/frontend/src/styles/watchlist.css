@@ -135,7 +135,9 @@
   @apply relative flex flex-col gap-2 cursor-grab;
   padding: 2.1rem 1rem 1rem;
   background: var(--watch-card-bg);
-  border-left: 4px solid var(--watch-type-color, var(--watch-vinho));
+  /* Pesponto na cor do tipo (filme/série/jogo), no lugar da borda lateral grossa. */
+  outline: 1.5px dashed color-mix(in oklch, var(--watch-type-color, var(--watch-vinho)) 60%, transparent);
+  outline-offset: -6px;
   box-shadow: 0 6px 16px rgba(31, 27, 36, 0.1), 0 1px 3px rgba(31, 27, 36, 0.08);
   transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }

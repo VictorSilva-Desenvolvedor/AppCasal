@@ -347,23 +347,23 @@
 }
 
 .activity-feed-item {
-  @apply rounded-sm border border-border border-l-[3px] bg-surface px-[0.85rem] py-[0.65rem];
+  @apply relative rounded-sm border border-border bg-surface pl-8 pr-[0.85rem] py-[0.65rem];
 }
 
 .activity-feed-item--created {
-  @apply border-l-success;
+  --marker: var(--color-success);
 }
 
 .activity-feed-item--updated {
-  @apply border-l-primary;
+  --marker: var(--color-primary);
 }
 
 .activity-feed-item--deleted {
-  @apply border-l-danger;
+  --marker: var(--color-danger);
 }
 
 .activity-feed-item--archived {
-  @apply border-l-warning;
+  --marker: var(--color-warning);
 }
 
 .activity-feed-item-header {
@@ -401,9 +401,9 @@
 /* ---------- Cards de kanban (pedidos de atualização / convites) ---------- */
 
 .update-card {
-  @apply bg-bg border border-border border-l-[3px] rounded-md p-3 flex flex-col gap-2 cursor-grab shadow-sm
+  @apply relative bg-surface border border-border rounded-md p-3 pl-8 flex flex-col gap-2 cursor-grab shadow-sm
     transition-[border-color,background,transform,box-shadow] duration-150
-    hover:border-primary hover:shadow-md hover:-translate-y-px hover:scale-[1.02];
+    hover:border-primary hover:shadow-md hover:-translate-y-px;
 }
 
 .update-card-title {
@@ -432,15 +432,17 @@
 
 /* Cor por status: a coluna já diz o estado, a cor só reforça visualmente */
 .update-card[data-status='todo'] {
-  @apply border-l-border;
+  --marker: var(--color-border);
 }
 
 .update-card[data-status='in_progress'] {
-  @apply border-l-warning bg-warning-bg;
+  --marker: var(--color-warning);
+  @apply bg-warning-bg;
 }
 
 .update-card[data-status='done'] {
-  @apply border-l-success bg-success-bg;
+  --marker: var(--color-success);
+  @apply bg-success-bg;
 }
 
 /* Convites reaproveitam o card do kanban, mas não são arrastáveis: o estado vem
@@ -455,11 +457,13 @@
 }
 
 .invite-card[data-status='accepted'] {
-  @apply border-l-success bg-success-bg;
+  --marker: var(--color-success);
+  @apply bg-success-bg;
 }
 
 .invite-card[data-status='declined'] {
-  @apply border-l-danger bg-danger-bg;
+  --marker: var(--color-danger);
+  @apply bg-danger-bg;
 }
 
 .update-card.dragging {
@@ -555,4 +559,20 @@
 
 .route-error-actions {
   @apply flex flex-wrap justify-center gap-2;
+}
+
+
+/* Marcador de status (atividade, convite, pedido): um nó de linha na cor do
+   status, no lugar da barra lateral colorida grossa. */
+.activity-feed-item::before,
+.update-card::before {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 1.05rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--marker, var(--color-border-strong));
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--marker, var(--color-border-strong)) 20%, transparent);
 }

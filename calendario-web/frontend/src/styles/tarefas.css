@@ -65,9 +65,11 @@
 }
 
 .tarefas-tab-btn.is-active {
-  background: var(--color-text);
-  border-color: var(--color-text);
-  color: var(--color-bg);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary) 55%, transparent);
+  outline-offset: -4px;
 }
 
 /* ---------- Anel de progresso do dia ---------- */
@@ -121,7 +123,7 @@
 
 .tarefas-period {
   @apply mb-3 pl-3;
-  border-left: 2px solid var(--color-border);
+  border-left: 1px dashed var(--color-border-strong);
 }
 
 .tarefas-period-head {

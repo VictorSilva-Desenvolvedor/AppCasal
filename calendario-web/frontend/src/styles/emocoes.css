@@ -16,7 +16,7 @@
   /* Sem padding próprio: .main-content (layout do app) já aplica 24px de
      respiro em todo lado — uma segunda camada de padding aqui desperdiçava
      ~48px de largura útil de cada lado num celular de 360px. */
-  font-family: 'Nunito', var(--font-sans);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.4;
   color: var(--emo-text);
