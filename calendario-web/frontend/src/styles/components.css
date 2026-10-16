@@ -576,3 +576,42 @@
   background: var(--marker, var(--color-border-strong));
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--marker, var(--color-border-strong)) 20%, transparent);
 }
+
+/* ---------- "Mais opções" nos formulários ----------
+   Recolhe o que é avançado; o essencial fica à vista. Costura tracejada no topo
+   separa o bloco, e o chevron indica que abre. */
+.more-options {
+  @apply my-4 rounded-md;
+  border-top: var(--stitch);
+}
+
+.more-options > summary {
+  @apply flex items-center gap-2 cursor-pointer select-none list-none py-3 text-sm font-extrabold text-primary;
+  min-height: 44px;
+}
+
+.more-options > summary::-webkit-details-marker {
+  display: none;
+}
+
+.more-options > summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  rotate: 45deg;
+  translate: 0 -2px;
+  transition: rotate 0.2s var(--ease);
+}
+
+.more-options[open] > summary::after {
+  rotate: -135deg;
+  translate: 0 2px;
+}
+
+/* Linha de formulário com um campo só ocupa a largura toda. */
+.finance-form-row:has(> .field:only-child) {
+  grid-template-columns: 1fr;
+}

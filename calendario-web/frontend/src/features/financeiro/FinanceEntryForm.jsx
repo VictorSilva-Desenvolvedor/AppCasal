@@ -40,6 +40,7 @@ export function FinanceEntryForm({
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [invalidFields, setInvalidFields] = useState([]);
+  const [moreOpen, setMoreOpen] = useState(false);
   const formRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -73,7 +74,17 @@ export function FinanceEntryForm({
         sharedWith: editingEntry.sharedWith?._id || '',
         splitAmount: editingEntry.splitAmount ? String(editingEntry.splitAmount) : '',
       });
+      setMoreOpen(
+        Boolean(
+          editingEntry.paidAmount ||
+            (editingEntry.nature && editingEntry.nature !== 'unica') ||
+            editingEntry.wishType ||
+            editingEntry.linkedGoal ||
+            editingEntry.sharedWith
+        )
+      );
     } else {
+      setMoreOpen(Boolean(forcedWishType));
       setForm({ ...EMPTY_FORM, type: forcedType || 'despesa', wishType: forcedWishType || '' });
     }
   }, [editingEntry, forcedType, forcedWishType, user]);
@@ -124,6 +135,8 @@ export function FinanceEntryForm({
     if (checks.length) {
       const fieldIds = checks.map(([id]) => id);
       setInvalidFields(fieldIds);
+      // Campo inválido escondido em "Mais opções": abre para a pessoa ver.
+      if (fieldIds.some((id) => id === 'finance-paid' || id === 'finance-split')) setMoreOpen(true);
       setError(
         !form.category && !filteredCategories.length
           ? 'Nenhuma categoria cadastrada. Crie uma no botão "Categorias", acima da lista de lançamentos.'
@@ -255,20 +268,25 @@ export function FinanceEntryForm({
             ))}
           </select>
         </Field>
-        <Field label="Valor já pago" htmlFor="finance-paid">
-          <input
-            id="finance-paid"
-            aria-invalid={invalidFields.includes('finance-paid')}
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0,00"
-            value={form.paidAmount}
-            onChange={(event) => update('paidAmount', event.target.value)}
-          />
-        </Field>
       </div>
 
+      {/* Só o essencial à vista (descrição, valor, data, categoria); o resto fica
+          em "Mais opções" — os termos de planejamento confundiam quem só quer
+          anotar um gasto (12 de 12 personas). */}
+      <details className="more-options" open={moreOpen} onToggle={(e) => setMoreOpen(e.currentTarget.open)}>
+        <summary>Mais opções</summary>
+      <Field label="Valor já pago" htmlFor="finance-paid">
+        <input
+          id="finance-paid"
+          aria-invalid={invalidFields.includes('finance-paid')}
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          placeholder="0,00"
+          value={form.paidAmount}
+          onChange={(event) => update('paidAmount', event.target.value)}
+        />
+      </Field>
       {form.type === 'despesa' && (
         <div className="finance-form-row">
           <Field label="Natureza da despesa" htmlFor="finance-nature">
@@ -407,6 +425,8 @@ export function FinanceEntryForm({
           />
         </Field>
       )}
+
+      </details>
 
       <p className="field-hint">* obrigatório</p>
       {error && (

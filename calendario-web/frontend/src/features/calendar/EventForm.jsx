@@ -31,6 +31,12 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   // opcional: vazio = o dia todo.
   const [eventDate, setEventDate] = useState(dateKey);
   const [time, setTime] = useState(event?.time || '');
+  // Editando um evento que já usa algo avançado, "Mais opções" já abre aberto.
+  const [moreOpen, setMoreOpen] = useState(
+    () =>
+      Boolean(event) &&
+      Boolean(event.description || event.color || event.recurring || event.hideWhenPast || event.attachments?.length)
+  );
   const [description, setDescription] = useState(event?.description || '');
   const [category, setCategory] = useState(event?.category || '');
   const [color, setColor] = useState(event?.color || '');
@@ -144,14 +150,6 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
         </div>
       </div>
       <div className="field">
-        <label htmlFor="event-description">Descrição</label>
-        <textarea
-          id="event-description"
-          value={description}
-          onChange={(formEvent) => setDescription(formEvent.target.value)}
-        />
-      </div>
-      <div className="field">
         <label htmlFor="event-category">Categoria</label>
         <select id="event-category" value={category} onChange={(formEvent) => setCategory(formEvent.target.value)}>
           <option value="">Sem categoria</option>
@@ -163,6 +161,19 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
         </select>
       </div>
 
+
+      {/* O essencial (título, data, horário, categoria) fica à vista; o resto
+          recolhido, porque o formulário cheio assustava quem só quer marcar algo. */}
+      <details className="more-options" open={moreOpen} onToggle={(e) => setMoreOpen(e.currentTarget.open)}>
+        <summary>Mais opções</summary>
+      <div className="field">
+        <label htmlFor="event-description">Descrição</label>
+        <textarea
+          id="event-description"
+          value={description}
+          onChange={(formEvent) => setDescription(formEvent.target.value)}
+        />
+      </div>
       <div className="field">
         <label>Cor do evento</label>
         <div className="color-swatch-grid">
@@ -227,6 +238,7 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
         pendingFiles={pendingFiles}
         onFilesChange={setPendingFiles}
       />
+      </details>
 
       {isEditing && (
         <InviteSection
