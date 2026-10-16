@@ -4,37 +4,46 @@
   então não podem mudar — só o que tem por trás mudou.
 */
 
+/* A tela onde se borda: superfície clara, canto macio e o pesponto tracejado por
+   dentro da borda, a assinatura do mundo Bordado. */
 .card {
   @apply bg-surface border border-border rounded-lg shadow-sm;
+  outline: var(--stitch);
+  outline-offset: -6px;
 }
 
 /* ---------- Botões ---------- */
 
 .btn {
   @apply relative inline-flex items-center justify-center gap-1.5 rounded-sm border-none
-    px-[1.1rem] py-[0.6rem] text-sm font-semibold cursor-pointer
-    transition-[background,color,transform,box-shadow,border-color] duration-200 ease-in-out
-    active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-70 disabled:scale-100;
+    px-[1.15rem] py-[0.65rem] text-sm font-bold cursor-pointer
+    transition-[background,color,transform,box-shadow,border-color] duration-200 ease-out
+    active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
+  min-height: 42px;
 }
 
+/* Botão cheio: um retalho da linha de destaque com o pesponto por dentro. */
 .btn-primary {
   @apply bg-primary text-on-primary
-    hover:bg-primary-hover hover:-translate-y-px hover:scale-[1.04] hover:shadow-md
-    active:bg-primary-active;
+    hover:bg-primary-hover hover:-translate-y-px hover:shadow-md
+    active:bg-primary-active active:shadow-none;
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary) 55%, transparent);
+  outline-offset: -5px;
 }
 
 /* `border-solid` é obrigatório: `.btn` zera o estilo da borda com `border-none`,
    e a utility `border` só define a espessura — sem isso o botão secundário
    ficava sem contorno nenhum, indistinguível de texto solto. */
 .btn-secondary {
-  @apply bg-transparent text-text border border-solid border-border
-    hover:bg-bg hover:border-primary hover:text-primary
-    hover:-translate-y-px hover:scale-[1.04];
+  @apply bg-surface text-text border-[1.5px] border-dashed border-border-strong
+    hover:border-primary hover:text-primary hover:-translate-y-px hover:shadow-sm;
 }
 
 .btn-danger {
   @apply bg-danger text-on-danger
-    hover:bg-danger-hover hover:-translate-y-px hover:scale-[1.04] hover:shadow-md;
+    hover:bg-danger-hover hover:-translate-y-px hover:shadow-md;
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-danger) 55%, transparent);
+  outline-offset: -5px;
 }
 
 .btn-block {
@@ -71,8 +80,8 @@
 .modal-close,
 .update-card-delete {
   @apply inline-flex items-center justify-center rounded-full border-none bg-transparent cursor-pointer
-    text-text-muted transition-[background,color,transform] duration-150
-    hover:bg-bg hover:text-primary hover:scale-[1.15];
+    text-text-muted transition-[background,color] duration-150
+    hover:bg-surface-alt hover:text-primary;
 }
 
 /* No toque, ícones de 16px colados (pago/editar/excluir) faziam errar o botão. */
@@ -133,16 +142,22 @@
 
 .field label,
 .field .field-label {
-  @apply block text-sm font-semibold mb-[0.35rem] text-text-muted;
+  @apply block text-sm font-bold mb-[0.35rem] text-text;
 }
 
 .field input,
 .field textarea,
 .field select {
-  @apply w-full rounded-sm border border-border bg-bg text-text text-base font-sans
-    px-3 py-[0.6rem]
+  @apply w-full rounded-sm border-[1.5px] border-border bg-surface text-text text-base font-sans
+    px-3 py-[0.65rem]
     transition-[border-color,box-shadow] duration-200
     focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-light)];
+  min-height: 44px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: color-mix(in oklch, var(--color-text-muted) 85%, transparent);
 }
 
 .field-required {
@@ -190,8 +205,9 @@
 
 .modal-overlay {
   @apply fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 z-[100]
-    bg-black/55 opacity-0 invisible
+    opacity-0 invisible
     transition-[opacity,visibility] duration-200;
+  background: color-mix(in oklch, #16142a 58%, transparent);
 }
 
 .modal-overlay.is-open {
@@ -200,8 +216,21 @@
 
 .modal {
   @apply w-full max-w-full sm:max-w-[94vw] md:max-w-[420px] max-h-[92vh] sm:max-h-[90vh] overflow-y-auto
-    p-[1.1rem] md:p-6 shadow-lg rounded-t-lg rounded-b-none sm:rounded-lg
-    scale-[0.96] translate-y-1.5 transition-transform duration-200;
+    p-[1.25rem] md:p-6 shadow-lg rounded-t-xl rounded-b-none sm:rounded-xl
+    scale-[0.96] translate-y-1.5 transition-transform duration-200 ease-out;
+  outline-offset: -8px;
+}
+
+/* Card dentro de modal vira só conteúdo: o modal já é a tela bordada, e costura
+   dupla (card dentro de card) embaralha a hierarquia. */
+.modal .card {
+  @apply bg-transparent border-none shadow-none p-0;
+  outline: none;
+}
+
+.modal-header h2,
+.modal-header h3 {
+  @apply text-xl m-0;
 }
 
 .modal-overlay.is-open .modal {
@@ -213,7 +242,7 @@
 }
 
 .modal-close {
-  @apply w-7 h-7 text-lg leading-none;
+  @apply w-9 h-9 text-lg leading-none;
 }
 
 .modal-actions {
@@ -232,7 +261,8 @@
 }
 
 .confirm-title {
-  @apply text-base font-semibold m-0 mb-1.5;
+  @apply text-lg font-bold m-0 mb-1.5;
+  font-family: var(--font-display);
 }
 
 .confirm-message {
@@ -354,14 +384,18 @@
 /* ---------- Navegação da barra lateral ---------- */
 
 .sidebar-nav-item {
-  @apply flex items-center gap-[0.55rem] text-left rounded-sm bg-transparent border-none
-    px-[0.7rem] py-[0.55rem] text-base font-semibold cursor-pointer text-text
-    transition-[background,color,transform] duration-150
-    hover:bg-bg hover:text-primary hover:scale-[1.02];
+  @apply flex items-center gap-[0.6rem] text-left rounded-sm bg-transparent border-none
+    px-[0.75rem] py-[0.6rem] text-base font-bold cursor-pointer text-text
+    transition-[background,color] duration-150
+    hover:bg-surface-alt hover:text-primary;
+  min-height: 44px;
 }
 
+/* A linha de destaque só borda o que está ativo agora. */
 .sidebar-nav-item.is-active {
-  @apply bg-primary text-on-primary hover:text-on-primary;
+  @apply bg-primary text-on-primary hover:text-on-primary hover:bg-primary;
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary) 55%, transparent);
+  outline-offset: -5px;
 }
 
 /* ---------- Cards de kanban (pedidos de atualização / convites) ---------- */

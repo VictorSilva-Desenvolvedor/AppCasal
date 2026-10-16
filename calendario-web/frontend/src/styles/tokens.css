@@ -6,13 +6,15 @@
   funcionando normalmente, sem precisar duplicar valores em outro lugar.
 */
 @theme {
-  --color-bg: #f4f5fa;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f8f9fd;
-  --color-border: #e4e6ed;
-  --color-border-strong: #c7cbd6;
-  --color-text: #1f2430;
-  --color-text-muted: #596070; /* ≥ 4,5:1 também sobre --color-bg (o #6b7280 dava ~4,4:1) */
+  /* Mundo "Bordado a dois": linho lilás como fundo, a tela de ponto-cruz como
+     superfície, tinta de linha escura para o texto. Ver DESIGN.md. */
+  --color-bg: #eee7f1;
+  --color-surface: #faf6fb;
+  --color-surface-alt: #f3ecf6;
+  --color-border: #ddd2e4;
+  --color-border-strong: #b9abc6;
+  --color-text: #1c1a2b;
+  --color-text-muted: #534b66; /* >= 4,5:1 sobre --color-bg e --color-surface */
 
   /* Cor do texto sobre um fundo sólido de --color-primary / --color-danger
      (botões cheios, avatar, pills). Calculada por tema mais abaixo — em
@@ -20,33 +22,37 @@
   --color-on-primary: #ffffff;
   --color-on-danger: #ffffff;
 
-  --color-primary: #4f46e5;
+  /* "Linha anil": o destaque padrão. Os temas de cor (data-color-theme)
+     trocam só esta linha; ela borda apenas o que está ativo agora. */
+  --color-primary: #2f3a8f;
   --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
   --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
   --color-primary-light: color-mix(in oklch, var(--color-primary) 12%, white);
 
-  --color-accent: #ec4899;
-  --color-accent-2: #06b6d4;
+  --color-accent: #d9433a;
+  --color-accent-2: #e0a21c;
 
-  --color-success: #16a34a;
-  --color-success-bg: #dcfce7;
-  --color-warning: #d97706;
-  --color-warning-bg: #fef3c7;
-  --color-danger: #dc2626;
-  --color-danger-hover: #b91c1c;
-  --color-danger-bg: #fee2e2;
+  --color-success: #23735b;
+  --color-success-bg: #dcefe6;
+  --color-warning: #a35b06;
+  --color-warning-bg: #fbecd2;
+  --color-danger: #c0362d;
+  --color-danger-hover: #a12b23;
+  --color-danger-bg: #fbe1de;
 
   --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.1);
-  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.16);
+  /* Tecido levantado: sombra com deslocamento e desfoque largo, nunca halo. */
+  --shadow-sm: 0 1px 2px rgba(28, 26, 43, 0.08);
+  --shadow-md: 0 8px 20px -8px rgba(28, 26, 43, 0.28);
+  --shadow-lg: 0 20px 40px -16px rgba(28, 26, 43, 0.38);
 
-  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Nunito Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Nunito Sans', system-ui, sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -54,11 +60,22 @@
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
   --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: 2.75rem;
 }
 
 :root {
-  --gradient-brand: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #ec4899 100%);
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --gradient-brand: linear-gradient(135deg, #2f3a8f 0%, #d9433a 60%, #e0a21c 100%);
+
+  /* Pesponto: a costura tracejada que é a assinatura do mundo Bordado. */
+  --stitch-color: color-mix(in oklch, var(--color-text) 30%, transparent);
+  --stitch: 1.5px dashed var(--stitch-color);
+  /* Trama do linho (fundo) e grade da tela de ponto-cruz (calendário, hábitos). */
+  --texture-linen: radial-gradient(circle at 1px 1px, color-mix(in oklch, var(--color-text) 9%, transparent) 1px, transparent 1.4px) 0 0 / 8px 8px;
+  --texture-aida:
+    repeating-linear-gradient(0deg, color-mix(in oklch, var(--color-text) 7%, transparent) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(90deg, color-mix(in oklch, var(--color-text) 7%, transparent) 0 1px, transparent 1px 22px);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23534b66' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Cores fixas por pessoa (independem do tema de cor escolhido).
@@ -274,13 +291,14 @@
 }
 
 [data-theme='dark'] {
-  --color-bg: #0f1115;
-  --color-surface: #181b22;
-  --color-surface-alt: #1f232c;
-  --color-border: #2c303a;
-  --color-border-strong: #3a3f4b;
-  --color-text: #e7e9ee;
-  --color-text-muted: #9aa0ac;
+  /* Tecido azul-noite com linhas claras. */
+  --color-bg: #16142a;
+  --color-surface: #211e37;
+  --color-surface-alt: #2a2643;
+  --color-border: #3a3556;
+  --color-border-strong: #4f4872;
+  --color-text: #f0eaf6;
+  --color-text-muted: #b6adca;
 
   /* No escuro, as cores de marca ficam mais claras (para se destacar do fundo
      escuro) — o que significa que precisam de texto escuro em cima, não
@@ -288,28 +306,28 @@
   --color-on-primary: #14171c;
   --color-on-danger: #14171c;
 
-  --color-primary: #818cf8;
+  --color-primary: #9aa6f5;
   --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
   --color-primary-active: color-mix(in oklch, var(--color-primary) 72%, black);
   --color-primary-light: color-mix(in oklch, var(--color-primary) 16%, transparent);
-  --color-accent: #f472b6;
-  --color-accent-2: #22d3ee;
+  --color-accent: #ff8a7d;
+  --color-accent-2: #f4c04e;
 
-  --color-success: #4ade80;
-  --color-success-bg: rgba(74, 222, 128, 0.14);
+  --color-success: #6fd6ad;
+  --color-success-bg: rgba(111, 214, 173, 0.14);
   --color-warning: #fbbf24;
   --color-warning-bg: rgba(251, 191, 36, 0.14);
   --color-danger: #f87171;
   --color-danger-hover: #ef4444;
   --color-danger-bg: rgba(248, 113, 113, 0.14);
 
-  --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #f472b6 100%);
+  --gradient-brand: linear-gradient(135deg, #9aa6f5 0%, #ff8a7d 60%, #f4c04e 100%);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0 8px 22px -8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 20px 44px -16px rgba(0, 0, 0, 0.65);
 
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239aa0ac' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23b6adca' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 /* ---------- Seletor de cor (swatches nas Configurações) ---------- */

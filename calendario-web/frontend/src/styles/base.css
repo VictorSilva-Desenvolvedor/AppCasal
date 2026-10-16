@@ -11,9 +11,59 @@ body {
 }
 
 body {
-  background: var(--color-bg);
+  /* Trama do linho sobre a cor de fundo: o app inteiro mora num tecido. */
+  background: var(--texture-linen), var(--color-bg);
   color: var(--color-text);
-  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+/* ---------- Tipografia global ---------- */
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+}
+
+h2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+/* Números de dinheiro, contagens e datas alinham em colunas. */
+table,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: color-mix(in oklch, var(--color-primary) 28%, transparent);
+  color: var(--color-text);
+}
+
+input,
+textarea {
+  caret-color: var(--color-primary);
+}
+
+* {
+  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-width: thin;
 }
 
 select {
