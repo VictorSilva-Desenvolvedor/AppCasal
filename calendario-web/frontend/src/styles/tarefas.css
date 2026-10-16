@@ -29,19 +29,14 @@
   @apply pb-24;
 }
 
-.tarefas-page h2,
-.tarefas-page h3 {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-}
+/* Títulos seguem a fonte de display do app (antes: Fraunces só aqui). */
 
 .tarefas-header {
   @apply flex items-baseline justify-between mb-5;
 }
 
 .tarefas-header h2 {
-  @apply text-2xl m-0;
-  letter-spacing: -0.01em;
+  @apply m-0;
 }
 
 /* `capitalize` deixava "Terça-Feira, 25 De Agosto": em pt-BR só a primeira letra
@@ -93,8 +88,8 @@
 }
 
 .tarefas-progress-value {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 800;
   @apply text-lg;
 }
 

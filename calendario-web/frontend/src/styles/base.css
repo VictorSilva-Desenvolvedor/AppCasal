@@ -45,6 +45,35 @@ h3 {
   font-weight: 700;
 }
 
+/* ---------- Título de página (um só para o app inteiro) ----------
+   Cada tela tinha o seu tamanho e peso (o critique apontou "Resumo da semana"
+   grande e light, "Financeiro" no tamanho do corpo). Agora todo título de página
+   sai na mesma escala de pôster, com o subtítulo logo abaixo. */
+.view > h2:first-child,
+.finance-page-header h2,
+.vehicle-page-header h2,
+.candy-page-header h2,
+.emotion-page-title,
+.habit-page-title,
+.resumo-header h2,
+.tarefas-header h2,
+.watchlist-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  margin: 0 0 0.35rem;
+}
+
+.finance-page-header h2 + p,
+.vehicle-page-header h2 + p,
+.candy-page-header h2 + p,
+.view > h2:first-child + p {
+  font-size: var(--text-md);
+  margin-bottom: 0;
+}
+
 /* Números de dinheiro, contagens e datas alinham em colunas. */
 table,
 .tabular {

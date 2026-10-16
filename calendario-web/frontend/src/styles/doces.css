@@ -24,10 +24,6 @@
   @apply flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4;
 }
 
-.candy-page-header h2 {
-  @apply text-xl font-medium;
-}
-
 .candy-tabs,
 .candy-period-tabs {
   @apply flex gap-[0.35rem] mb-4 flex-wrap;

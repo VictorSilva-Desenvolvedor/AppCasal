@@ -127,7 +127,7 @@ Para cada tela, na ordem dos grupos:
 | 1. Contexto | concluída | (este commit) | PRODUCT.md + DESIGN.md (baseline "genérico de SaaS"); manter temas claro/escuro, cores de destaque, cor por pessoa e toques fofos |
 | 2. Diagnóstico | concluída | (este commit) | critique 21/40 (dual-agent), 3 P1: lobby launcher, calendário mobile, financeiro mobile; decisões: tom aconchegante e íntimo, redesign completo, começar pelo lobby. Snapshot em `.impeccable/critique/` |
 | 3. Direção visual | base aplicada | (este commit) | mundo **Bordado a dois** (sorteio 63b87b82; protótipo em run/mock): tokens (linho/tecido noite, linha anil, pesponto, texturas), Bricolage Grotesque + Nunito Sans, componentes base. DESIGN.md novo será escrito no fim do build |
-| 4. Visual tela por tela | em andamento | | Lobby → casa do casal ✅; Calendário mobile ✅ (abre no mês, pontos por evento, filtros recolhidos); Financeiro mobile ✅ (topo enxuto, menu Mais, abas numa linha, estado vazio, zero neutro) |
+| 4. Visual tela por tela | em andamento | | Lobby → casa do casal ✅; Calendário mobile ✅ (abre no mês, pontos por evento, filtros recolhidos); Financeiro mobile ✅ (topo enxuto, menu Mais, abas numa linha, estado vazio, zero neutro); título de página único ✅ (Fraunces removida) |
 | 5. Experiência | pendente | | |
 | 6. Personalidade | pendente | | |
 | 7. Fechamento | pendente | | |

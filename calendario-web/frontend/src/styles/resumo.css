@@ -3,12 +3,11 @@
 }
 
 .resumo-header h2 {
-  @apply text-2xl m-0;
-  letter-spacing: -0.01em;
+  @apply m-0;
 }
 
 .resumo-date-range {
-  @apply text-xs;
+  @apply text-sm font-semibold;
   color: var(--color-text-muted);
 }
 

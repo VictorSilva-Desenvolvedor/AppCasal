@@ -41,7 +41,7 @@
   @apply flex items-center gap-2;
 }
 .watchlist-page-title {
-  @apply text-2xl font-semibold m-0;
+  @apply m-0;
 }
 
 /* ---------- Filtros rápidos ---------- */
