@@ -757,3 +757,76 @@
 .finance-category-form [aria-invalid='true'] {
   border-color: var(--color-danger);
 }
+
+/* ---------- Topo enxuto (redesign Bordado) ---------- */
+
+/* Abas numa linha só que rola de lado: em 3 linhas elas empurravam o conteúdo
+   para baixo da dobra no celular. */
+.finance-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+  padding-bottom: 2px;
+}
+
+.finance-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.finance-tab-btn {
+  @apply shrink-0 font-bold;
+  scroll-snap-align: start;
+  min-height: 40px;
+  padding-inline: 1rem;
+}
+
+.finance-tab-btn.is-active {
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary) 55%, transparent);
+  outline-offset: -4px;
+}
+
+.finance-more {
+  @apply relative;
+}
+
+.finance-more-menu {
+  @apply absolute right-0 top-full mt-1.5 z-20 flex flex-col min-w-[190px] p-1.5 rounded-md bg-surface border border-border shadow-lg;
+}
+
+.finance-more-menu button {
+  @apply text-left text-sm font-bold text-text bg-transparent border-none rounded-sm px-3 cursor-pointer
+    hover:bg-surface-alt hover:text-primary disabled:opacity-50;
+  min-height: 42px;
+}
+
+.finance-empty {
+  @apply flex flex-col items-start gap-1 p-5 mb-4;
+}
+
+.finance-empty h3 {
+  @apply m-0;
+}
+
+.finance-empty p {
+  @apply m-0 mb-3;
+}
+
+/* Mês, olho e "Mais" numa linha só no celular: quebrando, o menu abria cortado. */
+@media (max-width: 640px) {
+  .finance-month-nav {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+  }
+
+  .finance-month-nav strong {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .finance-month-nav .btn {
+    padding-inline: 0.75rem;
+  }
+}

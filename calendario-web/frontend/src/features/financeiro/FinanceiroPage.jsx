@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Card, Icon, IconButton, Modal, Pill, HeartLoader } from '../../components/ui/index.js';
 import { api } from '../../services/api.js';
 import { useCalendarData } from '../../hooks/useCalendarData.js';
@@ -35,6 +35,54 @@ function shiftMonthYear({ month, year }, direction) {
   const newYear = year + Math.floor(total / 12);
   const newMonth = ((total % 12) + 12) % 12;
   return { month: newMonth + 1, year: newYear };
+}
+
+// Menu "Mais" do topo: ações raras que não merecem botão permanente.
+function FinanceMoreMenu({ items }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function handleClick(event) {
+      if (ref.current && !ref.current.contains(event.target)) setOpen(false);
+    }
+    function handleKey(event) {
+      if (event.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('click', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('click', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="finance-more" ref={ref}>
+      <Button variant="secondary" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        Mais
+      </Button>
+      {open && (
+        <div className="finance-more-menu" role="menu">
+          {items.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              role="menuitem"
+              disabled={item.disabled}
+              onClick={() => {
+                setOpen(false);
+                item.onSelect();
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function FinanceiroPage() {
@@ -231,7 +279,7 @@ export function FinanceiroPage() {
       <div className="finance-page-header">
         <div>
           <h2>Financeiro</h2>
-          <p>Orçamento compartilhado, lançamentos, carteira de reembolsos e objetivos do casal.</p>
+          <p>O dinheiro de vocês, mês a mês.</p>
         </div>
 
         <div className="finance-month-nav">
@@ -253,12 +301,6 @@ export function FinanceiroPage() {
             <Icon name="chevron-right" />
           </Button>
           {isClosed && <Pill className="finance-status-pill finance-status--pago">Finalizado</Pill>}
-          <Button variant={isClosed ? 'secondary' : 'primary'} loading={togglingMonth} onClick={handleToggleMonth}>
-            {isClosed ? 'Reabrir mês' : 'Finalizar mês'}
-          </Button>
-          <Button variant="secondary" onClick={() => setImportOpen(true)}>
-            Importar planilha
-          </Button>
           <IconButton
             onClick={() => updatePreferences({ hideFinanceValues: !hideFinanceValues })}
             title={hideFinanceValues ? 'Mostrar valores financeiros' : 'Ocultar valores financeiros'}
@@ -266,6 +308,18 @@ export function FinanceiroPage() {
           >
             <Icon name={hideFinanceValues ? 'eye-off' : 'eye'} />
           </IconButton>
+          {/* Finalizar e importar são raros (fim do mês, uma vez): ficam no menu, não
+              como botão primário permanente no topo (critique). */}
+          <FinanceMoreMenu
+            items={[
+              {
+                label: isClosed ? 'Reabrir mês' : 'Finalizar mês',
+                onSelect: handleToggleMonth,
+                disabled: togglingMonth,
+              },
+              { label: 'Importar planilha', onSelect: () => setImportOpen(true) },
+            ]}
+          />
         </div>
       </div>
 
@@ -316,7 +370,13 @@ export function FinanceiroPage() {
       </div>
 
       {activeTab === 'resumo' && (
-        <FinanceSummary report={report} goals={goals} history={history} hideFinanceValues={hideFinanceValues} />
+        <FinanceSummary
+          report={report}
+          goals={goals}
+          history={history}
+          hideFinanceValues={hideFinanceValues}
+          onStart={() => setActiveTab('lancamentos')}
+        />
       )}
 
       {activeTab === 'pagar-contas' && (

@@ -1,4 +1,4 @@
-import { Card } from '../../components/ui/index.js';
+import { Button, Card } from '../../components/ui/index.js';
 import { formatCurrency, goalCurrentAmount, goalInstallmentAmount, isGoalArchived, monthLabel } from './financeUtils.js';
 
 const NATURE_LABEL = { fixa: 'Fixas', com_prazo: 'Com prazo', unica: 'Únicas', a_decidir: 'A decidir' };
@@ -16,7 +16,7 @@ function pctToneClass(value, higherIsWorse) {
   return isBad ? 'finance-value--negative' : 'finance-value--positive';
 }
 
-export function FinanceSummary({ report, goals = [], history = [], hideFinanceValues = false }) {
+export function FinanceSummary({ report, goals = [], history = [], hideFinanceValues = false, onStart }) {
   if (!report) {
     return <p className="sidebar-empty">Carregando resumo…</p>;
   }
@@ -38,22 +38,30 @@ export function FinanceSummary({ report, goals = [], history = [], hideFinanceVa
 
   return (
     <div className="finance-summary">
+      {/* Mês sem nada lançado: em vez de uma parede de R$ 0,00, um convite claro. */}
+      {!totalReceitas && !totalDespesas && onStart && (
+        <div className="finance-empty card">
+          <h3>Nada lançado neste mês ainda</h3>
+          <p>Lance a primeira conta ou receita e o resumo se monta sozinho.</p>
+          <Button onClick={onStart}>Ir para lançamentos</Button>
+        </div>
+      )}
       <div className="finance-summary-cards">
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Receita total</span>
-          <strong className="finance-summary-card-value finance-value--positive">
+          <strong className={`finance-summary-card-value ${totalReceitas ? 'finance-value--positive' : ''}`}>
             {formatCurrency(totalReceitas, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Despesa total</span>
-          <strong className="finance-summary-card-value finance-value--negative">
+          <strong className={`finance-summary-card-value ${totalDespesas ? 'finance-value--negative' : ''}`}>
             {formatCurrency(totalDespesas, hideFinanceValues)}
           </strong>
         </Card>
         <Card className="finance-summary-card">
           <span className="finance-summary-card-label">Saldo</span>
-          <strong className={`finance-summary-card-value ${saldo >= 0 ? 'finance-value--positive' : 'finance-value--negative'}`}>
+          <strong className={`finance-summary-card-value ${saldo > 0 ? 'finance-value--positive' : saldo < 0 ? 'finance-value--negative' : ''}`}>
             {formatCurrency(saldo, hideFinanceValues)}
           </strong>
         </Card>
