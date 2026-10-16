@@ -28,6 +28,7 @@ function WeekStitches({ checkins, users }) {
   });
   const doneCount = days.filter((d) => d.who.length).length;
   return (
+    <div className="habit-week-wrap">
     <div className="habit-week" role="img" aria-label={`Esta semana: ${doneCount} de 7 dias com check-in`}>
       {days.map((d, i) => (
         <span
@@ -46,6 +47,11 @@ function WeekStitches({ checkins, users }) {
           />
         </span>
       ))}
+    </div>
+      {/* O X bordado é o "feito" do app; a legenda evita que leia como erro. */}
+      <span className="habit-week-legend" aria-hidden="true">
+        ✕ = feito
+      </span>
     </div>
   );
 }

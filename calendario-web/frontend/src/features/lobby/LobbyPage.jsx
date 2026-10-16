@@ -223,8 +223,8 @@ export function LobbyPage() {
         <section className="lobby-welcome card card-stitched" aria-labelledby="lobby-welcome-title">
           <h2 id="lobby-welcome-title">Bem-vindos ao AppCasal</h2>
           <p>
-            Aqui vocês bordam a vida a dois: agenda, contas, hábitos e o dia de cada um. O primeiro ponto é trazer
-            seu par para o mesmo espaço.
+            Aqui vocês organizam a vida a dois: agenda, contas, hábitos e o dia de cada um. O primeiro passo é
+            trazer seu par para o mesmo espaço.
           </p>
           <div className="lobby-welcome-actions">
             <button type="button" className="btn btn-primary" onClick={() => setPairingOpen(true)}>
@@ -243,10 +243,10 @@ export function LobbyPage() {
         </h1>
         <p className="lobby-streak">
           {todayBoth
-            ? 'Os dois bordaram hoje. Que dupla.'
+            ? 'Os dois fizeram o check-in hoje. Que dupla.'
             : streak > 0
-              ? `${partner ? 'Vocês bordaram' : 'Você bordou'} ${streak} ${streak === 1 ? 'dia seguido' : 'dias seguidos'}.`
-              : 'Faça um check-in para bordar o primeiro ponto do dia.'}
+              ? `${streak} ${streak === 1 ? 'dia seguido' : 'dias seguidos'} de check-in${partner ? ' do casal' : ''}.`
+              : 'Faça o check-in de hoje para começar a sequência.'}
         </p>
 
         <figure className="lobby-hoop">
@@ -346,7 +346,7 @@ export function LobbyPage() {
 
       <section className="lobby-section" aria-labelledby="lobby-acoes">
         <h2 id="lobby-acoes" className="lobby-section-title">
-          Bordar agora
+          Ações rápidas
         </h2>
         <div className="lobby-actions">
           <Link to="/app/habitos" className="lobby-action is-primary">

@@ -86,12 +86,12 @@ export function ResumoPage() {
         <p>
           {habits.items.length === 0 ? (
             <>
-              Ainda não tem nenhum hábito bordado por aqui.{' '}
+              Ainda não tem nenhum hábito por aqui.{' '}
               <Link to="/app/habitos">Que tal começar um juntos?</Link>
             </>
           ) : (
             <>
-              Nesta semana vocês bordaram <strong>{plural(stitchedDays, 'ponto', 'pontos')}</strong> nos hábitos.
+              Nesta semana foram <strong>{plural(stitchedDays, 'check-in', 'check-ins')}</strong> nos hábitos.
               {steadiest && steadiest.currentStreak > 0 && (
                 <>
                   {' '}

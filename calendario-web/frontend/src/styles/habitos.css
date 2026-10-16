@@ -670,3 +670,12 @@
 .habit-week {
   max-width: 340px;
 }
+
+
+.habit-week-wrap {
+  @apply flex items-end gap-2 flex-wrap;
+}
+
+.habit-week-legend {
+  @apply text-xs font-bold text-text-muted pb-2;
+}
