@@ -37,8 +37,9 @@ function WeekStitches({ checkins, users }) {
         >
           <span className="habit-week-letter">{WEEK_LETTERS[i]}</span>
           <span
-            className={`habit-week-cell${d.who.length ? ' is-done' : ''}`}
+            className={`habit-week-cell${d.who.length ? ' is-done stitch-anim' : ''}`}
             style={{
+              '--stitch-delay': `${i * 0.05}s`,
               '--a': d.who[0] ? personColorFor(users, d.who[0]._id) : undefined,
               '--b': d.who[0] ? personColorFor(users, (d.who[1] ?? d.who[0])._id) : undefined,
             }}

@@ -115,6 +115,7 @@ export function LobbyPage() {
 
   const cells = useMemo(() => stitchMonth(checkins, me?._id, partner?._id), [checkins, me?._id, partner?._id]);
   const streak = currentStreak(cells);
+  const todayBoth = Boolean(partner) && cells.some((c) => c?.isToday && c.me && c.partner);
 
   const nextEvent = useMemo(() => {
     let best = null;
@@ -222,7 +223,9 @@ export function LobbyPage() {
           {weekday}, {now.getDate()}
         </h1>
         <p className="lobby-streak">
-          {streak > 1
+          {todayBoth
+            ? 'Os dois bordaram hoje. Que dupla.'
+            : streak > 1
             ? `Vocês bordaram ${streak} dias seguidos.`
             : streak === 1
               ? 'Um ponto bordado. Amanhã tem mais.'
@@ -244,12 +247,13 @@ export function LobbyPage() {
                     key={c.key}
                     className={[
                       'lobby-stitch',
+                      c.me || c.partner ? 'stitch-anim' : '',
                       c.me && c.partner ? 'is-both' : c.me ? 'is-me' : c.partner ? 'is-partner' : '',
                       c.isToday ? 'is-today' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
-                    style={{ '--me': meColor, '--partner': partnerColor }}
+                    style={{ '--me': meColor, '--partner': partnerColor, '--stitch-delay': `${(c.day % 31) * 0.03}s` }}
                     aria-hidden="true"
                   >
                     <span className="lobby-stitch-day">{c.day}</span>

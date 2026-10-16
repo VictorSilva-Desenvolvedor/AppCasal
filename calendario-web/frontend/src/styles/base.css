@@ -266,3 +266,40 @@ textarea:focus-visible,
 .fade-in {
   animation: fadeIn 0.25s var(--ease);
 }
+
+/* ---------- Movimento: o ponto sendo bordado ----------
+   A única animação autoral do mundo Bordado: cada ponto-cruz se desenha como a
+   agulha passando, primeiro uma linha e depois a outra. Usada no bastidor do
+   lobby e na semana dos hábitos. Sem movimento para quem pediu menos. */
+@keyframes stitch-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.stitch-anim::before {
+  animation: stitch-draw 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--stitch-delay, 0s);
+}
+
+.stitch-anim::after {
+  animation: stitch-draw 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--stitch-delay, 0s) + 0.18s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stitch-anim::before,
+  .stitch-anim::after {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
