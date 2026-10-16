@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api.js';
-import { Button, Card, Pill, HeartLoader } from '../../components/ui/index.js';
+import { Button, HeartLoader } from '../../components/ui/index.js';
 import { useToast } from '../../hooks/useToast.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { formatCurrency, monthLabel } from '../financeiro/financeUtils.js';
@@ -64,109 +64,127 @@ export function ResumoPage() {
 
   const { weekStart, weekEnd, habits, finance, emotions, tasks, candy } = summary;
 
+  // A semana contada como uma carta do casal (decisão de 2026-10-16): em vez de
+  // cinco contadores iguais, um parágrafo por área, com o link para o módulo.
+  const stitchedDays = habits.items.reduce((sum, h) => sum + (h.completedDaysThisWeek || 0), 0);
+  const steadiest = [...habits.items].sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0))[0];
+  const hasMoney = finance.totalReceitas || finance.totalDespesas;
+  const candyWinner = candy.ranking.find((row) => row.isWinner && row.count >= 0);
+  const anyCandy = candy.ranking.some((row) => row.count > 0);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
   return (
     <section className="view resumo-page">
       <div className="resumo-header">
-        <h2>Resumo da semana</h2>
+        <h2>Carta da semana</h2>
         <span className="resumo-date-range">{formatWeekRange(weekStart, weekEnd)}</span>
       </div>
 
-      <div className="resumo-cards">
-        <Card as={Link} to="/app/habitos" className="resumo-card resumo-card-link" aria-label="Abrir Hábitos">
-          <h3>Hábitos</h3>
+      <article className="resumo-letter card">
+        <p className="resumo-letter-greeting">Querido casal,</p>
+
+        <p>
           {habits.items.length === 0 ? (
-            <p className="sidebar-empty">Nenhum hábito ativo.</p>
+            <>
+              Ainda não tem nenhum hábito bordado por aqui.{' '}
+              <Link to="/app/habitos">Que tal começar um juntos?</Link>
+            </>
           ) : (
-            <ul className="resumo-list">
-              {habits.items.map((habit) => (
-                <li key={habit._id} className="resumo-list-row">
-                  <span className="resumo-list-label">
-                    <span aria-hidden="true">{habit.emoji}</span> {habit.name}
-                  </span>
-                  <span
-                    className="resumo-list-meta"
-                    aria-label={`Sequência de ${habit.currentStreak} ${habit.currentStreak === 1 ? 'dia' : 'dias'}, ${habit.completedDaysThisWeek} de 7 dias nesta semana`}
-                  >
-                    <span aria-hidden="true">🔥</span> {habit.currentStreak} ·{' '}
-                    {habit.completedDaysThisWeek}/7 dias
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <>
+              Nesta semana vocês bordaram <strong>{plural(stitchedDays, 'ponto', 'pontos')}</strong> nos hábitos.
+              {steadiest && steadiest.currentStreak > 0 && (
+                <>
+                  {' '}
+                  O mais firme foi{' '}
+                  <strong>
+                    <span aria-hidden="true">{steadiest.emoji}</span> {steadiest.name}
+                  </strong>
+                  , com {plural(steadiest.currentStreak, 'dia seguido', 'dias seguidos')}.
+                </>
+              )}{' '}
+              <Link to="/app/habitos">Ver hábitos</Link>
+            </>
           )}
-        </Card>
+        </p>
 
-        <Card
-          as={Link}
-          to="/app/financeiro"
-          className="resumo-card resumo-card-link"
-          aria-label="Abrir Financeiro"
-        >
-          <h3>
-            Financeiro <span className="resumo-card-period">· {monthLabel(finance.month, finance.year)}</span>
-          </h3>
-          <div className="resumo-finance-row">
-            <strong
-              className={`resumo-finance-saldo ${finance.saldo > 0 ? 'finance-value--positive' : finance.saldo < 0 ? 'finance-value--negative' : ''}`}
-            >
-              {formatCurrency(finance.saldo, hideFinanceValues)}
-            </strong>
-            {finance.status !== 'aberto' && (
-              <Pill className="finance-status-pill finance-status--pago">Finalizado</Pill>
-            )}
-          </div>
-          <p className="resumo-card-detail">
-            {formatCurrency(finance.totalReceitas, hideFinanceValues)} de receita ·{' '}
-            {formatCurrency(finance.totalDespesas, hideFinanceValues)} de despesa
-          </p>
-        </Card>
+        <p>
+          {hasMoney ? (
+            <>
+              Em {monthLabel(finance.month, finance.year).toLowerCase()} entraram{' '}
+              <strong className="tabular">{formatCurrency(finance.totalReceitas, hideFinanceValues)}</strong> e saíram{' '}
+              <strong className="tabular">{formatCurrency(finance.totalDespesas, hideFinanceValues)}</strong>; o saldo
+              está em{' '}
+              <strong
+                className={`tabular ${finance.saldo > 0 ? 'finance-value--positive' : finance.saldo < 0 ? 'finance-value--negative' : ''}`}
+              >
+                {formatCurrency(finance.saldo, hideFinanceValues)}
+              </strong>
+              .{finance.status !== 'aberto' && ' O mês já foi fechado.'}{' '}
+              <Link to="/app/financeiro">Ver financeiro</Link>
+            </>
+          ) : (
+            <>
+              Nada foi lançado no financeiro de {monthLabel(finance.month, finance.year).toLowerCase()} ainda.{' '}
+              <Link to="/app/financeiro">Lançar a primeira conta</Link>
+            </>
+          )}
+        </p>
 
-        <Card as={Link} to="/app/emocoes" className="resumo-card resumo-card-link" aria-label="Abrir Emoções">
-          <h3>Emoções</h3>
+        <p>
           {emotions.count === 0 ? (
-            <p className="sidebar-empty">Nenhum registro esta semana.</p>
+            <>
+              Ninguém contou como se sentiu esta semana. <Link to="/app/emocoes">Contem como estão</Link>
+            </>
           ) : (
-            <p className="resumo-card-detail">
-              Intensidade média {emotions.averageIntensity.toLocaleString('pt-BR')}/5 em {emotions.count}{' '}
-              {emotions.count === 1 ? 'registro' : 'registros'}
-            </p>
+            <>
+              Vocês guardaram <strong>{plural(emotions.count, 'momento', 'momentos')}</strong> na jarra de emoções, com
+              intensidade média de {emotions.averageIntensity.toLocaleString('pt-BR')} de 5.{' '}
+              <Link to="/app/emocoes">Abrir a jarra</Link>
+            </>
           )}
-        </Card>
+        </p>
 
-        <Card as={Link} to="/app/tarefas" className="resumo-card resumo-card-link" aria-label="Abrir Tarefas">
-          <h3>Tarefas</h3>
-          <p className="resumo-card-detail">
-            {tasks.completedThisWeek} concluída{tasks.completedThisWeek === 1 ? '' : 's'} esta semana
-          </p>
-          <p className="resumo-card-detail">{tasks.totalActive} pendente{tasks.totalActive === 1 ? '' : 's'} agora</p>
-        </Card>
-
-        <Card as={Link} to="/app/doces" className="resumo-card resumo-card-link" aria-label="Abrir Doces">
-          <h3>Doces</h3>
-          {candy.ranking.every((row) => row.count === 0) ? (
-            <p className="sidebar-empty">Ninguém registrou doces esta semana.</p>
+        <p>
+          {tasks.completedThisWeek === 0 && tasks.totalActive === 0 ? (
+            <>
+              A lista de tarefas está vazia. <Link to="/app/tarefas">Anotar uma</Link>
+            </>
           ) : (
-            <ul className="resumo-list">
-              {candy.ranking.map((row) => (
-                <li key={row.user._id} className="resumo-list-row">
-                  <span className="resumo-list-label">
-                    {row.isWinner && (
-                      <>
-                        <span aria-hidden="true">🏆</span>
-                        <span className="sr-only">Vencedor da semana: </span>{' '}
-                      </>
-                    )}
-                    {row.user.name}
-                  </span>
-                  <span className="resumo-list-meta">
-                    {formatScore(row.totalMs)} · {formatCandyCount(row.count)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <>
+              Foram <strong>{plural(tasks.completedThisWeek, 'tarefa concluída', 'tarefas concluídas')}</strong>, e{' '}
+              {plural(tasks.totalActive, 'continua pendente', 'continuam pendentes')}.{' '}
+              <Link to="/app/tarefas">Ver tarefas</Link>
+            </>
           )}
-        </Card>
-      </div>
+        </p>
+
+        <p>
+          {!anyCandy ? (
+            <>
+              Na disputa dos doces, ninguém registrou nada. <Link to="/app/doces">Abrir a balança</Link>
+            </>
+          ) : (
+            <>
+              Na disputa dos doces,{' '}
+              {candyWinner ? (
+                <>
+                  <strong>{candyWinner.user.name}</strong> segurou melhor a vontade (
+                  {formatCandyCount(candyWinner.count)}, {formatScore(candyWinner.totalMs)}).
+                </>
+              ) : (
+                'deu empate.'
+              )}{' '}
+              <Link to="/app/doces">Ver o ranking</Link>
+            </>
+          )}
+        </p>
+
+        <p className="resumo-letter-signature">
+          Com carinho,
+          <br />
+          <span>o AppCasal</span>
+        </p>
+      </article>
     </section>
   );
 }
