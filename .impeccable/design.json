@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16T00:00:00-03:00",
+  "title": "Design System: AppCasal",
+  "extensions": {
+    "colorMeta": {
+      "indigo-primary": { "role": "primary", "displayName": "Indigo de Produtividade", "canonical": "#4f46e5", "tonalRamp": ["#1e1b4b", "#312e81", "#3730a3", "#4338ca", "#4f46e5", "#818cf8", "#c7d2fe", "#eef2ff"] },
+      "pink-accent": { "role": "secondary", "displayName": "Rosa Afeto", "canonical": "#ec4899", "tonalRamp": ["#500724", "#831843", "#9d174d", "#be185d", "#ec4899", "#f472b6", "#fbcfe8", "#fdf2f8"] },
+      "cyan-accent": { "role": "tertiary", "displayName": "Ciano Frio", "canonical": "#06b6d4", "tonalRamp": ["#083344", "#164e63", "#155e75", "#0e7490", "#06b6d4", "#22d3ee", "#a5f3fc", "#ecfeff"] },
+      "cool-mist-bg": { "role": "neutral", "displayName": "Névoa Fria", "canonical": "#f4f5fa" },
+      "ink-text": { "role": "neutral", "displayName": "Tinta", "canonical": "#1f2430" },
+      "slate-muted": { "role": "neutral", "displayName": "Ardósia", "canonical": "#596070" }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Títulos de página." },
+      "title": { "displayName": "Title", "purpose": "Títulos de seção e card." },
+      "body": { "displayName": "Body", "purpose": "Texto corrido e listas." },
+      "label": { "displayName": "Label", "purpose": "Rótulos, botões, abas." }
+    },
+    "shadows": [
+      { "name": "rest", "value": "0 1px 2px rgba(16, 24, 40, 0.06)", "purpose": "Cards em repouso." },
+      { "name": "raised", "value": "0 4px 16px rgba(16, 24, 40, 0.1)", "purpose": "Hover de botão e dia do calendário." },
+      { "name": "floating", "value": "0 12px 32px rgba(16, 24, 40, 0.16)", "purpose": "Modais e botões flutuantes." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transições de estado." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal da tela.",
+      "html": "<button class=\"ds-btn-primary\">Salvar</button>",
+      "css": ".ds-btn-primary { background: var(--color-primary, #4f46e5); color: var(--color-on-primary, #fff); border: none; border-radius: 8px; padding: 0.6rem 1.1rem; font: 600 0.8125rem Inter, system-ui, sans-serif; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; } .ds-btn-primary:hover { transform: translateY(-1px) scale(1.04); box-shadow: 0 4px 16px rgba(16,24,40,.1); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-primary, #4f46e5); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação secundária, como Cancelar.",
+      "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
+      "css": ".ds-btn-secondary { background: transparent; color: #1f2430; border: 1px solid #e4e6ed; border-radius: 8px; padding: 0.6rem 1.1rem; font: 600 0.8125rem Inter, system-ui, sans-serif; cursor: pointer; transition: border-color .2s, color .2s; } .ds-btn-secondary:hover { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--color-primary, #4f46e5); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de formulário com rótulo.",
+      "html": "<label class=\"ds-field\"><span>Descrição</span><input class=\"ds-input\" placeholder=\"Ex: Internet\"></label>",
+      "css": ".ds-field { display: grid; gap: 6px; font: 600 0.8125rem Inter, system-ui, sans-serif; color: #1f2430; } .ds-input { background: #f8f9fd; border: 1px solid #e4e6ed; border-radius: 8px; padding: 0.6rem 0.75rem; font: 400 0.9375rem Inter, system-ui, sans-serif; color: #1f2430; } .ds-input:focus-visible { outline: 2px solid var(--color-primary, #4f46e5); outline-offset: 2px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Unidade básica de conteúdo.",
+      "html": "<div class=\"ds-card\"><strong>Resumo do mês</strong><p>Despesa R$ 187,50</p></div>",
+      "css": ".ds-card { background: #fff; border: 1px solid #e4e6ed; border-radius: 18px; padding: 1rem 1.25rem; box-shadow: 0 1px 2px rgba(16,24,40,.06); font: 400 0.9375rem Inter, system-ui, sans-serif; color: #1f2430; } .ds-card p { color: #596070; margin: 4px 0 0; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "description": "Item de módulo na barra lateral; ativo preenchido.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item is-active\">Calendário</a><a class=\"ds-nav-item\">Financeiro</a></nav>",
+      "css": ".ds-nav { display: grid; gap: 4px; width: 220px; } .ds-nav-item { padding: 0.6rem 0.75rem; border-radius: 12px; font: 600 0.9375rem Inter, system-ui, sans-serif; color: #1f2430; text-decoration: none; cursor: pointer; } .ds-nav-item:hover { background: #f4f5fa; } .ds-nav-item.is-active { background: var(--color-primary, #4f46e5); color: var(--color-on-primary, #fff); }"
+    },
+    {
+      "name": "Toggle Pill",
+      "kind": "chip",
+      "description": "Abas e filtros em pílula; ativo preenchido.",
+      "html": "<div class=\"ds-pills\"><button class=\"ds-pill is-active\">Mês</button><button class=\"ds-pill\">Semana</button></div>",
+      "css": ".ds-pills { display: flex; gap: 6px; } .ds-pill { border: 1px solid #e4e6ed; background: #fff; color: #596070; border-radius: 999px; padding: 0.35rem 0.75rem; font: 500 0.8125rem Inter, system-ui, sans-serif; cursor: pointer; } .ds-pill:hover { border-color: var(--color-primary, #4f46e5); } .ds-pill.is-active { background: var(--color-primary, #4f46e5); border-color: var(--color-primary, #4f46e5); color: var(--color-on-primary, #fff); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Painel Neutro (ponto de partida a substituir)",
+    "overview": "O visual atual é limpo, funcional e genérico de SaaS: neutros frios, um indigo de produtividade como destaque, cards brancos com sombra suave e Inter em tudo. Funciona, mas tem pouca cara de casal e hierarquia rasa; o carinho do produto aparece só em pontos isolados.",
+    "keyCharacteristics": [
+      "Neutros frios azulados com um destaque saturado escolhido pelo usuário.",
+      "Cards brancos arredondados (18 px) com sombra suave como unidade básica.",
+      "Inter em uma única família, com hierarquia feita só por tamanho e peso.",
+      "Toques afetivos isolados: foto do casal no login, gatinho, tema Miku, coração no hábito."
+    ],
+    "rules": [
+      { "name": "The Person Color Rule", "body": "Cada pessoa tem uma cor fixa, independente do tema escolhido. É usada no avatar e nos eventos. Ela identifica quem, nunca estado. Preservar.", "section": "colors" },
+      { "name": "The Chosen Accent Rule", "body": "A cor de destaque é escolha de cada conta e precisa funcionar nos dois temas. Nenhum componente pode depender de um destaque específico.", "section": "colors" }
+    ],
+    "dos": [
+      "Do manter a cor da pessoa separada da cor de destaque.",
+      "Do garantir contraste AA nos dois temas e em todas as cores de destaque.",
+      "Do manter alvos de toque ≥ 40 px em telas de toque.",
+      "Do tratar os toques fofos (foto do casal, gatinho, Miku, coração, doces) como parte da identidade."
+    ],
+    "donts": [
+      "Don't criar estilos locais por módulo (fontes ou variáveis próprias) fora do sistema comum. Foi isso que fragmentou o visual atual.",
+      "Don't depender de hover para revelar informação: o uso principal é no toque.",
+      "Don't usar o mesmo peso visual para título, ação e informação secundária."
+    ]
+  }
+}

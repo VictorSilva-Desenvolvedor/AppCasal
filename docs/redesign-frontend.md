@@ -24,12 +24,12 @@ As etapas 4 a 6 passam primeiro pelo **Núcleo** (onde está o uso real), depois
 
 ## 1. Contexto
 
-- [ ] `/impeccable init`: entrevista curta e gera o `PRODUCT.md`. Ela cobre:
+- [x] `/impeccable init`: entrevista curta e gera o `PRODUCT.md`. Ela cobre:
   - quem usa (o casal; uso diário no celular);
   - objetivo de cada área;
   - tom desejado (ex.: aconchegante, divertido, íntimo);
   - referências visuais de que vocês gostam e o que não querem.
-- [ ] `/impeccable document`: lê o código atual (`styles/tokens.css`, temas, `components/ui`) e gera o `DESIGN.md` com o sistema visual que existe hoje.
+- [x] `/impeccable document`: lê o código atual (`styles/tokens.css`, temas, `components/ui`) e gera o `DESIGN.md` com o sistema visual que existe hoje.
 
 **Pronto quando:** `PRODUCT.md` e `DESIGN.md` existem na raiz do projeto.
 
@@ -124,7 +124,7 @@ Para cada tela, na ordem dos grupos:
 
 | Etapa | Status | Commit | Observações |
 |---|---|---|---|
-| 1. Contexto | pendente | | |
+| 1. Contexto | concluída | (este commit) | PRODUCT.md + DESIGN.md (baseline "genérico de SaaS"); manter temas claro/escuro, cores de destaque, cor por pessoa e toques fofos |
 | 2. Diagnóstico | pendente | | |
 | 3. Direção visual | pendente | | |
 | 4. Visual tela por tela | pendente | | |
