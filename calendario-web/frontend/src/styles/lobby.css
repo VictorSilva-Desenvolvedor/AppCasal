@@ -1,52 +1,314 @@
 /*
-  @layer components — tela de lobby (home screen de apps exibida após o
-  login). Fica fora do .app-shell (sem sidebar/topbar), por isso tem seu
-  próprio layout de tela cheia aqui, no mesmo espírito de auth.css.
+  @layer components — lobby, a "casa do casal" (mundo Bordado a dois). Fica fora
+  do .app-shell (sem sidebar/topbar), por isso tem seu próprio layout aqui.
+  Ordem da tela: o casal → o dia em escala de pôster → o mês bordado no bastidor
+  → "Hoje" → ações rápidas → a casa (módulos).
 */
 
 .lobby-page {
-  @apply min-h-screen flex flex-col bg-bg px-6 py-8 md:p-12;
+  @apply min-h-screen flex flex-col mx-auto w-full max-w-[560px] px-5 pt-8 pb-12 md:pt-12;
 }
+
+/* ---------- O casal ---------- */
 
 .lobby-header {
-  @apply flex items-center justify-between gap-4 mb-10 md:mb-16;
+  @apply flex items-center justify-between gap-3;
 }
 
-.lobby-greeting {
-  @apply text-xl md:text-2xl font-semibold text-text m-0 truncate;
+.lobby-couple {
+  @apply flex items-center gap-3 min-w-0;
+}
+
+.lobby-avatars {
+  @apply flex shrink-0;
+}
+
+.lobby-avatar {
+  @apply grid place-items-center w-11 h-11 rounded-full text-base font-extrabold;
+  font-family: var(--font-display);
+  background: var(--person);
+  color: var(--person-ink, #fff);
+  /* Bastidor da pessoa: anel na cor dela com o pesponto por dentro. */
+  outline: 1.5px dashed color-mix(in oklch, var(--person-ink, #fff) 60%, transparent);
+  outline-offset: -5px;
+  box-shadow: 0 0 0 3px var(--color-bg);
+}
+
+.lobby-avatar + .lobby-avatar {
+  margin-left: -12px;
+}
+
+.lobby-avatar.is-empty {
+  @apply bg-surface text-text-muted;
+  outline: var(--stitch);
+  outline-offset: -1px;
+}
+
+.lobby-couple-names {
+  @apply flex flex-col min-w-0 text-sm font-bold text-text leading-tight;
+}
+
+.lobby-invite-link {
+  @apply text-sm font-bold text-primary;
 }
 
 .lobby-header-actions {
-  @apply flex items-center gap-2 shrink-0;
+  @apply flex items-center gap-1 shrink-0;
 }
 
-.lobby-icon-btn {
-  @apply w-9 h-9;
+.lobby-logout {
+  @apply text-sm font-bold text-text-muted bg-transparent border-none cursor-pointer px-3 rounded-sm
+    hover:text-primary hover:bg-surface-alt;
+  min-height: 40px;
 }
 
-.lobby-grid {
-  @apply grid gap-6 mx-auto w-full max-w-[720px]
-    grid-cols-[repeat(auto-fill,minmax(96px,1fr))]
-    sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))];
+/* ---------- O dia ---------- */
+
+.lobby-hero {
+  @apply mt-8;
 }
 
-.lobby-app-tile {
-  @apply flex flex-col items-center gap-2 rounded-lg border-none bg-transparent cursor-pointer
-    text-text text-sm font-semibold text-center leading-tight no-underline p-2
-    transition-transform duration-150 active:scale-95;
+.lobby-date {
+  @apply m-0 text-4xl md:text-[3.25rem] font-extrabold;
+  letter-spacing: -0.035em;
 }
 
-.lobby-app-icon {
-  @apply flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl
-    bg-surface border border-border shadow-sm text-primary
-    transition-[transform,box-shadow] duration-150;
+.lobby-streak {
+  @apply mt-2 mb-0 text-md font-semibold text-text-muted;
 }
 
-.lobby-app-tile:hover .lobby-app-icon {
-  @apply -translate-y-1 shadow-md;
+/* ---------- Bastidor: o mês bordado ---------- */
+
+.lobby-hoop {
+  @apply relative mx-auto mt-7 mb-0 rounded-full;
+  width: min(340px, 100%);
+  aspect-ratio: 1;
+  padding: 13px;
+  /* Aro de madeira do bastidor, com o parafuso no topo. */
+  background: linear-gradient(145deg, #a06a45, #7a4a2e);
+  box-shadow:
+    inset 0 0 0 3px rgba(0, 0, 0, 0.18),
+    var(--shadow-md);
 }
 
-.lobby-app-icon .icon {
-  width: 32px;
-  height: 32px;
+.lobby-hoop::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 30px;
+  height: 20px;
+  transform: translateX(-50%);
+  border-radius: 6px;
+  background: #6a3f26;
+}
+
+.lobby-hoop-cloth {
+  @apply w-full h-full rounded-full flex flex-col items-center justify-center overflow-hidden;
+  background: var(--texture-aida), var(--color-surface);
+}
+
+.lobby-hoop-month {
+  @apply text-lg font-extrabold text-text;
+  font-family: var(--font-display);
+}
+
+.lobby-hoop-grid {
+  @apply grid mt-2;
+  grid-template-columns: repeat(7, 28px);
+  gap: 3px;
+}
+
+.lobby-hoop-weekday {
+  @apply grid place-items-center text-[0.6rem] font-extrabold text-text-muted;
+  height: 16px;
+}
+
+.lobby-stitch {
+  @apply relative grid place-items-center;
+  width: 28px;
+  height: 26px;
+}
+
+.lobby-stitch-day {
+  @apply text-[0.68rem] font-bold text-text-muted;
+}
+
+/* O ponto-cruz: duas linhas cruzadas. Cada pessoa borda na sua cor; dia dos
+   dois cruza as duas linhas. */
+.lobby-stitch.is-me::before,
+.lobby-stitch.is-me::after,
+.lobby-stitch.is-partner::before,
+.lobby-stitch.is-partner::after,
+.lobby-stitch.is-both::before,
+.lobby-stitch.is-both::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.lobby-stitch.is-me::before,
+.lobby-stitch.is-me::after {
+  background: var(--me);
+}
+
+.lobby-stitch.is-partner::before,
+.lobby-stitch.is-partner::after {
+  background: var(--partner);
+}
+
+.lobby-stitch.is-both::before {
+  background: var(--me);
+}
+
+.lobby-stitch.is-both::after {
+  background: var(--partner);
+}
+
+.lobby-stitch::before {
+  transform: rotate(45deg);
+}
+
+.lobby-stitch::after {
+  transform: rotate(-45deg);
+}
+
+.lobby-stitch.is-me .lobby-stitch-day,
+.lobby-stitch.is-partner .lobby-stitch-day,
+.lobby-stitch.is-both .lobby-stitch-day {
+  opacity: 0;
+}
+
+/* Hoje é o único ponto na linha de destaque: o que está ativo agora. */
+.lobby-stitch.is-today {
+  border-radius: 5px;
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -1px;
+}
+
+.lobby-stitch.is-today .lobby-stitch-day {
+  @apply text-text font-extrabold;
+}
+
+.lobby-hoop-legend {
+  @apply flex gap-3 mt-2 text-[0.7rem] font-bold text-text-muted;
+}
+
+.lobby-hoop-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 3px;
+  margin-right: 4px;
+  border-radius: 2px;
+  vertical-align: middle;
+  background: var(--person);
+}
+
+/* ---------- Seções ---------- */
+
+.lobby-section {
+  @apply mt-9;
+}
+
+.lobby-section-title {
+  @apply m-0 mb-3 text-xl font-extrabold;
+}
+
+/* ---------- Hoje ---------- */
+
+.lobby-today {
+  @apply list-none m-0 p-4 flex flex-col gap-3;
+}
+
+.lobby-today li {
+  @apply flex items-center gap-2.5 text-base text-text leading-snug;
+}
+
+.lobby-today li > .icon {
+  @apply text-text-muted;
+  width: 18px;
+  height: 18px;
+}
+
+.lobby-today a {
+  @apply text-text no-underline;
+}
+
+.lobby-today a:hover {
+  @apply text-primary;
+}
+
+.lobby-person-tag {
+  @apply shrink-0 rounded-full px-2.5 py-0.5 text-xs font-extrabold;
+  background: var(--person);
+  color: var(--person-ink, #fff);
+}
+
+.lobby-muted {
+  @apply text-text-muted;
+}
+
+/* ---------- Ações rápidas ---------- */
+
+.lobby-actions {
+  @apply grid grid-cols-3 gap-3;
+}
+
+.lobby-action {
+  @apply flex flex-col items-center justify-center gap-1.5 rounded-md text-sm font-extrabold text-center
+    no-underline text-text bg-surface border-[1.5px] border-dashed border-border-strong
+    transition-[transform,box-shadow,border-color] duration-200 ease-out
+    hover:-translate-y-px hover:shadow-md hover:border-primary;
+  min-height: 84px;
+}
+
+.lobby-action .icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* A ação principal do dia leva a linha de destaque. */
+.lobby-action.is-primary {
+  @apply bg-primary text-on-primary border-solid border-primary;
+  outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary) 55%, transparent);
+  outline-offset: -6px;
+}
+
+/* ---------- A casa ---------- */
+
+.lobby-modules {
+  @apply list-none m-0 p-0 grid grid-cols-2 gap-2.5;
+}
+
+.lobby-module {
+  @apply flex items-center gap-3 rounded-md px-3 text-base font-bold text-text no-underline
+    bg-surface border border-border
+    transition-[transform,box-shadow,border-color] duration-200 ease-out
+    hover:-translate-y-px hover:shadow-md hover:border-border-strong;
+  min-height: 56px;
+}
+
+.lobby-module-icon {
+  @apply grid place-items-center w-9 h-9 rounded-full shrink-0 text-primary;
+  background: var(--color-primary-light);
+  outline: var(--stitch);
+  outline-offset: -3px;
+}
+
+.lobby-module-icon .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.lobby-utilities {
+  @apply list-none m-0 mt-4 p-0 flex flex-wrap gap-x-4 gap-y-1;
+}
+
+.lobby-utility {
+  @apply inline-flex items-center gap-1.5 text-sm font-bold text-text-muted no-underline
+    hover:text-primary;
+  min-height: 40px;
 }
