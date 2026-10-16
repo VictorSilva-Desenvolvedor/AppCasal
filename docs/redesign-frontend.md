@@ -35,10 +35,10 @@ As etapas 4 a 6 passam primeiro pelo **Núcleo** (onde está o uso real), depois
 
 ## 2. Diagnóstico
 
-- [ ] `/impeccable critique` em cada tela do Núcleo: lobby, calendário, financeiro, hábitos.
-- [ ] `/impeccable critique` em uma tela de cada grupo restante: login, resumo, configurações.
-- [ ] Juntar as notas e os problemas P0/P1 numa lista única. Ela é o backlog das etapas seguintes.
-- [ ] Incluir no backlog os pedidos recorrentes do swarm (`docs/swarm/2026-10-15-round8.md`):
+- [x] `/impeccable critique` em cada tela do Núcleo: lobby, calendário, financeiro, hábitos.
+- [x] `/impeccable critique` em uma tela de cada grupo restante: login, resumo, configurações.
+- [x] Juntar as notas e os problemas P0/P1 numa lista única. Ela é o backlog das etapas seguintes.
+- [x] Incluir no backlog os pedidos recorrentes do swarm (`docs/swarm/2026-10-15-round8.md`):
   - horário no evento;
   - formulários enxutos;
   - menu no Financeiro;
@@ -125,7 +125,7 @@ Para cada tela, na ordem dos grupos:
 | Etapa | Status | Commit | Observações |
 |---|---|---|---|
 | 1. Contexto | concluída | (este commit) | PRODUCT.md + DESIGN.md (baseline "genérico de SaaS"); manter temas claro/escuro, cores de destaque, cor por pessoa e toques fofos |
-| 2. Diagnóstico | pendente | | |
+| 2. Diagnóstico | concluída | (este commit) | critique 21/40 (dual-agent), 3 P1: lobby launcher, calendário mobile, financeiro mobile; decisões: tom aconchegante e íntimo, redesign completo, começar pelo lobby. Snapshot em `.impeccable/critique/` |
 | 3. Direção visual | pendente | | |
 | 4. Visual tela por tela | pendente | | |
 | 5. Experiência | pendente | | |
