@@ -89,8 +89,8 @@
 .candy-justice-pan {
   @apply relative overflow-hidden w-full mb-1;
   height: 72px;
-  /* Máscara de recorte invisível: só molda a silhueta do prato. */
-  border-radius: 10px 10px 46px 46px / 10px 10px 34px 34px;
+  /* Recorte no mesmo contorno da tigela desenhada (cantos de baixo curtos). */
+  border-radius: 0 0 14px 14px;
 }
 
 .candy-pan-bowl {

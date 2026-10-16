@@ -33,10 +33,11 @@ function CandyPan({ entries, resetKey, gravityAngleRef, wakeSignal }) {
 
   return (
     <div className="candy-justice-pan" ref={containerRef}>
-      {/* A tigela inteira em pesponto: borda e fundo numa linha só. */}
+      {/* A tigela em pesponto, com paredes retas e fundo plano: o mesmo contorno
+          que a física usa (um retângulo), para os doces não vazarem do desenho. */}
       <svg className="candy-pan-bowl" viewBox="0 0 130 72" preserveAspectRatio="none" aria-hidden="true">
         <path d="M4,7 Q65,1 126,7" className="candy-thread candy-thread--pan" />
-        <path d="M4,7 C6,56 30,69 65,69 C100,69 124,56 126,7" className="candy-thread candy-thread--pan" />
+        <path d="M2,7 L2,58 Q2,70 14,70 L116,70 Q128,70 128,58 L128,7" className="candy-thread candy-thread--pan" />
       </svg>
       <div className="candy-pan-shadow" aria-hidden="true" />
       {blobs.map((blob) => (
