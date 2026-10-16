@@ -129,6 +129,29 @@ export function LobbyPage() {
     return best;
   }, [events]);
 
+  // Data do namoro: vem do evento anual "Aniversário de namoro" que o casal já
+  // tem no calendário (decisão de 2026-10-16), sem campo novo no backend.
+  const anniversary = useMemo(() => {
+    const event = events.find((e) => /namoro/i.test(e.title || ''));
+    if (!event) return null;
+    const start = new Date(`${String(event.date).slice(0, 10)}T00:00`);
+    const now = new Date();
+    let months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+    if (now.getDate() < start.getDate()) months -= 1;
+    const next = nextOccurrenceDate(event);
+    const heartDay = next && next.getMonth() === now.getMonth() && next.getFullYear() === now.getFullYear() ? next.getDate() : null;
+    return { months: Math.max(0, months), heartDay };
+  }, [events]);
+
+  function togetherLabel(months) {
+    const years = Math.floor(months / 12);
+    const rest = months % 12;
+    const parts = [];
+    if (years) parts.push(`${years} ${years === 1 ? 'ano' : 'anos'}`);
+    if (rest) parts.push(`${rest} ${rest === 1 ? 'mês' : 'meses'}`);
+    return `${parts.join(' e ')} juntos`;
+  }
+
   const nextBill = useMemo(() => {
     const pending = entries
       .filter((e) => paymentStatus(e) !== 'pago')
@@ -177,6 +200,7 @@ export function LobbyPage() {
           </span>
           <span className="lobby-couple-names">
             {partner ? `${me?.name ?? ''} & ${partner.name}` : (me?.name ?? '')}
+            {partner && anniversary?.months > 0 && <span className="lobby-together">{togetherLabel(anniversary.months)}</span>}
             {usersLoaded && !partner && (
               <button type="button" className="lobby-invite-link" onClick={() => setPairingOpen(true)}>
                 Convidar seu par
@@ -248,6 +272,7 @@ export function LobbyPage() {
                       c.me || c.partner ? 'stitch-anim' : '',
                       c.me && c.partner ? 'is-both' : c.me ? 'is-me' : c.partner ? 'is-partner' : '',
                       c.isToday ? 'is-today' : '',
+                      anniversary?.heartDay === c.day ? 'is-anniversary' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -264,6 +289,7 @@ export function LobbyPage() {
             <div className="lobby-hoop-legend" aria-hidden="true">
               <span style={{ '--person': meColor }}>{me?.name}</span>
               {partner && <span style={{ '--person': partnerColor }}>{partner.name}</span>}
+              {anniversary?.heartDay && <span className="lobby-legend-heart">♥ namoro</span>}
             </div>
           </div>
         </figure>

@@ -164,7 +164,7 @@ export function HabitCard({
               className={`habit-partner-chip${done ? ' is-done' : ''}`}
               style={{ '--partner-color': getPartnerColor(user._id, users) }}
             >
-              {done ? '✓' : '·'} {user._id === currentUserId ? 'Você' : user.name}
+              {user._id === currentUserId ? 'Você' : user.name} {done ? 'fez ✓' : 'ainda não fez'}
               {done && checkin && (
                 <HabitReactionPicker
                   checkin={checkin}

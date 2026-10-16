@@ -369,3 +369,37 @@
   outline: var(--stitch);
   outline-offset: -4px;
 }
+
+/* ---------- Namoro ---------- */
+
+.lobby-together {
+  @apply block text-xs font-semibold text-text-muted;
+}
+
+/* Dia do aniversário de namoro: um coração bordado na cor de destaque da casa. */
+.lobby-stitch.is-anniversary .lobby-stitch-day {
+  opacity: 0;
+}
+
+.lobby-stitch.is-anniversary::after {
+  content: '♥';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--color-accent);
+  background: none;
+  width: auto;
+  height: auto;
+  transform: none;
+}
+
+.lobby-legend-heart {
+  color: var(--color-accent);
+}
+
+.lobby-hoop-legend .lobby-legend-heart::before {
+  display: none;
+}
