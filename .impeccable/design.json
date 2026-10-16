@@ -4,31 +4,55 @@
   "title": "Design System: AppCasal",
   "extensions": {
     "colorMeta": {
-      "indigo-primary": { "role": "primary", "displayName": "Indigo de Produtividade", "canonical": "#4f46e5", "tonalRamp": ["#1e1b4b", "#312e81", "#3730a3", "#4338ca", "#4f46e5", "#818cf8", "#c7d2fe", "#eef2ff"] },
-      "pink-accent": { "role": "secondary", "displayName": "Rosa Afeto", "canonical": "#ec4899", "tonalRamp": ["#500724", "#831843", "#9d174d", "#be185d", "#ec4899", "#f472b6", "#fbcfe8", "#fdf2f8"] },
-      "cyan-accent": { "role": "tertiary", "displayName": "Ciano Frio", "canonical": "#06b6d4", "tonalRamp": ["#083344", "#164e63", "#155e75", "#0e7490", "#06b6d4", "#22d3ee", "#a5f3fc", "#ecfeff"] },
-      "cool-mist-bg": { "role": "neutral", "displayName": "Névoa Fria", "canonical": "#f4f5fa" },
-      "ink-text": { "role": "neutral", "displayName": "Tinta", "canonical": "#1f2430" },
-      "slate-muted": { "role": "neutral", "displayName": "Ardósia", "canonical": "#596070" }
+      "linha-anil": { "role": "primary", "displayName": "Linha Anil", "canonical": "#2f3a8f", "tonalRamp": ["#141a45", "#1f2766", "#2f3a8f", "#4652a8", "#6873c2", "#9aa6f5", "#c9cff9", "#eceefd"] },
+      "linha-anil-clara": { "role": "primary", "displayName": "Anil Clarinho", "canonical": "color-mix(in oklch, #2f3a8f 12%, white)" },
+      "linha-coral": { "role": "secondary", "displayName": "Linha Coral", "canonical": "#d9433a", "tonalRamp": ["#4a1310", "#7a201a", "#a82e26", "#d9433a", "#e56b63", "#ff8a7d", "#f6c3be", "#fdecea"] },
+      "linha-mostarda": { "role": "tertiary", "displayName": "Linha Mostarda", "canonical": "#e0a21c", "tonalRamp": ["#4a3306", "#73500b", "#a37210", "#e0a21c", "#f4c04e", "#f7d27f", "#fbe6b6", "#fef6e3"] },
+      "linho-lilas": { "role": "neutral", "displayName": "Linho Lilás", "canonical": "#eee7f1" },
+      "tela-de-bordar": { "role": "neutral", "displayName": "Tela de Bordar", "canonical": "#faf6fb" },
+      "tela-sombreada": { "role": "neutral", "displayName": "Tela Sombreada", "canonical": "#f3ecf6" },
+      "fio-de-trama": { "role": "neutral", "displayName": "Fio de Trama", "canonical": "#ddd2e4" },
+      "fio-de-contorno": { "role": "neutral", "displayName": "Fio de Contorno", "canonical": "#b9abc6" },
+      "tinta-de-linha": { "role": "neutral", "displayName": "Tinta de Linha", "canonical": "#1c1a2b" },
+      "tinta-desbotada": { "role": "neutral", "displayName": "Tinta Desbotada", "canonical": "#534b66" },
+      "noite-fundo": { "role": "neutral", "displayName": "Noite (fundo)", "canonical": "#16142a" },
+      "noite-tela": { "role": "neutral", "displayName": "Noite (tela)", "canonical": "#211e37" },
+      "noite-tinta": { "role": "neutral", "displayName": "Noite (tinta)", "canonical": "#f0eaf6" },
+      "noite-anil": { "role": "primary", "displayName": "Anil Noturno", "canonical": "#9aa6f5" },
+      "folha-sucesso": { "role": "semantic", "displayName": "Folha", "canonical": "#23735b" },
+      "ambar-aviso": { "role": "semantic", "displayName": "Âmbar", "canonical": "#a35b06" },
+      "vermelho-perigo": { "role": "semantic", "displayName": "Vermelho", "canonical": "#c0362d" },
+      "pessoa-azul": { "role": "person", "displayName": "Linha Azul (pessoa)", "canonical": "#2563eb" },
+      "pessoa-rosa": { "role": "person", "displayName": "Linha Rosa (pessoa)", "canonical": "#ec4899" },
+      "pessoa-verde": { "role": "person", "displayName": "Linha Verde (pessoa)", "canonical": "#16a34a" },
+      "pessoa-ambar": { "role": "person", "displayName": "Linha Âmbar (pessoa)", "canonical": "#d97706" },
+      "pessoa-violeta": { "role": "person", "displayName": "Linha Violeta (pessoa)", "canonical": "#7c3aed" },
+      "pessoa-turquesa": { "role": "person", "displayName": "Linha Turquesa (pessoa)", "canonical": "#0d9488" }
     },
     "typographyMeta": {
-      "headline": { "displayName": "Headline", "purpose": "Títulos de página." },
-      "title": { "displayName": "Title", "purpose": "Títulos de seção e card." },
+      "display": { "displayName": "Display", "purpose": "Título de página único para o app inteiro." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de seção." },
+      "title": { "displayName": "Title", "purpose": "Títulos de card, modal e mês do bastidor." },
       "body": { "displayName": "Body", "purpose": "Texto corrido e listas." },
-      "label": { "displayName": "Label", "purpose": "Rótulos, botões, abas." }
+      "label": { "displayName": "Label", "purpose": "Botões, abas, rótulos, chips de pessoa." }
     },
+    "textures": [
+      { "name": "linen", "value": "radial-gradient(circle at 1px 1px, color-mix(in oklch, var(--color-text) 9%, transparent) 1px, transparent 1.4px) 0 0 / 8px 8px", "purpose": "Trama do linho sob o fundo de todas as telas." },
+      { "name": "aida", "value": "repeating-linear-gradient(0deg, ... 0 1px, transparent 1px 22px), repeating-linear-gradient(90deg, ...)", "purpose": "Grade da tela de ponto-cruz: calendário, bastidor, hábitos." },
+      { "name": "stitch", "value": "1.5px dashed color-mix(in oklch, var(--color-text) 30%, transparent)", "purpose": "Pesponto, só em superfícies de destaque (outline-offset -6px)." }
+    ],
     "shadows": [
-      { "name": "rest", "value": "0 1px 2px rgba(16, 24, 40, 0.06)", "purpose": "Cards em repouso." },
-      { "name": "raised", "value": "0 4px 16px rgba(16, 24, 40, 0.1)", "purpose": "Hover de botão e dia do calendário." },
-      { "name": "floating", "value": "0 12px 32px rgba(16, 24, 40, 0.16)", "purpose": "Modais e botões flutuantes." }
+      { "name": "repouso", "value": "0 1px 2px rgba(28, 26, 43, 0.08)", "purpose": "Cards em repouso." },
+      { "name": "levantado", "value": "0 8px 20px -8px rgba(28, 26, 43, 0.28)", "purpose": "Hover do botão cheio, bastidor." },
+      { "name": "flutuante", "value": "0 20px 40px -16px rgba(28, 26, 43, 0.38)", "purpose": "Modais e menus." }
     ],
     "motion": [
-      { "name": "ease", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transições de estado." }
+      { "name": "ease", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transições de estado." },
+      { "name": "stitch-draw", "value": "clip-path inset(0 100% 0 0) -> inset(0); 0.32s cubic-bezier(0.16, 1, 0.3, 1); segunda perna +0.18s", "purpose": "A única animação autoral: o ponto-cruz sendo bordado. Desligada em prefers-reduced-motion." }
     ],
     "breakpoints": [
       { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "xl", "value": "1280px" }
+      { "name": "md", "value": "768px" }
     ]
   },
   "components": [
@@ -36,72 +60,96 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Ação principal da tela.",
-      "html": "<button class=\"ds-btn-primary\">Salvar</button>",
-      "css": ".ds-btn-primary { background: var(--color-primary, #4f46e5); color: var(--color-on-primary, #fff); border: none; border-radius: 8px; padding: 0.6rem 1.1rem; font: 600 0.8125rem Inter, system-ui, sans-serif; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; } .ds-btn-primary:hover { transform: translateY(-1px) scale(1.04); box-shadow: 0 4px 16px rgba(16,24,40,.1); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-primary, #4f46e5); outline-offset: 2px; }"
+      "description": "Retalho cheio na linha ativa com pesponto por dentro.",
+      "html": "<button class=\"ds-btn-primary\">Check-in</button>",
+      "css": ".ds-btn-primary { background: var(--color-primary, #2f3a8f); color: var(--color-on-primary, #fff); border: none; border-radius: 10px; min-height: 42px; padding: 0.65rem 1.15rem; font: 700 0.8125rem 'Nunito Sans', system-ui, sans-serif; outline: 1.5px dashed color-mix(in oklch, var(--color-on-primary, #fff) 55%, transparent); outline-offset: -5px; cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s; } .ds-btn-primary:hover { background: color-mix(in oklch, var(--color-primary, #2f3a8f) 85%, black); transform: translateY(-1px); box-shadow: 0 8px 20px -8px rgba(28,26,43,.28); } .ds-btn-primary:focus-visible { box-shadow: 0 0 0 3px var(--color-primary-light, #e4e6f1), 0 0 0 5px var(--color-primary, #2f3a8f); }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Ação secundária, como Cancelar.",
-      "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
-      "css": ".ds-btn-secondary { background: transparent; color: #1f2430; border: 1px solid #e4e6ed; border-radius: 8px; padding: 0.6rem 1.1rem; font: 600 0.8125rem Inter, system-ui, sans-serif; cursor: pointer; transition: border-color .2s, color .2s; } .ds-btn-secondary:hover { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--color-primary, #4f46e5); outline-offset: 2px; }"
+      "description": "Tela de bordar com borda simples; sem pesponto.",
+      "html": "<button class=\"ds-btn-secondary\">Lançar conta</button>",
+      "css": ".ds-btn-secondary { background: var(--color-surface, #faf6fb); color: var(--color-text, #1c1a2b); border: 1.5px solid var(--color-border-strong, #b9abc6); border-radius: 10px; min-height: 42px; padding: 0.65rem 1.15rem; font: 700 0.8125rem 'Nunito Sans', system-ui, sans-serif; cursor: pointer; transition: border-color .2s, color .2s, transform .2s, box-shadow .2s; } .ds-btn-secondary:hover { border-color: var(--color-primary, #2f3a8f); color: var(--color-primary, #2f3a8f); transform: translateY(-1px); box-shadow: 0 1px 2px rgba(28,26,43,.08); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--color-primary, #2f3a8f); outline-offset: 2px; }"
     },
     {
       "name": "Text Field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Campo de formulário com rótulo.",
-      "html": "<label class=\"ds-field\"><span>Descrição</span><input class=\"ds-input\" placeholder=\"Ex: Internet\"></label>",
-      "css": ".ds-field { display: grid; gap: 6px; font: 600 0.8125rem Inter, system-ui, sans-serif; color: #1f2430; } .ds-input { background: #f8f9fd; border: 1px solid #e4e6ed; border-radius: 8px; padding: 0.6rem 0.75rem; font: 400 0.9375rem Inter, system-ui, sans-serif; color: #1f2430; } .ds-input:focus-visible { outline: 2px solid var(--color-primary, #4f46e5); outline-offset: 2px; }"
+      "description": "Campo com rótulo sobre a tela de bordar.",
+      "html": "<label class=\"ds-field\"><span>Descrição</span><input class=\"ds-input\" placeholder=\"Ex: Mercado\"></label>",
+      "css": ".ds-field { display: grid; gap: 6px; font: 700 0.8125rem 'Nunito Sans', system-ui, sans-serif; color: var(--color-text, #1c1a2b); } .ds-input { background: var(--color-surface, #faf6fb); border: 1.5px solid var(--color-border-strong, #b9abc6); border-radius: 10px; min-height: 44px; padding: 0.6rem 0.75rem; font: 400 0.9375rem 'Nunito Sans', system-ui, sans-serif; color: var(--color-text, #1c1a2b); } .ds-input:focus-visible { outline: 2px solid var(--color-primary, #2f3a8f); outline-offset: 1px; }"
     },
     {
       "name": "Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "Unidade básica de conteúdo.",
-      "html": "<div class=\"ds-card\"><strong>Resumo do mês</strong><p>Despesa R$ 187,50</p></div>",
-      "css": ".ds-card { background: #fff; border: 1px solid #e4e6ed; border-radius: 18px; padding: 1rem 1.25rem; box-shadow: 0 1px 2px rgba(16,24,40,.06); font: 400 0.9375rem Inter, system-ui, sans-serif; color: #1f2430; } .ds-card p { color: #596070; margin: 4px 0 0; }"
+      "description": "Superfície comum: borda simples, sem pesponto.",
+      "html": "<div class=\"ds-card\"><strong>Reunião de equipe</strong> amanhã</div>",
+      "css": ".ds-card { background: var(--color-surface, #faf6fb); border: 1px solid var(--color-border, #ddd2e4); border-radius: 20px; box-shadow: 0 1px 2px rgba(28,26,43,.08); padding: 1rem 1.1rem; font: 400 0.9375rem 'Nunito Sans', system-ui, sans-serif; color: var(--color-text, #1c1a2b); }"
     },
     {
-      "name": "Sidebar Nav Item",
-      "kind": "nav",
-      "description": "Item de módulo na barra lateral; ativo preenchido.",
-      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item is-active\">Calendário</a><a class=\"ds-nav-item\">Financeiro</a></nav>",
-      "css": ".ds-nav { display: grid; gap: 4px; width: 220px; } .ds-nav-item { padding: 0.6rem 0.75rem; border-radius: 12px; font: 600 0.9375rem Inter, system-ui, sans-serif; color: #1f2430; text-decoration: none; cursor: pointer; } .ds-nav-item:hover { background: #f4f5fa; } .ds-nav-item.is-active { background: var(--color-primary, #4f46e5); color: var(--color-on-primary, #fff); }"
+      "name": "Stitched Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Variante de destaque (Hoje, carta, boas-vindas, modal) com pesponto por dentro.",
+      "html": "<div class=\"ds-card-stitched\"><span class=\"ds-chip\" style=\"background:#ec4899\">Victor</span> se sente <strong>animado</strong></div>",
+      "css": ".ds-card-stitched { background: var(--color-surface, #faf6fb); border: 1px solid var(--color-border, #ddd2e4); border-radius: 20px; box-shadow: 0 1px 2px rgba(28,26,43,.08); padding: 1.1rem 1.2rem; outline: 1.5px dashed color-mix(in oklch, var(--color-text, #1c1a2b) 30%, transparent); outline-offset: -6px; font: 400 0.9375rem 'Nunito Sans', system-ui, sans-serif; color: var(--color-text, #1c1a2b); } .ds-chip { display: inline-block; color: #fff; border-radius: 9999px; padding: 2px 10px; font: 700 0.8125rem 'Nunito Sans', system-ui, sans-serif; margin-right: 6px; }"
     },
     {
-      "name": "Toggle Pill",
+      "name": "Person Chip",
       "kind": "chip",
-      "description": "Abas e filtros em pílula; ativo preenchido.",
-      "html": "<div class=\"ds-pills\"><button class=\"ds-pill is-active\">Mês</button><button class=\"ds-pill\">Semana</button></div>",
-      "css": ".ds-pills { display: flex; gap: 6px; } .ds-pill { border: 1px solid #e4e6ed; background: #fff; color: #596070; border-radius: 999px; padding: 0.35rem 0.75rem; font: 500 0.8125rem Inter, system-ui, sans-serif; cursor: pointer; } .ds-pill:hover { border-color: var(--color-primary, #4f46e5); } .ds-pill.is-active { background: var(--color-primary, #4f46e5); border-color: var(--color-primary, #4f46e5); color: var(--color-on-primary, #fff); }"
+      "refersTo": "chip-person",
+      "description": "Identidade de quem, na linha da pessoa.",
+      "html": "<span class=\"ds-chip-person\">Maria</span>",
+      "css": ".ds-chip-person { display: inline-block; background: #2563eb; color: #fff; border-radius: 9999px; padding: 2px 10px; font: 700 0.8125rem 'Nunito Sans', system-ui, sans-serif; }"
+    },
+    {
+      "name": "Cross Stitch",
+      "kind": "custom",
+      "refersTo": "stitch",
+      "description": "Marca de feito: X na cor de quem fez, cruzado quando os dois, desenhado com stitch-draw.",
+      "html": "<div class=\"ds-aida\"><span class=\"ds-x ds-me\"></span><span class=\"ds-x ds-both\"></span><span class=\"ds-x ds-partner\"></span></div>",
+      "css": ".ds-aida { display: flex; gap: 6px; padding: 10px; border-radius: 14px; background: repeating-linear-gradient(0deg, rgba(28,26,43,.07) 0 1px, transparent 1px 22px), repeating-linear-gradient(90deg, rgba(28,26,43,.07) 0 1px, transparent 1px 22px), #faf6fb; } .ds-x { position: relative; width: 28px; height: 26px; } .ds-x::before, .ds-x::after { content: ''; position: absolute; left: 4px; right: 4px; top: 50%; height: 4px; border-radius: 2px; animation: ds-stitch .32s cubic-bezier(.16,1,.3,1) both; } .ds-x::before { transform: rotate(45deg); } .ds-x::after { transform: rotate(-45deg); animation-delay: .18s; } .ds-me::before, .ds-me::after { background: #ec4899; } .ds-partner::before, .ds-partner::after { background: #2563eb; } .ds-both::before { background: #ec4899; } .ds-both::after { background: #2563eb; } @keyframes ds-stitch { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } } @media (prefers-reduced-motion: reduce) { .ds-x::before, .ds-x::after { animation: none; } }"
     }
   ],
   "narrative": {
-    "northStar": "O Painel Neutro (ponto de partida a substituir)",
-    "overview": "O visual atual é limpo, funcional e genérico de SaaS: neutros frios, um indigo de produtividade como destaque, cards brancos com sombra suave e Inter em tudo. Funciona, mas tem pouca cara de casal e hierarquia rasa; o carinho do produto aparece só em pontos isolados.",
+    "northStar": "Bordado a dois",
+    "overview": "O app é um pano de cozinha que o casal borda junto. O fundo de todas as telas é linho lilás com uma trama de pontos finos; as superfícies onde algo acontece são tela de ponto-cruz (a grade aida); o texto é tinta de linha escura. Cada pessoa tem a sua linha, numa cor fixa, e cada dia feito vira um X bordado nessa cor. Quando os dois fizeram, os dois fios se cruzam no mesmo ponto.\n\nA densidade é de casa, não de painel: poucos blocos, títulos grandes de pôster, ações ao alcance do polegar. O material carrega a identidade (linho, aida, pesponto tracejado, bastidor de madeira) e a cor de destaque fica guardada para o que está ativo agora. Os toques fofos (emoji de humor, gatinho no bastidor do login, coração no dia do namoro) fazem parte do mundo e são preservados.\n\nO mundo recusa o painel genérico de SaaS: cards brancos por célula, indigo de produtividade, uma fonte diferente por módulo, faixas laterais coloridas.",
     "keyCharacteristics": [
-      "Neutros frios azulados com um destaque saturado escolhido pelo usuário.",
-      "Cards brancos arredondados (18 px) com sombra suave como unidade básica.",
-      "Inter em uma única família, com hierarquia feita só por tamanho e peso.",
-      "Toques afetivos isolados: foto do casal no login, gatinho, tema Miku, coração no hábito."
+      "Linho lilás com trama de pontos como fundo (claro) e tecido azul-noite (escuro).",
+      "Tela de ponto-cruz como superfície do calendário, do bastidor e da semana de hábitos.",
+      "Pesponto tracejado como assinatura, só nas superfícies de destaque.",
+      "Ponto-cruz como a marca de \"feito\", na cor de quem fez.",
+      "Bricolage Grotesque nos títulos, Nunito Sans no corpo, no app inteiro.",
+      "Uma única animação autoral: o ponto sendo bordado."
     ],
     "rules": [
-      { "name": "The Person Color Rule", "body": "Cada pessoa tem uma cor fixa, independente do tema escolhido. É usada no avatar e nos eventos. Ela identifica quem, nunca estado. Preservar.", "section": "colors" },
-      { "name": "The Chosen Accent Rule", "body": "A cor de destaque é escolha de cada conta e precisa funcionar nos dois temas. Nenhum componente pode depender de um destaque específico.", "section": "colors" }
+      { "name": "The Linha Ativa Rule", "body": "A linha de destaque só borda o que está ativo agora: a aba atual, o botão principal, o foco, o dia de hoje. Nunca decoração, nunca fundo de seção.", "section": "colors" },
+      { "name": "The Linha de Quem Rule", "body": "A cor de pessoa diz quem, nunca estado. Status usa as semânticas; destaque usa a linha ativa; pessoa usa a sua linha.", "section": "colors" },
+      { "name": "The Dois Temas Rule", "body": "Toda superfície funciona no claro e no escuro e em todos os temas de cor (incluindo Miku e Preto & Verde), com contraste AA para texto e ícones de ação.", "section": "colors" },
+      { "name": "The Uma Voz Rule", "body": "Um único par de fontes e um único título de página para o app inteiro. Nenhum módulo ganha fonte ou escala própria.", "section": "typography" },
+      { "name": "The Alcance do Polegar Rule", "body": "Todo alvo de toque tem pelo menos 40px (botões 42px, campos e itens de lista 44px; botões de ícone ganham 40px em pointer: coarse).", "section": "layout" },
+      { "name": "The Pesponto Raro Rule", "body": "O pesponto tracejado aparece só em superfícies de destaque: o card \"Hoje\", a carta da semana, as boas-vindas, os modais e o botão cheio. Card comum leva borda simples.", "section": "shapes" },
+      { "name": "The Ponto Feito Rule", "body": "\"Feito\" se marca com ponto-cruz na cor da pessoa, cruzado quando os dois fizeram. Não usar check verde nem barra de progresso genérica para isso.", "section": "components" },
+      { "name": "The Agulha Única Rule", "body": "A única animação autoral é o ponto sendo bordado: cada perna do X se revela em 0,32s, a segunda 0,18s depois. Nada mais ganha coreografia própria, e com prefers-reduced-motion tudo para.", "section": "components" }
     ],
     "dos": [
-      "Do manter a cor da pessoa separada da cor de destaque.",
-      "Do garantir contraste AA nos dois temas e em todas as cores de destaque.",
-      "Do manter alvos de toque ≥ 40 px em telas de toque.",
-      "Do tratar os toques fofos (foto do casal, gatinho, Miku, coração, doces) como parte da identidade."
+      "Do pôr toda tela sobre o linho com trama e usar a tela de bordar como superfície.",
+      "Do reservar a linha de destaque para o que está ativo (The Linha Ativa Rule).",
+      "Do usar a cor da pessoa só para identificar quem (The Linha de Quem Rule).",
+      "Do marcar \"feito\" com ponto-cruz e animá-lo com o ponto sendo bordado.",
+      "Do testar no claro, no escuro, em Miku e em Preto & Verde, com contraste AA.",
+      "Do manter alvos de toque ≥ 40px.",
+      "Do preservar os toques fofos (emoji de humor, gatinho, coração do namoro)."
     ],
     "donts": [
-      "Don't criar estilos locais por módulo (fontes ou variáveis próprias) fora do sistema comum. Foi isso que fragmentou o visual atual.",
-      "Don't depender de hover para revelar informação: o uso principal é no toque.",
-      "Don't usar o mesmo peso visual para título, ação e informação secundária."
+      "Don't usar borda lateral colorida grossa em cards.",
+      "Don't fazer cards brancos genéricos por célula; o calendário é um pano contínuo.",
+      "Don't colocar pesponto em todo card (The Pesponto Raro Rule).",
+      "Don't dar fonte ou escala de título própria a um módulo.",
+      "Don't usar kicker em caixa-alta espaçada acima dos títulos.",
+      "Don't criar uma segunda animação decorativa além do ponto bordado."
     ]
   }
 }
