@@ -811,3 +811,54 @@
     padding-bottom: 5rem;
   }
 }
+
+/* No celular a célula do mês é estreita demais para o título ("R…"): cada evento
+   vira um ponto de linha na cor dele. O texto continua no botão para leitores de
+   tela, e tocar no dia abre a lista completa. */
+@media (max-width: 640px) {
+  .calendar-day .calendar-day-events {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .calendar-day .event-pill {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    margin: 0;
+    border-radius: 50%;
+    font-size: 0;
+    line-height: 0;
+    color: transparent;
+    box-shadow: 0 0 0 1.5px var(--color-surface);
+  }
+}
+
+/* Botão "Filtros": só no celular, onde a barra de filtros começa recolhida. */
+.filter-toggle {
+  @apply hidden;
+}
+
+@media (max-width: 767px) {
+  .filter-toggle {
+    @apply inline-flex items-center gap-2 self-start rounded-full bg-surface text-sm font-bold text-text cursor-pointer
+      px-4 border-[1.5px] border-dashed border-border-strong;
+    min-height: 40px;
+  }
+
+  .filter-toggle.has-active {
+    @apply border-solid border-primary text-primary;
+  }
+
+  .filter-toggle .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .filter-bar:not(.is-open) {
+    display: none;
+  }
+}

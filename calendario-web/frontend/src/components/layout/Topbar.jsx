@@ -18,6 +18,9 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
 
   const [query, setQuery] = useState('');
   const [dismissed, setDismissed] = useState(false);
+  // No celular os filtros ficam recolhidos: abertos, empurravam o mês para baixo
+  // da dobra (critique). No desktop a barra fica sempre visível (via CSS).
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const searchRef = useRef(null);
 
   useEffect(() => {
@@ -45,6 +48,9 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
     setDismissed(true);
     navigate('/app/calendario', { state: { openDateKey: dateKey } });
   }
+
+  const activeFilterCount = [filters.search, filters.creatorId, filters.category, filters.onlyWithAttachment].filter(Boolean)
+    .length;
 
   function updateFilter(patch) {
     setFilters((prev) => ({ ...prev, ...patch }));
@@ -96,7 +102,20 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
       )}
 
       {showFilterBar && (
-        <div className="filter-bar card">
+        <button
+          type="button"
+          className={`filter-toggle${activeFilterCount ? ' has-active' : ''}`}
+          aria-expanded={filtersOpen}
+          aria-controls="calendar-filter-bar"
+          onClick={() => setFiltersOpen((open) => !open)}
+        >
+          <Icon name="menu" />
+          {activeFilterCount ? `Filtros (${activeFilterCount})` : 'Filtros'}
+        </button>
+      )}
+
+      {showFilterBar && (
+        <div id="calendar-filter-bar" className={`filter-bar card${filtersOpen ? ' is-open' : ''}`}>
           <input
             type="text"
             placeholder="Buscar por título ou descrição..."

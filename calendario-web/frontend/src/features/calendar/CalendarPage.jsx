@@ -20,7 +20,9 @@ export function CalendarPage() {
 
   const [viewDate, setViewDate] = useState(new Date());
   const [calendarViewMode, setCalendarViewMode] = useState('month');
-  const [mobileListActive, setMobileListActive] = useState(isMobile);
+  // O celular abre direto na grade do mês atual (o critique apontou a lista de
+  // meses como passo extra); a lista fica atrás do botão "Todos os meses".
+  const [mobileListActive, setMobileListActive] = useState(false);
   const [dayModalOpen, setDayModalOpen] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState(null);
   const [modalMode, setModalMode] = useState('list');
@@ -29,10 +31,9 @@ export function CalendarPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Cruza o breakpoint mobile em qualquer direção -> mostra lista de meses no
-  // mobile, grid no desktop (mesmo comportamento do listener de matchMedia legado).
+  // A lista de meses só existe no celular: ao virar desktop, volta para a grade.
   useEffect(() => {
-    setMobileListActive(isMobile);
+    if (!isMobile) setMobileListActive(false);
   }, [isMobile]);
 
   // Sidebar (Novo evento / Próximos eventos) e a busca global (Topbar) vivem em
@@ -101,7 +102,7 @@ export function CalendarPage() {
               className="calendar-back-btn btn btn-secondary"
               onClick={() => setMobileListActive(true)}
             >
-              &larr; Meses
+              Todos os meses
             </button>
           )}
 
