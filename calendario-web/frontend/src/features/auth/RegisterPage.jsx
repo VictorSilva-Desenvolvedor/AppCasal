@@ -8,6 +8,7 @@ import { AuthHeroPanel } from './AuthHeroPanel.jsx';
 export function RegisterPage() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [coupleCode, setCoupleCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -18,7 +19,7 @@ export function RegisterPage() {
     event.preventDefault();
     setLoading(true);
     try {
-      await register({ name: name.trim(), password });
+      await register({ name: name.trim(), password, coupleCode: coupleCode.trim() || undefined });
       navigate('/app', { replace: true });
     } catch (err) {
       showToast(err.message, 'error');
@@ -71,6 +72,23 @@ export function RegisterPage() {
                     <Icon name={showPassword ? 'eye-off' : 'eye'} />
                   </button>
                 </div>
+              </Field>
+              <Field
+                label="Código do casal (opcional)"
+                htmlFor="couple-code"
+                hint="Se seu par já tem conta, peça o código no lobby dele e vocês entram no mesmo espaço."
+              >
+                <input
+                  type="text"
+                  id="couple-code"
+                  name="coupleCode"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  maxLength={8}
+                  placeholder="Ex: K7P2QX"
+                  value={coupleCode}
+                  onChange={(event) => setCoupleCode(event.target.value.toUpperCase())}
+                />
               </Field>
               <Button type="submit" block loading={loading}>
                 Cadastrar

@@ -8,6 +8,7 @@ import { EMOTIONS } from '../../constants/emotions.js';
 import { api } from '../../services/api.js';
 import { personColorFor, personTextColorFor, nextOccurrenceDate, toDateKey } from '../calendar/calendarUtils.js';
 import { formatCurrency, paymentStatus, currentMonthYear } from '../financeiro/financeUtils.js';
+import { CouplePairing } from './CouplePairing.jsx';
 
 // Módulos que são a vida do casal ficam na "casa"; os de manutenção vão para a
 // linha discreta de baixo (o critique apontou 14 destinos com o mesmo peso).
@@ -85,6 +86,8 @@ export function LobbyPage() {
   const isDark = theme === 'dark';
 
   const [users, setUsers] = useState([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
+  const [pairingOpen, setPairingOpen] = useState(false);
   const [checkins, setCheckins] = useState([]);
   const [emotions, setEmotions] = useState([]);
   const [events, setEvents] = useState([]);
@@ -95,7 +98,11 @@ export function LobbyPage() {
   useEffect(() => {
     const { month, year } = currentMonthYear();
     // Cada bloco carrega sozinho: se um falhar, o resto do lobby continua útil.
-    api.getUsers().then(setUsers).catch(() => {});
+    api
+      .getUsers()
+      .then(setUsers)
+      .catch(() => {})
+      .finally(() => setUsersLoaded(true));
     api.getHabitCheckins().then(setCheckins).catch(() => {});
     api.getEmotionEntries({ day: todayKey }).then(setEmotions).catch(() => {});
     api.getEvents().then(setEvents).catch(() => {});
@@ -169,10 +176,10 @@ export function LobbyPage() {
           </span>
           <span className="lobby-couple-names">
             {partner ? `${me?.name ?? ''} & ${partner.name}` : (me?.name ?? '')}
-            {!partner && (
-              <Link to="/app/convites" className="lobby-invite-link">
+            {usersLoaded && !partner && (
+              <button type="button" className="lobby-invite-link" onClick={() => setPairingOpen(true)}>
                 Convidar seu par
-              </Link>
+              </button>
             )}
           </span>
         </div>
@@ -189,6 +196,26 @@ export function LobbyPage() {
           </button>
         </div>
       </header>
+
+      {/* Primeiro uso (conta sozinha): boas-vindas e o passo que faz o app ser
+          "de casal" — juntar os dois no mesmo espaço. */}
+      {usersLoaded && !partner && (
+        <section className="lobby-welcome card" aria-labelledby="lobby-welcome-title">
+          <h2 id="lobby-welcome-title">Bem-vindos ao AppCasal</h2>
+          <p>
+            Aqui vocês bordam a vida a dois: agenda, contas, hábitos e o dia de cada um. O primeiro ponto é trazer
+            seu par para o mesmo espaço.
+          </p>
+          <div className="lobby-welcome-actions">
+            <button type="button" className="btn btn-primary" onClick={() => setPairingOpen(true)}>
+              Convidar seu par
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => setPairingOpen(true)}>
+              Tenho um código
+            </button>
+          </div>
+        </section>
+      )}
 
       <section className="lobby-hero" aria-labelledby="lobby-today-title">
         <h1 id="lobby-today-title" className="lobby-date">
@@ -239,6 +266,8 @@ export function LobbyPage() {
           </div>
         </figure>
       </section>
+
+      <CouplePairing open={pairingOpen} onClose={() => setPairingOpen(false)} />
 
       <section className="lobby-section" aria-labelledby="lobby-hoje">
         <h2 id="lobby-hoje" className="lobby-section-title">

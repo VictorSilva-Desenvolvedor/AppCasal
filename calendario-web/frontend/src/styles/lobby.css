@@ -312,3 +312,60 @@
     hover:text-primary;
   min-height: 40px;
 }
+
+/* ---------- Primeiro uso ---------- */
+
+.lobby-invite-link {
+  @apply bg-transparent border-none p-0 cursor-pointer text-left;
+}
+
+.lobby-welcome {
+  @apply mt-8 p-5;
+  background: var(--texture-aida), var(--color-surface);
+}
+
+.lobby-welcome h2 {
+  @apply m-0 mb-2 text-2xl font-extrabold;
+}
+
+.lobby-welcome p {
+  @apply m-0 mb-4 text-base text-text;
+}
+
+.lobby-welcome-actions {
+  @apply flex flex-wrap gap-2;
+}
+
+/* ---------- Juntar o casal (modal) ---------- */
+
+.couple-section {
+  @apply pb-5 mb-5;
+  border-bottom: var(--stitch);
+}
+
+.couple-section:last-child {
+  @apply border-none mb-0 pb-0;
+}
+
+.couple-section h3 {
+  @apply m-0 mb-1 text-lg;
+}
+
+.couple-section p {
+  @apply m-0 mb-3 text-sm;
+}
+
+.couple-code-box {
+  @apply flex flex-wrap items-center gap-3;
+}
+
+/* O código é dado para ser lido em voz alta e digitado: letras espaçadas. */
+.couple-code {
+  @apply text-3xl font-extrabold text-primary rounded-md px-4 py-2;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  letter-spacing: 0.18em;
+  background: var(--color-primary-light);
+  outline: var(--stitch);
+  outline-offset: -4px;
+}

@@ -25,8 +25,15 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
-  const register = useCallback(async ({ name, password }) => {
-    const data = await api.register({ name, password });
+  const register = useCallback(async ({ name, password, coupleCode }) => {
+    const data = await api.register({ name, password, coupleCode });
+    setUser(data.user);
+    return data;
+  }, []);
+
+  // Entrar no espaço do parceiro troca o time: sessão nova e recarga dos dados.
+  const joinCouple = useCallback(async (code) => {
+    const data = await api.joinCouple(code);
     setUser(data.user);
     return data;
   }, []);
@@ -48,6 +55,7 @@ export function AuthProvider({ children }) {
     loading,
     login,
     register,
+    joinCouple,
     logout,
     updateCurrentUser,
   };

@@ -94,8 +94,20 @@ async function request(path, { method = 'GET', body, isForm = false } = {}) {
   return data;
 }
 
-async function register({ name, password }) {
-  const data = await request('/auth/register', { method: 'POST', body: { name, password } });
+async function register({ name, password, coupleCode }) {
+  const body = coupleCode ? { name, password, coupleCode } : { name, password };
+  const data = await request('/auth/register', { method: 'POST', body });
+  saveSession(data.token, data.user);
+  return data;
+}
+
+// Código do casal: gerar (quem já tem conta) e usar (o parceiro).
+function createCoupleCode() {
+  return request('/couple/code', { method: 'POST' });
+}
+
+async function joinCouple(code) {
+  const data = await request('/couple/join', { method: 'POST', body: { code } });
   saveSession(data.token, data.user);
   return data;
 }
@@ -619,6 +631,8 @@ function deleteVehiclePayment(id) {
 export const api = {
   register,
   login,
+  createCoupleCode,
+  joinCouple,
   logout,
   getCurrentUser,
   getToken,
