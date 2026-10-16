@@ -8,6 +8,12 @@
    dentro da borda, a assinatura do mundo Bordado. */
 .card {
   @apply bg-surface border border-border rounded-lg shadow-sm;
+}
+
+/* Pesponto (assinatura) só onde há destaque: o card "Hoje", a carta, as
+   boas-vindas e os modais. Em todo card ele virava papel de parede. */
+.card-stitched,
+.modal {
   outline: var(--stitch);
   outline-offset: -6px;
 }
@@ -35,7 +41,7 @@
    e a utility `border` só define a espessura — sem isso o botão secundário
    ficava sem contorno nenhum, indistinguível de texto solto. */
 .btn-secondary {
-  @apply bg-surface text-text border-[1.5px] border-dashed border-border-strong
+  @apply bg-surface text-text border-[1.5px] border-solid border-border-strong
     hover:border-primary hover:text-primary hover:-translate-y-px hover:shadow-sm;
 }
 

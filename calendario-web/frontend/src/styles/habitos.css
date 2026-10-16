@@ -653,3 +653,9 @@
   background: var(--b);
   rotate: -45deg;
 }
+
+
+/* No desktop a fileira esticava a ~1000px com as casas espalhadas. */
+.habit-week {
+  max-width: 340px;
+}

@@ -80,7 +80,7 @@ export function ResumoPage() {
         <span className="resumo-date-range">{formatWeekRange(weekStart, weekEnd)}</span>
       </div>
 
-      <article className="resumo-letter card">
+      <article className="resumo-letter card card-stitched">
         <p className="resumo-letter-greeting">Querido casal,</p>
 
         <p>

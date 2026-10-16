@@ -20,7 +20,6 @@ import {
   hasImportantDate,
   isEventRecurring,
   pillColorFor,
-  pillTextColorFor,
   sharedEventIdSet,
   toDateKey,
 } from './calendarUtils.js';
@@ -134,7 +133,7 @@ export function MonthView({ viewDate, filters, onSelectDay }) {
                   <span
                     key={event._id}
                     className={`event-pill${dnd.isDragging(event._id) ? ' is-dragging' : ''}${isPending(event._id) ? ' is-saving' : ''}`}
-                    style={{ background: pillColorFor(event, users), color: pillTextColorFor(event, users) }}
+                    style={{ '--event': pillColorFor(event, users) }}
                     {...dnd.dragProps({ id: event._id, event })}
                   >
                     {sharedIds.has(event._id) && <Icon name="heart" className="icon-inline shared-badge-icon" />}

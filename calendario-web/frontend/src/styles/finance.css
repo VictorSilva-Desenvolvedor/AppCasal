@@ -830,3 +830,22 @@
     padding-inline: 0.75rem;
   }
 }
+
+
+/* ---------- Barras como fileiras de pontos (revisão final) ---------- */
+.finance-category-bar-track {
+  height: 10px;
+  border-radius: 0;
+  background: radial-gradient(circle at 5px 50%, var(--color-border) 2px, transparent 2.6px) 0 0 / 10px 100%;
+}
+
+.finance-category-bar-fill {
+  border-radius: 0;
+  -webkit-mask: radial-gradient(circle at 5px 50%, #000 3.2px, transparent 3.8px) 0 0 / 10px 100%;
+  mask: radial-gradient(circle at 5px 50%, #000 3.2px, transparent 3.8px) 0 0 / 10px 100%;
+}
+
+.finance-report-card .finance-entry-item-meta {
+  display: block;
+  margin-top: 0.25rem;
+}

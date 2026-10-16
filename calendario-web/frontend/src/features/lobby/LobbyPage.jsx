@@ -201,7 +201,7 @@ export function LobbyPage() {
       {/* Primeiro uso (conta sozinha): boas-vindas e o passo que faz o app ser
           "de casal" — juntar os dois no mesmo espaço. */}
       {usersLoaded && !partner && (
-        <section className="lobby-welcome card" aria-labelledby="lobby-welcome-title">
+        <section className="lobby-welcome card card-stitched" aria-labelledby="lobby-welcome-title">
           <h2 id="lobby-welcome-title">Bem-vindos ao AppCasal</h2>
           <p>
             Aqui vocês bordam a vida a dois: agenda, contas, hábitos e o dia de cada um. O primeiro ponto é trazer
@@ -225,10 +225,8 @@ export function LobbyPage() {
         <p className="lobby-streak">
           {todayBoth
             ? 'Os dois bordaram hoje. Que dupla.'
-            : streak > 1
-            ? `Vocês bordaram ${streak} dias seguidos.`
-            : streak === 1
-              ? 'Um ponto bordado. Amanhã tem mais.'
+            : streak > 0
+              ? `Vocês bordaram ${streak} ${streak === 1 ? 'dia seguido' : 'dias seguidos'}.`
               : 'Faça um check-in para bordar o primeiro ponto do dia.'}
         </p>
 
@@ -277,7 +275,7 @@ export function LobbyPage() {
         <h2 id="lobby-hoje" className="lobby-section-title">
           Hoje
         </h2>
-        <ul className="lobby-today card">
+        <ul className="lobby-today card card-stitched">
           {[me, partner].filter(Boolean).map((person) => {
             const emotion = emotionOf(person);
             return (

@@ -49,7 +49,7 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
     navigate('/app/calendario', { state: { openDateKey: dateKey } });
   }
 
-  const activeFilterCount = [filters.search, filters.creatorId, filters.category, filters.onlyWithAttachment].filter(Boolean)
+  const activeFilterCount = [filters.creatorId, filters.category, filters.onlyWithAttachment].filter(Boolean)
     .length;
 
   function updateFilter(patch) {
@@ -116,13 +116,7 @@ export function Topbar({ onToggleSidebar, showFilterBar, showSidebarToggle = tru
 
       {showFilterBar && (
         <div id="calendar-filter-bar" className={`filter-bar card${filtersOpen ? ' is-open' : ''}`}>
-          <input
-            type="text"
-            placeholder="Buscar por título ou descrição..."
-            aria-label="Filtrar por título ou descrição"
-            value={filters.search}
-            onChange={(event) => updateFilter({ search: event.target.value })}
-          />
+          {/* Busca de texto fica só na barra de cima ("Buscar eventos"): duas buscas confundiam. */}
           <select aria-label="Filtrar por usuário" value={filters.creatorId} onChange={(event) => updateFilter({ creatorId: event.target.value })}>
             <option value="">Todos os usuários</option>
             {users.map((user) => (
