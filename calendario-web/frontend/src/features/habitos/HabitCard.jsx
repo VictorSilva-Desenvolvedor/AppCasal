@@ -7,9 +7,47 @@ import {
   HABIT_TYPE_LABELS,
   HABIT_TYPE_DESCRIPTIONS,
 } from './habitUtils.js';
+import { personColorFor } from '../calendar/calendarUtils.js';
 import { HabitReactionPicker } from './HabitReactionPicker.jsx';
 import { HabitFreezeButton } from './HabitFreezeButton.jsx';
 import { HabitRecoveryBanner } from './HabitRecoveryBanner.jsx';
+
+const WEEK_LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+
+// A semana bordada: um quadradinho por dia; cada pessoa que fez o check-in borda
+// um X na sua cor (os dois juntos cruzam as duas linhas).
+function WeekStitches({ checkins, users }) {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  const todayKey = toDayKey(now);
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    const key = toDayKey(date);
+    const who = users.filter((u) => checkins.some((c) => c.day === key && String(c.user?._id ?? c.user) === String(u._id)));
+    return { key, who, isToday: key === todayKey, isFuture: key > todayKey };
+  });
+  const doneCount = days.filter((d) => d.who.length).length;
+  return (
+    <div className="habit-week" role="img" aria-label={`Esta semana: ${doneCount} de 7 dias com check-in`}>
+      {days.map((d, i) => (
+        <span
+          key={d.key}
+          className={`habit-week-day${d.isToday ? ' is-today' : ''}${d.isFuture ? ' is-future' : ''}`}
+          aria-hidden="true"
+        >
+          <span className="habit-week-letter">{WEEK_LETTERS[i]}</span>
+          <span
+            className={`habit-week-cell${d.who.length ? ' is-done' : ''}`}
+            style={{
+              '--a': d.who[0] ? personColorFor(users, d.who[0]._id) : undefined,
+              '--b': d.who[0] ? personColorFor(users, (d.who[1] ?? d.who[0])._id) : undefined,
+            }}
+          />
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export function HabitCard({
   habit,
@@ -95,6 +133,8 @@ export function HabitCard({
           <InfoTooltip text="Dias seguidos que vocês completaram esse hábito, sem quebrar." label="sequência" />
         </span>
       </div>
+
+      <WeekStitches checkins={checkins} users={users} />
 
       {weekProgress && (
         <p className="habit-week-progress">

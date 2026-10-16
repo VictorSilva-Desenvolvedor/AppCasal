@@ -13,18 +13,22 @@
   --habit-coral: var(--color-primary);
   --habit-purple: var(--color-accent);
   --habit-teal: var(--color-success);
-  /* O verde de sucesso é claro em todos os temas (e mais ainda no modo escuro),
-     então texto/ícone em cima dele usa tinta escura, não branco. */
-  --habit-on-teal: #14171c;
+  /* No claro o verde de sucesso é escuro (#23735b) e pede texto branco; no
+     escuro ele clareia (#6fd6ad) e pede tinta escura (regra logo abaixo). */
+  --habit-on-teal: #ffffff;
   --habit-text: var(--color-text);
   --habit-text-muted: var(--color-text-muted);
   --habit-card-bg: var(--color-surface);
 }
 
+[data-theme='dark'] .habit-page,
+[data-theme='dark'] .modal {
+  --habit-on-teal: #14171c;
+}
+
 .habit-page {
   @apply relative pb-24;
   color: var(--color-text);
-  background: var(--color-bg);
 }
 
 .habit-page-header {
@@ -83,7 +87,6 @@
 .habit-card {
   @apply relative overflow-hidden flex flex-col gap-3 p-4 rounded-lg;
   background: var(--habit-card-bg);
-  border-left: 4px solid var(--habit-color, var(--habit-purple));
 }
 
 /* Barra de gradiente no topo do card quando os dois completam o hábito de
@@ -116,7 +119,11 @@
 }
 
 .habit-card-emoji {
-  @apply text-2xl leading-none;
+  @apply grid place-items-center w-11 h-11 rounded-full shrink-0 text-xl leading-none;
+  /* Bastidor pequeno na cor do hábito (antes: borda lateral colorida). */
+  background: color-mix(in oklch, var(--habit-color, var(--color-primary)) 18%, var(--color-surface));
+  outline: 1.5px dashed color-mix(in oklch, var(--habit-color, var(--color-primary)) 60%, transparent);
+  outline-offset: -4px;
 }
 
 .habit-card-info {
@@ -124,7 +131,7 @@
 }
 
 .habit-card-name {
-  @apply text-base m-0 font-semibold;
+  @apply text-md m-0 font-bold;
 }
 
 .habit-card-type {
@@ -193,7 +200,7 @@
 /* Largura total no celular (alvo de toque confortável); no desktop volta ao
    tamanho natural, senão o botão estica por toda a largura do card. */
 .habit-checkin-btn {
-  @apply flex-1 sm:flex-none sm:min-w-44;
+  @apply basis-full sm:basis-auto sm:flex-none sm:min-w-44 whitespace-nowrap;
 }
 
 .habit-checkin-btn:disabled {
@@ -589,4 +596,60 @@
 
 .habit-waiting-hint {
   @apply text-sm text-text-muted mt-2;
+}
+
+
+/* ---------- Semana bordada ---------- */
+
+.habit-week {
+  @apply flex justify-between gap-1 rounded-md px-2 py-2;
+  background: var(--texture-aida), var(--color-surface-alt);
+}
+
+.habit-week-day {
+  @apply flex flex-col items-center gap-1;
+}
+
+.habit-week-letter {
+  @apply text-[0.65rem] font-extrabold text-text-muted;
+}
+
+.habit-week-cell {
+  @apply relative block rounded-[4px];
+  width: 26px;
+  height: 26px;
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.habit-week-day.is-future .habit-week-cell {
+  opacity: 0.55;
+}
+
+.habit-week-day.is-today .habit-week-cell {
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  outline: 2px dashed var(--color-primary);
+  outline-offset: 1px;
+}
+
+.habit-week-cell.is-done::before,
+.habit-week-cell.is-done::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+  translate: -50% -50%;
+}
+
+.habit-week-cell.is-done::before {
+  background: var(--a);
+  rotate: 45deg;
+}
+
+.habit-week-cell.is-done::after {
+  background: var(--b);
+  rotate: -45deg;
 }
