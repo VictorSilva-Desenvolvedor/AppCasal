@@ -472,7 +472,18 @@
 /* ---------- Freeze ---------- */
 
 .habit-freeze-btn {
-  color: color-mix(in oklch, var(--color-accent-2) 70%, var(--habit-text));
+  /* Floco de gelo em azul-gelo forte e maior: a 16px em tom claro lia como asterisco. */
+  color: #2b6cb0;
+}
+
+[data-theme='dark'] .habit-freeze-btn {
+  color: #8cc4ff;
+}
+
+.habit-card-actions .habit-freeze-btn .icon {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.2;
 }
 
 .habit-freeze-btn:disabled {

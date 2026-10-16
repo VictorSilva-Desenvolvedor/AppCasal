@@ -1009,3 +1009,11 @@
   outline: 2px dashed var(--color-primary);
   outline-offset: -4px;
 }
+
+/* No celular a trama de fundo somava com as divisas das casas e virava linhas
+   duplas desalinhadas do cabeçalho: lá fica só a divisa de cada coluna. */
+@media (max-width: 640px) {
+  .calendar-grid {
+    background: var(--color-surface-alt);
+  }
+}
