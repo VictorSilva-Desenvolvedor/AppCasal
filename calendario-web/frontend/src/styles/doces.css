@@ -89,8 +89,8 @@
 .candy-justice-pan {
   @apply relative overflow-hidden w-full mb-1;
   height: 72px;
-  /* Recorte no mesmo contorno da tigela desenhada (cantos de baixo curtos). */
-  border-radius: 0 0 14px 14px;
+  /* Recorte no mesmo contorno da tigela desenhada (meia elipse embaixo). */
+  border-radius: 0 0 65px 65px / 0 0 50px 50px;
 }
 
 .candy-pan-bowl {

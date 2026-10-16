@@ -19,9 +19,21 @@ function toBlobEntry(entry, baseColor) {
 // só alimentado com entradas no formato que ele já espera. O piso em arco e
 // a sombra são só decoração por baixo das bolinhas — a física continua
 // tratando o chão como reto (não depende de x), por isso o arco é raso.
+// Tigela: borda reta de BOWL_RIM px e, abaixo, meia elipse até o fundo. O
+// desenho (SVG) e a física usam a mesma conta, então o doce não vaza da linha.
+const BOWL_RIM = 22;
+const BOWL_INSET = 2; // metade da espessura da linha
+
+function bowlFloorAt(x, r, { width, height }) {
+  const a = width / 2 - BOWL_INSET - r;
+  const depth = height - BOWL_RIM - BOWL_INSET - r;
+  const u = Math.min(Math.abs(x - width / 2) / Math.max(a, 1), 1);
+  return BOWL_RIM + depth * Math.sqrt(1 - u * u);
+}
+
 function CandyPan({ entries, resetKey, gravityAngleRef, wakeSignal }) {
   const containerRef = useRef(null);
-  const { blobs, wakeForGravityChange } = useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef);
+  const { blobs, wakeForGravityChange } = useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef, false, bowlFloorAt);
 
   // Acorda bolinhas já assentadas quando a inclinação real do aparelho muda
   // o bastante (ver useDeviceTilt) — cada prato tem seu próprio contêiner
@@ -33,11 +45,10 @@ function CandyPan({ entries, resetKey, gravityAngleRef, wakeSignal }) {
 
   return (
     <div className="candy-justice-pan" ref={containerRef}>
-      {/* A tigela em pesponto, com paredes retas e fundo plano: o mesmo contorno
-          que a física usa (um retângulo), para os doces não vazarem do desenho. */}
+      {/* A tigela em pesponto, no mesmo contorno de bowlFloorAt. */}
       <svg className="candy-pan-bowl" viewBox="0 0 130 72" preserveAspectRatio="none" aria-hidden="true">
         <path d="M4,7 Q65,1 126,7" className="candy-thread candy-thread--pan" />
-        <path d="M2,7 L2,58 Q2,70 14,70 L116,70 Q128,70 128,58 L128,7" className="candy-thread candy-thread--pan" />
+        <path d="M2,7 L2,22 A63,48 0 0 0 128,22 L128,7" className="candy-thread candy-thread--pan" />
       </svg>
       <div className="candy-pan-shadow" aria-hidden="true" />
       {blobs.map((blob) => (

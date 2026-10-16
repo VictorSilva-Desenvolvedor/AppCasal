@@ -116,6 +116,21 @@ function resolveBlobCollision(a, b) {
   }
 }
 
+// Fundo curvo opcional (ex.: a tigela dos Doces): `floorAt(x, r, bounds)` diz a
+// altura máxima do centro da bolinha naquele x. Ao encostar na curva, ela
+// escorrega para o meio, como numa tigela de verdade. Sem `floorAt` (a jarra
+// de Emoções), o fundo continua reto.
+const BOWL_SLIDE = 9; // aceleração para o centro ao tocar a curva, por px de distância
+
+function applyFloorShape(b, bounds, dt) {
+  if (!bounds.floorAt) return;
+  const maxY = bounds.floorAt(b.x, b.r, bounds);
+  if (b.y <= maxY) return;
+  b.y = maxY;
+  if (b.vy > 0) b.vy = -b.vy * WALL_RESTITUTION;
+  b.vx += (bounds.width / 2 - b.x) * BOWL_SLIDE * dt;
+}
+
 function stepPhysics(blobs, dt, bounds, gravityAngleDeg = 0) {
   const angleRad = (gravityAngleDeg * Math.PI) / 180;
   const gx = GRAVITY * Math.sin(angleRad);
@@ -147,6 +162,7 @@ function stepPhysics(blobs, dt, bounds, gravityAngleDeg = 0) {
       b.y = bounds.height - b.r;
       b.vy = -Math.abs(b.vy) * WALL_RESTITUTION;
     }
+    applyFloorShape(b, bounds, dt);
   });
 
   for (let i = 0; i < blobs.length; i++) {
@@ -155,6 +171,9 @@ function stepPhysics(blobs, dt, bounds, gravityAngleDeg = 0) {
       resolveBlobCollision(blobs[i], blobs[j]);
     }
   }
+
+  // As colisões podem empurrar uma bolinha para fora da curva: recoloca.
+  if (bounds.floorAt) blobs.forEach((b) => !b.popping && applyFloorShape(b, bounds, 0));
 
   blobs.forEach((b) => {
     if (b.resting || b.popping) return;
@@ -176,7 +195,7 @@ function stepPhysics(blobs, dt, bounds, gravityAngleDeg = 0) {
 
 const UNSET_RESET_KEY = Symbol('unset');
 
-export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef, reducedMotion = false) {
+export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAngleRef, reducedMotion = false, floorAt = null) {
   const [blobs, setBlobs] = useState([]);
   const blobsRef = useRef([]);
   const rafRef = useRef(null);
@@ -189,7 +208,7 @@ export function useEmotionJarPhysics(entries, containerRef, resetKey, gravityAng
     if (!el) return null;
     const rect = el.getBoundingClientRect();
     if (!rect.width || !rect.height) return null;
-    return { width: rect.width, height: rect.height };
+    return { width: rect.width, height: rect.height, floorAt };
   }
 
   function publish() {
