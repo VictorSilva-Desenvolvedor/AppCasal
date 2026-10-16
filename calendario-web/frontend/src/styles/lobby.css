@@ -259,7 +259,7 @@
 
 .lobby-action {
   @apply flex flex-col items-center justify-center gap-1.5 rounded-md text-sm font-extrabold text-center
-    no-underline text-text bg-surface border-[1.5px] border-dashed border-border-strong
+    no-underline text-text bg-surface border-[1.5px] border-solid border-border-strong
     transition-[transform,box-shadow,border-color] duration-200 ease-out
     hover:-translate-y-px hover:shadow-md hover:border-primary;
   min-height: 84px;
