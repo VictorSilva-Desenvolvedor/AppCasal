@@ -27,6 +27,10 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
   const { showToast } = useToast();
 
   const [title, setTitle] = useState(event?.title || '');
+  // Data editável no próprio modal (antes vinha fixa do dia clicado) e horário
+  // opcional: vazio = o dia todo.
+  const [eventDate, setEventDate] = useState(dateKey);
+  const [time, setTime] = useState(event?.time || '');
   const [description, setDescription] = useState(event?.description || '');
   const [category, setCategory] = useState(event?.category || '');
   const [color, setColor] = useState(event?.color || '');
@@ -61,7 +65,8 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
       const payload = {
         title: trimmedTitle,
         description: description.trim(),
-        date: dateKeyToNoonISO(dateKey),
+        date: dateKeyToNoonISO(eventDate || dateKey),
+        time,
         attachments,
         recurrenceRule: recurrenceStateToRule(recurrence),
         category: category || null,
@@ -116,6 +121,27 @@ export function EventForm({ event, dateKey, onCancel, onSaved, onDeleted }) {
           value={title}
           onChange={(formEvent) => setTitle(formEvent.target.value)}
         />
+      </div>
+      <div className="event-when">
+        <div className="field">
+          <label htmlFor="event-date">Data</label>
+          <input
+            type="date"
+            id="event-date"
+            required
+            value={eventDate}
+            onChange={(formEvent) => setEventDate(formEvent.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="event-time">Horário (opcional)</label>
+          <input
+            type="time"
+            id="event-time"
+            value={time}
+            onChange={(formEvent) => setTime(formEvent.target.value)}
+          />
+        </div>
       </div>
       <div className="field">
         <label htmlFor="event-description">Descrição</label>

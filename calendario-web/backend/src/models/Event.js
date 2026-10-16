@@ -34,6 +34,12 @@ const eventSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, default: '' },
     date: { type: Date, required: true },
+    // Horário opcional do compromisso ("HH:MM"); vazio = o dia todo.
+    time: {
+      type: String,
+      default: '',
+      match: [/^(|([01]\d|2[0-3]):[0-5]\d)$/, 'Horário deve estar no formato HH:MM'],
+    },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     attachments: { type: [attachmentSchema], default: [] },
     recurring: { type: Boolean, default: false },

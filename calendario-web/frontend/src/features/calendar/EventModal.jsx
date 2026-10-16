@@ -12,7 +12,7 @@ function formatDate(dateKey) {
 function formatModalTitle(mode, dateKey, isEditing) {
   if (mode === 'form') {
     if (isEditing) return 'Editar evento';
-    return dateKey ? `Novo evento em ${formatDate(dateKey)}` : 'Novo evento';
+    return 'Novo evento';
   }
   if (!dateKey) return 'Eventos do dia';
   return `Eventos em ${formatDate(dateKey)}`;

@@ -29,6 +29,7 @@ export function EventListItem({ event, onEdit }) {
             {specialIconSrc && <img className="special-category-icon icon-inline" src={specialIconSrc} alt="" />}
             {sharedIds.has(event._id) && <Icon name="heart" className="icon-inline shared-badge-icon" />}
             {isEventRecurring(event) && <Icon name="repeat" className="icon-inline" />}
+            {event.time && <span className="event-time tabular">{event.time}</span>}
             {event.title}
           </strong>
           {category && (

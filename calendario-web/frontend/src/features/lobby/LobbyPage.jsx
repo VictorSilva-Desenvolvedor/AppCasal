@@ -272,6 +272,7 @@ export function LobbyPage() {
             {nextEvent ? (
               <Link to="/app/calendario">
                 <strong>{nextEvent.event.title}</strong> {inDaysLabel(nextEvent.days)}
+                {nextEvent.event.time ? ` às ${nextEvent.event.time}` : ''}
               </Link>
             ) : (
               <Link to="/app/calendario">Nada marcado nos próximos dias</Link>

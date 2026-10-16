@@ -45,7 +45,7 @@ async function upcomingReminders(req, res) {
 }
 
 async function create(req, res) {
-  const { title, description, date, attachments, recurrenceRule, category, color, reminderOffsets, hideWhenPast } =
+  const { title, description, date, time, attachments, recurrenceRule, category, color, reminderOffsets, hideWhenPast } =
     req.body;
 
   if (!title || !date) {
@@ -58,6 +58,7 @@ async function create(req, res) {
     title,
     description,
     date,
+    time: time || '',
     attachments: Array.isArray(attachments) ? attachments : [],
     recurrenceRule,
     recurring: frequency !== 'none',
@@ -90,7 +91,7 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-  const { title, description, date, attachments, recurrenceRule, category, color, reminderOffsets, hideWhenPast } =
+  const { title, description, date, time, attachments, recurrenceRule, category, color, reminderOffsets, hideWhenPast } =
     req.body;
 
   const before = await Event.findById(req.params.id);
@@ -106,6 +107,7 @@ async function update(req, res) {
       title,
       description,
       date,
+      time: time || '',
       attachments,
       recurrenceRule,
       recurring: frequency !== 'none',

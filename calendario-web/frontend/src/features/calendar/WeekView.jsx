@@ -121,6 +121,7 @@ export function WeekView({ viewDate, filters, onSelectDay }) {
                 >
                   {sharedIds.has(event._id) && <Icon name="heart" className="icon-inline shared-badge-icon" />}
                   {isEventRecurring(event) && <Icon name="repeat" className="icon-inline" />}
+                  {event.time ? `${event.time} ` : ''}
                   {event.title}
                 </span>
               ))}

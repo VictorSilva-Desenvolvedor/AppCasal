@@ -53,6 +53,7 @@ export function UpcomingEventsList() {
               {sharedIds.has(event._id) && <Icon name="heart" className="icon-inline shared-badge-icon" />}
               {isEventRecurring(event) && <Icon name="repeat" className="icon-inline" />}
               {event.title}
+              {event.time && <span className="event-time tabular"> · {event.time}</span>}
             </span>
             <span>
               {d}/{m}

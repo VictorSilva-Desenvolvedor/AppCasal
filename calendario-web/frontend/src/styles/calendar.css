@@ -862,3 +862,13 @@
     display: none;
   }
 }
+
+/* Data e horário lado a lado no modal de evento. */
+.event-when {
+  @apply grid grid-cols-2 gap-3;
+}
+
+.event-time {
+  @apply font-bold mr-1.5;
+  color: var(--color-primary);
+}

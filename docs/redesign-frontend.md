@@ -76,7 +76,7 @@ Para cada tela, na ordem dos grupos:
 ## 5. Experiência
 
 - [ ] `/impeccable distill`: enxugar os formulários.
-  - **Novo evento:** título, data e **horário** à vista; o resto em "mais opções".
+  - **Novo evento:** título, data e **horário** à vista; o resto em "mais opções". (horário e data editável ✅)
   - **Nova despesa:** descrição, valor, data e categoria; Natureza, Tipo, Valor já pago e Compartilhado em "mais opções".
   - **Novo hábito:** nome, emoji e tipo simples; as abas avançadas recolhidas.
 - [ ] `/impeccable onboard`:
@@ -128,6 +128,6 @@ Para cada tela, na ordem dos grupos:
 | 2. Diagnóstico | concluída | (este commit) | critique 21/40 (dual-agent), 3 P1: lobby launcher, calendário mobile, financeiro mobile; decisões: tom aconchegante e íntimo, redesign completo, começar pelo lobby. Snapshot em `.impeccable/critique/` |
 | 3. Direção visual | base aplicada | (este commit) | mundo **Bordado a dois** (sorteio 63b87b82; protótipo em run/mock): tokens (linho/tecido noite, linha anil, pesponto, texturas), Bricolage Grotesque + Nunito Sans, componentes base. DESIGN.md novo será escrito no fim do build |
 | 4. Visual tela por tela | concluída | | Lobby → casa do casal ✅; Calendário mobile ✅ (abre no mês, pontos por evento, filtros recolhidos); Financeiro mobile ✅ (topo enxuto, menu Mais, abas numa linha, estado vazio, zero neutro); título de página único ✅ (Fraunces removida); Hábitos ✅ (semana bordada, bastidor do emoji, sem borda lateral); Login/Cadastro ✅ (gatinho no bastidor no celular, título legível na foto); Resumo: saldo zero neutro; módulos do casal ✅ (sem bordas laterais grossas, seletor de Tarefas na cor de destaque, pesponto na Watchlist, fonte única) |
-| 5. Experiência | em andamento | | decisões (2026-10-16): horário no evento, formulários enxutos, onboarding do casal, menu lateral no Financeiro, Resumo vira "carta da semana" |
+| 5. Experiência | em andamento | | decisões (2026-10-16): horário no evento, formulários enxutos, onboarding do casal, menu lateral no Financeiro, Resumo vira "carta da semana". Feito: horário no evento ✅ |
 | 6. Personalidade | pendente | | |
 | 7. Fechamento | pendente | | |
