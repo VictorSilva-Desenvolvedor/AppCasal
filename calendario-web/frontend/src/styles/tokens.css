@@ -399,3 +399,8 @@
     var(--color-border) 8px
   );
 }
+
+
+[data-theme='dark'] .swatch-indigo {
+  background: #9aa6f5;
+}

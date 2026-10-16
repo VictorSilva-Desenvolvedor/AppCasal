@@ -94,6 +94,9 @@ export function CouplePairing({ open, onClose }) {
             onChange={(e) => setTyped(e.target.value.toUpperCase())}
           />
         </Field>
+        {typed.trim().length > 0 && typed.trim().length < 6 && (
+          <p className="field-hint">O código tem 6 letras e números.</p>
+        )}
         <Button type="submit" variant="secondary" loading={joining} disabled={typed.trim().length < 6}>
           Entrar no espaço do casal
         </Button>

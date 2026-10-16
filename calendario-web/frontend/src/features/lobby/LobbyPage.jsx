@@ -201,11 +201,6 @@ export function LobbyPage() {
           <span className="lobby-couple-names">
             {partner ? `${me?.name ?? ''} & ${partner.name}` : (me?.name ?? '')}
             {partner && anniversary?.months > 0 && <span className="lobby-together">{togetherLabel(anniversary.months)}</span>}
-            {usersLoaded && !partner && (
-              <button type="button" className="lobby-invite-link" onClick={() => setPairingOpen(true)}>
-                Convidar seu par
-              </button>
-            )}
           </span>
         </div>
         <div className="lobby-header-actions">
@@ -250,14 +245,14 @@ export function LobbyPage() {
           {todayBoth
             ? 'Os dois bordaram hoje. Que dupla.'
             : streak > 0
-              ? `Vocês bordaram ${streak} ${streak === 1 ? 'dia seguido' : 'dias seguidos'}.`
+              ? `${partner ? 'Vocês bordaram' : 'Você bordou'} ${streak} ${streak === 1 ? 'dia seguido' : 'dias seguidos'}.`
               : 'Faça um check-in para bordar o primeiro ponto do dia.'}
         </p>
 
         <figure className="lobby-hoop">
           <div className="lobby-hoop-cloth">
             <figcaption className="lobby-hoop-month">{monthName}</figcaption>
-            <div className="lobby-hoop-grid" role="img" aria-label={`Mês de ${monthName}: ${cells.filter((c) => c && (c.me || c.partner)).length} dias com check-in`}>
+            <div className="lobby-hoop-grid" role="img" aria-label={`Mês de ${monthName}: ${cells.filter((c) => c && (c.me || c.partner)).length} ${cells.filter((c) => c && (c.me || c.partner)).length === 1 ? 'dia' : 'dias'} com check-in`}>
               {WEEKDAYS.map((w, i) => (
                 <span key={`w${i}`} className="lobby-hoop-weekday" aria-hidden="true">
                   {w}

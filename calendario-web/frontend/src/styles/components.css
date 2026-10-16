@@ -621,3 +621,25 @@
 .finance-form-row:has(> .field:only-child) {
   grid-template-columns: 1fr;
 }
+
+
+.field-label-row {
+  @apply flex items-center gap-1.5 mb-[0.35rem];
+}
+
+.field-label-row > label {
+  margin-bottom: 0;
+}
+
+/* "Mais opções": costura reta no topo (com canto arredondado ela saía cortada). */
+.more-options {
+  border-radius: 0;
+}
+
+/* Caixas de seleção alinhadas à primeira linha do rótulo. */
+.field label.field-checkbox input,
+.field-checkbox input {
+  margin-top: 0.2rem;
+  width: 18px;
+  height: 18px;
+}

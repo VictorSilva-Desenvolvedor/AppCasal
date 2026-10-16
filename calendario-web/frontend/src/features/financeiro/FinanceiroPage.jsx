@@ -394,10 +394,10 @@ export function FinanceiroPage() {
           {isMyView ? (
             <div className="finance-add-entry-actions">
               <Button variant="secondary" onClick={() => setAddType('despesa')}>
-                <Icon name="plus" className="finance-value--negative" /> Despesa
+                <Icon name="plus" className="finance-value--negative" /> Nova despesa
               </Button>
               <Button variant="secondary" onClick={() => setAddType('receita')}>
-                <Icon name="plus" className="finance-value--positive" /> Receita
+                <Icon name="plus" className="finance-value--positive" /> Nova receita
               </Button>
             </div>
           ) : (

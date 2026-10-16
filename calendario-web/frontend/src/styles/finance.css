@@ -882,3 +882,14 @@
   -webkit-mask: radial-gradient(circle at 5px 50%, #000 3.2px, transparent 3.8px) 0 0 / 10px 100%;
   mask: radial-gradient(circle at 5px 50%, #000 3.2px, transparent 3.8px) 0 0 / 10px 100%;
 }
+
+
+/* Abas: sem margem negativa (encostavam na lateral no tablet) e com o fim
+   esmaecido, indicando que há mais abas para rolar. */
+.finance-tabs {
+  margin-inline: 0;
+  padding-inline: 0;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  padding-right: 36px;
+}

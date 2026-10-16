@@ -1017,3 +1017,12 @@
     background: var(--color-surface-alt);
   }
 }
+
+
+/* Até o desktop largo a trama de fundo somava com as divisas (tablet com a
+   lateral aberta também): só a divisa de cada coluna. */
+@media (max-width: 1279px) {
+  .calendar-grid {
+    background: var(--color-surface-alt);
+  }
+}
